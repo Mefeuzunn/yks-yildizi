@@ -16,14 +16,14 @@ export async function GET() {
     const weekSessions = await db.prepare(`
       SELECT date(started_at) as day, subject, topic, SUM(duration_min) as total_min, COUNT(*) as session_count
       FROM focus_sessions
-      WHERE user_id = ? AND started_at >= datetime('now', '-7 days') AND mode = 'pomodoro'
+      WHERE user_id = ? AND started_at >= CURRENT_DATE - INTERVAL '7 days' AND mode = 'pomodoro'
       GROUP BY day, subject ORDER BY day ASC
     `).all(userId);
 
     const todayRow = await db.prepare(`
       SELECT COALESCE(SUM(duration_min), 0) as total_min, COUNT(*) as count
       FROM focus_sessions
-      WHERE user_id = ? AND date(started_at) = date('now') AND mode = 'pomodoro'
+      WHERE user_id = ? AND DATE(started_at) = CURRENT_DATE AND mode = 'pomodoro'
     `).get(userId) as any;
 
     const allTimeRow = await db.prepare(`
@@ -34,7 +34,7 @@ export async function GET() {
     const recentSessions = await db.prepare(`
       SELECT subject, topic, duration_min, started_at, mode
       FROM focus_sessions
-      WHERE user_id = ? AND date(started_at) = date('now') 
+      WHERE user_id = ? AND DATE(started_at) = CURRENT_DATE 
       ORDER BY started_at DESC LIMIT 5
     `).all(userId);
 
@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
         await db.prepare(`
           UPDATE daily_quests 
           SET current_value = current_value + ? 
-          WHERE user_id = ? AND date = date('now') AND quest_type = 'focus' AND is_completed = 0
+          WHERE user_id = ? AND date = CURRENT_DATE AND quest_type = 'focus' AND is_completed = 0
         `).run(durationMin, userId);
 
       } catch(e) {

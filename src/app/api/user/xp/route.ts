@@ -46,7 +46,7 @@ export async function POST(req: Request) {
       await db.prepare(`
         UPDATE daily_quests 
         SET current_value = current_value + 1 
-        WHERE user_id = ? AND date = date('now') AND quest_type = 'questions' AND is_completed = 0
+        WHERE user_id = ? AND date = CURRENT_DATE AND quest_type = 'questions' AND is_completed = 0
       `).run(sessionId);
     } catch(e) {}
 

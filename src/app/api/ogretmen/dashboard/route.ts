@@ -32,7 +32,7 @@ export async function GET() {
     const assignmentCount = await db.prepare(`
       SELECT COUNT(*) as total FROM assignments
       WHERE teacher_id = ?
-        AND (due_date IS NULL OR due_date >= datetime('now'))
+        AND (due_date IS NULL OR due_date >= CURRENT_TIMESTAMP)
     `).get(teacherId) as any;
 
     const avgSuccess = await db.prepare(`
@@ -61,8 +61,8 @@ export async function GET() {
       LEFT JOIN assignment_submissions asub ON a.id = asub.assignment_id
       WHERE a.teacher_id = ?
         AND a.due_date IS NOT NULL
-        AND a.due_date >= datetime('now')
-        AND a.due_date <= datetime('now', '+7 days')
+        AND a.due_date >= CURRENT_TIMESTAMP
+        AND a.due_date <= CURRENT_TIMESTAMP + INTERVAL '7 days'
       GROUP BY a.id
       ORDER BY a.due_date ASC
       LIMIT 5

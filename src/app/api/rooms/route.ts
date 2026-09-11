@@ -9,7 +9,7 @@ export async function GET() {
     if (!sessionId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
 
     // Clean up old participants (inactive for more than 5 minutes)
-    await db.prepare(`DELETE FROM room_participants WHERE last_active < datetime('now', '-5 minutes')`).run();
+    await db.prepare(`DELETE FROM room_participants WHERE last_active < CURRENT_TIMESTAMP - INTERVAL '5 minutes'`).run();
 
     // Get rooms and their participant counts
     const rooms = await db.prepare(`

@@ -34,7 +34,7 @@ export async function GET(req: Request) {
       SELECT subject, SUM(duration_min) as total_min 
       FROM focus_sessions 
       WHERE user_id = ? AND mode = 'pomodoro' AND subject IS NOT NULL 
-      AND started_at >= datetime('now', '-7 days') 
+      AND started_at >= CURRENT_TIMESTAMP - INTERVAL '7 days' 
       GROUP BY subject ORDER BY total_min DESC
     `).all(student.id);
 

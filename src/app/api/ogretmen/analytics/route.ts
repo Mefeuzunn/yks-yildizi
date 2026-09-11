@@ -91,7 +91,7 @@ export async function GET() {
       SELECT COUNT(*) as count
       FROM assignments
       WHERE teacher_id = ?
-        AND created_at >= datetime('now', '-7 days')
+        AND created_at >= CURRENT_TIMESTAMP - INTERVAL '7 days'
     `).get(teacherId) as any;
 
     // ── Toplam teslim oranı ──
