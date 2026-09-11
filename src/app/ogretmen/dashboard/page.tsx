@@ -398,6 +398,23 @@ function TeacherDashboardContent() {
   }, [selectedClassId]);
 
   // ── Handlers ──
+  const handleAssignStudent = async (studentId: string, classId: string) => {
+    try {
+      const res = await fetch('/api/ogretmen/ogrenciler/assign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ student_id: studentId, class_id: classId })
+      });
+      if (res.ok) {
+        fetchStudents();
+      } else {
+        alert('Öğrenci sınıfı değiştirilirken hata oluştu.');
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleCreateClass = async () => {
     if (!newClassName.trim()) return;
     setSubmitting(true);
@@ -795,6 +812,7 @@ function TeacherDashboardContent() {
                         { label: 'Başarı', field: 'success_rate' },
                         { label: 'Lig', field: 'league' },
                         { label: 'Streak', field: 'streak_days' },
+                        { label: 'Sınıf', field: 'class_id' },
                         { label: '', field: null },
                       ].map((h, i) => (
                         <th key={i} onClick={h.field ? () => toggleSort(h.field as keyof StudentItem) : undefined}
@@ -845,6 +863,16 @@ function TeacherDashboardContent() {
                           <span style={{ color: s.streak_days > 0 ? '#f59e0b' : '#6b7280', fontWeight: 700 }}>
                             {s.streak_days > 0 ? `${s.streak_days} 🔥` : '—'}
                           </span>
+                        </td>
+                        <td style={{ padding: '0.85rem 1rem' }}>
+                          <select 
+                            value={s.class_id || ''} 
+                            onChange={(e) => handleAssignStudent(s.id, e.target.value)}
+                            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '0.3rem', borderRadius: '6px', fontSize: '0.8rem' }}
+                          >
+                            <option value="">-- Havuz (Sınıfsız) --</option>
+                            {classes.map(c => <option key={c.id} value={c.id}>{c.class_name}</option>)}
+                          </select>
                         </td>
                         <td style={{ padding: '0.85rem 1rem' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

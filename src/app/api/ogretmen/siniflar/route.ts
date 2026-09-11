@@ -16,7 +16,7 @@ export async function GET() {
     const classes = await db.prepare(`
       SELECT tc.id, tc.class_name, tc.class_code, tc.created_at,
              COUNT(cs.student_id) as student_count,
-             ROUND(AVG(COALESCE(us.success_rate, 0)), 1) as avg_success
+             ROUND(CAST(AVG(COALESCE(us.success_rate, 0)) AS NUMERIC), 1) as avg_success
       FROM teacher_classes tc
       LEFT JOIN class_students cs ON tc.id = cs.class_id
       LEFT JOIN user_stats us ON cs.student_id = us.user_id

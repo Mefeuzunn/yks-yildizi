@@ -7,14 +7,10 @@ export async function GET(request: Request) {
     const cookieStore = await cookies();
     const sessionId = cookieStore.get('yks_session')?.value;
 
-    if (!sessionId) {
-      return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
-    }
+    if (!sessionId) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
 
     const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(sessionId) as any;
-    if (!user || user.role !== 'ogretmen') {
-      return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
-    }
+    if (!user || user.role !== 'ogretmen') return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
 
     const { searchParams } = new URL(request.url);
     const classId = searchParams.get('classId');
@@ -22,22 +18,14 @@ export async function GET(request: Request) {
     let students: any[];
 
     if (classId) {
-      // Verify this class belongs to the teacher
-      const cls = await db.prepare(
-        'SELECT id FROM teacher_classes WHERE id = ? AND teacher_id = ?'
-      ).get(classId, user.id) as any;
-
-      if (!cls) {
-        return NextResponse.json({ error: 'Sınıf bulunamadı' }, { status: 404 });
-      }
-
       students = await db.prepare(`
-        SELECT u.username, u.alan, u.sinif,
+        SELECT u.id, u.username, u.alan, u.sinif,
                COALESCE(us.solved_questions, 0) as solved_questions,
                COALESCE(us.success_rate, 0) as success_rate,
                COALESCE(us.league, 'Bronz') as league,
                COALESCE(us.league_points, 0) as league_points,
-               COALESCE(us.streak_days, 0) as streak_days
+               COALESCE(us.streak_days, 0) as streak_days,
+               cs.class_id
         FROM users u
         JOIN class_students cs ON u.id = cs.student_id
         LEFT JOIN user_stats us ON u.id = us.user_id
@@ -45,21 +33,22 @@ export async function GET(request: Request) {
         ORDER BY u.username ASC
       `).all(classId) as any[];
     } else {
-      // All students across all teacher's classes
+      // Get ALL students connected to this teacher
       students = await db.prepare(`
-        SELECT DISTINCT u.username, u.alan, u.sinif,
+        SELECT DISTINCT u.id, u.username, u.alan, u.sinif,
                COALESCE(us.solved_questions, 0) as solved_questions,
                COALESCE(us.success_rate, 0) as success_rate,
                COALESCE(us.league, 'Bronz') as league,
                COALESCE(us.league_points, 0) as league_points,
-               COALESCE(us.streak_days, 0) as streak_days
+               COALESCE(us.streak_days, 0) as streak_days,
+               cs.class_id
         FROM users u
-        JOIN class_students cs ON u.id = cs.student_id
-        JOIN teacher_classes tc ON cs.class_id = tc.id
+        JOIN teacher_students ts ON u.id = ts.student_id
+        LEFT JOIN class_students cs ON u.id = cs.student_id AND cs.class_id IN (SELECT id FROM teacher_classes WHERE teacher_id = ?)
         LEFT JOIN user_stats us ON u.id = us.user_id
-        WHERE tc.teacher_id = ?
+        WHERE ts.teacher_id = ?
         ORDER BY u.username ASC
-      `).all(user.id) as any[];
+      `).all(user.id, user.id) as any[];
     }
 
     return NextResponse.json({ students });

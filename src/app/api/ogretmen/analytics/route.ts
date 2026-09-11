@@ -22,8 +22,8 @@ export async function GET() {
     const classPerfRows = await db.prepare(`
       SELECT tc.id, tc.class_name,
              COUNT(DISTINCT cs.student_id) as student_count,
-             ROUND(AVG(COALESCE(us.success_rate, 0)), 1) as avg_success,
-             ROUND(AVG(COALESCE(us.solved_questions, 0)), 0) as avg_solved,
+             ROUND(CAST(AVG(COALESCE(us.success_rate, 0)) AS NUMERIC), 1) as avg_success,
+             ROUND(CAST(AVG(COALESCE(us.solved_questions, 0)) AS NUMERIC), 0) as avg_solved,
              SUM(COALESCE(us.streak_days, 0)) as total_streak
       FROM teacher_classes tc
       LEFT JOIN class_students cs ON tc.id = cs.class_id
@@ -131,7 +131,7 @@ export async function GET() {
     `).get(teacherId) as any;
 
     const topClass = await db.prepare(`
-      SELECT tc.class_name, ROUND(AVG(COALESCE(us.success_rate, 0)), 1) as avg_success
+      SELECT tc.class_name, ROUND(CAST(AVG(COALESCE(us.success_rate, 0)) AS NUMERIC), 1) as avg_success
       FROM teacher_classes tc
       LEFT JOIN class_students cs ON tc.id = cs.class_id
       LEFT JOIN user_stats us ON cs.student_id = us.user_id
