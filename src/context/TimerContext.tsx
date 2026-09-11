@@ -53,6 +53,56 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [pendingSession, setPendingSession] = useState<PendingSession | null>(null);
 
+
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Load from LocalStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('yks_timer_state');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.durations) setDurations(parsed.durations);
+        if (parsed.mode) setMode(parsed.mode);
+        if (parsed.pomodoroCount !== undefined) setPomodoroCount(parsed.pomodoroCount);
+        if (parsed.selectedSubject !== undefined) setSelectedSubject(parsed.selectedSubject);
+        if (parsed.pendingSession !== undefined) setPendingSession(parsed.pendingSession);
+        
+        if (parsed.timeLeft !== undefined && parsed.totalSec !== undefined) {
+          // If it was running, adjust time based on how much time passed while away
+          let adjustedTimeLeft = parsed.timeLeft;
+          if (parsed.isRunning && parsed.lastTick) {
+            const elapsed = Math.floor((Date.now() - parsed.lastTick) / 1000);
+            adjustedTimeLeft = Math.max(1, parsed.timeLeft - elapsed);
+          }
+          setTimeLeft(adjustedTimeLeft);
+          setTotalSec(parsed.totalSec);
+          setIsRunning(parsed.isRunning && adjustedTimeLeft > 0);
+        }
+      }
+    } catch (e) {
+      console.error("Timer hydration error", e);
+    }
+    setIsHydrated(true);
+  }, []);
+
+  // Save to LocalStorage whenever state changes
+  useEffect(() => {
+    if (!isHydrated) return;
+    const stateToSave = {
+      durations,
+      mode,
+      pomodoroCount,
+      selectedSubject,
+      timeLeft,
+      totalSec,
+      isRunning,
+      pendingSession,
+      lastTick: isRunning ? Date.now() : null
+    };
+    localStorage.setItem('yks_timer_state', JSON.stringify(stateToSave));
+  }, [durations, mode, pomodoroCount, selectedSubject, timeLeft, totalSec, isRunning, pendingSession, isHydrated]);
+
   // Sound State
   const [activeSound, setActiveSound] = useState<string | null>(null);
   const [volume, setVolumeState] = useState(0.3);
