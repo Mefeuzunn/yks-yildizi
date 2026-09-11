@@ -32,7 +32,7 @@ export async function GET() {
     `).get(userId) as any;
 
     const recentSessions = await db.prepare(`
-      SELECT subject, topic, duration_min, started_at, mode
+      SELECT id, subject, topic, duration_min, started_at, mode
       FROM focus_sessions
       WHERE user_id = ? AND DATE(started_at) = CURRENT_DATE 
       ORDER BY started_at DESC LIMIT 5
@@ -43,6 +43,7 @@ export async function GET() {
       todayTotalMin: todayRow?.total_min || 0,
       todaySessions: todayRow?.count || 0,
       allTimeTotalMin: allTimeRow?.total_min || 0,
+      allTimeCount: allTimeRow?.count || 0,
       recentSessions
     });
   } catch (err: any) {

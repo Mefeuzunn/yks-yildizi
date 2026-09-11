@@ -303,9 +303,9 @@ export default function FocusTab() {
       const res = await fetch('/api/user/focus');
       if (res.ok) {
         const data = await res.json();
-        setTodayMinutes(data.todayMinutes ?? 0);
-        setTodayCount(data.todayCount ?? 0);
-        setAllTimeCount(data.allTimeCount ?? 0);
+        setTodayMinutes(Number(data.todayTotalMin) || 0);
+        setTodayCount(Number(data.todaySessions) || 0);
+        setAllTimeCount(Number(data.allTimeCount) || 0);
         setRecentSessions(data.recentSessions ?? []);
         // Build week array: last 7 days
         const days = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
@@ -314,9 +314,10 @@ export default function FocusTab() {
           const d = new Date(today);
           d.setDate(today.getDate() - (6 - i));
           const iso = d.toISOString().split('T')[0];
-          const found = data.weekSessions?.find((s: { day: string; total_min: number }) => s.day === iso);
+          const daySessions = data.weekData?.filter((s: { day: string; total_min: number }) => s.day.split('T')[0] === iso) || [];
+          const dailyTotal = daySessions.reduce((acc: number, curr: any) => acc + (Number(curr.total_min) || 0), 0);
           const dayName = days[d.getDay() === 0 ? 6 : d.getDay() - 1];
-          return { day: dayName, total_min: found?.total_min ?? 0, isToday: i === 6 };
+          return { day: dayName, total_min: dailyTotal, isToday: i === 6 };
         });
         setWeekData(weekArr as { day: string; total_min: number; isToday?: boolean }[]);
       }
