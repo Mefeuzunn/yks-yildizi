@@ -194,7 +194,7 @@ export default function HeroMockupSlider() {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1, delay: 0.2 }}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#4F46E5]/10 rounded-full blur-3xl -z-10"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#4F46E5]/10 rounded-full blur-3xl -z-10 pointer-events-none"
       />
       
       <div className="bg-[#FFFFFF] rounded-2xl shadow-2xl shadow-gray-200/80 border border-gray-100 relative h-full w-full overflow-hidden">

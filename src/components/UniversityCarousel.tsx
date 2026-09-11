@@ -24,15 +24,15 @@ export default function UniversityCarousel() {
   const duplicatedUniversities = [...universities, ...universities];
 
   return (
-    <div className="w-full overflow-hidden relative py-8 mt-12 border-t border-gray-200 logo-mask">
-      <div className="flex whitespace-nowrap animate-marquee w-max items-center">
+    <div className="w-full overflow-hidden relative py-8 mt-12 border-t border-gray-200 logo-mask group">
+      <div className="flex whitespace-nowrap animate-marquee group-hover:[animation-play-state:paused] w-max items-center">
         {duplicatedUniversities.map((uni, index) => (
           <a
             key={index}
             href={`https://yokatlas.yok.gov.tr/lisans-univ.php?u=${uni.yokatlas}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="mx-12 flex items-center justify-center opacity-70 hover:opacity-100 hover:scale-110 transition-all duration-300 cursor-pointer"
+            className="mx-12 flex items-center justify-center opacity-70 hover:opacity-100 hover:scale-110 transition-all duration-300 cursor-pointer relative z-50"
             title={`${uni.name} - YÖKATLAS'ta Gör`}
           >
             <img 
