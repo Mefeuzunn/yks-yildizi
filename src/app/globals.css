@@ -468,3 +468,8 @@ button:active {
     padding: 0 !important;
   }
 }
+
+.logo-mask {
+  mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+}
