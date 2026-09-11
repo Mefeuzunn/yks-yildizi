@@ -41,7 +41,6 @@
     "uuid": "^14.0.1"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.3.3",
     "@types/bcryptjs": "^2.4.6",
     "@types/better-sqlite3": "^7.6.13",
     "@types/jsonwebtoken": "^9.0.10",
@@ -54,7 +53,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "postcss": "^8.5.28",
-    "tailwindcss": "^4.3.3",
+    "tailwindcss": "^3.4.19",
     "typescript": "^5"
   }
 }
