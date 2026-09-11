@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Landmark } from 'lucide-react';
 import AnimatedCounter from '@/components/AnimatedCounter';
 import FadeInUp from '@/components/FadeInUp';
 
@@ -163,16 +163,107 @@ export default function LandingPage() {
             </Link>
           </div>
           
-          {/* Sosyal Kanıt Bölümü */}
-          <div className="pt-8 mt-8 border-t border-gray-200">
-            <div className="flex gap-6 text-text-muted font-heading font-bold text-lg tracking-wider opacity-70">
-              <span>BOĞAZİÇİ</span>
-              <span>ODTÜ</span>
-              <span>İTÜ</span>
-            </div>
-            <p className="text-sm text-text-muted mt-2">
-              En iyi üniversitelere yerleşen öğrencilerin tercihi.
+          {/* Sosyal Kanıt Bölümü (Marquee) */}
+          <div className="pt-8 mt-8 border-t border-gray-200 w-full overflow-hidden relative max-w-[100vw]">
+            {/* Maske (Kenarlarda yumuşak geçiş için) */}
+            <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: 'linear-gradient(90deg, #F8FAFC 0%, transparent 10%, transparent 90%, #F8FAFC 100%)' }}></div>
+            
+            <p className="text-sm text-text-muted mb-5 font-medium">
+              Türkiye'nin en iyi üniversitelerine yerleşenlerin tercihi
             </p>
+            
+            <div className="flex w-max animate-marquee gap-12 text-text-muted font-heading font-extrabold text-xl tracking-wider opacity-60">
+                <span key={0} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> BOĞAZİÇİ
+                </span>
+                <span key={1} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> ODTÜ
+                </span>
+                <span key={2} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> İTÜ
+                </span>
+                <span key={3} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> KOÇ
+                </span>
+                <span key={4} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> BİLKENT
+                </span>
+                <span key={5} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> SABANCI
+                </span>
+                <span key={6} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> GALATASARAY
+                </span>
+                <span key={7} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> HACETTEPE
+                </span>
+                <span key={8} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> ANKARA
+                </span>
+                <span key={9} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> İSTANBUL
+                </span>
+                <span key={10} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> EGE
+                </span>
+                <span key={11} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> YTÜ
+                </span>
+                <span key={12} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> DEÜ
+                </span>
+                <span key={13} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> GAZİ
+                </span>
+                <span key={14} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> MARMARA
+                </span>
+                <span key={`dup-${0}`} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> BOĞAZİÇİ
+                </span>
+                <span key={`dup-${1}`} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> ODTÜ
+                </span>
+                <span key={`dup-${2}`} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> İTÜ
+                </span>
+                <span key={`dup-${3}`} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> KOÇ
+                </span>
+                <span key={`dup-${4}`} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> BİLKENT
+                </span>
+                <span key={`dup-${5}`} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> SABANCI
+                </span>
+                <span key={`dup-${6}`} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> GALATASARAY
+                </span>
+                <span key={`dup-${7}`} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> HACETTEPE
+                </span>
+                <span key={`dup-${8}`} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> ANKARA
+                </span>
+                <span key={`dup-${9}`} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> İSTANBUL
+                </span>
+                <span key={`dup-${10}`} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> EGE
+                </span>
+                <span key={`dup-${11}`} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> YTÜ
+                </span>
+                <span key={`dup-${12}`} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> DEÜ
+                </span>
+                <span key={`dup-${13}`} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> GAZİ
+                </span>
+                <span key={`dup-${14}`} className="whitespace-nowrap flex items-center gap-2">
+                  <Landmark size={20} /> MARMARA
+                </span>
+            </div>
           </div>
         </motion.div>
 
