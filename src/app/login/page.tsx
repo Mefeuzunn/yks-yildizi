@@ -130,51 +130,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Demo Öğrenci Giriş Butonu */}
-        <div style={{ marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-          <button
-            type="button"
-            onClick={async () => {
-              setFormData({ username: 'demo', password: '123' });
-              setRole('ogrenci');
-              setLoading(true);
-              setError('');
-              try {
-                const res = await fetch('/api/auth/login', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ username: 'demo', password: '123456' })
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error || 'Demo giriş başarısız');
-                window.location.href = '/dashboard';
-              } catch (err: any) {
-                setError(err.message);
-              } finally {
-                setLoading(false);
-              }
-            }}
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              borderRadius: '8px',
-              border: '1px solid rgba(56, 189, 248, 0.3)',
-              background: 'rgba(56, 189, 248, 0.1)',
-              color: '#38bdf8',
-              fontWeight: 600,
-              fontSize: '0.875rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              transition: 'all 0.2s'
-            }}
-          >
-            ⚡ Demo Öğrenci Hesabı ile Hızlı Giriş Yap
-          </button>
-        </div>
-
         <p style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
           Hesabın yok mu? <Link href="/register" style={{ color: role === 'ogrenci' ? '#38bdf8' : '#10b981', fontWeight: 600 }}>Hemen Kayıt Ol</Link>
         </p>

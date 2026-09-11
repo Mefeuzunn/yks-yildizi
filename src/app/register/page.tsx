@@ -111,7 +111,7 @@ export default function RegisterPage() {
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           {error && <div style={{ color: 'var(--danger)', fontSize: '0.875rem', textAlign: 'center', background: 'rgba(239, 68, 68, 0.1)', padding: '0.5rem', borderRadius: '4px' }}>{error}</div>}
-          {success && <div style={{ color: 'var(--success)', fontSize: '0.875rem', textAlign: 'center', background: 'rgba(16, 185, 129, 0.1)', padding: '0.5rem', borderRadius: '4px' }}>Kayıt başarılı! Başlangıç paketi (Demo veriler) yüklendi. Yönlendiriliyorsunuz...</div>}
+          {success && <div style={{ color: 'var(--success)', fontSize: '0.875rem', textAlign: 'center', background: 'rgba(16, 185, 129, 0.1)', padding: '0.5rem', borderRadius: '4px' }}>Kayıt başarılı! Yönlendiriliyorsunuz...</div>}
           
           <div>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Kullanıcı Adı</label>
