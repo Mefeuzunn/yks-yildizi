@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { motion } from 'framer-motion';
 
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false);
@@ -24,10 +25,12 @@ export default function LandingPage() {
 
   if (!mounted || loading || user) return null;
 
+  const barHeights = [40, 60, 30, 80, 100, 50, 70];
+
   return (
-    <div className="min-h-screen bg-surface font-sans text-text-body flex flex-col">
+    <div className="min-h-screen bg-surface font-sans text-text-body flex flex-col overflow-hidden">
       {/* Üst Menü (Navbar) */}
-      <header className="max-w-7xl w-full mx-auto px-6 py-6 flex justify-between items-center">
+      <header className="max-w-7xl w-full mx-auto px-6 py-6 flex justify-between items-center relative z-10">
         <div className="text-2xl font-heading font-extrabold text-text-heading">
           YKS Yıldızı
         </div>
@@ -51,10 +54,15 @@ export default function LandingPage() {
       </header>
 
       {/* Ana İçerik (Hero) */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mt-12 lg:mt-0">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mt-12 lg:mt-0 relative z-10">
         
         {/* Sol Sütun: Metinler ve Buton */}
-        <div className="space-y-8 pr-0 lg:pr-12">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="space-y-8 pr-0 lg:pr-12"
+        >
           <h1 className="text-5xl lg:text-7xl font-heading font-extrabold text-text-heading leading-[1.1]">
             YKS'yi Yıldız <br /> Gibi Öğren.
           </h1>
@@ -63,7 +71,7 @@ export default function LandingPage() {
           </p>
           <div className="flex items-center space-x-4">
             <Link href="/register">
-              <button className="bg-brand hover:bg-[#4338CA] text-white px-8 py-4 rounded-xl text-lg font-medium shadow-xl shadow-[#4F46E5]/30 transition-all hover:-translate-y-1">
+              <button className="bg-brand hover:bg-[#4338CA] text-white px-8 py-4 rounded-xl text-lg font-medium shadow-xl shadow-[#4F46E5]/30 transition-transform hover:-translate-y-1">
                 Ücretsiz Başla
               </button>
             </Link>
@@ -86,14 +94,38 @@ export default function LandingPage() {
               En iyi üniversitelere yerleşen öğrencilerin tercihi.
             </p>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Sağ Sütun: Arayüz Kartı (Mockup) */}
+        {/* Sağ Sütun: Animasyonlu Arayüz Kartı (Mockup) */}
         <div className="relative">
           {/* Arka Plan Dekoratif Parlaması */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#4F46E5]/10 rounded-full blur-3xl -z-10"></div>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, delay: 0.2 }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#4F46E5]/10 rounded-full blur-3xl -z-10"
+          />
           
-          <div className="bg-[#FFFFFF] rounded-2xl p-6 shadow-2xl shadow-gray-200/80 border border-gray-100">
+          <motion.div 
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
+            className="bg-[#FFFFFF] rounded-2xl p-6 shadow-2xl shadow-gray-200/80 border border-gray-100 relative"
+          >
+            {/* Havada Asılı Dinamik Bildirim Kartı */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 1.2, type: "spring" }}
+              className="absolute -right-8 top-1/4 bg-[#FFFFFF] p-4 rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 flex items-center gap-3 z-20 hidden md:flex"
+            >
+              <div className="text-3xl">🔥</div>
+              <div>
+                <div className="text-xs text-text-muted font-medium uppercase tracking-wider">Günlük Seri</div>
+                <div className="text-lg font-bold text-text-heading leading-tight">12. Gün</div>
+              </div>
+            </motion.div>
+
             {/* Sahte Tarayıcı Başlığı */}
             <div className="flex items-center gap-2 mb-6 border-b border-gray-100 pb-4">
               <div className="w-3 h-3 rounded-full bg-red-400"></div>
@@ -106,19 +138,25 @@ export default function LandingPage() {
 
             {/* Mockup İçeriği Şablonu */}
             <div className="space-y-4">
-              <div className="h-32 bg-[#EEF2FF] rounded-xl border border-[#4F46E5]/10 p-4 flex flex-col justify-end">
-                <div className="flex justify-between items-end gap-2">
-                  {[40, 60, 30, 80, 100, 50, 70].map((height, i) => (
-                    <div key={i} className={`w-full rounded-t-md ${i === 4 ? 'bg-brand' : 'bg-gray-200'}`} style={{ height: `${height}%` }}></div>
+              <div className="h-40 bg-[#EEF2FF] rounded-xl border border-[#4F46E5]/10 p-4 flex flex-col justify-end">
+                <div className="flex justify-between items-end gap-3 h-full">
+                  {barHeights.map((height, i) => (
+                    <motion.div 
+                      key={i} 
+                      initial={{ height: "0%" }}
+                      animate={{ height: `${height}%` }}
+                      transition={{ duration: 0.8, delay: 0.5 + (i * 0.1), ease: "easeOut" }}
+                      className={`w-full rounded-t-md ${i === 4 ? 'bg-brand' : 'bg-gray-300'}`} 
+                    />
                   ))}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="h-40 bg-surface rounded-xl border border-gray-100 p-4"></div>
-                <div className="h-40 bg-surface rounded-xl border border-gray-100 p-4"></div>
+                <div className="h-32 bg-surface rounded-xl border border-gray-100 p-4"></div>
+                <div className="h-32 bg-surface rounded-xl border border-gray-100 p-4"></div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
 
       </main>
