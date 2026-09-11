@@ -51,7 +51,7 @@ function MobileNavContent() {
   return (
     <>
       <nav
-        className="mobile-only"
+        className="mobile-flex"
         style={{
           position: 'fixed',
           bottom: 0,

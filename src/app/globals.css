@@ -309,6 +309,10 @@ button:active {
   display: none !important;
 }
 
+.mobile-flex {
+  display: none !important;
+}
+
 .desktop-only {
   display: block !important;
 }

@@ -135,7 +135,7 @@ export default function Navbar() {
               gap: '1rem',
               boxShadow: '0 10px 25px rgba(0,0,0,0.5)'
             }}
-            className="mobile-only"
+            className="mobile-flex"
           >
             {user && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', paddingBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
