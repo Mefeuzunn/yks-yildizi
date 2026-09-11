@@ -9,12 +9,12 @@ export default function HeroMockupSlider() {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % 3);
-    }, 4500); // Her 4.5 saniyede bir değişecek
+    }, 4500);
     return () => clearInterval(timer);
   }, []);
 
-  // --- SLAYT 1: Analiz ve Seri (Orijinal Tasarım) ---
-  const AnalyticsSlide = () => (
+  // --- SLAYT 1: Odak Modu (Focus) ---
+  const FocusSlide = () => (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
@@ -28,37 +28,39 @@ export default function HeroMockupSlider() {
         transition={{ duration: 0.5, delay: 0.2, type: "spring" }}
         className="absolute -right-4 top-1/4 bg-[#FFFFFF] p-4 rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 flex items-center gap-3 z-20"
       >
-        <div className="text-3xl">🔥</div>
+        <div className="text-3xl">⏱️</div>
         <div>
-          <div className="text-xs text-text-muted font-medium uppercase tracking-wider">Günlük Seri</div>
-          <div className="text-lg font-bold text-text-heading leading-tight">12. Gün</div>
+          <div className="text-xs text-text-muted font-medium uppercase tracking-wider">Odak Modu</div>
+          <div className="text-lg font-bold text-text-heading leading-tight">Derin Çalışma</div>
         </div>
       </motion.div>
 
-      <div className="space-y-4">
-        <div className="h-32 bg-[#EEF2FF] rounded-xl border border-[#4F46E5]/10 p-4 flex flex-col justify-end">
-          <div className="flex justify-between items-end gap-3 h-full">
-            {[40, 60, 30, 80, 100, 50, 70].map((height, i) => (
-              <motion.div
-                key={i}
-                initial={{ height: "0%" }}
-                animate={{ height: `${height}%` }}
-                transition={{ duration: 0.8, delay: 0.1 + (i * 0.1), ease: "easeOut" }}
-                className={`w-full rounded-t-md ${i === 4 ? 'bg-brand' : 'bg-gray-300'}`}
-              />
-            ))}
-          </div>
+      <div className="flex flex-col items-center justify-center h-full space-y-6">
+        <div className="relative w-36 h-36 flex items-center justify-center">
+          {/* Arka plan halkası */}
+          <div className="absolute inset-0 rounded-full border-[10px] border-gray-100"></div>
+          {/* İlerleme halkası (Animasyonlu) */}
+          <motion.div 
+            initial={{ rotate: -90, strokeDasharray: "0 1000" }}
+            animate={{ strokeDasharray: "200 1000" }}
+            transition={{ duration: 2, ease: "easeOut" }}
+            className="absolute inset-0 rounded-full border-[10px] border-brand border-t-transparent border-l-transparent rotate-45"
+          ></motion.div>
+          {/* Süre */}
+          <div className="text-4xl font-heading font-extrabold text-text-heading">24<span className="animate-pulse">:</span>59</div>
         </div>
-        <div className="grid grid-cols-2 gap-4 h-24">
-          <div className="bg-surface rounded-xl border border-gray-100 p-4"></div>
-          <div className="bg-surface rounded-xl border border-gray-100 p-4"></div>
+        
+        {/* Aktif Ders */}
+        <div className="bg-surface px-5 py-3 rounded-xl border border-gray-200 w-full flex justify-between items-center shadow-sm">
+          <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Matematik</span>
+          <span className="text-sm font-bold text-brand">Limit ve Süreklilik</span>
         </div>
       </div>
     </motion.div>
   );
 
-  // --- SLAYT 2: 3D Simülasyon ---
-  const SimulationSlide = () => (
+  // --- SLAYT 2: Net Takibi (Net Tracker) ---
+  const NetTrackerSlide = () => (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
@@ -72,36 +74,58 @@ export default function HeroMockupSlider() {
         transition={{ duration: 0.5, delay: 0.2, type: "spring" }}
         className="absolute -left-4 top-1/4 bg-[#FFFFFF] p-4 rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 flex items-center gap-3 z-20"
       >
-        <div className="text-3xl">⚛️</div>
+        <div className="text-3xl">📈</div>
         <div>
-          <div className="text-xs text-text-muted font-medium uppercase tracking-wider">Simülasyon</div>
-          <div className="text-lg font-bold text-text-heading leading-tight">Manyetizma</div>
+          <div className="text-xs text-text-muted font-medium uppercase tracking-wider">Son 1 Ay</div>
+          <div className="text-lg font-bold text-emerald-500 leading-tight">+12 Net Artış</div>
         </div>
       </motion.div>
 
-      <div className="h-full w-full bg-[#0b0f19] rounded-xl border border-slate-700 overflow-hidden relative flex items-center justify-center shadow-inner">
-        {/* CSS tabanlı yapay 3D illüzyon */}
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-          className="w-32 h-32 rounded-full border-4 border-dashed border-sky-400 opacity-30 absolute"
-        />
-        <motion.div
-          animate={{ rotate: -360, scale: [1, 1.1, 1] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="w-20 h-20 rounded-full border border-brand opacity-80 absolute flex items-center justify-center"
-        >
-          <div className="w-6 h-6 bg-white rounded-full shadow-[0_0_20px_#38bdf8]" />
-        </motion.div>
-        
-        {/* Arka plan grid deseni */}
-        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
+      <div className="flex flex-col h-full justify-center gap-4">
+        {/* Üst Kartlar */}
+        <div className="flex justify-between gap-4">
+          <div className="flex-1 bg-surface rounded-xl p-4 border border-gray-100 shadow-sm">
+            <div className="text-xs text-gray-400 font-bold mb-1 uppercase tracking-wider">TYT Neti</div>
+            <div className="text-2xl font-extrabold text-text-heading">85<span className="text-lg text-gray-400">.25</span></div>
+          </div>
+          <div className="flex-1 bg-surface rounded-xl p-4 border border-gray-100 shadow-sm">
+            <div className="text-xs text-gray-400 font-bold mb-1 uppercase tracking-wider">AYT Neti</div>
+            <div className="text-2xl font-extrabold text-text-heading">64<span className="text-lg text-gray-400">.50</span></div>
+          </div>
+        </div>
+
+        {/* Grafik (Sahte Line Chart) */}
+        <div className="h-28 bg-[#EEF2FF] rounded-xl border border-[#4F46E5]/10 relative overflow-hidden flex items-end px-4 pt-4">
+          <svg className="w-full h-full absolute bottom-0 left-0" preserveAspectRatio="none" viewBox="0 0 100 100">
+            <motion.path 
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 1.5, ease: "easeInOut" }}
+              d="M0,80 L20,65 L40,70 L60,40 L80,30 L100,10" 
+              fill="none" 
+              stroke="#4F46E5" 
+              strokeWidth="4" 
+              strokeLinejoin="round" 
+              strokeLinecap="round" 
+            />
+            <motion.path 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 1 }}
+              d="M0,80 L20,65 L40,70 L60,40 L80,30 L100,10 L100,100 L0,100 Z" 
+              fill="#4F46E5" 
+              fillOpacity="0.1" 
+            />
+          </svg>
+          {/* Grafik Noktaları */}
+          <div className="absolute w-2 h-2 bg-brand rounded-full right-0 top-[10%] shadow-[0_0_10px_#4F46E5]"></div>
+        </div>
       </div>
     </motion.div>
   );
 
-  // --- SLAYT 3: Oyunlaştırma (Sıralama Ligi) ---
-  const LeaderboardSlide = () => (
+  // --- SLAYT 3: Ders Planlama (Planner) ---
+  const PlannerSlide = () => (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
@@ -113,43 +137,51 @@ export default function HeroMockupSlider() {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.2, type: "spring" }}
-        className="absolute -right-4 bottom-12 bg-gradient-to-r from-amber-400 to-orange-500 p-3 rounded-2xl shadow-xl shadow-orange-500/30 text-white flex items-center gap-3 z-20"
+        className="absolute -right-4 bottom-12 bg-gradient-to-r from-brand to-indigo-500 p-3 rounded-2xl shadow-xl shadow-brand/30 text-white flex items-center gap-3 z-20"
       >
-        <div className="text-2xl">🏆</div>
+        <div className="text-2xl">✨</div>
         <div>
-          <div className="text-xs font-medium uppercase opacity-90 tracking-wider">Lig Atlattın!</div>
-          <div className="text-sm font-bold leading-tight">Platin Ligi</div>
+          <div className="text-xs font-medium uppercase opacity-90 tracking-wider">Yapay Zeka</div>
+          <div className="text-sm font-bold leading-tight">Haftalık Plan Hazır</div>
         </div>
       </motion.div>
 
-      <div className="space-y-3 h-full flex flex-col justify-center">
-        {/* 1. Sıra */}
-        <div className="bg-surface rounded-xl border border-amber-200 p-3 flex items-center gap-4 shadow-sm relative overflow-hidden">
-          <div className="absolute inset-0 bg-amber-100/50"></div>
-          <div className="relative z-10 w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center font-bold text-white text-sm">1</div>
-          <div className="relative z-10 flex-1">
-            <div className="h-2 w-24 bg-gray-300 rounded-full mb-2"></div>
-            <div className="h-1.5 w-16 bg-gray-200 rounded-full"></div>
-          </div>
-          <div className="relative z-10 text-amber-600 font-bold text-sm">2400 XP</div>
+      <div className="flex gap-3 h-full pt-4">
+        {/* Kolon 1: Pazartesi */}
+        <div className="flex-1 flex flex-col gap-3">
+          <div className="text-[11px] text-center font-bold text-gray-400 uppercase tracking-widest">Pzt</div>
+          <motion.div initial={{y:10, opacity:0}} animate={{y:0, opacity:1}} transition={{delay:0.1}} className="bg-brand/10 border border-brand/20 p-2.5 rounded-lg text-brand">
+            <div className="text-xs font-bold mb-1">Matematik</div>
+            <div className="text-[10px] opacity-70">2 Saat</div>
+          </motion.div>
+          <motion.div initial={{y:10, opacity:0}} animate={{y:0, opacity:1}} transition={{delay:0.2}} className="bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-lg text-rose-600">
+            <div className="text-xs font-bold mb-1">Fizik</div>
+            <div className="text-[10px] opacity-70">1.5 Saat</div>
+          </motion.div>
         </div>
-        {/* 2. Sıra */}
-        <div className="bg-surface rounded-xl border border-gray-100 p-3 flex items-center gap-4">
-          <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center font-bold text-gray-500 text-sm">2</div>
-          <div className="flex-1">
-            <div className="h-2 w-32 bg-gray-200 rounded-full mb-2"></div>
-            <div className="h-1.5 w-20 bg-gray-100 rounded-full"></div>
-          </div>
-          <div className="text-gray-400 font-bold text-sm">2150 XP</div>
+        {/* Kolon 2: Salı */}
+        <div className="flex-1 flex flex-col gap-3">
+          <div className="text-[11px] text-center font-bold text-gray-400 uppercase tracking-widest">Sal</div>
+          <motion.div initial={{y:10, opacity:0}} animate={{y:0, opacity:1}} transition={{delay:0.3}} className="bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-lg text-emerald-600">
+            <div className="text-xs font-bold mb-1">Biyoloji</div>
+            <div className="text-[10px] opacity-70">2 Saat</div>
+          </motion.div>
+          <motion.div initial={{y:10, opacity:0}} animate={{y:0, opacity:1}} transition={{delay:0.4}} className="bg-amber-500/10 border border-amber-500/20 p-2.5 rounded-lg text-amber-600">
+            <div className="text-xs font-bold mb-1">Kimya</div>
+            <div className="text-[10px] opacity-70">1 Saat</div>
+          </motion.div>
         </div>
-        {/* 3. Sıra */}
-        <div className="bg-surface rounded-xl border border-gray-100 p-3 flex items-center gap-4">
-          <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center font-bold text-orange-700 text-sm">3</div>
-          <div className="flex-1">
-            <div className="h-2 w-20 bg-gray-200 rounded-full mb-2"></div>
-            <div className="h-1.5 w-12 bg-gray-100 rounded-full"></div>
-          </div>
-          <div className="text-gray-400 font-bold text-sm">1980 XP</div>
+        {/* Kolon 3: Çarşamba */}
+        <div className="flex-1 flex flex-col gap-3">
+          <div className="text-[11px] text-center font-bold text-gray-400 uppercase tracking-widest">Çar</div>
+          <motion.div initial={{y:10, opacity:0}} animate={{y:0, opacity:1}} transition={{delay:0.5}} className="bg-brand/10 border border-brand/20 p-2.5 rounded-lg text-brand">
+            <div className="text-xs font-bold mb-1">Geometri</div>
+            <div className="text-[10px] opacity-70">1.5 Saat</div>
+          </motion.div>
+          <motion.div initial={{y:10, opacity:0}} animate={{y:0, opacity:1}} transition={{delay:0.6}} className="bg-purple-500/10 border border-purple-500/20 p-2.5 rounded-lg text-purple-600">
+            <div className="text-xs font-bold mb-1">Türkçe</div>
+            <div className="text-[10px] opacity-70">1 Saat</div>
+          </motion.div>
         </div>
       </div>
     </motion.div>
@@ -172,18 +204,18 @@ export default function HeroMockupSlider() {
           <div className="w-3 h-3 rounded-full bg-red-400"></div>
           <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
           <div className="w-3 h-3 rounded-full bg-green-400"></div>
-          <div className="mx-auto text-[11px] text-text-muted font-medium bg-surface px-4 py-1.5 rounded-full flex gap-2 items-center">
-            {currentSlide === 0 && "yksyildizi.com/analiz"}
-            {currentSlide === 1 && "yksyildizi.com/simulasyon"}
-            {currentSlide === 2 && "yksyildizi.com/ligler"}
+          <div className="mx-auto text-[11px] text-text-muted font-medium bg-surface px-4 py-1.5 rounded-full flex gap-2 items-center transition-all">
+            {currentSlide === 0 && "yksyildizi.com/odak"}
+            {currentSlide === 1 && "yksyildizi.com/denemeler"}
+            {currentSlide === 2 && "yksyildizi.com/program"}
           </div>
         </div>
 
         {/* Carousel İçeriği (Yumuşak Geçişli) */}
         <AnimatePresence mode="wait">
-          {currentSlide === 0 && <AnalyticsSlide key="slide0" />}
-          {currentSlide === 1 && <SimulationSlide key="slide1" />}
-          {currentSlide === 2 && <LeaderboardSlide key="slide2" />}
+          {currentSlide === 0 && <FocusSlide key="slide0" />}
+          {currentSlide === 1 && <NetTrackerSlide key="slide1" />}
+          {currentSlide === 2 && <PlannerSlide key="slide2" />}
         </AnimatePresence>
 
         {/* Carousel Noktaları */}
