@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { motion } from 'framer-motion';
+import AnimatedCounter from '@/components/AnimatedCounter';
 
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false);
@@ -160,6 +161,44 @@ export default function LandingPage() {
         </div>
 
       </main>
+
+      {/* İstatistik Bölümü */}
+      <div className="py-20 bg-white border-t border-gray-100 mt-24">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+          
+          <div className="space-y-2">
+            <div className="text-4xl font-heading font-extrabold text-text-heading flex justify-center items-center">
+              <AnimatedCounter targetValue={8800} />
+              <span className="text-brand">+</span>
+            </div>
+            <p className="text-sm font-medium text-text-muted">Soru Havuzu</p>
+          </div>
+
+          <div className="space-y-2">
+            <div className="text-4xl font-heading font-extrabold text-text-heading flex justify-center items-center">
+              <AnimatedCounter targetValue={2400} />
+              <span className="text-brand">+</span>
+            </div>
+            <p className="text-sm font-medium text-text-muted">Aktif Öğrenci</p>
+          </div>
+
+          <div className="space-y-2">
+            <div className="text-4xl font-heading font-extrabold text-text-heading">
+              <AnimatedCounter targetValue={54} />
+            </div>
+            <p className="text-sm font-medium text-text-muted">Alt Konu Başlığı</p>
+          </div>
+
+          <div className="space-y-2">
+            <div className="text-4xl font-heading font-extrabold text-text-heading flex justify-center items-center">
+              <span>4.9</span>
+              <span className="text-2xl text-text-muted ml-1">/5</span>
+            </div>
+            <p className="text-sm font-medium text-text-muted">Öğrenci Puanı</p>
+          </div>
+
+        </div>
+      </div>
     </div>
   );
 }
