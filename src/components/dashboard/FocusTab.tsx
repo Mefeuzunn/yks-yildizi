@@ -422,10 +422,10 @@ export default function FocusTab() {
       </div>
 
       {/* ── Main Grid ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px,460px) 1fr', gap: '24px', alignItems: 'start' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'flex-start' }}>
 
         {/* ── Timer Card ── */}
-        <div style={{ background: '#0f172a', border: `1px solid ${cfg.glow}`, borderRadius: '28px', padding: '32px',
+        <div style={{ flex: '1 1 300px', maxWidth: '460px', width: '100%', background: '#0f172a', border: `1px solid ${cfg.glow}`, borderRadius: '28px', padding: '32px',
                       display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative',
                       overflow: 'hidden', boxShadow: `0 10px 60px -10px ${cfg.glow}` }}>
           {/* Glow bg */}

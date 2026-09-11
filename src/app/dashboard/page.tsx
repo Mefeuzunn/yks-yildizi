@@ -170,7 +170,7 @@ function DashboardContent() {
     const formattedDate = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
 
     return (
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} style={{ minHeight: '100vh', backgroundColor: '#020617', padding: '24px', fontFamily: '"Inter", sans-serif', boxSizing: 'border-box' }} className="dashboard-home">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} style={{ minHeight: '100vh', backgroundColor: '#020617', padding: '16px 0', fontFamily: '"Inter", sans-serif', boxSizing: 'border-box' }} className="dashboard-home">
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           {/* Header Row */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>

@@ -143,7 +143,7 @@ export default function AnalysisTab() {
       </div>
 
       {/* KPI Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
         {[
           { title: 'Güncel TYT Neti', value: examsData.TYT[examsData.TYT.length - 1]?.net.toString() || '0', sub: 'Son deneme', icon: <TrendingUp size={20} />, color: '#3b82f6' },
           { title: 'Haftalık Çalışma', value: '0s 0d', sub: 'Veri bekleniyor', icon: <Clock size={20} />, color: '#f59e0b' },
@@ -164,7 +164,8 @@ export default function AnalysisTab() {
       </div>
 
       {/* Main Charts Area */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '2rem' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem' }}>
+        {/* Inside we need to fix the children, but we'll do that using flex basis. */}
         
         {/* Interactive Line Chart */}
         <div className="premium-card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column' }}>
@@ -214,12 +215,12 @@ export default function AnalysisTab() {
                   <button type="button" onClick={() => setShowAddForm(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}><X size={18} /></button>
                 </div>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
                   <input type="text" placeholder="Yayın Adı (Örn: 3D Yayınları)" required value={newExam.name} onChange={e => setNewExam({...newExam, name: e.target.value})} className="premium-input" style={{ width: '100%' }} />
                   <input type="text" placeholder="Tarih" required value={newExam.date} onChange={e => setNewExam({...newExam, date: e.target.value})} className="premium-input" style={{ width: '100%' }} />
                 </div>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
                   {examType === 'TYT' ? (
                     <>
                       <input type="number" step="0.25" placeholder="Türkçe Net" required value={newExam.turkce} onChange={e => setNewExam({...newExam, turkce: e.target.value})} className="premium-input" style={{ width: '100%' }} />
@@ -341,7 +342,7 @@ export default function AnalysisTab() {
                   </div>
                 </div>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '1rem' }}>
                   {examType === 'TYT' ? (
                     <>
                       <div style={{ backgroundColor: 'var(--secondary)', padding: '0.75rem', borderRadius: '8px' }}><div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Türkçe</div><div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{selectedExam.breakdown.turkce}</div></div>
@@ -392,10 +393,10 @@ export default function AnalysisTab() {
       </div>
 
       {/* Bottom Area: AI Report & Distribution */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem' }}>
         
         {/* AI Educator Report */}
-        <div className="premium-card" style={{ padding: '2rem', position: 'relative', overflow: 'hidden', borderLeft: '4px solid #8b5cf6' }}>
+        <div className="premium-card" style={{ flex: '1 1 300px', padding: '2rem', position: 'relative', overflow: 'hidden', borderLeft: '4px solid #8b5cf6' }}>
           <div style={{ position: 'absolute', top: 0, right: 0, width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 70%)', transform: 'translate(30%, -30%)' }}></div>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', position: 'relative', zIndex: 2 }}>

@@ -152,8 +152,8 @@ export default function RegisterPage() {
             </div>
           ) : formData.role === 'ogrenci' ? (
             <>
-              <div style={{ display: 'flex', gap: '1rem' }}>
-                <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                <div style={{ flex: '1 1 150px' }}>
                   <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Sınıf</label>
                   <select className="premium-input" style={{ appearance: 'none' }} value={formData.sinif} onChange={e => setFormData({...formData, sinif: e.target.value})}>
                     <option value="9">9. Sınıf</option>
@@ -163,7 +163,7 @@ export default function RegisterPage() {
                     <option value="Mezun">Mezun</option>
                   </select>
                 </div>
-                <div style={{ flex: 1 }}>
+                <div style={{ flex: '1 1 150px' }}>
                   <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Alan</label>
                   <select className="premium-input" style={{ appearance: 'none' }} value={formData.alan} onChange={e => setFormData({...formData, alan: e.target.value})}>
                     <option value="Sayisal">Sayısal</option>
@@ -186,8 +186,8 @@ export default function RegisterPage() {
               </div>
             </>
           ) : (
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+              <div style={{ flex: '1 1 150px' }}>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Kurum / Okul</label>
                 <select className="premium-input" style={{ appearance: 'none' }} value={formData.kurum} onChange={e => setFormData({...formData, kurum: e.target.value})}>
                   <option value="Bireysel">Bireysel / Özel Ders</option>
@@ -196,7 +196,7 @@ export default function RegisterPage() {
                   <option value="Dershane">Dershane / Kurs</option>
                 </select>
               </div>
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: '1 1 150px' }}>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Branş</label>
                 <select className="premium-input" style={{ appearance: 'none' }} value={formData.brans} onChange={e => setFormData({...formData, brans: e.target.value})}>
                   <option value="Matematik">Matematik</option>
