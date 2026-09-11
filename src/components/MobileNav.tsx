@@ -3,6 +3,7 @@
 import React, { Suspense, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
@@ -15,6 +16,9 @@ const MAIN_TABS = [
 
 const MORE_TABS = [
   { emoji: '🎯', label: 'Hedeflerim', href: '/dashboard?tab=hedef' },
+  { emoji: '🔬', label: 'Simülasyonlar', href: '/simulasyonlar' },
+  { emoji: '🛡️', label: 'Klanlar', href: '/klanlar' },
+  { emoji: '📋', label: 'Ödevlerim', href: '/odevlerim' },
   { emoji: '❌', label: 'Yanlışlarım', href: '/dashboard?tab=mistakes' },
   { emoji: '📚', label: 'Konular', href: '/dashboard?tab=topics' },
   { emoji: '📝', label: 'Testlerim', href: '/dashboard?tab=tests' },
@@ -30,6 +34,25 @@ function MobileNavContent() {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { user } = useAuth();
+
+  const TEACHER_MAIN_TABS = [
+    { emoji: '🏠', label: 'Genel Bakış', href: '/ogretmen/dashboard' },
+    { emoji: '🏫', label: 'Sınıflarım', href: '/ogretmen/dashboard?tab=siniflar' },
+    { emoji: '👥', label: 'Öğrenciler', href: '/ogretmen/dashboard?tab=ogrenciler' },
+    { emoji: '📋', label: 'Ödevler', href: '/ogretmen/dashboard?tab=odevler' },
+  ];
+  
+  const TEACHER_MORE_TABS = [
+    { emoji: '📊', label: 'Sınıf Analizi', href: '/ogretmen/dashboard?tab=analiz' },
+    { emoji: '📚', label: 'Kaynaklar', href: '/ogretmen/dashboard?tab=kaynaklar' },
+    { emoji: '📢', label: 'Duyurular', href: '/ogretmen/dashboard?tab=duyurular' },
+    { emoji: '👤', label: 'Profilim', href: '/ogretmen/dashboard?tab=profile' },
+  ];
+  
+  const currentMainTabs = user?.role === 'ogretmen' ? TEACHER_MAIN_TABS : MAIN_TABS;
+  const currentMoreTabs = user?.role === 'ogretmen' ? TEACHER_MORE_TABS : MORE_TABS;
+
 
   // Close drawer on route change
   useEffect(() => {
@@ -70,7 +93,7 @@ function MobileNavContent() {
           zIndex: 50,
         }}
       >
-        {MAIN_TABS.map((tab) => {
+        {currentMainTabs.map((tab) => {
           const active = checkIsActive(tab.href);
           return (
             <Link
@@ -199,7 +222,7 @@ function MobileNavContent() {
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
-                {MORE_TABS.map((tab) => {
+                {currentMoreTabs.map((tab) => {
                   const active = checkIsActive(tab.href);
                   return (
                     <Link
