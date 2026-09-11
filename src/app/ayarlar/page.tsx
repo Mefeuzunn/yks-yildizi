@@ -48,10 +48,10 @@ export default function AyarlarPage() {
   if (loading) return <div style={{display:'flex',justifyContent:'center',marginTop:'5rem'}}><Loader2 className="animate-spin" size={48} color="#38bdf8"/></div>;
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '2rem 1rem', display: 'flex', gap: '2rem' }}>
+    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '2rem 1rem', display: 'flex', flexWrap: 'wrap', gap: '2rem' }}>
       
       {/* Sidebar */}
-      <div style={{ width: '250px', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      <div style={{ flex: '1 1 250px', maxWidth: '300px', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         <h1 style={{ fontSize: '1.5rem', color: '#fff', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <Settings size={24} color="#a855f7" /> Ayarlar
         </h1>

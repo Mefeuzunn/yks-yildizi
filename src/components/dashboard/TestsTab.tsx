@@ -61,7 +61,7 @@ export default function TestsTab() {
         <p style={{ color: 'var(--text-secondary)' }}>Yapay zekanın senin için oluşturduğu eksik kapatma testlerini çöz veya geçmiş başarılarını incele.</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+      <div style={{ display: 'grid', flexWrap: 'wrap', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
         
         {/* Active Tests */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>

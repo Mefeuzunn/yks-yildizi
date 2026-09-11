@@ -15,12 +15,12 @@ export default function ProfileTab() {
         <p style={{ color: 'rgba(255,255,255,0.4)' }}>Hesap ayarlarını, hedef üniversiteni ve bildirim tercihlerini yönet.</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '2rem' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem' }}>
         
         {/* Main Settings Area */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div style={{ flex: '1 1 280px', display: 'flex', flexDirection: 'column', gap: '1.5rem', minWidth: 0 }}>
           
-          <div style={{ backgroundColor: '#0e121e', borderRadius: '16px', padding: '2rem', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', gap: '2rem', alignItems: 'center' }}>
+          <div style={{ backgroundColor: '#0e121e', borderRadius: '16px', padding: '2rem', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexWrap: 'wrap', gap: '2rem', alignItems: 'center' }}>
             <div style={{ position: 'relative' }}>
               <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: 'linear-gradient(135deg, #0ea5e9, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', fontWeight: 800, color: '#fff', border: '4px solid #0b0f19', boxShadow: '0 0 0 2px rgba(255,255,255,0.1)' }}>
                 {user?.username ? user.username.substring(0,2).toUpperCase() : 'EU'}
@@ -44,7 +44,7 @@ export default function ProfileTab() {
                <User size={20} color="#38bdf8" />
                <h3 style={{ fontSize: '1.1rem', fontWeight: 600 }}>Kişisel Bilgiler</h3>
             </div>
-            <div style={{ padding: '1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+            <div style={{ padding: '1.5rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1.5rem' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', marginBottom: '0.5rem' }}>Kullanıcı Adı</label>
                 <input type="text" defaultValue={user?.username || ''} style={{ width: '100%', padding: '0.75rem 1rem', backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', color: '#fff', fontSize: '0.9rem', outline: 'none' }} />

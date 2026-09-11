@@ -53,9 +53,9 @@ export default function MistakeDetailModal({ isOpen, onClose, mistakeData }: Mis
             </button>
           </div>
 
-          <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', flex: 1, overflowY: 'auto' }}>
             {/* Left: The Question */}
-            <div style={{ flex: 1, padding: '2rem', overflowY: 'auto', borderRight: '1px solid rgba(255,255,255,0.05)' }}>
+            <div style={{ flex: '999 1 300px', padding: '1.5rem', borderRight: '1px solid rgba(255,255,255,0.05)' }}>
               <h3 style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '1rem' }}>Soru ({mistakeData.questionId})</h3>
               
 
@@ -106,7 +106,7 @@ export default function MistakeDetailModal({ isOpen, onClose, mistakeData }: Mis
             </div>
 
             {/* Right: AstraTutor Solution */}
-            <div style={{ width: '400px', backgroundColor: '#050505', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ flex: '1 1 300px', backgroundColor: '#050505', display: 'flex', flexDirection: 'column' }}>
               {!showAI ? (
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', textAlign: 'center' }}>
                   <div style={{ width: '80px', height: '80px', borderRadius: '40px', backgroundColor: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>

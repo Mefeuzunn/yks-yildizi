@@ -119,10 +119,10 @@ export default function ActiveTestModal({ isOpen, onClose, testData, onFinish }:
         </div>
 
         {/* Content Area */}
-        <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+        <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', overflowY: 'auto' }}>
           
           {/* Left: Question Area */}
-          <div style={{ flex: 1, padding: '3rem', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: '999 1 300px', padding: '1.5rem', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
             
             <div style={{ flex: 1, backgroundColor: '#0e121e', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', padding: '3rem', position: 'relative' }}>
                <div style={{ position: 'absolute', top: '1rem', right: '1rem' }}>
@@ -192,7 +192,7 @@ export default function ActiveTestModal({ isOpen, onClose, testData, onFinish }:
           </div>
 
           {/* Right: Optik Form */}
-          <div style={{ width: '350px', backgroundColor: '#0a0d14', borderLeft: '1px solid rgba(255,255,255,0.05)', padding: '2rem', overflowY: 'auto' }}>
+          <div style={{ flex: '1 1 300px', backgroundColor: '#0a0d14', borderLeft: '1px solid rgba(255,255,255,0.05)', padding: '2rem' }}>
              <h3 style={{ color: '#fff', fontSize: '1.1rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                <span>Optik Form</span>
                <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)' }}>{Object.keys(answers).length} / {testData.questions}</span>

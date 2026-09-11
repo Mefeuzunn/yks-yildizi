@@ -170,7 +170,7 @@ export default function ScanMistakeModal({ isOpen, onClose, onSaved }: Props) {
                   </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '8px', color: '#9ca3af', fontSize: '0.85rem' }}>
                         Ders
                         <select value={subject} onChange={e => setSubject(e.target.value)} style={{ padding: '10px', backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px' }}>
@@ -196,7 +196,7 @@ export default function ScanMistakeModal({ isOpen, onClose, onSaved }: Props) {
                       <textarea value={ocrText} onChange={e => setOcrText(e.target.value)} rows={5} style={{ padding: '12px', backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px', fontFamily: 'inherit', resize: 'vertical' }} />
                     </label>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '8px', color: '#9ca3af', fontSize: '0.85rem' }}>
                         Doğru Cevap
                         <select value={correctAnswer} onChange={e => setCorrectAnswer(e.target.value)} style={{ padding: '10px', backgroundColor: '#1e293b', border: '1px solid rgba(16,185,129,0.3)', color: '#10b981', borderRadius: '8px', fontWeight: 600 }}>

@@ -702,7 +702,7 @@ export default function DenemelerPage() {
                   <input type="date" required value={newExam.date || ''} onChange={e => handleInputChange('date', e.target.value)} style={{ width: '100%', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff' }} />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '1rem' }}>
                   {(modalTab === 'TYT' ? TYT_SUBJECTS : AYT_SUBJECTS[userAlan]).map((sub) => (
                     <div key={sub.id}>
                       <label style={{ display: 'block', fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>{sub.label} Net</label>
