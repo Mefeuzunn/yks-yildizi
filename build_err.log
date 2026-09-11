@@ -1,0 +1,65 @@
+
+> temp@0.1.0 build
+> next build
+
+▲ Next.js 16.2.9 (Turbopack)
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 5 errors:
+./src/app/admin/page.tsx:185:1
+Expected '</', got '<eof>'
+  [90m183 |[0m   );
+  [90m184 |[0m }
+[31m[1m>[0m [90m185 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+
+./src/app/ayarlar/page.tsx:177:1
+Expected '</', got '<eof>'
+  [90m175 |[0m   );
+  [90m176 |[0m }
+[31m[1m>[0m [90m177 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+
+./src/app/duello/page.tsx:213:1
+Expected '</', got '<eof>'
+  [90m211 |[0m [32m  );[0m
+  [90m212 |[0m [32m}[0m
+[31m[1m>[0m [90m213 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+
+./src/app/ogretmen/page.tsx:97:1
+Expected '</', got '<eof>'
+  [90m95 |[0m   );
+  [90m96 |[0m }
+[31m[1m>[0m [90m97 |[0m
+  [90m   |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+
+./src/app/program/page.tsx:491:1
+Expected '</', got '<eof>'
+  [90m489 |[0m   );
+  [90m490 |[0m }
+[31m[1m>[0m [90m491 |[0m
+  [90m    |[0m [31m[1m^[0m
+
+Parsing ecmascript source code failed
+
+
+    at <unknown> (./src/app/admin/page.tsx:185:1)
+    at <unknown> (./src/app/ayarlar/page.tsx:177:1)
+    at <unknown> (./src/app/duello/page.tsx:213:1)
+    at <unknown> (./src/app/ogretmen/page.tsx:97:1)
+    at <unknown> (./src/app/program/page.tsx:491:1)

@@ -1,0 +1,465 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  /* Elite SaaS Dark Theme Tokens */
+  --bg-color: #0b0f19;
+  --surface: #12141c;
+  --surface-raised: #1e293b;
+  --surface-overlay: rgba(15, 23, 42, 0.8);
+  
+  --accent: #2563EB;
+  --accent-hover: #1D4ED8;
+  --accent-glow: rgba(37, 99, 235, 0.1);
+  
+  --secondary: #1e293b;
+  --secondary-glow: rgba(30, 41, 59, 0.5);
+  
+  --success: #10b981;
+  --danger: #ef4444;
+  
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  
+  --border-subtle: rgba(255,255,255,0.05);
+  --border-light: rgba(255,255,255,0.1);
+  --border-strong: rgba(255,255,255,0.2);
+  
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+  
+  --font-sans: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #0b0f19;
+  color: #cbd5e1;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+.dark-theme {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700; /* Fuller headers */
+  letter-spacing: -0.03em;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ========================================= */
+/* GLOBAL 3D BUTTON STRUCTURE                */
+/* ========================================= */
+button {
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateY(0);
+  /* Adaptable 3D depth using transparent blacks and whites */
+  box-shadow: 
+    0 0 0 1px rgba(255,255,255,0.05) inset,      /* Inner highlight */
+    0 1px 0 rgba(255,255,255,0.15) inset,        /* Top highlight */
+    0 4px 0 rgba(0, 0, 0, 0.5),                  /* The universal dark 3D lip */
+    0 8px 12px rgba(0, 0, 0, 0.3);               /* Drop shadow */
+  border-radius: var(--radius-sm);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 
+    0 0 0 1px rgba(255,255,255,0.1) inset,
+    0 1px 0 rgba(255,255,255,0.2) inset,
+    0 5px 0 rgba(0, 0, 0, 0.5),
+    0 10px 16px rgba(0, 0, 0, 0.4);
+}
+
+button:active {
+  /* Push IN effect */
+  transform: translateY(4px) !important;
+  box-shadow: 
+    0 0 0 1px rgba(0,0,0,0.3) inset,
+    0 2px 4px rgba(0,0,0,0.5) inset,            /* Deep inner shadow */
+    0 0px 0 rgba(0, 0, 0, 0.5),                 /* Flatten the lip */
+    0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ========================================= */
+/* NAV LINKS (LIQUID GLASS HAPTIC 3D)        */
+/* ========================================= */
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateY(0);
+  text-decoration: none;
+  user-select: none;
+  
+  /* Liquid Glass 3D Lip */
+  box-shadow: 
+    0 0 0 1px rgba(255,255,255,0.02) inset,
+    0 1px 0 rgba(255,255,255,0.1) inset,
+    0 3px 0 rgba(0, 0, 0, 0.6),
+    0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.nav-link:hover {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+  box-shadow: 
+    0 0 0 1px rgba(255,255,255,0.05) inset,
+    0 1px 0 rgba(255,255,255,0.2) inset,
+    0 4px 0 rgba(0, 0, 0, 0.7),
+    0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.nav-link:active {
+  /* Haptic Touch IN effect */
+  transform: translateY(3px) scale(0.95) !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  background: rgba(0, 0, 0, 0.4);
+  box-shadow: 
+    0 0 0 1px rgba(0,0,0,0.5) inset,
+    0 2px 6px rgba(0,0,0,0.8) inset,
+    0 0px 0 rgba(0, 0, 0, 0.5),
+    0 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* ========================================= */
+/* BACKGROUND EFFECTS & MESH GLOW (REMOVED)  */
+/* ========================================= */
+.mesh-background, .mesh-blob, .blob-1, .blob-2, .glass-overlay {
+  display: none !important;
+}
+
+.app-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* ========================================= */
+/* PREMIUM CARDS (CLEAN LIGHT MODE)          */
+/* ========================================= */
+.premium-card {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  padding: 2rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.premium-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* ========================================= */
+/* INTERACTIVE BUTTONS (CLEAN LIGHT MODE)    */
+/* ========================================= */
+.btn-interactive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: #FFFFFF;
+  background: var(--accent);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.btn-interactive:hover {
+  background: var(--accent-hover);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.btn-interactive:active {
+  transform: translateY(1px);
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-secondary:hover {
+  background: var(--secondary);
+  border-color: var(--text-muted);
+}
+
+.btn-secondary:active {
+  background: var(--border-light);
+}
+
+/* ========================================= */
+/* INPUT FIELDS                              */
+/* ========================================= */
+.premium-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.premium-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.premium-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Typography Utilities */
+.text-gradient {
+  background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Custom Scrollbar specifically for horizontal scrollable areas */
+.custom-scrollbar::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin: 0 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.5); /* Purple accent */
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.8);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* ========================================= */
+/* RESPONSIVE DESIGN & MEDIA QUERIES         */
+/* ========================================= */
+
+.mobile-only {
+  display: none !important;
+}
+
+.desktop-only {
+  display: block !important;
+}
+
+.desktop-flex {
+  display: flex !important;
+}
+
+/* Dashboard main responsive class */
+.dashboard-main-responsive {
+  margin-left: 240px;
+  padding: 40px;
+  transition: margin-left 0.3s ease, padding 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .mobile-only {
+    display: block !important;
+  }
+  
+  .mobile-flex {
+    display: flex !important;
+  }
+
+  .desktop-only, .desktop-flex {
+    display: none !important;
+  }
+
+  html, body {
+    font-size: 14px;
+    overflow-x: hidden;
+  }
+
+  h1 { font-size: 1.5rem !important; }
+  h2 { font-size: 1.25rem !important; }
+  h3 { font-size: 1.1rem !important; }
+  
+  .app-container {
+    padding: 0.75rem !important;
+  }
+
+  .dashboard-main {
+    padding: 1rem !important;
+  }
+
+  /* Core layout: remove sidebar offset on mobile */
+  .dashboard-main-responsive {
+    margin-left: 0 !important;
+    padding: 16px 12px 88px 12px !important; /* bottom padding for bottom nav */
+    min-height: 100vh;
+    min-height: 100dvh; /* dynamic viewport for mobile browsers */
+  }
+
+  /* Premium card adjustments */
+  .premium-card {
+    padding: 12px !important;
+    border-radius: 12px !important;
+  }
+
+  .premium-card:hover {
+    transform: none !important;
+  }
+
+  /* Fix modals on mobile */
+  .modal-content {
+    width: 95vw !important;
+    max-height: 85vh !important;
+    padding: 20px !important;
+    border-radius: 20px !important;
+  }
+
+  /* Disable 3D button effect on mobile for better tap feel */
+  button {
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  button:hover {
+    transform: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+  }
+
+  button:active {
+    transform: scale(0.97) !important;
+    box-shadow: none !important;
+  }
+
+  /* Nav links: disable 3D on mobile */
+  .nav-link {
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  .nav-link:hover, .nav-link:active {
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  /* Skeleton responsive */
+  .skeleton {
+    border-radius: 8px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  html, body {
+    font-size: 13px;
+  }
+
+  h1 { font-size: 1.35rem !important; }
+  h2 { font-size: 1.15rem !important; }
+
+  .dashboard-main-responsive {
+    padding: 12px 8px 88px 8px !important;
+  }
+
+  .premium-card {
+    padding: 10px !important;
+    border-radius: 10px !important;
+  }
+}
+
+/* Safe area for notched phones */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  @media (max-width: 768px) {
+    .dashboard-main-responsive {
+      padding-bottom: calc(88px + env(safe-area-inset-bottom)) !important;
+    }
+  }
+}
+
+.dashboard-main {
+  padding: 2rem 3rem;
+}
+
+
+/* Veli Raporu PDF / Yazdırma Modu (Phase 4) */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .AppSidebar, .AppNavbar, button {
+    display: none !important;
+  }
+  .premium-card {
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+  h1, h2, h3, p, span {
+    color: black !important;
+  }
+  #root, .main-content {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}

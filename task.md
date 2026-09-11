@@ -1,0 +1,12 @@
+- [x] **1. Veritabanı Güncellemesi (Supabase)**
+  - [x] `study_plans` tablosunu oluştur (id, user_id, day_of_week, start_time, end_time, subject, topic, completed, created_at).
+- [x] **2. Sesli AstraTutor (Voice AI)**
+  - [x] `AstraTutorChat.tsx` bileşenini güncelle.
+  - [x] `window.SpeechRecognition` ve `window.speechSynthesis` API'lerini entegre et.
+  - [x] Mikrofon butonu ve animasyonlu "Dinleniyor..." arayüzü ekle.
+- [x] **3. Dinamik Haftalık Çalışma Takvimi**
+  - [x] `src/app/api/user/calendar/generate/route.ts` API'sini oluştur.
+  - [x] `src/app/api/user/calendar/route.ts` API'sini (GET, PUT) oluştur.
+  - [x] Dashboard'a (Öğrenci) haftalık görünüm (Takvim) bileşenini ekle.
+- [x] **4. Veli Paneli AI Karinesi**
+  - [x] `src/app/veli/page.tsx` içerisindeki mevcut verilerden özet bir AI metni türet.
