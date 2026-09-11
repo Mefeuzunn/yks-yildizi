@@ -1,13 +1,13 @@
 'use client';
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
+import { Settings, Minimize, 
   Play, Pause, RotateCcw, Volume2, VolumeX, Plus, Minus,
   CheckCircle2, Circle, Target, TrendingUp,
   X, Flame, Trophy, Zap, BookOpen, ChevronRight, SkipForward,
   Maximize, Music, CloudRain, Wind, Waves, Coffee, TreePine,
   Clock
-} from 'lucide-react';
+ } from 'lucide-react';
 import { useTimer } from '@/context/TimerContext';
 import SessionLogModal from '@/components/dashboard/SessionLogModal';
 

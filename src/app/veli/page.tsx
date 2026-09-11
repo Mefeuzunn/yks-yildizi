@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Activity, BookOpen, Target, ShieldCheck, ChevronRight, CheckCircle2, TrendingUp, Lock } from 'lucide-react';
+import { FileText,  Activity, BookOpen, Target, ShieldCheck, ChevronRight, CheckCircle2, TrendingUp, Lock  } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 export default function VeliDashboardPage() {

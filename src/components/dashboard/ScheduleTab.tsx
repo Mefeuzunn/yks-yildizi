@@ -1,6 +1,6 @@
 import React, { useState, DragEvent, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar as CalIcon, Clock, X, Trash2, Plus, Pencil, ChevronLeft, ChevronRight, FileText, Moon, Sun, Sunset } from 'lucide-react';
+import { Sparkles,  Calendar as CalIcon, Clock, X, Trash2, Plus, Pencil, ChevronLeft, ChevronRight, FileText, Moon, Sun, Sunset  } from 'lucide-react';
 import { useSchedule, ScheduleBlock } from '@/context/ScheduleContext';
 import { useAuth } from '@/context/AuthContext';
 import { getQuickSelectsByAlan } from '@/lib/subjectData';
@@ -445,7 +445,7 @@ export default function ScheduleTab() {
                   </div>
 
                   <div>
-                    <label style={{display:'block',fontSize:'12px',color:'#9ca3af',marginBottom:'7px',fontWeight:600,display:'flex',alignItems:'center',gap:'6px'}}>
+                    <label style={{display:'flex',fontSize:'12px',color:'#9ca3af',marginBottom:'7px',fontWeight:600,alignItems:'center',gap:'6px'}}>
                       <FileText size={12}/> Detay / Not <span style={{color:'#4b5563',fontWeight:500}}>(isteğe bağlı)</span>
                     </label>
                     <textarea placeholder="Konu başlıkları, sayfa aralığı, hedefler…"
@@ -505,7 +505,7 @@ export default function ScheduleTab() {
                 </div>
 
                 <div>
-                  <label style={{display:'block',fontSize:'12px',color:'#9ca3af',marginBottom:'7px',fontWeight:600,display:'flex',alignItems:'center',gap:'6px'}}>
+                  <label style={{display:'flex',fontSize:'12px',color:'#9ca3af',marginBottom:'7px',fontWeight:600,alignItems:'center',gap:'6px'}}>
                     <FileText size={12}/> Detay / Not <span style={{color:'#4b5563',fontWeight:500}}>(isteğe bağlı)</span>
                   </label>
                   <textarea placeholder="Konu başlıkları, sayfa aralığı, hedefler…"
