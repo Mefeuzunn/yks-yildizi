@@ -1,0 +1,52 @@
+[
+  {
+    "name": "BOĞAZİÇİ",
+    "yokatlas": "1022",
+    "image": "/logos/bogazici.jpg"
+  },
+  {
+    "name": "ODTÜ",
+    "yokatlas": "1084",
+    "image": "/logos/odtu.png"
+  },
+  {
+    "name": "İTÜ",
+    "yokatlas": "1055",
+    "image": "/logos/itu.jpg"
+  },
+  {
+    "name": "SABANCI",
+    "yokatlas": "2054",
+    "image": "/logos/sabanci.jpg"
+  },
+  {
+    "name": "HACETTEPE",
+    "yokatlas": "1048",
+    "image": "/logos/hacettepe.png"
+  },
+  {
+    "name": "EGE",
+    "yokatlas": "1034",
+    "image": "/logos/ege.png"
+  },
+  {
+    "name": "YILDIZ TEKNİK",
+    "yokatlas": "1101",
+    "image": "/logos/ytu.png"
+  },
+  {
+    "name": "İSTANBUL",
+    "yokatlas": "1056",
+    "image": "/logos/istanbul.png"
+  },
+  {
+    "name": "MARMARA",
+    "yokatlas": "1072",
+    "image": "/logos/marmara.png"
+  },
+  {
+    "name": "GALATASARAY",
+    "yokatlas": "1040",
+    "image": "/logos/galatasaray.jpg"
+  }
+]

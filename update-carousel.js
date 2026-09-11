@@ -1,33 +1,23 @@
 const fs = require('fs');
 
-let content = fs.readFileSync('src/app/page.tsx', 'utf8');
+let content = fs.readFileSync('src/components/UniversityCarousel.tsx', 'utf8');
 
-// Add the import
-if (!content.includes('import UniversityCarousel')) {
-  content = content.replace("import FadeInUp from '@/components/FadeInUp';", "import FadeInUp from '@/components/FadeInUp';\nimport UniversityCarousel from '@/components/UniversityCarousel';");
-}
+// Add group and pause logic
+content = content.replace(
+  'className="w-full overflow-hidden relative py-8 mt-12 border-t border-gray-200 logo-mask"',
+  'className="w-full overflow-hidden relative py-8 mt-12 border-t border-gray-200 logo-mask group"'
+);
 
-// Extract the exact block to replace
-const startMarker = "{/* Sosyal Kanıt Bölümü (Marquee) */}";
-const startIndex = content.indexOf(startMarker);
-const endMarker = "        </motion.div>\n\n        {/* Sağ Sütun";
-const endIndex = content.indexOf(endMarker);
+content = content.replace(
+  'className="flex whitespace-nowrap animate-marquee w-max items-center"',
+  'className="flex whitespace-nowrap animate-marquee group-hover:[animation-play-state:paused] w-max items-center"'
+);
 
-if (startIndex !== -1 && endIndex !== -1) {
-  const toReplace = content.substring(startIndex, endIndex);
-  
-  const newBlock = `{/* Sosyal Kanıt Bölümü (Marquee) */}
-          <div className="w-full">
-            <p className="text-sm text-text-muted mt-8 font-medium">
-              Türkiye'nin en iyi üniversitelerine yerleşen öğrencilerin tercihi.
-            </p>
-            <UniversityCarousel />
-          </div>
-`;
-  content = content.replace(toReplace, newBlock);
-  fs.writeFileSync('src/app/page.tsx', content);
-  console.log("Updated page.tsx with UniversityCarousel");
-} else {
-  console.log("Could not find block");
-}
+// Add z-index to a tag
+content = content.replace(
+  'className="mx-12 flex items-center justify-center opacity-70 hover:opacity-100 hover:scale-110 transition-all duration-300 cursor-pointer"',
+  'className="mx-12 flex items-center justify-center opacity-70 hover:opacity-100 hover:scale-110 transition-all duration-300 cursor-pointer relative z-50"'
+);
 
+fs.writeFileSync('src/components/UniversityCarousel.tsx', content);
+console.log("Updated UniversityCarousel.tsx to pause on hover and ensure clickability");

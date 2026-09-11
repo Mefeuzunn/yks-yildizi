@@ -240,7 +240,7 @@ export async function GET(req: Request) {
     query += ` ORDER BY RANDOM() LIMIT 1`;
 
     const stmt = await db.prepare(query);
-    const templateRow = stmt.get(...params) as QuestionTemplate;
+    const templateRow = stmt.get(...params) as unknown as QuestionTemplate;
 
     if (!templateRow) {
       return NextResponse.json({ error: 'Filtrelere uygun soru şablonu bulunamadı.' }, { status: 404 });

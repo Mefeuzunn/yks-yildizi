@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { getSimulations } from '@/lib/actions/simulations';
 import SimulationFilter, { Category, Subject, Difficulty } from '@/components/simulations/SimulationFilter';
 import SimulationViewer from '@/components/simulations/SimulationViewer';
@@ -207,7 +208,7 @@ export default function SimulasyonlarPage() {
 
                 {/* Başlat Butonu */}
                 <button 
-                  onClick={() => setActiveSimulation(sim)}
+                  onClick={() => { if (sim.source_url.startsWith('/')) { window.location.href = sim.source_url; } else { setActiveSimulation(sim); } }}
                   style={{ width: '100%', padding: '10px', backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 600, fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                 >
                   <Play size={16} fill="white" />

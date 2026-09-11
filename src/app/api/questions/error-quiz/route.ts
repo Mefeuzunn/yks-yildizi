@@ -37,7 +37,7 @@ export async function GET() {
         
         if (topicRow) {
           // Bu konuya ait bir soru şablonu var mı?
-          const template = await db.prepare('SELECT * FROM soru_sablonlari WHERE konu_id = ? ORDER BY RANDOM() LIMIT 1').get(topicRow.id) as QuestionTemplate;
+          const template = await db.prepare('SELECT * FROM soru_sablonlari WHERE konu_id = ? ORDER BY RANDOM() LIMIT 1').get(topicRow.id) as unknown as QuestionTemplate;
           
           if (template) {
             const generated = generateQuestionFromTemplate(template);

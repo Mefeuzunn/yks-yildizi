@@ -1,0 +1,49 @@
+src/app/api/admin/yokatlas-import/route.ts(31,28): error TS2352: Conversion of type 'Row & Iterable<Row>' to type '{ id: string; } | undefined' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Property 'id' is missing in type 'Row & Iterable<Row>' but required in type '{ id: string; }'.
+src/app/api/shop/inventory/route.ts(11,23): error TS2352: Conversion of type 'RowList<(Row & Iterable<Row>)[]>' to type '{ item_id: string; }[]' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Types of property 'push' are incompatible.
+    Type '(...items: (Row & Iterable<Row>)[]) => number' is not comparable to type '(...items: { item_id: string; }[]) => number'.
+      Types of parameters 'items' and 'items' are incompatible.
+        Type '{ item_id: string; }' is not comparable to type 'Row & Iterable<Row>'.
+          Property '[Symbol.iterator]' is missing in type '{ item_id: string; }' but required in type 'Iterable<Row>'.
+src/app/ogretmen/dashboard/page.tsx(869,38): error TS2339: Property 'class_id' does not exist on type 'StudentItem'.
+src/app/ogretmen/dashboard/page.tsx(1311,61): error TS2339: Property 'generateQuestions' does not exist on type '{ title: string; description: string; class_id: string; due_date: string; }'.
+src/app/ogretmen/dashboard/page.tsx(1311,141): error TS2353: Object literal may only specify known properties, and 'generateQuestions' does not exist in type 'SetStateAction<{ title: string; description: string; class_id: string; due_date: string; }>'.
+src/app/ogretmen/dashboard/page.tsx(1312,141): error TS2339: Property 'generateQuestions' does not exist on type '{ title: string; description: string; class_id: string; due_date: string; }'.
+src/app/ogretmen/dashboard/page.tsx(1313,218): error TS2339: Property 'generateQuestions' does not exist on type '{ title: string; description: string; class_id: string; due_date: string; }'.
+src/app/ogretmen/dashboard/page.tsx(1317,27): error TS2339: Property 'generateQuestions' does not exist on type '{ title: string; description: string; class_id: string; due_date: string; }'.
+src/app/ogretmen/dashboard/page.tsx(1319,43): error TS2339: Property 'subject' does not exist on type '{ title: string; description: string; class_id: string; due_date: string; }'.
+src/app/ogretmen/dashboard/page.tsx(1319,110): error TS2353: Object literal may only specify known properties, and 'subject' does not exist in type 'SetStateAction<{ title: string; description: string; class_id: string; due_date: string; }>'.
+src/app/ogretmen/dashboard/page.tsx(1320,43): error TS2339: Property 'topic' does not exist on type '{ title: string; description: string; class_id: string; due_date: string; }'.
+src/app/ogretmen/dashboard/page.tsx(1320,108): error TS2353: Object literal may only specify known properties, and 'topic' does not exist in type 'SetStateAction<{ title: string; description: string; class_id: string; due_date: string; }>'.
+src/app/ogretmen/dashboard/page.tsx(1321,74): error TS2339: Property 'questionCount' does not exist on type '{ title: string; description: string; class_id: string; due_date: string; }'.
+src/app/ogretmen/dashboard/page.tsx(1321,146): error TS2353: Object literal may only specify known properties, and 'questionCount' does not exist in type 'SetStateAction<{ title: string; description: string; class_id: string; due_date: string; }>'.
+src/app/veli/page.tsx(156,14): error TS2304: Cannot find name 'FileText'.
+src/components/AstraTutorChat.tsx(128,59): error TS2552: Cannot find name 'newMessages'. Did you mean 'messages'?
+src/components/dashboard/AnalysisTab.tsx(31,24): error TS7006: Parameter 'exam' implicitly has an 'any' type.
+src/components/dashboard/AnalysisTab.tsx(40,58): error TS2345: Argument of type '{ id: any; name: any; date: string; net: any; breakdown: { turkce: any; mat: any; fen: any; sosyal: any; fizik: number; kimya: number; biyo: number; }; }' is not assignable to parameter of type 'never'.
+src/components/dashboard/AnalysisTab.tsx(41,38): error TS2345: Argument of type '{ id: any; name: any; date: string; net: any; breakdown: { turkce: any; mat: any; fen: any; sosyal: any; fizik: number; kimya: number; biyo: number; }; }' is not assignable to parameter of type 'never'.
+src/components/dashboard/AnalysisTab.tsx(75,34): error TS2339: Property 'net' does not exist on type 'never'.
+src/components/dashboard/AnalysisTab.tsx(148,87): error TS2339: Property 'net' does not exist on type 'never'.
+src/components/dashboard/AnalysisTab.tsx(292,50): error TS2339: Property 'net' does not exist on type 'never'.
+src/components/dashboard/AnalysisTab.tsx(293,64): error TS2339: Property 'id' does not exist on type 'never'.
+src/components/dashboard/AnalysisTab.tsx(296,34): error TS2339: Property 'id' does not exist on type 'never'.
+src/components/dashboard/AnalysisTab.tsx(317,35): error TS2339: Property 'id' does not exist on type 'never'.
+src/components/dashboard/AnalysisTab.tsx(318,27): error TS2339: Property 'name' does not exist on type 'never'.
+src/components/dashboard/AnalysisTab.tsx(318,53): error TS2339: Property 'name' does not exist on type 'never'.
+src/components/dashboard/FocusTab.tsx(83,14): error TS2304: Cannot find name 'Settings'.
+src/components/dashboard/FocusTab.tsx(233,10): error TS2304: Cannot find name 'Minimize'.
+src/components/dashboard/ScheduleTab.tsx(239,12): error TS2304: Cannot find name 'Sparkles'.
+src/components/dashboard/ScheduleTab.tsx(448,118): error TS1117: An object literal cannot have multiple properties with the same name.
+src/components/dashboard/ScheduleTab.tsx(508,116): error TS1117: An object literal cannot have multiple properties with the same name.
+src/lib/actions/simulations.ts(52,25): error TS2352: Conversion of type 'Row & Iterable<Row>' to type '{ total: number; }' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Property 'total' is missing in type 'Row & Iterable<Row>' but required in type '{ total: number; }'.
+src/lib/yks-db-async.ts(7,13): error TS7006: Parameter 'queryStr' implicitly has an 'any' type.
+src/lib/yks-db-async.ts(12,19): error TS7019: Rest parameter 'args' implicitly has an 'any[]' type.
+src/lib/yks-db-async.ts(17,42): error TS18046: 'e' is of type 'unknown'.
+src/lib/yks-db-async.ts(21,19): error TS7019: Rest parameter 'args' implicitly has an 'any[]' type.
+src/lib/yks-db-async.ts(26,42): error TS18046: 'e' is of type 'unknown'.
+src/lib/yks-db-async.ts(30,19): error TS7019: Rest parameter 'args' implicitly has an 'any[]' type.
+src/lib/yks-db-async.ts(35,42): error TS18046: 'e' is of type 'unknown'.
+src/lib/yks-db-async.ts(41,17): error TS7006: Parameter 'callback' implicitly has an 'any' type.
+src/lib/yks-db-async.ts(42,19): error TS7019: Rest parameter 'args' implicitly has an 'any[]' type.

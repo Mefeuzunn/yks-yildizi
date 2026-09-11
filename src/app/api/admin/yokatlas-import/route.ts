@@ -22,23 +22,23 @@ export async function POST(req: Request) {
       // A simple map to keep track of uni names to their generated UUIDs
       const uniMap = new Map<string, string>();
 
-      data.forEach((row: any) => {
-        if (!row.uni_name || !row.dep_name) return;
+      for (const row of data) {
+        if (!row.uni_name || !row.dep_name) continue; // Changed return to continue since it's a for loop now
 
         let uniId = uniMap.get(row.uni_name);
         if (!uniId) {
           // Check DB just in case it exists from a previous upload
-          const existing = checkUni.get(row.uni_name) as { id: string } | undefined;
+          const existing = await checkUni.get(row.uni_name) as { id: string } | undefined;
           if (existing) {
             uniId = existing.id;
           } else {
             uniId = uuidv4();
-            insertUni.run(uniId, row.uni_name, row.uni_type || 'Devlet', row.city || 'Belirtilmedi');
+            await insertUni.run(uniId, row.uni_name, row.uni_type || 'Devlet', row.city || 'Belirtilmedi');
           }
           uniMap.set(row.uni_name, uniId);
         }
 
-        insertDep.run(
+        await insertDep.run(
           uuidv4(),
           uniId,
           row.dep_name,
@@ -49,8 +49,8 @@ export async function POST(req: Request) {
           Number(row.quota) || 0,
           year
         );
-      });
-    })();
+      }
+    })(); // Execute the transaction callback
 
     return NextResponse.json({ success: true, message: `${data.length} kayıt başarıyla içe aktarıldı.` }, { status: 200 });
   } catch (error: any) {
