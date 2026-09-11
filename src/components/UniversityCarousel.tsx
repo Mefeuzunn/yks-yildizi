@@ -2,7 +2,6 @@
 import React from 'react';
 
 export default function UniversityCarousel() {
-  // Clearbit Logo API kullanarak üniversitelerin gerçek logolarını çekiyoruz.
   const universities = [
     { name: "BOĞAZİÇİ", domain: "boun.edu.tr" },
     { name: "ODTÜ", domain: "metu.edu.tr" },
@@ -29,20 +28,17 @@ export default function UniversityCarousel() {
         {duplicatedUniversities.map((uni, index) => (
           <div
             key={index}
-            className="mx-10 flex items-center justify-center gap-4 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-300 cursor-pointer"
+            className="mx-12 flex items-center justify-center opacity-70 hover:opacity-100 hover:scale-110 transition-all duration-300 cursor-pointer"
+            title={uni.name}
           >
             <img 
-              src={`https://logo.clearbit.com/${uni.domain}`} 
+              src={`https://www.google.com/s2/favicons?domain=${uni.domain}&sz=256`} 
               alt={`${uni.name} Logosu`} 
-              className="h-10 w-10 object-contain"
+              className="h-16 w-16 object-contain"
               onError={(e) => {
-                // Eğer logo yüklenemezse resmi gizle
                 e.currentTarget.style.display = 'none';
               }}
             />
-            <span className="text-2xl font-heading font-extrabold text-text-muted">
-              {uni.name}
-            </span>
           </div>
         ))}
       </div>
