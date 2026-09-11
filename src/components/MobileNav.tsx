@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
 const MAIN_TABS = [
-  { emoji: '🏠', label: 'Ana Sayfa', href: '/dashboard' },
+  { emoji: '🏠', label: 'Ana Sayfa', href: '/dashboard?tab=home' },
   { emoji: '📅', label: 'Program', href: '/dashboard?tab=schedule' },
   { emoji: '🍅', label: 'Odak', href: '/dashboard?tab=focus' },
   { emoji: '📊', label: 'Analiz', href: '/dashboard?tab=analysis' },
@@ -38,7 +38,7 @@ function MobileNavContent() {
 
   const checkIsActive = (href: string) => {
     const tab = searchParams?.get('tab');
-    if (href === '/dashboard' && !tab && pathname === '/dashboard') {
+    if ((href === '/dashboard' || href === '/dashboard?tab=home') && (!tab || tab === 'home') && pathname === '/dashboard') {
       return true;
     } else if (href.includes(`?tab=${tab}`) && tab) {
       return true;

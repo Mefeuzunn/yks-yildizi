@@ -1,4 +1,4 @@
-import React, { useState, DragEvent, useRef } from 'react';
+import React, { useState, useEffect, DragEvent, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles,  Calendar as CalIcon, Clock, X, Trash2, Plus, Pencil, ChevronLeft, ChevronRight, FileText, Moon, Sun, Sunset  } from 'lucide-react';
 import { useSchedule, ScheduleBlock } from '@/context/ScheduleContext';
@@ -153,6 +153,22 @@ function DurationPicker({ value, onChange, color, startHour }:
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function ScheduleTab() {
   const { blocks, addBlock, updateBlock, deleteBlock } = useSchedule();
+  const [viewMode, setViewMode] = useState<'week' | 'day'>('week');
+  const [currentDayView, setCurrentDayView] = useState(new Date().getDay() === 0 ? 6 : new Date().getDay() - 1);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      if (window.innerWidth < 768) setViewMode('day');
+      else setViewMode('week');
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const activeDays = viewMode === 'week' ? DAYS : [DAYS[currentDayView]];
+  const cols = viewMode === 'week' ? 7 : 1;
+
   const { user } = useAuth();
   const QUICK_SELECTS = getQuickSelectsByAlan(user?.alan || 'Sayisal');
 
@@ -240,6 +256,20 @@ export default function ScheduleTab() {
         </button>
       </div>
 
+      {/* View Toggle */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+        <button onClick={() => setViewMode('week')} style={{ flex: 1, padding: '8px', borderRadius: '8px', background: viewMode === 'week' ? '#3b82f6' : '#1e293b', color: '#fff', border: 'none', fontWeight: 600 }}>Haftalık Görünüm</button>
+        <button onClick={() => setViewMode('day')} style={{ flex: 1, padding: '8px', borderRadius: '8px', background: viewMode === 'day' ? '#3b82f6' : '#1e293b', color: '#fff', border: 'none', fontWeight: 600 }}>Günlük Görünüm</button>
+      </div>
+      {viewMode === 'day' && (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+          <button onClick={() => setCurrentDayView(prev => (prev - 1 + 7) % 7)} style={{ background: '#1e293b', border: 'none', padding: '8px 12px', borderRadius: '8px', color: '#fff' }}>Önceki Gün</button>
+          <h3 style={{ margin: 0, color: '#fff' }}>{DAYS[currentDayView]}</h3>
+          <button onClick={() => setCurrentDayView(prev => (prev + 1) % 7)} style={{ background: '#1e293b', border: 'none', padding: '8px 12px', borderRadius: '8px', color: '#fff' }}>Sonraki Gün</button>
+        </div>
+      )}
+
+
 
       {/* Period legend */}
       <div style={{display:'flex',gap:'16px',flexWrap:'wrap'}}>
@@ -256,12 +286,14 @@ export default function ScheduleTab() {
       </div>
 
       <div className="premium-card" style={{flex:1,overflowX:'auto',userSelect:'none',padding:0}}>
-        <div style={{minWidth:'700px'}}>
+        <div style={{minWidth: viewMode === 'week' ? '700px' : '100%'}}>
 
           {/* Header row */}
-          <div style={{display:'grid',gridTemplateColumns:'52px repeat(7,1fr)',borderBottom:'1px solid var(--border-strong)',position:'sticky',top:0,zIndex:20,background:'#12141c'}}>
+          <div style={{display:'grid',gridTemplateColumns:`52px repeat(${cols},1fr)`,borderBottom:'1px solid var(--border-strong)',position:'sticky',top:0,zIndex:20,background:'#12141c'}}>
             <div style={{borderRight:'1px solid var(--border-strong)'}}/>
-            {DAYS.map((d,i) => (
+            {activeDays.map((d, index) => {
+              const i = viewMode === 'week' ? index : currentDayView;
+              return (
               <div key={d} style={{
                 padding:'10px 6px',textAlign:'center',fontWeight:700,fontSize:'12px',
                 color: i===today ? '#a78bfa' : 'var(--text-primary)',
@@ -272,11 +304,12 @@ export default function ScheduleTab() {
                 {d}
                 {i===today && <div style={{width:'5px',height:'5px',borderRadius:'50%',background:'#a78bfa',margin:'3px auto 0'}}/>}
               </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Scrollable body */}
-          <div style={{display:'grid',gridTemplateColumns:'52px repeat(7,1fr)',maxHeight:'calc(100vh - 280px)',overflowY:'auto'}} className="custom-scrollbar">
+          <div style={{display:'grid',gridTemplateColumns:`52px repeat(${cols},1fr)`,maxHeight:'calc(100vh - 280px)',overflowY:'auto'}} className="custom-scrollbar">
 
             {/* Time labels column */}
             <div style={{borderRight:'1px solid var(--border-strong)'}}>
@@ -300,12 +333,12 @@ export default function ScheduleTab() {
             </div>
 
             {/* Grid + blocks */}
-            <div style={{gridColumn:'2/-1',position:'relative',display:'grid',gridTemplateColumns:'repeat(7,1fr)',gridTemplateRows:`repeat(${SLOT_COUNT},${SLOT_HEIGHT}px)`}}>
+            <div style={{gridColumn:'2/-1',position:'relative',display:'grid',gridTemplateColumns:`repeat(${cols},1fr)`,gridTemplateRows:`repeat(${SLOT_COUNT},${SLOT_HEIGHT}px)`}}>
 
               {/* Drop zones with period coloring */}
-              {Array.from({length:7*SLOT_COUNT}).map((_,i) => {
-                const di = i%7;
-                const ti = Math.floor(i/7);
+              {Array.from({length:cols*SLOT_COUNT}).map((_,i) => {
+                const di = viewMode === 'week' ? i%7 : currentDayView;
+                const ti = Math.floor(i/cols);
                 const hour = slotIndexToHour(ti);
                 const period = periodOf(hour);
                 const isCurrentHourToday = hour===nowHour && di===today;
@@ -316,7 +349,7 @@ export default function ScheduleTab() {
                     onClick={()=>openAddModal(di,ti)}
                     style={{
                       borderBottom:'1px solid var(--border-light)',
-                      borderRight:(i+1)%7!==0?'1px solid var(--border-light)':'none',
+                      borderRight:(i+1)%cols!==0?'1px solid var(--border-light)':'none',
                       cursor:'pointer',
                       background: isCurrentHourToday ? 'rgba(167,139,250,0.12)' : PERIOD_COLORS[period],
                       transition:'background 0.15s',
@@ -327,12 +360,12 @@ export default function ScheduleTab() {
               })}
 
               {/* "Now" indicator line (only if visible) */}
-              {hourToSlotIndex(nowHour) !== -1 && (
+              {hourToSlotIndex(nowHour) !== -1 && (viewMode === 'week' || today === currentDayView) && (
                 <div style={{
                   position:'absolute',
                   top:`${hourToSlotIndex(nowHour)*SLOT_HEIGHT + SLOT_HEIGHT/2}px`,
-                  left:`calc(${(today/7)*100}%)`,
-                  width:`calc(${100/7}%)`,
+                  left: viewMode === 'week' ? `calc(${(today/7)*100}%)` : '0',
+                  width: viewMode === 'week' ? `calc(${100/7}%)` : '100%',
                   height:'2px',
                   background:'linear-gradient(to right, #a78bfa, transparent)',
                   zIndex:15,
@@ -341,7 +374,7 @@ export default function ScheduleTab() {
               )}
 
               {/* Blocks */}
-              {blocks.map(b => {
+              {(viewMode === 'week' ? blocks : blocks.filter(b => b.day === currentDayView)).map(b => {
                 const startIndex = hourToSlotIndex(b.time);
                 if (startIndex === -1) return null; // Hide if outside visible hours
                 
@@ -353,8 +386,8 @@ export default function ScheduleTab() {
                     style={{
                       position:'absolute',
                       top:`${startIndex*SLOT_HEIGHT+3}px`,
-                      left:`calc(${(b.day/7)*100}% + 3px)`,
-                      width:`calc(${100/7}% - 6px)`,
+                      left: viewMode === 'week' ? `calc(${(b.day/7)*100}% + 3px)` : '3px',
+                      width: viewMode === 'week' ? `calc(${100/7}% - 6px)` : 'calc(100% - 6px)',
                       height:`${b.duration*SLOT_HEIGHT-6}px`,
                       backgroundColor:b.color+'20',
                       border:`1px solid ${b.color}45`,

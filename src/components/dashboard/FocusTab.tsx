@@ -430,7 +430,7 @@ export default function FocusTab() {
                       overflow: 'hidden', boxShadow: `0 10px 60px -10px ${cfg.glow}` }}>
           {/* Glow bg */}
           <div style={{ position: 'absolute', top: '-60px', left: '50%', transform: 'translateX(-50%)',
-                        width: '300px', height: '300px', borderRadius: '50%',
+                        width: '100%', maxWidth: '300px', aspectRatio: '1/1', borderRadius: '50%',
                         background: cfg.color, filter: 'blur(100px)', opacity: 0.05, pointerEvents: 'none' }}/>
 
           {/* Top actions - only zen mode */}
@@ -569,7 +569,7 @@ export default function FocusTab() {
         </div>
 
         {/* ── Right Column ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ flex: '999 1 300px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
           {/* Daily Progress */}
           <div style={{ background: '#131827', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: '24px' }}>
@@ -622,7 +622,7 @@ export default function FocusTab() {
               {soundsExpanded && (
                 <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }} style={{ overflow: 'hidden' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginTop: '16px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))', gap: '8px', marginTop: '16px' }}>
                     {AMBIENT_SOUNDS.map(s => {
                       const isActive = activeSound === s.id;
                       return (
