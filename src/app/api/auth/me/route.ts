@@ -1,19 +1,32 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
 import { cookies } from 'next/headers';
+import { verifyToken } from '@/lib/jwt';
 
 export async function GET(req: Request) {
   try {
     const cookieStore = await cookies();
-    let userId = cookieStore.get('yks_session')?.value;
+    let token = cookieStore.get('yks_session')?.value;
 
     // Check Authorization header for mobile clients
-    if (!userId) {
+    if (!token) {
       const authHeader = req.headers.get('authorization');
       if (authHeader && authHeader.startsWith('Bearer ')) {
-        userId = authHeader.substring(7);
+        token = authHeader.substring(7);
       }
     }
+
+    if (!token) {
+      return NextResponse.json({ authenticated: false }, { status: 401 });
+    }
+
+    let userId = token;
+    try {
+      const payload = await verifyToken(token);
+      if (payload && payload.userId) {
+        userId = payload.userId as string;
+      }
+    } catch(e) {}
 
     if (!userId) {
       return NextResponse.json({ authenticated: false }, { status: 401 });

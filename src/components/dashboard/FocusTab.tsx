@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Settings, Minimize, 
   Play, Pause, RotateCcw, Volume2, VolumeX, Plus, Minus,
@@ -10,6 +11,8 @@ import { Settings, Minimize,
  } from 'lucide-react';
 import { useTimer } from '@/context/TimerContext';
 import SessionLogModal from '@/components/dashboard/SessionLogModal';
+import { useFocusData } from '@/hooks/useFocusData';
+import WeeklyFocusChart from '@/components/dashboard/WeeklyFocusChart';
 
 type Mode = 'pomodoro' | 'shortBreak' | 'longBreak';
 
@@ -285,12 +288,12 @@ export default function FocusTab() {
   const [tasks, setTasks] = useState<{ id: string; text: string; done: boolean; subject?: string }[]>([]);
   const [newTask, setNewTask] = useState('');
 
-  // Real focus stats from DB
-  const [todayMinutes, setTodayMinutes] = useState(0);
-  const [todayCount, setTodayCount] = useState(0);
-  const [allTimeCount, setAllTimeCount] = useState(0);
-  const [weekData, setWeekData] = useState<{ day: string; total_min: number }[]>([]);
-  const [recentSessions, setRecentSessions] = useState<any[]>([]);
+  // Use the new Supabase hook for real data
+  const { sessions: recentSessions, stats, loading: loadingSessions, refresh } = useFocusData();
+
+  const todayMinutes = stats.todayTotalMin;
+  const todayCount = stats.todaySessions;
+  const allTimeCount = stats.allTimeCount;
 
   const cfg = MODE_CONFIG[mode];
   const progress = ((totalSec - timeLeft) / totalSec) * 100;
@@ -298,43 +301,17 @@ export default function FocusTab() {
 
   const fmt = (s: number) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
 
-  const fetchStats = useCallback(async () => {
-    try {
-      const res = await fetch('/api/user/focus');
-      if (res.ok) {
-        const data = await res.json();
-        setTodayMinutes(Number(data.todayTotalMin) || 0);
-        setTodayCount(Number(data.todaySessions) || 0);
-        setAllTimeCount(Number(data.allTimeCount) || 0);
-        setRecentSessions(data.recentSessions ?? []);
-        // Build week array: last 7 days
-        const days = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
-        const today = new Date();
-        const weekArr = Array.from({ length: 7 }, (_, i) => {
-          const d = new Date(today);
-          d.setDate(today.getDate() - (6 - i));
-          const iso = d.toISOString().split('T')[0];
-          const daySessions = data.weekData?.filter((s: { day: string; total_min: number }) => s.day.split('T')[0] === iso) || [];
-          const dailyTotal = daySessions.reduce((acc: number, curr: any) => acc + (Number(curr.total_min) || 0), 0);
-          const dayName = days[d.getDay() === 0 ? 6 : d.getDay() - 1];
-          return { day: dayName, total_min: dailyTotal, isToday: i === 6 };
-        });
-        setWeekData(weekArr as { day: string; total_min: number; isToday?: boolean }[]);
-      }
-    } catch (e) {}
-  }, []);
-
-  useEffect(() => { fetchStats(); }, [fetchStats]);
-
-  // Refresh stats after each completed session (when modal is closed after saving)
   const { pendingSession } = useTimer();
   const prevPendingRef = React.useRef(pendingSession);
+  const router = useRouter(); // We must import useRouter from next/navigation
+
   useEffect(() => {
     if (prevPendingRef.current !== null && pendingSession === null) {
-      fetchStats();
+      refresh();
+      router.refresh(); // Tell Next.js to refresh server components and clear cache
     }
     prevPendingRef.current = pendingSession;
-  }, [pendingSession, fetchStats]);
+  }, [pendingSession, refresh, router]);
 
   // Title update
   useEffect(() => {
@@ -717,39 +694,9 @@ export default function FocusTab() {
               </h3>
               <span style={{ fontSize: '12px', color: '#6b7280' }}>Son 7 gün</span>
             </div>
-            {weekData.length > 0 ? (
-              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px', height: '100px' }}>
-                {weekData.map((d: { day: string; total_min: number; isToday?: boolean }, i) => {
-                  const heightPct = (d.total_min / maxWeekly) * 100;
-                  const isToday = i === weekData.length - 1;
-                  return (
-                    <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
-                      <div style={{ width: '100%', height: '80px', display: 'flex', alignItems: 'flex-end' }}>
-                        <div style={{ width: '100%', background: '#1e293b', borderRadius: '6px 6px 0 0', height: '100%', position: 'relative', overflow: 'hidden' }}>
-                          <motion.div
-                            initial={{ height: 0 }}
-                            animate={{ height: `${Math.max(heightPct, d.total_min > 0 ? 8 : 0)}%` }}
-                            transition={{ duration: 0.6, delay: i * 0.05, ease: 'easeOut' }}
-                            style={{ position: 'absolute', bottom: 0, left: 0, right: 0, borderRadius: '6px 6px 0 0',
-                                     background: isToday ? 'linear-gradient(to top, #8b5cf6, #38bdf8)' : '#374151',
-                                     boxShadow: isToday ? '0 -4px 12px rgba(139,92,246,0.4)' : 'none' }}
-                          />
-                        </div>
-                      </div>
-                      <span style={{ fontSize: '10px', fontWeight: 600, color: isToday ? '#a78bfa' : '#6b7280' }}>{d.day}</span>
-                      {d.total_min > 0 && (
-                        <span style={{ fontSize: '9px', color: isToday ? '#8b5cf6' : '#4b5563' }}>{Math.round(d.total_min)}dk</span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div style={{ textAlign: 'center', color: '#4b5563', fontSize: '13px', padding: '24px 0' }}>
-                <Clock size={32} style={{ marginBottom: '8px', opacity: 0.3 }}/><br/>
-                Henüz odak geçmişi yok. İlk oturumunu başlat!
-              </div>
-            )}
+            
+            <WeeklyFocusChart weekData={stats.weekData} />
+            
           </div>
 
         </div>
@@ -805,14 +752,14 @@ export default function FocusTab() {
                            '#34d399',
                     fontSize: '11px', fontWeight: 700, padding: '4px 8px', borderRadius: '8px'
                   }}>
-                    {session.duration_min} dk
+                    {session.duration_minutes} dk
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#6b7280' }}>
                   <Clock size={12}/>
-                  {new Date(session.started_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                  {new Date(session.created_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
                   {' · '}
-                  {new Date(session.started_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}
+                  {new Date(session.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}
                 </div>
               </div>
             ))}

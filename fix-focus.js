@@ -1,28 +1,24 @@
 const fs = require('fs');
-const p = 'src/app/api/user/focus/route.ts';
+const p = 'src/components/dashboard/FocusTab.tsx';
 let content = fs.readFileSync(p, 'utf8');
 
-// Fix SQLite datetime function
+// Replace the 300x300 fixed sizes in the main timer circle
 content = content.replace(
-  "started_at >= datetime('now', '-7 days')",
-  "started_at >= CURRENT_DATE - INTERVAL '7 days'"
+  "width: '300px', height: '300px', borderRadius: '50%',",
+  "width: '100%', maxWidth: '300px', aspectRatio: '1/1', borderRadius: '50%',"
 );
 
-// Fix date('now') to CURRENT_DATE just to be safe and clean
+// We need to also check the SVG stroke circles inside it
 content = content.replace(
-  "date(started_at) = date('now')",
-  "DATE(started_at) = CURRENT_DATE"
-);
-content = content.replace(
-  "date(started_at) = date('now')",
-  "DATE(started_at) = CURRENT_DATE"
+  "<svg width=\"300\" height=\"300\"",
+  "<svg width=\"100%\" height=\"100%\" viewBox=\"0 0 300 300\" preserveAspectRatio=\"xMidYMid meet\""
 );
 
-// Fix daily quests date('now')
+// We need to fix the grid in Ambient Sounds
 content = content.replace(
-  "date = date('now')",
-  "date = CURRENT_DATE"
+  "gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px'",
+  "gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))', gap: '8px'"
 );
 
 fs.writeFileSync(p, content);
-console.log("Fixed Postgres datetime syntax");
+console.log("Focus fixed");

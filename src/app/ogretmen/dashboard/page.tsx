@@ -194,8 +194,8 @@ function TeacherDashboardContent() {
   const [announcements, setAnnouncements] = useState<AnnouncementItem[]>([]);
   const [assignmentDetail, setAssignmentDetail] = useState<any>(null);
   const [selectedStudent, setSelectedStudent] = useState<StudentItem | null>(null);
-  const [studentWeaknesses, setStudentWeaknesses] = useState<any[]>([]);
-  const [studentWeaknessesLoading, setStudentWeaknessesLoading] = useState(false);
+  const [studentDetail, setStudentDetail] = useState<any>(null);
+  const [studentDetailLoading, setStudentDetailLoading] = useState(false);
 
   const [aiClassId, setAiClassId] = useState<string>('');
   const [classInsights, setClassInsights] = useState<any>(null);
@@ -225,17 +225,17 @@ function TeacherDashboardContent() {
 
   useEffect(() => {
     if (selectedStudent) {
-      setStudentWeaknessesLoading(true);
-      setStudentWeaknesses([]);
-      fetch(`/api/ogretmen/ogrenciler/${selectedStudent.id}/weaknesses`)
+      setStudentDetailLoading(true);
+      setStudentDetail(null);
+      fetch(`/api/ogretmen/ogrenciler/${selectedStudent.id}`)
         .then(res => res.json())
         .then(data => {
-          if (data.success) {
-            setStudentWeaknesses(data.weaknesses);
-          }
+          if (data.success) setStudentDetail(data);
         })
         .catch(err => console.error(err))
-        .finally(() => setStudentWeaknessesLoading(false));
+        .finally(() => setStudentDetailLoading(false));
+    } else {
+      setStudentDetail(null);
     }
   }, [selectedStudent]);
 
@@ -788,6 +788,12 @@ function TeacherDashboardContent() {
               <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '0.4rem 0.85rem', color: 'var(--text-secondary)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Filter size={14} /> {filteredStudents.length} öğrenci
               </div>
+              {/* Risk filter badge */}
+              {students.filter(s => (s.streak_days ?? 0) === 0).length > 0 && (
+                <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 10, padding: '0.4rem 0.85rem', color: '#ef4444', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700 }}>
+                  <AlertTriangle size={14} /> {students.filter(s => (s.streak_days ?? 0) === 0).length} öğrenci hareketsiz
+                </div>
+              )}
             </div>
 
             {loading ? (
@@ -828,10 +834,12 @@ function TeacherDashboardContent() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredStudents.map((s, idx) => (
-                      <tr key={s.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', transition: 'background 0.15s' }}
-                        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.03)')}
-                        onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                    {filteredStudents.map((s, idx) => {
+                      const isAtRisk = (s.streak_days ?? 0) === 0;
+                      return (
+                      <tr key={s.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', transition: 'background 0.15s', background: isAtRisk ? 'rgba(239,68,68,0.03)' : 'transparent' }}
+                        onMouseEnter={e => (e.currentTarget.style.background = isAtRisk ? 'rgba(239,68,68,0.07)' : 'rgba(255,255,255,0.03)')}
+                        onMouseLeave={e => (e.currentTarget.style.background = isAtRisk ? 'rgba(239,68,68,0.03)' : 'transparent')}
                       >
                         <td style={{ padding: '0.85rem 1rem' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -839,7 +847,10 @@ function TeacherDashboardContent() {
                               {s.username?.charAt(0).toUpperCase()}
                             </div>
                             <div>
-                              <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.9rem' }}>{s.username}</div>
+                              <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                {s.username}
+                                {isAtRisk && <AlertTriangle size={12} color="#ef4444" title="Hareketsiz öğrenci" />}
+                              </div>
                               {s.sinif && <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>{s.sinif}. Sınıf</div>}
                             </div>
                           </div>
@@ -860,8 +871,8 @@ function TeacherDashboardContent() {
                           <Badge label={s.league ?? 'Bronz'} color={LEAGUE_COLORS[s.league] ?? '#cd7f32'} />
                         </td>
                         <td style={{ padding: '0.85rem 1rem' }}>
-                          <span style={{ color: s.streak_days > 0 ? '#f59e0b' : '#6b7280', fontWeight: 700 }}>
-                            {s.streak_days > 0 ? `${s.streak_days} 🔥` : '—'}
+                          <span style={{ color: s.streak_days > 0 ? '#f59e0b' : '#ef4444', fontWeight: 700 }}>
+                            {s.streak_days > 0 ? `${s.streak_days} 🔥` : '⚠️ 0'}
                           </span>
                         </td>
                         <td style={{ padding: '0.85rem 1rem' }}>
@@ -880,12 +891,13 @@ function TeacherDashboardContent() {
                               <Star size={13} fill="currentColor" /> XP Ver
                             </button>
                             <button onClick={() => setSelectedStudent(s)} style={{ background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.2)', color: '#38bdf8', padding: '0.4rem 0.85rem', borderRadius: 8, cursor: 'pointer', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 5, fontWeight: 600 }}>
-                              <Eye size={13} /> Profil
+                              <BarChart2 size={13} /> Analiz
                             </button>
                           </div>
                         </td>
                       </tr>
-                    ))}
+                    );
+                  })}
                   </tbody>
                 </table>
               </div>
@@ -1428,80 +1440,200 @@ function TeacherDashboardContent() {
         )}
       </Modal>
 
-      {/* Student Profile Modal */}
-      <Modal open={!!selectedStudent} onClose={() => setSelectedStudent(null)} title="Öğrenci Profili">
+      {/* ═══════════════════════════════════════
+          KAPSAMLI ÖĞRENCİ DETAY MODALİ
+      ═══════════════════════════════════════ */}
+      <Modal open={!!selectedStudent} onClose={() => setSelectedStudent(null)} title="Öğrenci Analiz Kartı" maxW={760}>
         {selectedStudent && (
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '2rem', padding: '1.25rem', background: 'rgba(255,255,255,0.03)', borderRadius: 14, border: '1px solid rgba(255,255,255,0.07)' }}>
-              <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'linear-gradient(135deg,#38bdf8,#6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '1.5rem', flexShrink: 0 }}>
+            {/* Header — Kimlik */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '1.5rem', padding: '1.25rem', background: 'rgba(255,255,255,0.03)', borderRadius: 14, border: '1px solid rgba(255,255,255,0.07)' }}>
+              <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg,#38bdf8,#6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '1.6rem', flexShrink: 0 }}>
                 {selectedStudent.username?.charAt(0).toUpperCase()}
               </div>
-              <div>
-                <div style={{ color: '#fff', fontWeight: 800, fontSize: '1.25rem' }}>{selectedStudent.username}</div>
-                <div style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginTop: 2 }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ color: '#fff', fontWeight: 800, fontSize: '1.3rem' }}>{selectedStudent.username}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4, flexWrap: 'wrap' }}>
                   {selectedStudent.alan && <Badge label={selectedStudent.alan} color={ALAN_COLORS[selectedStudent.alan] ?? '#9ca3af'} />}
-                  {selectedStudent.sinif && <span style={{ marginLeft: 6, color: 'var(--text-muted)', fontSize: '0.8rem' }}>{selectedStudent.sinif}. Sınıf</span>}
+                  {selectedStudent.sinif && <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{selectedStudent.sinif}. Sınıf</span>}
+                  {studentDetail?.student?.target_university && (
+                    <span style={{ color: '#a78bfa', fontSize: '0.78rem' }}>🎯 {studentDetail.student.target_university}</span>
+                  )}
+                  {studentDetail?.lastActivity && (
+                    <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                      Son aktiflik: {new Date(studentDetail.lastActivity).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}
+                    </span>
+                  )}
                 </div>
               </div>
-            </div>
-             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-              {[
-                { label: 'Çözülen Soru', value: selectedStudent.solved_questions ?? 0, color: '#38bdf8', icon: BookOpen },
-                { label: 'Başarı Oranı', value: `%${(selectedStudent.success_rate ?? 0).toFixed(1)}`, color: successColor(selectedStudent.success_rate ?? 0), icon: TrendingUp },
-                { label: 'Lig', value: selectedStudent.league ?? 'Bronz', color: LEAGUE_COLORS[selectedStudent.league] ?? '#cd7f32', icon: Trophy },
-                { label: 'Lig Puanı', value: selectedStudent.league_points ?? 0, color: '#f59e0b', icon: Star },
-                { label: 'Streak', value: `${selectedStudent.streak_days ?? 0} gün`, color: selectedStudent.streak_days > 0 ? '#f59e0b' : '#6b7280', icon: Flame },
-              ].map((item) => (
-                <div key={item.label} style={{ padding: '1rem', background: `${item.color}0a`, borderRadius: 12, border: `1px solid ${item.color}20` }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-                    <item.icon size={14} color={item.color} />
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{item.label}</div>
+              {/* Risk badge */}
+              {studentDetail && (() => {
+                const daysSinceActive = studentDetail.lastActivity
+                  ? Math.floor((Date.now() - new Date(studentDetail.lastActivity).getTime()) / 86400000)
+                  : 999;
+                if (daysSinceActive >= 7) return (
+                  <div style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 10, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <AlertTriangle size={16} color="#ef4444" />
+                    <span style={{ color: '#ef4444', fontSize: '0.78rem', fontWeight: 700 }}>{daysSinceActive}g hareketsiz</span>
                   </div>
-                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: item.color }}>{item.value}</div>
-                </div>
-              ))}
+                );
+                return null;
+              })()}
             </div>
 
-            {/* Student Weaknesses Section */}
-            <div style={{ marginTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '1.5rem' }}>
-              <h3 style={{ fontSize: '1rem', color: '#fff', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <AlertTriangle size={18} color="#ef4444" />
-                Konu Eksikleri ve Hataları (Top 5)
-              </h3>
-              
-              {studentWeaknessesLoading ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '1rem', color: 'var(--text-secondary)' }}>
-                  <Loader2 size={16} className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
-                  <span>Eksik analizi derleniyor...</span>
-                </div>
-              ) : studentWeaknesses.length > 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  {studentWeaknesses.map((w, idx) => (
-                    <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.02)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.05)', textAlign: 'left' }}>
-                      <div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>{w.subject}</div>
-                        <div style={{ fontSize: '0.9rem', color: '#fff', fontWeight: 600, marginTop: 2 }}>{w.topic}</div>
+            {studentDetailLoading ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem', gap: 12, color: 'var(--text-secondary)' }}>
+                <Loader2 size={22} style={{ animation: 'spin 1s linear infinite' }} />
+                <span>Veriler derleniyor...</span>
+              </div>
+            ) : (
+              <>
+                {/* ── Blok 1: Temel İstatistikler ── */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.65rem', marginBottom: '1.25rem' }}>
+                  {[
+                    { label: 'Çözülen Soru', value: selectedStudent.solved_questions ?? 0, color: '#38bdf8', icon: BookOpen },
+                    { label: 'Başarı Oranı', value: `%${(selectedStudent.success_rate ?? 0).toFixed(1)}`, color: successColor(selectedStudent.success_rate ?? 0), icon: TrendingUp },
+                    { label: 'Streak', value: `${selectedStudent.streak_days ?? 0} gün`, color: selectedStudent.streak_days > 0 ? '#f59e0b' : '#6b7280', icon: Flame },
+                    { label: 'Lig', value: selectedStudent.league ?? 'Bronz', color: LEAGUE_COLORS[selectedStudent.league] ?? '#cd7f32', icon: Trophy },
+                    { label: 'Haftalık Odak', value: studentDetail ? `${Math.round((studentDetail.weeklyTotalMinutes ?? 0) / 60 * 10) / 10} saat` : '—', color: '#a855f7', icon: Clock },
+                    { label: 'Toplam XP', value: studentDetail?.student?.xp ?? selectedStudent.league_points ?? 0, color: '#f59e0b', icon: Star },
+                  ].map((item) => (
+                    <div key={item.label} style={{ padding: '0.9rem 1rem', background: `${item.color}0d`, borderRadius: 12, border: `1px solid ${item.color}20` }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 5 }}>
+                        <item.icon size={13} color={item.color} />
+                        <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>{item.label}</div>
                       </div>
-                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                        <span style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', padding: '2px 8px', borderRadius: 20, fontSize: '0.75rem', fontWeight: 700, border: '1px solid rgba(239, 68, 68, 0.2)' }}>
-                          {w.errorCount} Hata
-                        </span>
-                        {w.activeCount > 0 && (
-                          <span style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', padding: '2px 8px', borderRadius: 20, fontSize: '0.75rem', fontWeight: 700, border: '1px solid rgba(245, 158, 11, 0.2)' }}>
-                            {w.activeCount} Aktif
-                          </span>
-                        )}
-                      </div>
+                      <div style={{ fontSize: '1.2rem', fontWeight: 800, color: item.color }}>{item.value}</div>
                     </div>
                   ))}
                 </div>
-              ) : (
-                <div style={{ padding: '1rem', background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.1)', borderRadius: 10, color: '#10b981', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Check size={16} />
-                  <span>Harika! Bu öğrencinin henüz kayıtlı bir zayıf konusu bulunmuyor.</span>
+
+                {/* ── Blok 2: Haftalık Odak Grafiği (Mini Bar Chart) ── */}
+                {studentDetail?.weeklyFocus?.length > 0 && (
+                  <div style={{ background: 'rgba(168,85,247,0.04)', border: '1px solid rgba(168,85,247,0.15)', borderRadius: 14, padding: '1.25rem', marginBottom: '1.25rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: '1rem' }}>
+                      <BarChart2 size={16} color="#a855f7" />
+                      <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Son 7 Gün — Odak Çalışması</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.4rem', height: 70 }}>
+                      {(() => {
+                        const maxMin = Math.max(...(studentDetail.weeklyFocus.map((d: any) => d.total_minutes ?? 0)), 1);
+                        return studentDetail.weeklyFocus.map((d: any, i: number) => {
+                          const pct = ((d.total_minutes ?? 0) / maxMin) * 100;
+                          const label = new Date(d.date).toLocaleDateString('tr-TR', { weekday: 'short' });
+                          return (
+                            <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flex: 1 }}>
+                              <div title={`${d.total_minutes} dk`} style={{ width: '100%', height: `${Math.max(pct, 4)}%`, background: 'linear-gradient(180deg, #a855f7, #7c3aed)', borderRadius: '4px 4px 0 0', transition: 'height 0.4s ease', minHeight: 4 }} />
+                              <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)' }}>{label}</span>
+                            </div>
+                          );
+                        });
+                      })()}
+                    </div>
+                  </div>
+                )}
+
+                {/* ── Blok 3: Ders Bazlı Çalışma Dağılımı ── */}
+                {studentDetail?.subjectBreakdown?.length > 0 && (
+                  <div style={{ background: 'rgba(56,189,248,0.04)', border: '1px solid rgba(56,189,248,0.15)', borderRadius: 14, padding: '1.25rem', marginBottom: '1.25rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: '0.875rem' }}>
+                      <BookOpen size={16} color="#38bdf8" />
+                      <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Ders Bazlı Çalışma</span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      {studentDetail.subjectBreakdown.slice(0, 5).map((s: any, i: number) => {
+                        const maxMin = studentDetail.subjectBreakdown[0]?.total_minutes ?? 1;
+                        const pct = Math.round((s.total_minutes / maxMin) * 100);
+                        const colors = ['#38bdf8', '#a855f7', '#10b981', '#f59e0b', '#f43f5e'];
+                        return (
+                          <div key={i}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                              <span style={{ fontSize: '0.8rem', color: '#fff', fontWeight: 600 }}>{s.subject}</span>
+                              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{Math.round(s.total_minutes / 60 * 10) / 10}s · {s.session_count} oturum</span>
+                            </div>
+                            <div style={{ height: 6, background: 'rgba(255,255,255,0.06)', borderRadius: 3, overflow: 'hidden' }}>
+                              <div style={{ height: '100%', width: `${pct}%`, background: colors[i % colors.length], borderRadius: 3, transition: 'width 0.5s ease' }} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* ── Blok 4: Hata Defteri (Zayıf Konular) ── */}
+                <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: '1.25rem', marginBottom: '1.25rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: '0.875rem' }}>
+                    <AlertTriangle size={16} color="#ef4444" />
+                    <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Zayıf Konular (Hata Defteri)</span>
+                  </div>
+                  {(studentDetail?.weaknesses?.length ?? 0) === 0 ? (
+                    <div style={{ padding: '0.875rem', background: 'rgba(16,185,129,0.05)', border: '1px solid rgba(16,185,129,0.15)', borderRadius: 10, color: '#10b981', fontSize: '0.83rem', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <CheckCircle size={14} /> Kayıtlı zayıf konu yok — harika!
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      {(studentDetail?.weaknesses ?? []).slice(0, 5).map((w: any, idx: number) => (
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.7rem 0.875rem', background: 'rgba(255,255,255,0.02)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.05)' }}>
+                          <div>
+                            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{w.subject}</div>
+                            <div style={{ fontSize: '0.875rem', color: '#fff', fontWeight: 600, marginTop: 1 }}>{w.topic}</div>
+                          </div>
+                          <span style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', padding: '2px 10px', borderRadius: 20, fontSize: '0.75rem', fontWeight: 700, border: '1px solid rgba(239,68,68,0.2)' }}>
+                            {w.mistake_count} hata
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+
+                {/* ── Blok 5: Deneme Sonuçları ── */}
+                {(studentDetail?.examResults?.length ?? 0) > 0 && (
+                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: '1.25rem', marginBottom: '1.25rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: '0.875rem' }}>
+                      <FileText size={16} color="#f59e0b" />
+                      <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Son Deneme Sonuçları</span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      {studentDetail.examResults.map((e: any, i: number) => (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.7rem 0.875rem', background: 'rgba(255,255,255,0.02)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.05)' }}>
+                          <span style={{ fontSize: '0.875rem', color: '#fff', fontWeight: 600 }}>{e.exam_name || 'Deneme'}</span>
+                          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            {e.total_net != null && <Badge label={`Net: ${e.total_net}`} color="#f59e0b" />}
+                            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{formatDate(e.created_at)}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* ── Blok 6: Son Çalışma Oturumları ── */}
+                {(studentDetail?.recentSessions?.length ?? 0) > 0 && (
+                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: '1.25rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: '0.875rem' }}>
+                      <Clock size={16} color="#a855f7" />
+                      <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Son Çalışma Oturumları</span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                      {studentDetail.recentSessions.map((s: any, i: number) => (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.6rem 0.875rem', background: 'rgba(255,255,255,0.02)', borderRadius: 8, border: '1px solid rgba(255,255,255,0.04)' }}>
+                          <div>
+                            <span style={{ fontSize: '0.83rem', color: '#fff', fontWeight: 500 }}>{s.subject || 'Serbest Çalışma'}</span>
+                            {s.topic && <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginLeft: 6 }}>· {s.topic}</span>}
+                          </div>
+                          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                            <span style={{ fontSize: '0.78rem', color: '#a855f7', fontWeight: 600 }}>{s.duration_minutes} dk</span>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{formatDate(s.created_at)}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         )}
       </Modal>

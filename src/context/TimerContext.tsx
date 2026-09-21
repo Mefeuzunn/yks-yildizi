@@ -193,28 +193,30 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
   const saveSession = useCallback(async (subject: string | null, topic: string | null, taskName: string | null) => {
     if (!pendingSession) return;
     try {
-      await fetch('/api/user/focus', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          subject,
-          topic,
-          taskName,
-          mode: pendingSession.mode,
-          durationMin: pendingSession.durationMin,
-        }),
+      const res = await saveFocusSession({
+        subject,
+        topic,
+        taskName,
+        mode: pendingSession.mode,
+        durationMin: pendingSession.durationMin,
       });
-    } catch (e) {}
+      if (!res.success) {
+        alert('Sunucu hatası: ' + res.error);
+      }
+    } catch (e: any) {
+      alert('Kayıt edilemedi: ' + e.message);
+    }
     setPendingSession(null);
   }, [pendingSession]);
 
   const dismissSession = useCallback(() => {
-    // Save without subject/topic and close modal
     if (pendingSession) {
-      fetch('/api/user/focus', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subject: null, topic: null, taskName: null, mode: pendingSession.mode, durationMin: pendingSession.durationMin }),
+      saveFocusSession({
+        subject: null,
+        topic: null,
+        taskName: null,
+        mode: pendingSession.mode,
+        durationMin: pendingSession.durationMin
       }).catch(() => {});
     }
     setPendingSession(null);

@@ -1,26 +1,41 @@
 const fs = require('fs');
-const glob = require('glob');
 
-const paths = [
-  'src/app/api/questions/error-quiz/route.ts',
-  'src/app/api/questions/generate/route.ts',
-  'src/app/api/shop/inventory/route.ts'
-];
+// 1. Fix ScheduleTab.tsx
+const pSchedule = 'src/components/dashboard/ScheduleTab.tsx';
+let sched = fs.readFileSync(pSchedule, 'utf8');
+sched = sched.replace(/import \{([^}]+)\} from 'lucide-react';/, (match, p1) => {
+  if (!p1.includes('Sparkles')) return `import { Sparkles, ${p1} } from 'lucide-react';`;
+  return match;
+});
+sched = sched.replace(
+  "style={{display:'block',fontSize:'12px',color:'#9ca3af',marginBottom:'7px',fontWeight:600,display:'flex',alignItems:'center',gap:'6px'}}",
+  "style={{display:'flex',fontSize:'12px',color:'#9ca3af',marginBottom:'7px',fontWeight:600,alignItems:'center',gap:'6px'}}"
+);
+sched = sched.replace(
+  "style={{display:'block',fontSize:'12px',color:'#9ca3af',marginBottom:'7px',fontWeight:600,display:'flex',alignItems:'center',gap:'6px'}}",
+  "style={{display:'flex',fontSize:'12px',color:'#9ca3af',marginBottom:'7px',fontWeight:600,alignItems:'center',gap:'6px'}}"
+);
+fs.writeFileSync(pSchedule, sched);
 
-for (const p of paths) {
-  if (fs.existsSync(p)) {
-    let content = fs.readFileSync(p, 'utf8');
-    
-    // Fix missing awaits for checkUni or db queries that TS warns about `Promise<Row & Iterable<Row>>`
-    content = content.replace(/const template = getTemplate\.get\(\) as/g, 'const template = await getTemplate.get() as');
-    content = content.replace(/const qTemplate = getTemplateStmt\.get\(id\) as/g, 'const qTemplate = await getTemplateStmt.get(id) as');
-    
-    // Fix Inventory pushing generic rows
-    content = content.replace(/inventory\.push\(checkItem\.get\(item_id\)\);/g, 'const item = await checkItem.get(item_id); inventory.push(item as any);');
-    
-    // Replace `as QuestionTemplate` with `as unknown as QuestionTemplate` just in case to suppress mismatch
-    content = content.replace(/as QuestionTemplate/g, 'as unknown as QuestionTemplate');
+// 2. Fix veli/page.tsx FileText missing
+const pVeli = 'src/app/veli/page.tsx';
+let veli = fs.readFileSync(pVeli, 'utf8');
+veli = veli.replace(/import \{([^}]+)\} from 'lucide-react';/, (match, p1) => {
+  if (!p1.includes('FileText')) return `import { FileText, ${p1} } from 'lucide-react';`;
+  return match;
+});
+fs.writeFileSync(pVeli, veli);
 
-    fs.writeFileSync(p, content);
-  }
-}
+// 3. Fix FocusTab.tsx Settings and Minimize missing
+const pFocus = 'src/components/dashboard/FocusTab.tsx';
+let focus = fs.readFileSync(pFocus, 'utf8');
+focus = focus.replace(/import \{([^}]+)\} from 'lucide-react';/, (match, p1) => {
+  let adds = [];
+  if (!p1.includes('Settings')) adds.push('Settings');
+  if (!p1.includes('Minimize')) adds.push('Minimize');
+  if (adds.length > 0) return `import { ${adds.join(', ')}, ${p1} } from 'lucide-react';`;
+  return match;
+});
+fs.writeFileSync(pFocus, focus);
+
+console.log("Fixed TS errors");

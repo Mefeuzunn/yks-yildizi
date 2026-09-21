@@ -3,14 +3,27 @@ import { cookies } from 'next/headers';
 import db from '@/lib/yks-db-async';
 import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
+import { verifyToken } from '@/lib/jwt';
+
+export const dynamic = 'force-dynamic';
+
+async function getTeacherId(): Promise<string | null> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('yks_session')?.value;
+  if (!token) return null;
+  try {
+    const payload = await verifyToken(token);
+    if (payload?.userId) return payload.userId as string;
+  } catch (_) {}
+  return token;
+}
 
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-    if (!sessionId) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
+    const teacherId = await getTeacherId();
+    if (!teacherId) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
 
-    const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(sessionId) as any;
+    const user = await db.prepare('SELECT id, role FROM users WHERE id = ?').get(teacherId) as any;
     if (!user || user.role !== 'ogretmen') return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
 
     const classes = await db.prepare(`
@@ -34,11 +47,10 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-    if (!sessionId) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
+    const teacherId = await getTeacherId();
+    if (!teacherId) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
 
-    const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(sessionId) as any;
+    const user = await db.prepare('SELECT id, role FROM users WHERE id = ?').get(teacherId) as any;
     if (!user || user.role !== 'ogretmen') return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
 
     const body = await request.json();
