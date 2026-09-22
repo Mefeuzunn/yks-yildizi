@@ -9,7 +9,7 @@ import {
   Star, Calendar, Award, Eye, BarChart2, Search, Filter,
   ChevronUp, ChevronDown, Trash2, Bell, Zap, Target,
   GraduationCap, BookMarked, PenLine, RefreshCw, ArrowRight,
-  CheckCircle, Clock, AlertCircle, Flame, Trophy, Shield, Sparkles, BrainCircuit, Target
+  CheckCircle, Clock, AlertCircle, Flame, Trophy, Shield, Sparkles, BrainCircuit
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
