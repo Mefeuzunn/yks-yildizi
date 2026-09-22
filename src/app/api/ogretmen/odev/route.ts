@@ -1,22 +1,17 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import db from '@/lib/yks-db-async';
 import { v4 as uuidv4 } from 'uuid';
 import { generateQuestionFromTemplate } from '@/lib/engine';
+import { getAuthenticatedTeacherId } from '@/lib/auth-utils';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-
-    if (!sessionId) {
-      return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
-    }
-
-    const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(sessionId) as any;
-    if (!user || user.role !== 'ogretmen') {
-      return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
-    }
+    const teacherId = await getAuthenticatedTeacherId();
+    if (!teacherId) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
+    const user = await db.prepare('SELECT id, role FROM users WHERE id = ?').get(teacherId) as any;
+    if (!user || user.role !== 'ogretmen') return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
 
     const assignments = await db.prepare(`
       SELECT a.*,
@@ -38,17 +33,10 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-
-    if (!sessionId) {
-      return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
-    }
-
-    const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(sessionId) as any;
-    if (!user || user.role !== 'ogretmen') {
-      return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
-    }
+    const teacherId = await getAuthenticatedTeacherId();
+    if (!teacherId) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
+    const user = await db.prepare('SELECT id, role FROM users WHERE id = ?').get(teacherId) as any;
+    if (!user || user.role !== 'ogretmen') return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
 
     const body = await request.json();
     const { title, description, class_id, due_date, generateQuestions, subject, topic, questionCount = 5 } = body;

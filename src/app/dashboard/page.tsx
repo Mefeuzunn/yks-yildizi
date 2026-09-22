@@ -106,6 +106,8 @@ function DashboardContent() {
   const [stats, setStats] = useState<GamificationStats | null>(null);
   const [quests, setQuests] = useState<Quest[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [pendingAssignments, setPendingAssignments] = React.useState<any[]>([]);
+  const [announcements, setAnnouncements] = React.useState<any[]>([]);
 
   const fetchGamificationData = async () => {
     try {
@@ -129,6 +131,12 @@ function DashboardContent() {
   useEffect(() => {
     if (user) {
       fetchGamificationData();
+      fetch('/api/odevler').then(r => r.ok ? r.json() : {assignments: []}).then(d => {
+        setPendingAssignments((d.assignments ?? []).filter((a: any) => a.status === 'pending'));
+      }).catch(() => {});
+      fetch('/api/ogrenci/duyurular').then(r => r.ok ? r.json() : {announcements: []}).then(d => {
+        setAnnouncements(d.announcements ?? []);
+      }).catch(() => {});
     }
   }, [user]);
 
@@ -322,7 +330,61 @@ function DashboardContent() {
             </div>
           </div>
 
+          {/* ── Ödevler + Duyurular Row ── */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+            {/* Ödevlerim */}
+            <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, padding: '20px 24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                <span style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>📋 Ödevlerim</span>
+                {pendingAssignments.length > 0 && (
+                  <span style={{ background: '#FEF3C7', color: '#92400E', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 20 }}>
+                    {pendingAssignments.length} bekliyor
+                  </span>
+                )}
+              </div>
+              {pendingAssignments.length === 0 ? (
+                <p style={{ fontSize: 13, color: '#9CA3AF', margin: 0 }}>Bekleyen ödeviniz yok 🎉</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {pendingAssignments.slice(0, 3).map((a: any) => {
+                    const isOverdue = a.due_date && new Date(a.due_date) < new Date();
+                    return (
+                      <div key={a.id} style={{ padding: '10px 12px', background: '#F9FAFB', borderRadius: 8, border: `1px solid ${isOverdue ? '#FCA5A5' : '#E5E7EB'}` }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>{a.title}</div>
+                        <div style={{ fontSize: 11, color: isOverdue ? '#EF4444' : '#9CA3AF', marginTop: 2 }}>
+                          {a.teacher_name} · {a.due_date ? new Date(a.due_date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }) : 'Süresiz'}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Duyurular */}
+            <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, padding: '20px 24px' }}>
+              <div style={{ marginBottom: 14 }}>
+                <span style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>📢 Duyurular</span>
+              </div>
+              {announcements.length === 0 ? (
+                <p style={{ fontSize: 13, color: '#9CA3AF', margin: 0 }}>Yeni duyuru yok.</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {announcements.slice(0, 3).map((a: any) => (
+                    <div key={a.id} style={{ padding: '10px 12px', background: '#F9FAFB', borderRadius: 8, border: '1px solid #E5E7EB' }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>{a.title}</div>
+                      <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>
+                        {a.teacher_name} · {new Date(a.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Günlük Görevler */}
+
           <div style={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '16px', padding: '24px', marginBottom: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#ffffff', margin: 0 }}>Günlük Görevler</h3>

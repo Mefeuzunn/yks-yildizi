@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import db from '@/lib/yks-db-async';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
+
+export const dynamic = 'force-dynamic';
 
 // Simulating YÖK Atlas Net targets for key programs
 export const DEPARTMENT_NETS: Record<string, Record<string, number>> = {
@@ -32,16 +34,7 @@ export const DEPARTMENT_NETS: Record<string, Record<string, number>> = {
 
 export async function GET(req: Request) {
   try {
-    const cookieStore = await cookies();
-    let userId = cookieStore.get('yks_session')?.value;
-
-    if (!userId) {
-      const authHeader = req.headers.get('authorization');
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        userId = authHeader.substring(7);
-      }
-    }
-
+    const userId = await getAuthenticatedUserId(req);
     if (!userId) {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
     }
@@ -113,16 +106,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const cookieStore = await cookies();
-    let userId = cookieStore.get('yks_session')?.value;
-
-    if (!userId) {
-      const authHeader = req.headers.get('authorization');
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        userId = authHeader.substring(7);
-      }
-    }
-
+    const userId = await getAuthenticatedUserId(req);
     if (!userId) {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
     }

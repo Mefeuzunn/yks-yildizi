@@ -1,22 +1,15 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import db from '@/lib/yks-db-async';
+import { getAuthenticatedTeacherId } from '@/lib/auth-utils';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-
-    if (!sessionId) {
-      return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
-    }
-
-    const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(sessionId) as any;
-    if (!user || user.role !== 'ogretmen') {
-      return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
-    }
-
-    const teacherId = user.id;
+    const teacherId = await getAuthenticatedTeacherId();
+    if (!teacherId) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
+    const user = await db.prepare('SELECT id, role FROM users WHERE id = ?').get(teacherId) as any;
+    if (!user || user.role !== 'ogretmen') return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
 
     // ── Sınıf bazlı ortalama başarı ──
     const classPerfRows = await db.prepare(`

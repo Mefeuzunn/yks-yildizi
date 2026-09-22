@@ -161,6 +161,58 @@ export async function GET(req: Request, { params }: { params: { studentId: strin
       weeklyTotalMinutes = wt?.total ?? 0;
     } catch (_) {}
 
+    // 10. Konu tamamlanma ilerlemesi (subject_progress)
+    let subjectProgress: any[] = [];
+    try {
+      subjectProgress = await db.prepare(`
+        SELECT subject, topic, completion_rate, last_studied_at
+        FROM subject_progress
+        WHERE user_id = ?
+        ORDER BY completion_rate DESC, last_studied_at DESC
+        LIMIT 15
+      `).all(studentId) as any[];
+    } catch (_) {}
+
+    // 11. Test sonuçları (test_sessions) — soru bazlı
+    let testSessions: any[] = [];
+    try {
+      testSessions = await db.prepare(`
+        SELECT id, test_type, score, correct_count, wrong_count, blank_count, created_at
+        FROM test_sessions
+        WHERE user_id = ?
+        ORDER BY created_at DESC
+        LIMIT 10
+      `).all(studentId) as any[];
+    } catch (_) {}
+
+    // 12. Sınıf ortalaması karşılaştırması
+    let classAvgFocusMinutes = 0;
+    let classStudentCount = 0;
+    try {
+      const classInfo = await db.prepare(`
+        SELECT cs.class_id
+        FROM class_students cs
+        JOIN teacher_classes tc ON cs.class_id = tc.id
+        WHERE cs.student_id = ? AND tc.teacher_id = ?
+        LIMIT 1
+      `).get(studentId, teacherId) as any;
+
+      if (classInfo?.class_id) {
+        const classStats = await db.prepare(`
+          SELECT 
+            COUNT(DISTINCT cs.student_id) as student_count,
+            COALESCE(SUM(COALESCE(fs.duration_minutes, fs.duration_min, 0)), 0) / NULLIF(COUNT(DISTINCT cs.student_id), 0) as avg_weekly_minutes
+          FROM class_students cs
+          LEFT JOIN focus_sessions fs ON cs.student_id = fs.user_id
+            AND fs.created_at >= NOW() - INTERVAL '7 days'
+          WHERE cs.class_id = ?
+        `).get(classInfo.class_id) as any;
+
+        classAvgFocusMinutes = classStats?.avg_weekly_minutes ?? 0;
+        classStudentCount = classStats?.student_count ?? 0;
+      }
+    } catch (_) {}
+
     return NextResponse.json({
       success: true,
       student,
@@ -172,6 +224,10 @@ export async function GET(req: Request, { params }: { params: { studentId: strin
       assignments,
       lastActivity,
       weeklyTotalMinutes,
+      subjectProgress,
+      testSessions,
+      classAvgFocusMinutes,
+      classStudentCount,
     });
   } catch (error: any) {
     console.error('Student detail error:', error);

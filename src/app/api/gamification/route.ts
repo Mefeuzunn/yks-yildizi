@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import db from '@/lib/yks-db-async';
 import crypto from 'crypto';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
+
+export const dynamic = 'force-dynamic';
 
 const QUEST_TEMPLATES = [
   { title: 'Matematik 20 Soru Çöz', target: 20, xp_reward: 50 },
@@ -14,14 +16,11 @@ const QUEST_TEMPLATES = [
 
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const session = cookieStore.get('yks_session');
+    const userId = await getAuthenticatedUserId();
 
-    if (!session || !session.value) {
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
-    const userId = session.value;
 
     // 1. Fetch Stats
     let stats = await db.prepare(`

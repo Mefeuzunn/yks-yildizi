@@ -9,7 +9,7 @@ import {
   Star, Calendar, Award, Eye, BarChart2, Search, Filter,
   ChevronUp, ChevronDown, Trash2, Bell, Zap, Target,
   GraduationCap, BookMarked, PenLine, RefreshCw, ArrowRight,
-  CheckCircle, Clock, AlertCircle, Flame, Trophy, Shield, Sparkles, BrainCircuit
+  CheckCircle, Clock, AlertCircle, Flame, Trophy, Shield, Sparkles, BrainCircuit, Target
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -1627,6 +1627,99 @@ function TeacherDashboardContent() {
                             <span style={{ fontSize: '0.78rem', color: '#a855f7', fontWeight: 600 }}>{s.duration_minutes} dk</span>
                             <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{formatDate(s.created_at)}</span>
                           </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* ── Blok 7: Konu Tamamlanma İlerlemesi ── */}
+                {(studentDetail?.subjectProgress?.length ?? 0) > 0 && (
+                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: '1.25rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: '0.875rem' }}>
+                      <BookOpen size={16} color="#10b981" />
+                      <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Konu Tamamlanma Durumu</span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      {studentDetail.subjectProgress.slice(0, 8).map((p: any, i: number) => {
+                        const pct = Math.min(100, p.completion_rate ?? 0);
+                        const color = pct >= 80 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#ef4444';
+                        return (
+                          <div key={i}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                              <span style={{ fontSize: '0.78rem', color: '#fff' }}>{p.subject}{p.topic ? ` · ${p.topic}` : ''}</span>
+                              <span style={{ fontSize: '0.72rem', color, fontWeight: 700 }}>{pct.toFixed(0)}%</span>
+                            </div>
+                            <div style={{ height: 5, background: 'rgba(255,255,255,0.06)', borderRadius: 3, overflow: 'hidden' }}>
+                              <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: 3, transition: 'width 0.4s ease' }} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* ── Blok 8: Test Performansı (Doğru/Yanlış Trendi) ── */}
+                {(studentDetail?.testSessions?.length ?? 0) > 0 && (
+                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: '1.25rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: '0.875rem' }}>
+                      <Target size={16} color="#f59e0b" />
+                      <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Test Çözme Performansı (Son {Math.min(studentDetail.testSessions.length, 10)} Test)</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.3rem', height: 60, marginBottom: '0.5rem' }}>
+                      {[...studentDetail.testSessions].reverse().map((t: any, i: number) => {
+                        const total = (t.correct_count ?? 0) + (t.wrong_count ?? 0) + (t.blank_count ?? 0);
+                        const pct = total > 0 ? ((t.correct_count ?? 0) / total) * 100 : 0;
+                        const color = pct >= 70 ? '#10b981' : pct >= 40 ? '#f59e0b' : '#ef4444';
+                        return (
+                          <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+                            <div title={`${pct.toFixed(0)}% doğru · ${formatDate(t.created_at)}`}
+                              style={{ width: '100%', height: `${Math.max(pct, 5)}%`, background: color, borderRadius: '3px 3px 0 0', minHeight: 4, transition: 'height 0.4s ease' }} />
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.72rem' }}>
+                      {(() => {
+                        const last = studentDetail.testSessions[0];
+                        const total = (last?.correct_count ?? 0) + (last?.wrong_count ?? 0) + (last?.blank_count ?? 0);
+                        return (
+                          <>
+                            <span style={{ color: '#10b981' }}>✓ {last?.correct_count ?? 0} doğru</span>
+                            <span style={{ color: '#ef4444' }}>✗ {last?.wrong_count ?? 0} yanlış</span>
+                            <span style={{ color: '#6b7280' }}>— {last?.blank_count ?? 0} boş</span>
+                            {total > 0 && <span style={{ color: '#9ca3af' }}>(Son test: {formatDate(last?.created_at)})</span>}
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                )}
+
+                {/* ── Blok 9: Sınıf Ortalaması Karşılaştırması ── */}
+                {(studentDetail?.classStudentCount ?? 0) > 1 && (
+                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: '1.25rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: '0.875rem' }}>
+                      <Users size={16} color="#38bdf8" />
+                      <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Sınıf Ortalamasıyla Karşılaştırma</span>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem' }}>
+                      {[
+                        {
+                          label: 'Bu Öğrenci (Haftalık Odak)',
+                          value: `${Math.round((studentDetail.weeklyTotalMinutes ?? 0) / 60 * 10) / 10} saat`,
+                          color: (studentDetail.weeklyTotalMinutes ?? 0) >= (studentDetail.classAvgFocusMinutes ?? 0) ? '#10b981' : '#ef4444',
+                        },
+                        {
+                          label: `Sınıf Ortalaması (${studentDetail.classStudentCount} öğrenci)`,
+                          value: `${Math.round((studentDetail.classAvgFocusMinutes ?? 0) / 60 * 10) / 10} saat`,
+                          color: '#38bdf8',
+                        },
+                      ].map((item, i) => (
+                        <div key={i} style={{ padding: '0.875rem', background: `${item.color}0d`, borderRadius: 10, border: `1px solid ${item.color}20` }}>
+                          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: 4 }}>{item.label}</div>
+                          <div style={{ fontSize: '1.1rem', fontWeight: 800, color: item.color }}>{item.value}</div>
                         </div>
                       ))}
                     </div>
