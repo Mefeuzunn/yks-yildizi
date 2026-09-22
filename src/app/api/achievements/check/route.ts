@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
 import db from '@/lib/yks-db-async';
+
+export const dynamic = 'force-dynamic';
 
 const ACHIEVEMENTS = {
   late_night: {
@@ -37,19 +39,11 @@ const ACHIEVEMENTS = {
 
 export async function POST(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
+    const userId = await getAuthenticatedUserId(req);
     
-    if (!sessionId) {
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
-    const session = { user_id: sessionId };
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const userId = session.user_id;
 
     const body = await req.json();
     const { context } = body;

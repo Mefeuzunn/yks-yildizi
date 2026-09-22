@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
-import { cookies } from 'next/headers';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
+
+export const dynamic = 'force-dynamic';
 
 // Calculate next interval based on a simplified SM-2 algorithm
 function calculateNextReview(quality: number, interval: number, easeFactor: number) {
@@ -26,22 +28,13 @@ function calculateNextReview(quality: number, interval: number, easeFactor: numb
 
 export async function PUT(req: Request) {
   try {
-    const cookieStore = await cookies();
-    let sessionId = cookieStore.get('yks_session')?.value;
-
-    if (!sessionId) {
-      const authHeader = req.headers.get('authorization');
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        sessionId = authHeader.substring(7);
-      }
-    }
-
-    if (!sessionId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
 
     const { cardId, quality } = await req.json();
     if (!cardId || quality === undefined) return NextResponse.json({ error: 'Eksik bilgi' }, { status: 400 });
 
-    const progress = await db.prepare('SELECT * FROM flashcards_progress WHERE card_id = ? AND user_id = ?').get(cardId, sessionId) as any;
+    const progress = await db.prepare('SELECT * FROM flashcards_progress WHERE card_id = ? AND user_id = ?').get(cardId, userId) as any;
     if (!progress) return NextResponse.json({ error: 'Kart bulunamadı' }, { status: 404 });
 
     const { ease, interval } = calculateNextReview(quality, progress.interval || 0, progress.ease_factor || 2.5);

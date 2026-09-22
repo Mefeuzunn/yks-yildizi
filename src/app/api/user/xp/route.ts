@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
-import { cookies } from 'next/headers';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
+
+export const dynamic = 'force-dynamic';
 
 function calculateLeague(points: number): string {
   if (points < 100) return 'Bronz';
@@ -12,9 +14,8 @@ function calculateLeague(points: number): string {
 
 export async function POST(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-    if (!sessionId) {
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
     }
 
@@ -26,11 +27,11 @@ export async function POST(req: Request) {
     }
 
     // 1. Get current stats
-    let stats = await db.prepare('SELECT * FROM user_stats WHERE user_id = ?').get(sessionId) as any;
+    let stats = await db.prepare('SELECT * FROM user_stats WHERE user_id = ?').get(userId) as any;
     
     // 2. If stats don't exist for some reason, create them
     if (!stats) {
-      await db.prepare('INSERT INTO user_stats (user_id, solved_questions, success_rate, league, league_points, streak_days) VALUES (?, 0, 0, "Bronz", 0, 0)').run(sessionId);
+      await db.prepare('INSERT INTO user_stats (user_id, solved_questions, success_rate, league, league_points, streak_days) VALUES (?, 0, 0, "Bronz", 0, 0)').run(userId);
       stats = { league_points: 0, solved_questions: 0 };
     }
 
@@ -39,7 +40,7 @@ export async function POST(req: Request) {
     const newSolved = stats.solved_questions + 1;
     const newLeague = calculateLeague(newPoints);
 
-    await db.prepare('UPDATE user_stats SET league_points = ?, league = ?, solved_questions = ? WHERE user_id = ?').run(newPoints, newLeague, newSolved, sessionId);
+    await db.prepare('UPDATE user_stats SET league_points = ?, league = ?, solved_questions = ? WHERE user_id = ?').run(newPoints, newLeague, newSolved, userId);
 
     // Update Daily Quests for question solving
     try {
@@ -47,7 +48,7 @@ export async function POST(req: Request) {
         UPDATE daily_quests 
         SET current_value = current_value + 1 
         WHERE user_id = ? AND date = CURRENT_DATE AND quest_type = 'questions' AND is_completed = 0
-      `).run(sessionId);
+      `).run(userId);
     } catch(e) {}
 
     // 4. Badge check
@@ -55,13 +56,13 @@ export async function POST(req: Request) {
     const eligibleBadges = checkBadges({ league_points: newPoints, solved_questions: newSolved });
     
     // Get existing badges
-    const existingRows = await db.prepare('SELECT badge_id FROM user_badges WHERE user_id = ?').all(sessionId) as any[];
+    const existingRows = await db.prepare('SELECT badge_id FROM user_badges WHERE user_id = ?').all(userId) as any[];
     const existingBadgeIds = existingRows.map(r => r.badge_id);
 
     const newlyUnlocked: string[] = [];
     for (const b of eligibleBadges) {
       if (!existingBadgeIds.includes(b)) {
-        await db.prepare('INSERT INTO user_badges (id, user_id, badge_id) VALUES (hex(randomblob(16)), ?, ?)').run(sessionId, b);
+        await db.prepare('INSERT INTO user_badges (id, user_id, badge_id) VALUES (hex(randomblob(16)), ?, ?)').run(userId, b);
         newlyUnlocked.push(b);
       }
     }

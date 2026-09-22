@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
-import { cookies } from 'next/headers';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
 
-export async function GET() {
+export const dynamic = 'force-dynamic';
+
+export async function GET(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-    if (!sessionId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
 
     // Clean up old participants (inactive for more than 5 minutes)
     await db.prepare(`DELETE FROM room_participants WHERE last_active < CURRENT_TIMESTAMP - INTERVAL '5 minutes'`).run();

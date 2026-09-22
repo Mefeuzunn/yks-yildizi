@@ -1,15 +1,16 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
-import { cookies } from 'next/headers';
 import { v4 as uuidv4 } from 'uuid';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
 
-export async function POST() {
+export const dynamic = 'force-dynamic';
+
+export async function POST(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-    if (!sessionId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
 
-    const user = await db.prepare('SELECT id, username FROM users WHERE id = ?').get(sessionId) as any;
+    const user = await db.prepare('SELECT id, username FROM users WHERE id = ?').get(userId) as any;
     if (!user) return NextResponse.json({ error: 'Kullanıcı bulunamadı' }, { status: 404 });
 
     // Bot kullanıcısının varlığını kontrol et ve yoksa oluştur

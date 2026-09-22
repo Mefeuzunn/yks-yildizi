@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
-import { cookies } from 'next/headers';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
+    const userId = await getAuthenticatedUserId(req);
     
     // Join users and user_stats
     const leaderboard = await db.prepare(`
@@ -31,13 +32,13 @@ export async function GET(req: Request) {
         score: user.league_points || 0,
         tier: user.league || 'Bronz',
         color,
-        isCurrentUser: user.id === sessionId
+        isCurrentUser: user.id === userId
       };
     });
 
     let currentUserStats = null;
-    if (sessionId) {
-      currentUserStats = await db.prepare('SELECT league, league_points FROM user_stats WHERE user_id = ?').get(sessionId) as any;
+    if (userId) {
+      currentUserStats = await db.prepare('SELECT league, league_points FROM user_stats WHERE user_id = ?').get(userId) as any;
     }
 
     return NextResponse.json({

@@ -1,86 +1,208 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Send, Image as ImageIcon, Smile, Bot } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Send, Image as ImageIcon, MessageCircle, Heart, Loader2, ChevronDown } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+
+interface ForumPost {
+  id: string;
+  user_id: string;
+  username: string;
+  content: string;
+  subject?: string;
+  likes: number;
+  comment_count: number;
+  liked_by_me?: boolean;
+  created_at: string;
+}
+
+interface Comment {
+  id: string;
+  username: string;
+  content: string;
+  created_at: string;
+}
 
 export default function ForumTab() {
-  const messages = [
-    { id: 1, user: 'Ahmet Y.', role: 'ogrenci', text: 'Arkadaşlar türevde zincir kuralını bir türlü oturtamadım. Mantığı nedir tam olarak?', time: '14:20' },
-    { id: 2, user: 'Zeynep K.', role: 'ogrenci', text: 'İç içe geçmiş fonksiyonlar düşün. Önce dıştakinin türevini alıp içini aynen yazıyorsun, sonra içinin türeviyle çarpıyorsun. Matruşka bebekler gibi 😊', time: '14:25' },
-    { id: 3, user: 'YKS AI', role: 'ai', text: 'Zeynep harika bir benzetme yaptı! Matematiksel olarak ifade edersek: f(g(x)) türevi -> f\'(g(x)) * g\'(x). Örneğin sin(x²) türevi için önce sin türevi (cos) alınır, içi (x²) aynı kalır -> cos(x²). Sonra içinin türevi (2x) ile çarpılır. Sonuç: 2x * cos(x²).', time: '14:26' },
-  ];
+  const { user } = useAuth();
+  const [posts, setPosts] = useState<ForumPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [newPost, setNewPost] = useState('');
+  const [posting, setPosting] = useState(false);
+  const [expandedPost, setExpandedPost] = useState<string | null>(null);
+  const [comments, setComments] = useState<Record<string, Comment[]>>({});
+  const [commentText, setCommentText] = useState('');
+  const [commentLoading, setCommentLoading] = useState(false);
+
+  const fetchPosts = async () => {
+    try {
+      const res = await fetch('/api/forum');
+      if (res.ok) {
+        const data = await res.json();
+        setPosts(data.posts || []);
+      }
+    } catch (_) {} finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchPosts(); }, []);
+
+  const handlePost = async () => {
+    if (!newPost.trim()) return;
+    setPosting(true);
+    try {
+      const res = await fetch('/api/forum', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: newPost })
+      });
+      if (res.ok) {
+        setNewPost('');
+        fetchPosts();
+      }
+    } catch (_) {} finally {
+      setPosting(false);
+    }
+  };
+
+  const handleLike = async (postId: string) => {
+    try {
+      await fetch('/api/forum/like', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId })
+      });
+      fetchPosts();
+    } catch (_) {}
+  };
+
+  const loadComments = async (postId: string) => {
+    if (expandedPost === postId) {
+      setExpandedPost(null);
+      return;
+    }
+    setExpandedPost(postId);
+    try {
+      const res = await fetch(`/api/forum/comment?postId=${postId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setComments(prev => ({ ...prev, [postId]: data.comments || [] }));
+      }
+    } catch (_) {}
+  };
+
+  const handleComment = async (postId: string) => {
+    if (!commentText.trim()) return;
+    setCommentLoading(true);
+    try {
+      await fetch('/api/forum/comment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId, content: commentText })
+      });
+      setCommentText('');
+      loadComments(postId);
+      fetchPosts();
+    } catch (_) {} finally {
+      setCommentLoading(false);
+    }
+  };
+
+  const timeAgo = (dateStr: string) => {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 60) return `${mins}dk`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}sa`;
+    return `${Math.floor(hours / 24)}g`;
+  };
+
+  if (loading) {
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}><Loader2 className="animate-spin" size={32} color="#a855f7" /></div>;
+  }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div style={{ marginBottom: '1.5rem' }}>
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <div>
         <h2 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#fff', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           💬 Sınıf Forumu
         </h2>
-        <p style={{ color: 'rgba(255,255,255,0.4)' }}>Türkiye'nin dört bir yanından öğrencilerle takıldığın soruları tartış, yapay zeka asistandan anında destek al.</p>
+        <p style={{ color: 'rgba(255,255,255,0.4)' }}>Soruları tartış, fikirlerini paylaş, birlikte öğren.</p>
       </div>
 
-      <div style={{ flex: 1, backgroundColor: '#0e121e', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        
-        {/* Chat Area */}
-        <div style={{ flex: 1, padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', overflowY: 'auto' }}>
-          {messages.map(msg => (
-            <div key={msg.id} style={{ display: 'flex', gap: '1rem', alignSelf: msg.role === 'ai' ? 'center' : msg.user === 'Ahmet Y.' ? 'flex-end' : 'flex-start', maxWidth: '80%' }}>
-              
-              {msg.role !== 'ai' && msg.user !== 'Ahmet Y.' && (
-                <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#ec4899', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#fff', flexShrink: 0 }}>
-                  {msg.user.substring(0,1)}
-                </div>
-              )}
+      {/* New Post */}
+      <div style={{ backgroundColor: '#0f172a', borderRadius: 16, border: '1px solid #1e293b', padding: '1.25rem' }}>
+        <textarea
+          value={newPost}
+          onChange={e => setNewPost(e.target.value)}
+          placeholder="Aklındaki soruyu veya düşünceni paylaş..."
+          rows={3}
+          style={{ width: '100%', background: 'transparent', border: 'none', color: '#fff', fontSize: 14, resize: 'none', outline: 'none', lineHeight: 1.6 }}
+        />
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
+          <button onClick={handlePost} disabled={posting || !newPost.trim()} style={{ padding: '10px 20px', borderRadius: 10, border: 'none', background: !newPost.trim() ? '#374151' : 'linear-gradient(135deg, #a855f7, #7c3aed)', color: '#fff', fontWeight: 600, cursor: newPost.trim() ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', gap: 6, fontSize: 14 }}>
+            <Send size={16} /> {posting ? 'Paylaşılıyor...' : 'Paylaş'}
+          </button>
+        </div>
+      </div>
 
-              {msg.role === 'ai' && (
-                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', flexShrink: 0 }}>
-                  <Bot size={20} />
+      {/* Posts */}
+      {posts.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '3rem', backgroundColor: '#0f172a', borderRadius: 16, border: '1px solid #1e293b' }}>
+          <MessageCircle size={48} color="#374151" style={{ margin: '0 auto 1rem' }} />
+          <p style={{ color: '#6b7280', fontSize: 15 }}>Henüz hiç paylaşım yok. İlk gönderiyi sen at!</p>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {posts.map(post => (
+            <div key={post.id} style={{ backgroundColor: '#0f172a', borderRadius: 16, border: '1px solid #1e293b', padding: '1.25rem' }}>
+              <div style={{ display: 'flex', gap: 12, marginBottom: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #a855f7, #ec4899)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 14, flexShrink: 0 }}>
+                  {post.username?.[0]?.toUpperCase() || '?'}
                 </div>
-              )}
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', alignItems: msg.user === 'Ahmet Y.' ? 'flex-end' : 'flex-start' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: msg.role === 'ai' ? '#8b5cf6' : 'rgba(255,255,255,0.6)' }}>
-                    {msg.user}
-                  </span>
-                  <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)' }}>{msg.time}</span>
-                </div>
-                
-                <div style={{ 
-                  padding: '1rem 1.25rem', 
-                  borderRadius: '16px', 
-                  backgroundColor: msg.user === 'Ahmet Y.' ? 'rgba(56, 189, 248, 0.1)' : msg.role === 'ai' ? 'rgba(139, 92, 246, 0.1)' : 'rgba(255,255,255,0.05)',
-                  border: `1px solid ${msg.user === 'Ahmet Y.' ? 'rgba(56, 189, 248, 0.2)' : msg.role === 'ai' ? 'rgba(139, 92, 246, 0.2)' : 'rgba(255,255,255,0.05)'}`,
-                  color: msg.user === 'Ahmet Y.' ? '#bae6fd' : msg.role === 'ai' ? '#d8b4fe' : '#fff',
-                  borderTopRightRadius: msg.user === 'Ahmet Y.' ? '0' : '16px',
-                  borderTopLeftRadius: msg.user !== 'Ahmet Y.' ? '0' : '16px',
-                  lineHeight: 1.5,
-                  fontSize: '0.95rem'
-                }}>
-                  {msg.text}
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ color: '#fff', fontWeight: 600, fontSize: 14 }}>{post.username}</span>
+                    <span style={{ color: '#4b5563', fontSize: 12 }}>· {timeAgo(post.created_at)}</span>
+                  </div>
+                  <p style={{ color: '#d1d5db', fontSize: 14, margin: '6px 0 0', lineHeight: 1.6 }}>{post.content}</p>
                 </div>
               </div>
 
+              <div style={{ display: 'flex', gap: '1rem', paddingLeft: 48 }}>
+                <button onClick={() => handleLike(post.id)} style={{ background: 'none', border: 'none', color: post.liked_by_me ? '#ef4444' : '#6b7280', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, fontWeight: 500 }}>
+                  <Heart size={16} fill={post.liked_by_me ? '#ef4444' : 'none'} /> {post.likes || 0}
+                </button>
+                <button onClick={() => loadComments(post.id)} style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, fontWeight: 500 }}>
+                  <MessageCircle size={16} /> {post.comment_count || 0} Yorum
+                  <ChevronDown size={14} style={{ transform: expandedPost === post.id ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+                </button>
+              </div>
+
+              {/* Comments */}
+              <AnimatePresence>
+                {expandedPost === post.id && (
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} style={{ overflow: 'hidden', paddingLeft: 48, marginTop: 12 }}>
+                    {(comments[post.id] || []).map(c => (
+                      <div key={c.id} style={{ padding: '8px 0', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                        <span style={{ color: '#a855f7', fontWeight: 600, fontSize: 13 }}>{c.username}</span>
+                        <span style={{ color: '#4b5563', fontSize: 12, marginLeft: 8 }}>{timeAgo(c.created_at)}</span>
+                        <p style={{ color: '#d1d5db', fontSize: 13, margin: '4px 0 0' }}>{c.content}</p>
+                      </div>
+                    ))}
+                    <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                      <input value={commentText} onChange={e => setCommentText(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleComment(post.id)} placeholder="Yorum yaz..." style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid #374151', background: '#1e293b', color: '#fff', fontSize: 13, outline: 'none' }} />
+                      <button onClick={() => handleComment(post.id)} disabled={commentLoading} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#a855f7', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
+                        <Send size={14} />
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ))}
         </div>
-
-        {/* Input Area */}
-        <div style={{ padding: '1rem 1.5rem', backgroundColor: 'rgba(0,0,0,0.2)', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <button style={{ padding: '0.5rem', background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer' }}><ImageIcon size={20} /></button>
-          <div style={{ flex: 1, position: 'relative' }}>
-            <input 
-              type="text" 
-              placeholder="Bir soru sor veya sohbete katıl..." 
-              style={{ width: '100%', padding: '1rem 1.5rem', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '99px', color: '#fff', fontSize: '0.95rem', outline: 'none' }} 
-            />
-            <button style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer' }}><Smile size={20} /></button>
-          </div>
-          <button style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#38bdf8', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-            <Send size={20} style={{ marginLeft: '-2px' }} />
-          </button>
-        </div>
-
-      </div>
+      )}
     </motion.div>
   );
 }

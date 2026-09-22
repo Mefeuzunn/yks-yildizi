@@ -331,27 +331,27 @@ function DashboardContent() {
           </div>
 
           {/* ── Ödevler + Duyurular Row ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '24px' }}>
             {/* Ödevlerim */}
-            <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, padding: '20px 24px' }}>
+            <div style={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: 16, padding: '20px 24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                <span style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>📋 Ödevlerim</span>
+                <span style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>📋 Ödevlerim</span>
                 {pendingAssignments.length > 0 && (
-                  <span style={{ background: '#FEF3C7', color: '#92400E', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 20 }}>
+                  <span style={{ background: 'rgba(245,158,11,0.15)', color: '#fbbf24', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 20, border: '1px solid rgba(245,158,11,0.2)' }}>
                     {pendingAssignments.length} bekliyor
                   </span>
                 )}
               </div>
               {pendingAssignments.length === 0 ? (
-                <p style={{ fontSize: 13, color: '#9CA3AF', margin: 0 }}>Bekleyen ödeviniz yok 🎉</p>
+                <p style={{ fontSize: 13, color: '#6b7280', margin: 0 }}>Bekleyen ödeviniz yok 🎉</p>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {pendingAssignments.slice(0, 3).map((a: any) => {
                     const isOverdue = a.due_date && new Date(a.due_date) < new Date();
                     return (
-                      <div key={a.id} style={{ padding: '10px 12px', background: '#F9FAFB', borderRadius: 8, border: `1px solid ${isOverdue ? '#FCA5A5' : '#E5E7EB'}` }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>{a.title}</div>
-                        <div style={{ fontSize: 11, color: isOverdue ? '#EF4444' : '#9CA3AF', marginTop: 2 }}>
+                      <div key={a.id} style={{ padding: '10px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: 8, border: `1px solid ${isOverdue ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.06)'}` }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>{a.title}</div>
+                        <div style={{ fontSize: 11, color: isOverdue ? '#ef4444' : '#6b7280', marginTop: 2 }}>
                           {a.teacher_name} · {a.due_date ? new Date(a.due_date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }) : 'Süresiz'}
                         </div>
                       </div>
@@ -362,18 +362,18 @@ function DashboardContent() {
             </div>
 
             {/* Duyurular */}
-            <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, padding: '20px 24px' }}>
+            <div style={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: 16, padding: '20px 24px' }}>
               <div style={{ marginBottom: 14 }}>
-                <span style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>📢 Duyurular</span>
+                <span style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>📢 Duyurular</span>
               </div>
               {announcements.length === 0 ? (
-                <p style={{ fontSize: 13, color: '#9CA3AF', margin: 0 }}>Yeni duyuru yok.</p>
+                <p style={{ fontSize: 13, color: '#6b7280', margin: 0 }}>Yeni duyuru yok.</p>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {announcements.slice(0, 3).map((a: any) => (
-                    <div key={a.id} style={{ padding: '10px 12px', background: '#F9FAFB', borderRadius: 8, border: '1px solid #E5E7EB' }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>{a.title}</div>
-                      <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>
+                    <div key={a.id} style={{ padding: '10px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: 8, border: '1px solid rgba(255,255,255,0.06)' }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>{a.title}</div>
+                      <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>
                         {a.teacher_name} · {new Date(a.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}
                       </div>
                     </div>

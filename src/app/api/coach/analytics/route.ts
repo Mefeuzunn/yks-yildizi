@@ -1,15 +1,16 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
-import { cookies } from 'next/headers';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
 
-export async function GET() {
+export const dynamic = 'force-dynamic';
+
+export async function GET(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-    if (!sessionId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
 
     // Seed dummy mock exams if none exist to demonstrate charts
-    const examCount = await db.prepare('SELECT COUNT(*) as c FROM mock_exams WHERE user_id = ?').get(sessionId) as any;
+    const examCount = await db.prepare('SELECT COUNT(*) as c FROM mock_exams WHERE user_id = ?').get(userId) as any;
     
     if (examCount.c === 0) {
       const dummyExams = [
@@ -25,12 +26,12 @@ export async function GET() {
       `);
 
       await db.transaction(async () => {
-        dummyExams.forEach(e => insert.run(sessionId, e.name, e.turkish, e.math, e.social, e.science, e.total));
+        dummyExams.forEach(e => insert.run(userId, e.name, e.turkish, e.math, e.social, e.science, e.total));
       })();
     }
 
     // Fetch actual data
-    const exams = await db.prepare('SELECT * FROM mock_exams WHERE user_id = ? AND exam_type = "TYT" ORDER BY id ASC').all(sessionId) as any[];
+    const exams = await db.prepare('SELECT * FROM mock_exams WHERE user_id = ? AND exam_type = "TYT" ORDER BY id ASC').all(userId) as any[];
 
     // Transform for line chart
     const trendData = exams.map(e => ({

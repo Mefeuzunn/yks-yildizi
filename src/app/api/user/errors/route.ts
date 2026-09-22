@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
-import { cookies } from 'next/headers';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
 import { v4 as uuidv4 } from 'uuid';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-    if (!sessionId) {
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
     }
 
@@ -23,13 +24,13 @@ export async function POST(req: Request) {
       await db.prepare(`
         INSERT INTO student_mistakes (user_id, subject, topic, icerik, secenekler_json, dogru_cevap, secilen_cevap, cozum, image_data)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `).run(sessionId, subject, topic, icerik, secenekler_json, dogru_cevap, secilen_cevap, cozum || '', image_data || null);
+      `).run(userId, subject, topic, icerik, secenekler_json, dogru_cevap, secilen_cevap, cozum || '', image_data || null);
 
       // 2. Sync to error_log (so study plan and coach weaknesses reflect this mistake)
       await db.prepare(`
         INSERT INTO error_log (user_id, subject, topic, question_id)
         VALUES (?, ?, ?, ?)
-      `).run(sessionId, subject, topic, `user_error_${uuidv4().substring(0, 8)}`);
+      `).run(userId, subject, topic, `user_error_${uuidv4().substring(0, 8)}`);
     })();
 
     return NextResponse.json({ success: true, message: 'Hata başarıyla deftere kaydedildi.' });
@@ -39,11 +40,10 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-    if (!sessionId) {
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
     }
 
@@ -51,7 +51,7 @@ export async function GET() {
       SELECT * FROM student_mistakes 
       WHERE user_id = ? 
       ORDER BY created_at DESC
-    `).all(sessionId) as any[];
+    `).all(userId) as any[];
 
     // Parse options list
     const mapped = mistakes.map(m => ({
@@ -76,9 +76,8 @@ export async function GET() {
 
 export async function DELETE(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-    if (!sessionId) {
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
     }
 
@@ -89,7 +88,7 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: 'ID parametresi eksik' }, { status: 400 });
     }
 
-    await db.prepare('DELETE FROM student_mistakes WHERE id = ? AND user_id = ?').run(id, sessionId);
+    await db.prepare('DELETE FROM student_mistakes WHERE id = ? AND user_id = ?').run(id, userId);
     return NextResponse.json({ success: true, message: 'Hata defterinden silindi.' });
   } catch (error) {
     console.error('Errors DELETE Error:', error);

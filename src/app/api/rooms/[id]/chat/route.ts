@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
-import { cookies } from 'next/headers';
 import { v4 as uuidv4 } from 'uuid';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: roomId } = await params;
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-    if (!sessionId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
 
     const messages = await db.prepare(`
       SELECT m.id, m.message, m.created_at, u.name, u.avatar, u.id as user_id
@@ -30,9 +31,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: roomId } = await params;
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-    if (!sessionId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
 
     const body = await req.json();
     if (!body.message || body.message.trim() === '') {
@@ -43,7 +43,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     await db.prepare(`
       INSERT INTO room_messages (id, room_id, user_id, message)
       VALUES (?, ?, ?, ?)
-    `).run(id, roomId, sessionId, body.message.trim());
+    `).run(id, roomId, userId, body.message.trim());
 
     return NextResponse.json({ success: true, id });
 

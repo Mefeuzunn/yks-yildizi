@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
-import { cookies } from 'next/headers';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: roomId } = await params;
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-    if (!sessionId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
 
     const body = await req.json();
     const { action } = body; // 'join', 'leave', or 'ping'
@@ -18,9 +19,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         INSERT INTO room_participants (room_id, user_id, joined_at, last_active)
         VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
         ON CONFLICT(room_id, user_id) DO UPDATE SET last_active = CURRENT_TIMESTAMP
-      `).run(roomId, sessionId);
+      `).run(roomId, userId);
     } else if (action === 'leave') {
-      await db.prepare('DELETE FROM room_participants WHERE room_id = ? AND user_id = ?').run(roomId, sessionId);
+      await db.prepare('DELETE FROM room_participants WHERE room_id = ? AND user_id = ?').run(roomId, userId);
     }
 
     // Return current participants

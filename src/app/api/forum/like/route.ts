@@ -1,19 +1,20 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
-import { cookies } from 'next/headers';
 import { v4 as uuidv4 } from 'uuid';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-    if (!sessionId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
 
     const { postId } = await req.json();
     if (!postId) return NextResponse.json({ error: 'Post ID zorunludur' }, { status: 400 });
 
     // Check if like exists
-    const existingLike = await db.prepare('SELECT id FROM forum_likes WHERE post_id = ? AND user_id = ?').get(postId, sessionId) as any;
+    const existingLike = await db.prepare('SELECT id FROM forum_likes WHERE post_id = ? AND user_id = ?').get(postId, userId) as any;
 
     await db.transaction(async () => {
       if (existingLike) {
@@ -23,7 +24,7 @@ export async function POST(req: Request) {
       } else {
         // Add like
         await db.prepare('INSERT INTO forum_likes (id, post_id, user_id) VALUES (?, ?, ?)')
-          .run(uuidv4(), postId, sessionId);
+          .run(uuidv4(), postId, userId);
         await db.prepare('UPDATE forum_posts SET likes_count = likes_count + 1 WHERE id = ?').run(postId);
       }
     })();

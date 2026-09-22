@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
-import { cookies } from 'next/headers';
 import { v4 as uuidv4 } from 'uuid';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
   try {
@@ -27,9 +29,8 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-    if (!sessionId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
 
     const { postId, content } = await req.json();
     if (!postId || !content) return NextResponse.json({ error: 'Eksik bilgi' }, { status: 400 });
@@ -38,7 +39,7 @@ export async function POST(req: Request) {
     
     await db.transaction(async () => {
       await db.prepare('INSERT INTO forum_comments (id, post_id, user_id, content) VALUES (?, ?, ?, ?)')
-        .run(commentId, postId, sessionId, content);
+        .run(commentId, postId, userId, content);
         
       await db.prepare('UPDATE forum_posts SET replies_count = replies_count + 1 WHERE id = ?')
         .run(postId);

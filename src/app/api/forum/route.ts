@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
-import { cookies } from 'next/headers';
 import { v4 as uuidv4 } from 'uuid';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
+
+export const dynamic = 'force-dynamic';
 
 // List forum posts
 export async function GET(req: Request) {
@@ -24,17 +26,8 @@ export async function GET(req: Request) {
 // Create new post
 export async function POST(req: Request) {
   try {
-    const cookieStore = await cookies();
-    let sessionId = cookieStore.get('yks_session')?.value;
-
-    if (!sessionId) {
-      const authHeader = req.headers.get('authorization');
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        sessionId = authHeader.substring(7);
-      }
-    }
-
-    if (!sessionId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
 
     const { title, content, tag } = await req.json();
     if (!title) return NextResponse.json({ error: 'Başlık zorunludur' }, { status: 400 });
@@ -43,7 +36,7 @@ export async function POST(req: Request) {
     await db.prepare(`
       INSERT INTO forum_posts (id, user_id, title, content, tag)
       VALUES (?, ?, ?, ?, ?)
-    `).run(postId, sessionId, title, content || '', tag || 'Genel');
+    `).run(postId, userId, title, content || '', tag || 'Genel');
 
     return NextResponse.json({ success: true, postId }, { status: 200 });
   } catch (error) {

@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
 import db from '@/lib/yks-db-async';
 import { v4 as uuidv4 } from 'uuid';
 
-export async function POST() {
+export const dynamic = 'force-dynamic';
+
+export async function POST(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get('yks_session')?.value;
+    const userId = await getAuthenticatedUserId(req);
 
     if (!userId) {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });

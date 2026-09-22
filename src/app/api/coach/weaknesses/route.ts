@@ -1,15 +1,16 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
-import { cookies } from 'next/headers';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
 
-export async function GET() {
+export const dynamic = 'force-dynamic';
+
+export async function GET(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-    if (!sessionId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
 
     // Seed dummy data if user has no error logs (to demonstrate the feature)
-    const count = await db.prepare('SELECT COUNT(*) as c FROM error_log WHERE user_id = ?').get(sessionId) as any;
+    const count = await db.prepare('SELECT COUNT(*) as c FROM error_log WHERE user_id = ?').get(userId) as any;
     
     if (count.c === 0) {
       const dummyErrors = [
@@ -24,7 +25,7 @@ export async function GET() {
       await db.transaction(async () => {
         dummyErrors.forEach(de => {
           for (let i = 0; i < (de.count || 1); i++) {
-            insert.run(sessionId, de.subject, de.topic, `dummy_q_${Math.random()}`);
+            insert.run(userId, de.subject, de.topic, `dummy_q_${Math.random()}`);
           }
         });
       })();
@@ -38,7 +39,7 @@ export async function GET() {
       GROUP BY subject, topic
       ORDER BY errorCount DESC
       LIMIT 3
-    `).all(sessionId) as any[];
+    `).all(userId) as any[];
 
     // Format with severity and colors
     const formatted = weaknesses.map((w, index) => {

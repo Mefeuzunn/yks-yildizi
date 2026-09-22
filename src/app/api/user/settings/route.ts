@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
-import { cookies } from 'next/headers';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
 
-export async function GET() {
+export const dynamic = 'force-dynamic';
+
+export async function GET(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get('yks_session')?.value;
+    const userId = await getAuthenticatedUserId(req);
 
     if (!userId) {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
@@ -33,8 +34,7 @@ export async function GET() {
 
 export async function PUT(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get('yks_session')?.value;
+    const userId = await getAuthenticatedUserId(req);
 
     if (!userId) {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
@@ -67,3 +67,5 @@ export async function PUT(req: Request) {
     return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });
   }
 }
+
+export const POST = PUT;

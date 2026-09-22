@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
-import { cookies } from 'next/headers';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-    if (!sessionId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
 
     const { duelId, selectedOption, round } = await req.json();
     if (!duelId || !selectedOption || !round) return NextResponse.json({ error: 'Eksik veri' }, { status: 400 });
@@ -20,7 +21,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Yanlış tur' }, { status: 400 });
     }
 
-    const participant = await db.prepare('SELECT answers_json, score FROM duel_participants WHERE duel_id = ? AND user_id = ?').get(duelId, sessionId) as any;
+    const participant = await db.prepare('SELECT answers_json, score FROM duel_participants WHERE duel_id = ? AND user_id = ?').get(duelId, userId) as any;
     if (!participant) return NextResponse.json({ error: 'Katılımcı bulunamadı' }, { status: 404 });
 
     const answers = JSON.parse(participant.answers_json || '[]');
@@ -64,7 +65,7 @@ export async function POST(req: Request) {
          UPDATE duel_participants 
          SET answers_json = ?, score = score + ? 
          WHERE duel_id = ? AND user_id = ?
-       `).run(JSON.stringify(answers), scoreEarned, duelId, sessionId);
+       `).run(JSON.stringify(answers), scoreEarned, duelId, userId);
     })();
 
     return NextResponse.json({ success: true, isCorrect, scoreEarned }, { status: 200 });

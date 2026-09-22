@@ -1,19 +1,13 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
 import db from '@/lib/yks-db-async';
 import { v4 as uuidv4 } from 'uuid';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: Request) {
   try {
-    const cookieStore = await cookies();
-    let userId = cookieStore.get('yks_session')?.value;
-
-    if (!userId) {
-      const authHeader = req.headers.get('authorization');
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        userId = authHeader.substring(7);
-      }
-    }
+    const userId = await getAuthenticatedUserId(req);
 
     if (!userId) {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
@@ -44,15 +38,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const cookieStore = await cookies();
-    let userId = cookieStore.get('yks_session')?.value;
-
-    if (!userId) {
-      const authHeader = req.headers.get('authorization');
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        userId = authHeader.substring(7);
-      }
-    }
+    const userId = await getAuthenticatedUserId(req);
 
     if (!userId) {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });

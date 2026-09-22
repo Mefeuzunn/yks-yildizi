@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
-import { cookies } from 'next/headers';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
 import { format, addDays, startOfWeek } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-    if (!sessionId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
 
     const { dateStr } = await req.json(); // Optional reference date, usually today
     const refDate = dateStr ? new Date(dateStr) : new Date();
@@ -22,11 +23,11 @@ export async function POST(req: Request) {
       GROUP BY subject, topic
       ORDER BY errorCount DESC
       LIMIT 3
-    `).all(sessionId) as any[];
+    `).all(userId) as any[];
 
     // Hata verisi yoksa akıllı fallback (alana göre ders/konu belirleme)
     if (weaknesses.length === 0) {
-      const user = await db.prepare('SELECT alan FROM users WHERE id = ?').get(sessionId) as any;
+      const user = await db.prepare('SELECT alan FROM users WHERE id = ?').get(userId) as any;
       const userAlan = user?.alan || 'Sayisal';
 
       if (userAlan === 'Sayisal') {
@@ -94,11 +95,11 @@ export async function POST(req: Request) {
       // Çakışmaları önlemek için ilgili haftanın eski görevlerini sil
       const startOfWeekStr = format(startDate, 'yyyy-MM-dd');
       const endOfWeekStr = format(addDays(startDate, 6), 'yyyy-MM-dd');
-      deleteTasks.run(sessionId, startOfWeekStr, endOfWeekStr);
+      deleteTasks.run(userId, startOfWeekStr, endOfWeekStr);
 
       newTasks.forEach(task => {
         const targetDate = format(addDays(startDate, task.dayOffset), 'yyyy-MM-dd');
-        insertTask.run(uuidv4(), sessionId, task.title, task.subject, task.color, targetDate);
+        insertTask.run(uuidv4(), userId, task.title, task.subject, task.color, targetDate);
       });
     })();
 

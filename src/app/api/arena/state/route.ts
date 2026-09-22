@@ -1,17 +1,17 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
-import { cookies } from 'next/headers';
 import { v4 as uuidv4 } from 'uuid';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
 
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const duelId = searchParams.get('duelId');
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
+    const userId = await getAuthenticatedUserId(req);
 
-    if (!duelId || !sessionId) return NextResponse.json({ error: 'Eksik parametreler' }, { status: 400 });
+    if (!duelId || !userId) return NextResponse.json({ error: 'Eksik parametreler' }, { status: 400 });
 
     const duel = await db.prepare('SELECT * FROM duels WHERE id = ?').get(duelId) as any;
     if (!duel) return NextResponse.json({ error: 'Düello bulunamadı' }, { status: 404 });
@@ -180,7 +180,7 @@ export async function GET(req: Request) {
     // Güvenlik: Rakibin cevabını tur bitmeden gösterme
     const mappedParticipants = participants.map(p => {
       const answers = JSON.parse(p.answers_json || '[]');
-      const isMe = p.user_id === sessionId;
+      const isMe = p.user_id === userId;
       const timeIsUp = new Date(round_end_time) <= now;
       const bothAnswered = participants.every(px => JSON.parse(px.answers_json || '[]').some((a:any) => a.round === current_round));
       const roundFinished = timeIsUp || bothAnswered;

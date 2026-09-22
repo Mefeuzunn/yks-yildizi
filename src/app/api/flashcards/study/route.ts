@@ -1,20 +1,13 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
-import { cookies } from 'next/headers';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
   try {
-    const cookieStore = await cookies();
-    let sessionId = cookieStore.get('yks_session')?.value;
-
-    if (!sessionId) {
-      const authHeader = req.headers.get('authorization');
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        sessionId = authHeader.substring(7);
-      }
-    }
-
-    if (!sessionId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
 
     const { searchParams } = new URL(req.url);
     const subject = searchParams.get('subject');
@@ -28,7 +21,7 @@ export async function GET(req: Request) {
       LEFT JOIN flashcards_progress p ON f.id = p.card_id AND p.user_id = ?
       WHERE f.user_id = ? AND f.subject = ?
     `;
-    const params: any[] = [sessionId, sessionId, subject];
+    const params: any[] = [userId, userId, subject];
 
     if (topic) {
       query += ` AND f.topic = ?`;

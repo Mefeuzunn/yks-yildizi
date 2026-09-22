@@ -1,29 +1,22 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
-import { cookies } from 'next/headers';
 import { v4 as uuidv4 } from 'uuid';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
+
+export const dynamic = 'force-dynamic';
 
 // GET all flashcards grouped by subject and topic
 export async function GET(req: Request) {
   try {
-    const cookieStore = await cookies();
-    let sessionId = cookieStore.get('yks_session')?.value;
-
-    if (!sessionId) {
-      const authHeader = req.headers.get('authorization');
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        sessionId = authHeader.substring(7);
-      }
-    }
-
-    if (!sessionId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
 
     const cards = await db.prepare(`
       SELECT f.subject, f.topic, f.id as card_id, p.next_review_date
       FROM flashcards f
       LEFT JOIN flashcards_progress p ON f.id = p.card_id AND p.user_id = ?
       WHERE f.user_id = ?
-    `).all(sessionId, sessionId) as any[];
+    `).all(userId, userId) as any[];
 
     const now = new Date().toISOString();
 
@@ -54,17 +47,8 @@ export async function GET(req: Request) {
 // Create new flashcard
 export async function POST(req: Request) {
   try {
-    const cookieStore = await cookies();
-    let sessionId = cookieStore.get('yks_session')?.value;
-
-    if (!sessionId) {
-      const authHeader = req.headers.get('authorization');
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        sessionId = authHeader.substring(7);
-      }
-    }
-
-    if (!sessionId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
 
     const { subject, topic, front, back } = await req.json();
     if (!subject || !front || !back) return NextResponse.json({ error: 'Eksik bilgi' }, { status: 400 });
@@ -76,11 +60,11 @@ export async function POST(req: Request) {
     await db.transaction(async () => {
       // Insert card
       await db.prepare('INSERT INTO flashcards (id, user_id, subject, topic, front_text, back_text) VALUES (?, ?, ?, ?, ?, ?)')
-        .run(cardId, sessionId, subject, cardTopic, front, back);
+        .run(cardId, userId, subject, cardTopic, front, back);
       
       // Initialize progress
       await db.prepare('INSERT INTO flashcards_progress (id, user_id, card_id, status) VALUES (?, ?, ?, ?)')
-        .run(progressId, sessionId, cardId, 'new');
+        .run(progressId, userId, cardId, 'new');
     })();
 
     return NextResponse.json({ success: true, cardId }, { status: 200 });

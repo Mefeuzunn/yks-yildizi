@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { getAuthenticatedTeacherId } from '@/lib/auth-utils';
 import db from '@/lib/yks-db-async';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
   try {
@@ -11,16 +13,19 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Sınıf ID gereklidir.' }, { status: 400 });
     }
 
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-
-    if (!sessionId) {
+    const teacherId = await getAuthenticatedTeacherId(req);
+    if (!teacherId) {
       return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
+    }
+
+    const user = await db.prepare('SELECT id, role FROM users WHERE id = ?').get(teacherId) as any;
+    if (!user || user.role !== 'ogretmen') {
+      return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
     }
 
     // Verify teacher owns the class
     const teacherClass = await db.prepare('SELECT id, class_name FROM teacher_classes WHERE id = ? AND teacher_id = ?')
-      .get(classId, sessionId) as any;
+      .get(classId, teacherId) as any;
 
     if (!teacherClass) {
       return NextResponse.json({ error: 'Sınıf bulunamadı veya yetkisiz erişim.' }, { status: 403 });

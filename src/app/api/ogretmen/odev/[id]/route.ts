@@ -1,20 +1,21 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { getAuthenticatedTeacherId } from '@/lib/auth-utils';
 import db from '@/lib/yks-db-async';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
+    const teacherId = await getAuthenticatedTeacherId(request);
 
-    if (!sessionId) {
+    if (!teacherId) {
       return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
     }
 
-    const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(sessionId) as any;
+    const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(teacherId) as any;
     if (!user || user.role !== 'ogretmen') {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
     }
@@ -52,14 +53,13 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
+    const teacherId = await getAuthenticatedTeacherId(request);
 
-    if (!sessionId) {
+    if (!teacherId) {
       return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
     }
 
-    const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(sessionId) as any;
+    const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(teacherId) as any;
     if (!user || user.role !== 'ogretmen') {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
     }

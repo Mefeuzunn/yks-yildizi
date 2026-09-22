@@ -1,20 +1,19 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
-import { cookies } from 'next/headers';
-import { verifyToken } from '@/lib/jwt';
+import { getAuthenticatedTeacherId } from '@/lib/auth-utils';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   try {
     // 1. Auth Kontrolü
-    const cookieStore = await cookies();
-    const token = cookieStore.get('yks_session')?.value;
-    if (!token) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
-    
-    const payload = await verifyToken(token);
-    if (!payload || payload.role !== 'ogretmen') {
+    const teacherId = await getAuthenticatedTeacherId(req);
+    if (!teacherId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
+
+    const user = await db.prepare('SELECT id, role FROM users WHERE id = ?').get(teacherId) as any;
+    if (!user || user.role !== 'ogretmen') {
       return NextResponse.json({ error: 'Bu işlem için öğretmen yetkisi gerekiyor.' }, { status: 403 });
     }
-    const teacherId = payload.userId;
 
     // 2. Veri Doğrulama
     const body = await req.json();
