@@ -17,6 +17,10 @@ const MAIN_TABS = [
 const MORE_TABS = [
   { emoji: '🎯', label: 'Hedeflerim', href: '/dashboard?tab=hedef' },
   { emoji: '🔬', label: 'Simülasyonlar', href: '/simulasyonlar' },
+  { emoji: '🤖', label: 'AstraTutor AI', href: '/dashboard?tab=astratutor' },
+  { emoji: '🎓', label: 'Tercih Robotu', href: '/dashboard?tab=tercih_robotu' },
+  { emoji: '🧮', label: 'Puan Hesaplama', href: '/puan-hesaplama' },
+  { emoji: '🏛️', label: 'YÖK Atlas', href: '/admin/yokatlas' },
   { emoji: '🛡️', label: 'Klanlar', href: '/klanlar' },
   { emoji: '📋', label: 'Ödevlerim', href: '/odevlerim' },
   { emoji: '❌', label: 'Yanlışlarım', href: '/dashboard?tab=mistakes' },
