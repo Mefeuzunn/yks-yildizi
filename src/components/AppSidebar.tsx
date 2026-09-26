@@ -13,7 +13,6 @@ const STUDENT_NAV_ITEMS = [
   { emoji: '🤖', label: 'AstraTutor AI', href: '/dashboard?tab=astratutor' },
   { emoji: '🎓', label: 'Tercih Robotu', href: '/dashboard?tab=tercih_robotu' },
   { emoji: '🧮', label: 'Puan Hesaplama', href: '/puan-hesaplama' },
-  { emoji: '🏛️', label: 'YÖK Atlas', href: '/admin/yokatlas' },
   { emoji: '❌', label: 'Yanlışlarım', href: '/dashboard?tab=mistakes' },
   { emoji: '📚', label: 'Konular', href: '/dashboard?tab=topics' },
   { emoji: '📝', label: 'Testlerim', href: '/dashboard?tab=tests' },
