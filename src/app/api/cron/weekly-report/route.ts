@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
+import { sendPushNotification } from '@/lib/push-notifications';
 
 export const dynamic = 'force-dynamic';
 
@@ -147,6 +148,29 @@ export async function GET(req: Request) {
         }
 
         processed++;
+
+        // 🔔 Öğretmene haftalık rapor bildirimi gönder
+        try {
+          const teacherSubs = await db.prepare(
+            'SELECT endpoint, p256dh, auth FROM user_push_subscriptions WHERE user_id = ?'
+          ).all(cls.teacher_id) as any[];
+
+          for (const sub of teacherSubs) {
+            const weakSummary = topWeaknesses[0]
+              ? `En kritik konu: ${topWeaknesses[0].subject} - ${topWeaknesses[0].topic}`
+              : 'Tüm konular yolunda görünüyor!';
+
+            await sendPushNotification(
+              { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+              {
+                title: `📊 ${cls.class_name} Haftalık Raporu`,
+                body: weakSummary,
+                url: '/ogretmen/dashboard?tab=analiz',
+                tag: `weekly-report-${cls.class_id}`,
+              }
+            );
+          }
+        } catch (_) {}
       } catch (classErr: any) {
         console.error(`Class ${cls.class_id} rapor hatası:`, classErr.message);
       }

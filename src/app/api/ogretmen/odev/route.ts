@@ -102,6 +102,28 @@ export async function POST(request: Request) {
 
     const created = await db.prepare('SELECT * FROM assignments WHERE id = ?').get(assignmentId);
 
+    // 🔔 Push bildirimi gönder (fire and forget, hatalar ödev oluşturmayı engellemesin)
+    try {
+      const dueText = due_date
+        ? ` (Son teslim: ${new Date(due_date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })})`
+        : '';
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://yks-yildizi.vercel.app';
+      fetch(`${baseUrl}/api/push/send`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'authorization': `Bearer ${process.env.CRON_SECRET || 'internal'}`,
+        },
+        body: JSON.stringify({
+          classId: class_id,
+          title: '📋 Yeni Ödev!',
+          body: `${title.trim()}${dueText}`,
+          url: '/dashboard',
+          tag: `odev-${assignmentId}`,
+        }),
+      }).catch(() => {}); // sessizce başarısız ol
+    } catch (_) {}
+
     return NextResponse.json({
       success: true,
       assignment: created,

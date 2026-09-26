@@ -1,12 +1,22 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { AuthProvider } from '@/context/AuthContext';
 import { TimerProvider } from '@/context/TimerContext';
 import GlobalTimerWidget from '@/components/GlobalTimerWidget';
 import AppSidebar from '@/components/AppSidebar';
 import MobileNav from '@/components/MobileNav';
+import { PWAInstallBanner } from '@/components/PWAComponents';
+
+function ServiceWorkerRegistrar() {
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+  }, []);
+  return null;
+}
 
 /**
  * LayoutShell — renders the appropriate layout based on the route.
@@ -59,6 +69,8 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
         <React.Suspense fallback={null}>
           <GlobalTimerWidget />
         </React.Suspense>
+        <ServiceWorkerRegistrar />
+        <PWAInstallBanner />
       </div>
       </TimerProvider>
     </AuthProvider>
