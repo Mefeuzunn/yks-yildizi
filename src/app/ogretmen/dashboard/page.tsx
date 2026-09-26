@@ -140,6 +140,178 @@ function Badge({ label, color }: { label: string; color: string }) {
   );
 }
 
+function AIAssistantWidget({ classId }: { classId: string | null }) {
+  const [data, setData] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(false);
+  const [assigning, setAssigning] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (!classId) return;
+    setLoading(true);
+    fetch(`/api/ogretmen/ai-recommendations?classId=${classId}`)
+      .then(r => r.json())
+      .then(d => { setData(d); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [classId]);
+
+  const handleQuickAssign = async (action: any) => {
+    setAssigning(action.id);
+    const dueDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const res = await fetch('/api/ogretmen/ai-recommendations/quick-assign', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        classId,
+        subject: action.subject,
+        topic: action.topic,
+        title: action.label.replace('Ata', '').trim(),
+        dueDate
+      })
+    });
+    const d = await res.json();
+    setAssigning(null);
+    if (d.success) setSuccess(`"${action.topic}" ödevi başarıyla atandı!`);
+    setTimeout(() => setSuccess(null), 4000);
+  };
+
+  if (!classId) return (
+    <div style={{ padding: 24, background: 'rgba(139,92,246,0.05)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: 12, marginBottom: 24, textAlign: 'center', color: '#94a3b8' }}>
+      <span style={{ fontSize: 28 }}>🤖</span>
+      <p style={{ margin: '8px 0 0' }}>AI önerileri için sol üstten bir sınıf seçin.</p>
+    </div>
+  );
+
+  return (
+    <div style={{ marginBottom: 24 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+        <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #8b5cf6, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🤖</div>
+        <div>
+          <h3 style={{ color: '#fff', fontWeight: 700, margin: 0, fontSize: 16 }}>AstraTutor Sınıf Asistanı</h3>
+          <p style={{ color: '#64748b', fontSize: 12, margin: 0 }}>Yapay zeka destekli ödev ve içerik önerileri</p>
+        </div>
+      </div>
+
+      {loading ? (
+        <div style={{ padding: 32, textAlign: 'center', color: '#64748b' }}>Analiz yapılıyor...</div>
+      ) : data?.success ? (
+        <div>
+          {/* Özet Mesaj */}
+          <div style={{ padding: '14px 18px', background: 'linear-gradient(135deg, rgba(139,92,246,0.1), rgba(99,102,241,0.05))', border: '1px solid rgba(139,92,246,0.2)', borderRadius: 10, marginBottom: 16, color: '#c4b5fd', fontSize: 13, lineHeight: 1.7 }}>
+            {data.summaryText}
+          </div>
+
+          {/* Zayıf Konular */}
+          {data.weakTopics?.length > 0 && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12, marginBottom: 16 }}>
+              {data.weakTopics.map((t: any, i: number) => (
+                <div key={i} style={{ padding: 14, background: 'rgba(255,255,255,0.03)', border: `1px solid ${ t.severity === 'high' ? 'rgba(239,68,68,0.3)' : t.severity === 'medium' ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.08)' }`, borderRadius: 10 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                    <span style={{ fontWeight: 600, color: '#e2e8f0', fontSize: 13 }}>{t.subject} · {t.topic}</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: t.severity === 'high' ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)', color: t.severity === 'high' ? '#fca5a5' : '#fcd34d' }}>
+                      {t.severity === 'high' ? 'KRİTİK' : t.severity === 'medium' ? 'ORTA' : 'DÜŞÜK'}
+                    </span>
+                  </div>
+                  <p style={{ color: '#64748b', fontSize: 11, margin: '0 0 6px' }}>{t.affectedStudents} öğrenci · {t.errorCount} hata</p>
+                  <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 2 }}>
+                    <div style={{ height: '100%', width: `${Math.min(100, t.errorCount / 2)}%`, background: t.severity === 'high' ? '#ef4444' : '#f59e0b', borderRadius: 2, transition: 'width 0.8s ease' }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Hızlı Aksiyon Butonları */}
+          {success && (
+            <div style={{ padding: '10px 16px', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 8, color: '#6ee7b7', fontSize: 13, marginBottom: 12 }}>✅ {success}</div>
+          )}
+          {data.quickActions?.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {data.quickActions.map((action: any) => (
+                <button
+                  key={action.id}
+                  onClick={() => handleQuickAssign(action)}
+                  disabled={!!assigning}
+                  style={{ padding: '8px 16px', background: 'linear-gradient(135deg, rgba(139,92,246,0.2), rgba(99,102,241,0.15))', border: '1px solid rgba(139,92,246,0.4)', borderRadius: 8, color: '#c4b5fd', fontSize: 13, fontWeight: 600, cursor: assigning ? 'not-allowed' : 'pointer', opacity: assigning === action.id ? 0.6 : 1 }}
+                >
+                  {assigning === action.id ? '⏳ Atanıyor...' : `⚡ ${action.label}`}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div style={{ padding: 24, textAlign: 'center', color: '#64748b' }}>Bu sınıf için yeterli veri henüz birikmemiş.</div>
+      )}
+    </div>
+  );
+}
+
+function WeeklyReportWidget({ classId }: { classId: string | null }) {
+  const [report, setReport] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(false);
+  const [weekOffset, setWeekOffset] = React.useState(0);
+
+  React.useEffect(() => {
+    if (!classId) return;
+    setLoading(true);
+    fetch(`/api/ogretmen/weekly-report?classId=${classId}&weekOffset=${weekOffset}`)
+      .then(r => r.json())
+      .then(d => { setReport(d); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [classId, weekOffset]);
+
+  return (
+    <div style={{ marginBottom: 24 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #10b981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>📊</div>
+          <div>
+            <h3 style={{ color: '#fff', fontWeight: 700, margin: 0, fontSize: 16 }}>Haftalık Sınıf Raporu</h3>
+            <p style={{ color: '#64748b', fontSize: 12, margin: 0 }}>{report?.report?.week_start && `${report.report.week_start} – ${report.report.week_end}`}{report?.isLive && ' (Canlı)'}</p>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button onClick={() => setWeekOffset(w => w + 1)} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, color: '#94a3b8', cursor: 'pointer', fontSize: 12 }}>← Önceki</button>
+          {weekOffset > 0 && <button onClick={() => setWeekOffset(0)} style={{ padding: '6px 12px', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 6, color: '#6ee7b7', cursor: 'pointer', fontSize: 12 }}>Bu Hafta</button>}
+        </div>
+      </div>
+
+      {loading ? (
+        <div style={{ padding: 32, textAlign: 'center', color: '#64748b' }}>Rapor yükleniyor...</div>
+      ) : !classId ? (
+        <div style={{ padding: 24, textAlign: 'center', color: '#64748b' }}>Rapor için sınıf seçin.</div>
+      ) : report?.report ? (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+          {/* Aktif Öğrenci Oranı */}
+          <div style={{ padding: 16, background: 'rgba(16,185,129,0.05)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 10, textAlign: 'center' }}>
+            <div style={{ fontSize: 32, fontWeight: 800, color: '#10b981' }}>{report.report.active_student_rate?.toFixed(0) ?? 0}%</div>
+            <div style={{ color: '#64748b', fontSize: 12, marginTop: 4 }}>Aktif Öğrenci</div>
+          </div>
+
+          {/* Zayıf Konular */}
+          <div style={{ padding: 16, background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10 }}>
+            <div style={{ color: '#fca5a5', fontSize: 12, fontWeight: 700, marginBottom: 8 }}>🎯 Zayıf Konular</div>
+            {(report.report.top_weaknesses ?? []).slice(0,3).map((w: any, i: number) => (
+              <div key={i} style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>{i+1}. {w.subject} - {w.topic}</div>
+            ))}
+          </div>
+
+          {/* En Çok Gelişenler */}
+          <div style={{ padding: 16, background: 'rgba(245,158,11,0.05)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 10 }}>
+            <div style={{ color: '#fcd34d', fontSize: 12, fontWeight: 700, marginBottom: 8 }}>⭐ En Çok Geliştiler</div>
+            {(report.report.top_improvers ?? []).slice(0,3).map((s: any, i: number) => (
+              <div key={i} style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>{i+1}. {s.username ?? s.student_id?.slice(0,8)}</div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div style={{ padding: 24, textAlign: 'center', color: '#64748b' }}>Bu hafta için rapor henüz oluşturulmadı.</div>
+      )}
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────
 // MAIN COMPONENT
 // ─────────────────────────────────────────────
@@ -985,6 +1157,10 @@ function TeacherDashboardContent() {
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+
+                {/* AI Asistan Bölümü */}
+                <AIAssistantWidget classId={aiClassId} />
+                <WeeklyReportWidget classId={aiClassId} />
 
                 {/* AI Insights (Faz 3) */}
                 <div className="premium-card" style={{ padding: '1.5rem', background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(16, 185, 129, 0.05))', border: '1px solid rgba(139, 92, 246, 0.3)' }}>

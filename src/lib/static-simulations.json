@@ -1,0 +1,604 @@
+[
+  {
+    "id": "static_0",
+    "title": "Alan Olusturucu",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/alan-olusturucu",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Alan Olusturucu",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_1",
+    "title": "Atom Olustur",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/atom-olustur",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Atom Olustur",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_2",
+    "title": "Birim Cember",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/birim-cember",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Birim Cember",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_3",
+    "title": "Denge Oyunu",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/denge-oyunu",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Denge Oyunu",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_4",
+    "title": "Dogal Secilim",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/dogal-secilim",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Dogal Secilim",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_5",
+    "title": "Egik Atis",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/egik-atis",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Egik Atis",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_6",
+    "title": "Elektrik Devresi",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/elektrik-devresi",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Elektrik Devresi",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_7",
+    "title": "Enerji Parki",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/enerji-parki",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Enerji Parki",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_8",
+    "title": "Enzim Kinetigi",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/enzim-kinetigi",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Enzim Kinetigi",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_9",
+    "title": "Fotoelektrik",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/fotoelektrik",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Fotoelektrik",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_10",
+    "title": "Fotosentez",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/fotosentez",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Fotosentez",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_11",
+    "title": "Galton",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/galton",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Galton",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_12",
+    "title": "Harmonik Hareket",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/harmonik-hareket",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Harmonik Hareket",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_13",
+    "title": "Hucre Zari",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/hucre-zari",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Hucre Zari",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_14",
+    "title": "Ideal Gaz",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/ideal-gaz",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Ideal Gaz",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_15",
+    "title": "Isigin Kirilmasi",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/isigin-kirilmasi",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Isigin Kirilmasi",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_16",
+    "title": "Kati Cisimler",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/kati-cisimler",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Kati Cisimler",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_17",
+    "title": "Kcc Cokelme",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/kcc-cokelme",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Kcc Cokelme",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_18",
+    "title": "Kepler",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/kepler",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Kepler",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_19",
+    "title": "Kesirler",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/kesirler",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Kesirler",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_20",
+    "title": "Kuvvet Ve Hareket",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/kuvvet-ve-hareket",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Kuvvet Ve Hareket",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_21",
+    "title": "Le Chatelier",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/le-chatelier",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Le Chatelier",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_22",
+    "title": "Limit",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/limit",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Limit",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_23",
+    "title": "Maddenin Halleri",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/maddenin-halleri",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Maddenin Halleri",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_24",
+    "title": "Manyetik Induksiyon",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/manyetik-induksiyon",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Manyetik Induksiyon",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_25",
+    "title": "Matematik Grafikleri",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/matematik-grafikleri",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Matematik Grafikleri",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_26",
+    "title": "Molekul Sekilleri",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/molekul-sekilleri",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Molekul Sekilleri",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_27",
+    "title": "Momentum",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/momentum",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Momentum",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_28",
+    "title": "Optik",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/optik",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Optik",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_29",
+    "title": "Piller",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/piller",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Piller",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_30",
+    "title": "Polinom",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/polinom",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Polinom",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_31",
+    "title": "Punnett",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/punnett",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Punnett",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_32",
+    "title": "Radyoaktif Bozunma",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/radyoaktif-bozunma",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Radyoaktif Bozunma",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_33",
+    "title": "Renk Gorme",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/renk-gorme",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Renk Gorme",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_34",
+    "title": "Riemann",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/riemann",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Riemann",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_35",
+    "title": "Surtunme",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/surtunme",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Surtunme",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_36",
+    "title": "Titrasyon",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/titrasyon",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Titrasyon",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_37",
+    "title": "Turev",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/turev",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Turev",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_38",
+    "title": "Vektorler",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/vektorler",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Vektorler",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_39",
+    "title": "Yari Omur",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/yari-omur",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Yari Omur",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_40",
+    "title": "Yay Dalgalari",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/yay-dalgalari",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Yay Dalgalari",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_41",
+    "title": "Yaylar Ve Kutleler",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/yaylar-ve-kutleler",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Yaylar Ve Kutleler",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  },
+  {
+    "id": "static_42",
+    "title": "Young Deneyi",
+    "description": "Özel YKS Yıldızı interaktif simülasyonu.",
+    "source_url": "/simulasyonlar/young-deneyi",
+    "category": "AYT",
+    "subject": "Fizik",
+    "topic": "Young Deneyi",
+    "difficulty_level": 2,
+    "is_active": true,
+    "related_yks_topics": [
+      "Özel Yapım"
+    ]
+  }
+]
