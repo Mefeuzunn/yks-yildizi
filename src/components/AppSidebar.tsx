@@ -83,6 +83,7 @@ function SidebarNav({ user }: { user: any }) {
     <nav
       style={{
         flex: 1,
+        minHeight: 0, // Flexbox overflow fix
         padding: '20px 12px',
         display: 'flex',
         flexDirection: 'column',
