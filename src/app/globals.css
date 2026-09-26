@@ -323,7 +323,7 @@ button:active {
 
 /* Dashboard main responsive class */
 .dashboard-main-responsive {
-  margin-left: 240px;
+  margin-left: 220px;
   padding: 40px;
   transition: margin-left 0.3s ease, padding 0.3s ease;
 }

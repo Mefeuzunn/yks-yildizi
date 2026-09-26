@@ -56,7 +56,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
         <main
           className="dashboard-main-responsive"
           style={{
-            marginLeft: '240px', // Offset for fixed sidebar
+            marginLeft: '220px', // Offset for fixed sidebar
             padding: '40px',
             paddingBottom: '80px', // Mobile bottom bar clearance
             minHeight: '100vh',
