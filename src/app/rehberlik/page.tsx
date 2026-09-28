@@ -134,10 +134,10 @@ export default function RehberlikPage() {
   };
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0', height: 'calc(100vh - 120px)', display: 'flex', flexDirection: 'column', fontFamily: 'Inter, sans-serif' }}>
+    <div className="rehberlik-page-wrap" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0', height: 'calc(100vh - 120px)', display: 'flex', flexDirection: 'column', fontFamily: 'Inter, sans-serif' }}>
       
       {/* Header */}
-      <div style={{ marginBottom: '24px' }}>
+      <div className="rehberlik-header" style={{ marginBottom: '24px' }}>
         <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#111827', margin: '0 0 4px 0' }}>Rehberlik Uzmanı</h1>
         <p style={{ fontSize: '14px', color: '#6B7280', margin: 0 }}>Kariyer, motivasyon ve çalışma stratejileri konusunda kişisel rehberlik.</p>
       </div>
@@ -336,6 +336,13 @@ export default function RehberlikPage() {
         </div>
 
       </div>
+      <style jsx>{`
+        @media (max-width: 768px) {
+          .rehberlik-page-wrap { padding-bottom: calc(85px + env(safe-area-inset-bottom, 20px)) !important; }
+          .rehberlik-header { flex-direction: column !important; align-items: flex-start !important; }
+          .rehberlik-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }

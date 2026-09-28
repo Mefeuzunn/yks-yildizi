@@ -87,7 +87,7 @@ export default function AyarlarPage() {
   if (loading) return <div style={{display:'flex',justifyContent:'center',marginTop:'5rem'}}><Loader2 className="animate-spin" size={48} color="#38bdf8"/></div>;
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '2rem 1rem', display: 'flex', flexWrap: 'wrap', gap: '2rem', position: 'relative' }}>
+    <div className="ayarlar-page-wrap" style={{ maxWidth: '1000px', margin: '0 auto', padding: '2rem 1rem', display: 'flex', flexWrap: 'wrap', gap: '2rem', position: 'relative' }}>
       
       {/* Toast Notification */}
       <AnimatePresence>
@@ -369,6 +369,16 @@ export default function AyarlarPage() {
         </motion.div>
       </div>
 
+      <style jsx>{`
+        @media (max-width: 768px) {
+          .ayarlar-page-wrap { padding-bottom: calc(85px + env(safe-area-inset-bottom, 20px)) !important; padding: 1rem 0.75rem calc(85px + env(safe-area-inset-bottom, 20px)) !important; }
+          .ayarlar-header { flex-direction: column !important; align-items: flex-start !important; }
+          .ayarlar-grid { grid-template-columns: 1fr !important; }
+          .ayarlar-page-wrap input,
+          .ayarlar-page-wrap select,
+          .ayarlar-page-wrap textarea { font-size: 16px !important; }
+        }
+      `}</style>
     </div>
   );
 }

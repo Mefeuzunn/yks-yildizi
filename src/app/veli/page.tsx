@@ -138,10 +138,10 @@ export default function VeliDashboardPage() {
   const lastExam = studentData.exams.length > 0 ? studentData.exams[studentData.exams.length - 1] : null;
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
+    <div className="veli-page-wrap" style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
       
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+      <div className="veli-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h1 style={{ fontSize: '2rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <ShieldCheck size={32} color="#10b981" /> Veli Takip Paneli
@@ -168,7 +168,7 @@ export default function VeliDashboardPage() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+      <div className="veli-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
         <div className="premium-card" style={{ padding: '2rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
             <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>Son Deneme Neti</span>
@@ -409,6 +409,13 @@ export default function VeliDashboardPage() {
         )}
       </AnimatePresence>
 
+      <style jsx>{`
+        @media (max-width: 768px) {
+          .veli-page-wrap { padding-bottom: calc(85px + env(safe-area-inset-bottom, 20px)) !important; }
+          .veli-header { flex-direction: column !important; align-items: flex-start !important; }
+          .veli-stats-grid { grid-template-columns: 1fr 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }
