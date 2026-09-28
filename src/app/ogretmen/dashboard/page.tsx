@@ -9,14 +9,14 @@ import {
   Star, Calendar, Award, Eye, BarChart2, Search, Filter,
   ChevronUp, ChevronDown, Trash2, Bell, Zap, Target,
   GraduationCap, BookMarked, PenLine, RefreshCw, ArrowRight,
-  CheckCircle, Clock, AlertCircle, Flame, Trophy, Shield, Sparkles, BrainCircuit
+  CheckCircle, Clock, AlertCircle, Flame, Trophy, Shield, Sparkles, BrainCircuit, User
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 // ─────────────────────────────────────────────
 // TYPES
 // ─────────────────────────────────────────────
-type Tab = 'genel' | 'siniflar' | 'ogrenciler' | 'odevler' | 'analiz' | 'kaynaklar' | 'duyurular';
+type Tab = 'genel' | 'siniflar' | 'ogrenciler' | 'odevler' | 'analiz' | 'kaynaklar' | 'duyurular' | 'profil';
 
 interface ClassItem { id: string; class_name: string; class_code: string; student_count: number; avg_success: number; created_at: string; }
 interface StudentItem { id: string; username: string; alan: string; sinif: string; solved_questions: number; success_rate: number; league: string; league_points: number; streak_days: number; }
@@ -308,6 +308,319 @@ function WeeklyReportWidget({ classId }: { classId: string | null }) {
       ) : (
         <div style={{ padding: 24, textAlign: 'center', color: '#64748b' }}>Bu hafta için rapor henüz oluşturulmadı.</div>
       )}
+    </div>
+  );
+}
+
+function TeacherProfileTab() {
+  const [profile, setProfile] = React.useState<any>(null);
+  const [stats, setStats] = React.useState<any>({});
+  const [loading, setLoading] = React.useState(true);
+  const [saving, setSaving] = React.useState(false);
+  const [saved, setSaved] = React.useState(false);
+  const [form, setForm] = React.useState({
+    brans: '', bio: '', phone: '', email: '', website: '',
+    social_twitter: '', social_linkedin: '', experience_years: 0,
+    specialties: [] as string[],
+  });
+  const [newSpecialty, setNewSpecialty] = React.useState('');
+
+  React.useEffect(() => {
+    fetch('/api/ogretmen/profil')
+      .then(r => r.json())
+      .then(d => {
+        if (!d.error) {
+          const p = d.profile || {};
+          setForm({
+            brans: p.brans || '',
+            bio: p.bio || '',
+            phone: p.phone || '',
+            email: p.email || d.email || '',
+            website: p.website || '',
+            social_twitter: p.social_twitter || '',
+            social_linkedin: p.social_linkedin || '',
+            experience_years: p.experience_years || 0,
+            specialties: (() => { try { return typeof p.specialties === 'string' ? JSON.parse(p.specialties) : (p.specialties || []); } catch { return []; } })(),
+          });
+          setProfile(d);
+          setStats(d.stats || {});
+        }
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch('/api/ogretmen/profil', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (res.ok) {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+      }
+    } catch (e) { console.error(e); }
+    setSaving(false);
+  };
+
+  const addSpecialty = () => {
+    if (newSpecialty.trim() && !form.specialties.includes(newSpecialty.trim())) {
+      setForm(f => ({ ...f, specialties: [...f.specialties, newSpecialty.trim()] }));
+      setNewSpecialty('');
+    }
+  };
+
+  const removeSpecialty = (s: string) => {
+    setForm(f => ({ ...f, specialties: f.specialties.filter(x => x !== s) }));
+  };
+
+  if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}><Loader2 className="animate-spin" size={32} color="#6366f1" /></div>;
+
+  const cardStyle: React.CSSProperties = {
+    background: 'rgba(255,255,255,0.03)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: '14px',
+    padding: '1.5rem',
+  };
+
+  const labelStyle: React.CSSProperties = {
+    display: 'block', marginBottom: '0.4rem',
+    color: '#94a3b8', fontSize: '0.8rem', fontWeight: 600,
+    letterSpacing: '0.03em',
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%', padding: '0.65rem 0.85rem',
+    borderRadius: '10px',
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    border: '1px solid rgba(255,255,255,0.1)',
+    color: '#f1f5f9', fontSize: '0.9rem',
+    outline: 'none',
+    transition: 'border 0.2s',
+  };
+
+  const BRANS_OPTIONS = [
+    'Matematik', 'Fizik', 'Kimya', 'Biyoloji', 'Türk Dili ve Edebiyatı',
+    'Tarih', 'Coğrafya', 'Felsefe', 'İngilizce', 'Almanca',
+    'Geometri', 'Paragraf', 'Rehberlik', 'Diğer',
+  ];
+
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '1.5rem' }}>
+
+      {/* ── Left: Edit Form ── */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+
+        {/* Basic Info Card */}
+        <div style={cardStyle}>
+          <h3 style={{ color: '#f1f5f9', fontSize: '1rem', fontWeight: 700, marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <User size={18} color="#6366f1" /> Temel Bilgiler
+          </h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div>
+              <label style={labelStyle}>Branş</label>
+              <select
+                value={form.brans}
+                onChange={e => setForm(f => ({ ...f, brans: e.target.value }))}
+                style={{ ...inputStyle, appearance: 'none' as any, cursor: 'pointer' }}
+              >
+                <option value="">Seçiniz...</option>
+                {BRANS_OPTIONS.map(b => <option key={b} value={b}>{b}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={labelStyle}>Deneyim (Yıl)</label>
+              <input
+                type="number" min={0} max={50}
+                value={form.experience_years}
+                onChange={e => setForm(f => ({ ...f, experience_years: parseInt(e.target.value) || 0 }))}
+                style={inputStyle}
+              />
+            </div>
+          </div>
+          <div style={{ marginTop: '1rem' }}>
+            <label style={labelStyle}>Biyografi</label>
+            <textarea
+              value={form.bio}
+              onChange={e => setForm(f => ({ ...f, bio: e.target.value }))}
+              placeholder="Kendinizi kısaca tanıtın... (Öğrencileriniz bu bilgiyi görecek)"
+              rows={3}
+              style={{ ...inputStyle, resize: 'vertical' as any }}
+            />
+          </div>
+        </div>
+
+        {/* Contact Card */}
+        <div style={cardStyle}>
+          <h3 style={{ color: '#f1f5f9', fontSize: '1rem', fontWeight: 700, marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            📞 İletişim Bilgileri
+          </h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div>
+              <label style={labelStyle}>E-posta</label>
+              <input
+                type="email"
+                value={form.email}
+                onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Telefon</label>
+              <input
+                type="tel"
+                value={form.phone}
+                onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                placeholder="0 (5XX) XXX XX XX"
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Web Sitesi</label>
+              <input
+                type="url"
+                value={form.website}
+                onChange={e => setForm(f => ({ ...f, website: e.target.value }))}
+                placeholder="https://..."
+                style={inputStyle}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Specialties Card */}
+        <div style={cardStyle}>
+          <h3 style={{ color: '#f1f5f9', fontSize: '1rem', fontWeight: 700, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            🏷️ Uzmanlık Alanları
+          </h3>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.75rem' }}>
+            {form.specialties.map((s: string) => (
+              <span
+                key={s}
+                style={{
+                  padding: '4px 10px', borderRadius: '20px', fontSize: '0.8rem',
+                  background: 'rgba(99,102,241,0.15)', color: '#a5b4fc',
+                  border: '1px solid rgba(99,102,241,0.3)',
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                }}
+              >
+                {s}
+                <button onClick={() => removeSpecialty(s)} style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', padding: 0, fontSize: '14px', lineHeight: 1 }}>×</button>
+              </span>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <input
+              value={newSpecialty}
+              onChange={e => setNewSpecialty(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && addSpecialty()}
+              placeholder="Örn: Limit-Türev, Organik Kimya..."
+              style={{ ...inputStyle, flex: 1 }}
+            />
+            <button onClick={addSpecialty} style={{ padding: '0 1rem', borderRadius: '10px', background: 'rgba(99,102,241,0.2)', color: '#a5b4fc', border: '1px solid rgba(99,102,241,0.3)', cursor: 'pointer', fontWeight: 600 }}>Ekle</button>
+          </div>
+        </div>
+
+        {/* Save Button */}
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          style={{
+            padding: '0.75rem 1.5rem', borderRadius: '12px',
+            background: saved ? 'linear-gradient(135deg,#10b981,#059669)' : 'linear-gradient(135deg,#6366f1,#8b5cf6)',
+            color: '#fff', fontWeight: 700, fontSize: '0.9rem',
+            border: 'none', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: '0.5rem',
+            justifyContent: 'center',
+            opacity: saving ? 0.7 : 1,
+            transition: 'all 0.3s',
+            boxShadow: saved ? '0 4px 16px rgba(16,185,129,0.3)' : '0 4px 16px rgba(99,102,241,0.3)',
+          }}
+        >
+          {saving ? <Loader2 size={18} className="animate-spin" /> : saved ? <CheckCircle size={18} /> : <Star size={18} />}
+          {saving ? 'Kaydediliyor...' : saved ? 'Kaydedildi!' : 'Profili Güncelle'}
+        </button>
+      </div>
+
+      {/* ── Right: Live Preview Card ── */}
+      <div>
+        <div style={{
+          ...cardStyle,
+          background: 'linear-gradient(180deg, rgba(99,102,241,0.08) 0%, rgba(99,102,241,0.02) 100%)',
+          border: '1px solid rgba(99,102,241,0.2)',
+          position: 'sticky' as any,
+          top: '2rem',
+        }}>
+          <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
+            <div style={{
+              width: '72px', height: '72px', borderRadius: '50%',
+              background: 'linear-gradient(135deg,#6366f1,#8b5cf6)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#fff', fontWeight: 800, fontSize: '1.5rem',
+              margin: '0 auto 0.75rem',
+              boxShadow: '0 0 24px rgba(99,102,241,0.4)',
+            }}>
+              {profile?.username?.charAt(0)?.toUpperCase() || 'Ö'}
+            </div>
+            <h3 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>
+              {profile?.username || 'Öğretmen'}
+            </h3>
+            {form.brans && (
+              <span style={{
+                display: 'inline-block', marginTop: '0.4rem',
+                padding: '3px 12px', borderRadius: '20px', fontSize: '0.75rem',
+                background: 'rgba(99,102,241,0.15)', color: '#a5b4fc',
+                border: '1px solid rgba(99,102,241,0.25)',
+              }}>{form.brans}</span>
+            )}
+          </div>
+
+          {form.bio && (
+            <p style={{ color: '#94a3b8', fontSize: '0.83rem', lineHeight: 1.6, marginBottom: '1rem', textAlign: 'center' as any }}>
+              "{form.bio}"
+            </p>
+          )}
+
+          {/* Stats */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginBottom: '1rem' }}>
+            <div style={{ textAlign: 'center', padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '10px' }}>
+              <div style={{ color: '#38bdf8', fontWeight: 800, fontSize: '1.3rem' }}>{stats.classCount || 0}</div>
+              <div style={{ color: '#64748b', fontSize: '0.7rem', marginTop: '2px' }}>Sınıf</div>
+            </div>
+            <div style={{ textAlign: 'center', padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '10px' }}>
+              <div style={{ color: '#10b981', fontWeight: 800, fontSize: '1.3rem' }}>{stats.studentCount || 0}</div>
+              <div style={{ color: '#64748b', fontSize: '0.7rem', marginTop: '2px' }}>Öğrenci</div>
+            </div>
+          </div>
+
+          {form.experience_years > 0 && (
+            <div style={{ textAlign: 'center', padding: '0.5rem', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', marginBottom: '0.75rem' }}>
+              <span style={{ color: '#f59e0b', fontSize: '0.8rem', fontWeight: 600 }}>{form.experience_years} Yıl Deneyim</span>
+            </div>
+          )}
+
+          {/* Specialties in preview */}
+          {form.specialties.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', justifyContent: 'center' }}>
+              {form.specialties.map((s: string) => (
+                <span key={s} style={{
+                  padding: '2px 8px', borderRadius: '12px', fontSize: '0.7rem',
+                  background: 'rgba(255,255,255,0.05)', color: '#94a3b8',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                }}>{s}</span>
+              ))}
+            </div>
+          )}
+
+          <div style={{ textAlign: 'center', marginTop: '1rem', color: '#475569', fontSize: '0.7rem' }}>
+            ✨ Öğrencileriniz bu kartı görüntüleyebilir
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 }
@@ -709,6 +1022,7 @@ function TeacherDashboardContent() {
     { key: 'analiz', label: 'Analiz', icon: BarChart2, color: '#f43f5e' },
     { key: 'kaynaklar', label: 'Kaynaklar', icon: BookMarked, color: '#3b82f6' },
     { key: 'duyurular', label: 'Duyurular', icon: Bell, color: '#8b5cf6' },
+    { key: 'profil', label: 'Profilim', icon: User, color: '#6366f1' },
   ];
 
   const activeTabConfig = TABS.find(t => t.key === activeTab)!;
@@ -1458,6 +1772,12 @@ function TeacherDashboardContent() {
                 ))}
               </div>
             )}
+          </motion.div>
+        )}
+
+        {activeTab === 'profil' && (
+          <motion.div key="profil" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.25 }}>
+            <TeacherProfileTab />
           </motion.div>
         )}
       </AnimatePresence>
