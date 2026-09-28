@@ -1,224 +1,123 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import db from '@/lib/yks-db-async';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
 import { v4 as uuidv4 } from 'uuid';
-
-import { verifyToken } from '@/lib/jwt';
 
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 export const revalidate = 0;
 
-async function getUserId(): Promise<string | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('yks_session')?.value;
-  if (!token) return null;
-  let userId = token;
+export async function GET(req: Request) {
   try {
-    const payload = await verifyToken(token);
-    if (payload && payload.userId) {
-      userId = payload.userId as string;
-    }
-  } catch(e) {}
-  return userId;
-}
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
 
-export async function GET() {
-  const userId = await getUserId();
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // 1. Son 7 günün günlük toplam odak dakikaları
+    const weekSessions = await db.prepare(`
+      SELECT 
+        DATE(created_at) as day, 
+        COALESCE(SUM(COALESCE(duration_minutes, duration_min, 0)), 0)::int as total_min,
+        COUNT(*)::int as session_count
+      FROM focus_sessions
+      WHERE user_id = ? AND created_at >= CURRENT_DATE - INTERVAL '7 days'
+      GROUP BY DATE(created_at)
+      ORDER BY day ASC
+    `).all(userId) as any[];
 
-  try {
-    let weekSessions, todayRow, allTimeRow, recentSessions;
-    let errorLog = [];
+    // 2. Bugünün toplamı
+    const todayRow = await db.prepare(`
+      SELECT 
+        COALESCE(SUM(COALESCE(duration_minutes, duration_min, 0)), 0)::int as total_min, 
+        COUNT(*)::int as count
+      FROM focus_sessions
+      WHERE user_id = ? AND DATE(created_at) = CURRENT_DATE
+    `).get(userId) as any;
 
-    try {
-      // 1. Try the barebones schema first (duration_minutes, created_at)
-      weekSessions = await db.prepare(`
-        SELECT date(created_at) as day, subject, topic, SUM(duration_minutes) as total_min, COUNT(*) as session_count
-        FROM focus_sessions
-        WHERE user_id = ? AND CAST(created_at as timestamp) >= CURRENT_DATE - INTERVAL '7 days'
-        GROUP BY day, subject ORDER BY day ASC
-      `).all(userId);
+    // 3. Tüm zamanların toplamı
+    const allTimeRow = await db.prepare(`
+      SELECT 
+        COALESCE(SUM(COALESCE(duration_minutes, duration_min, 0)), 0)::int as total_min, 
+        COUNT(*)::int as count
+      FROM focus_sessions 
+      WHERE user_id = ?
+    `).get(userId) as any;
 
-      todayRow = await db.prepare(`
-        SELECT COALESCE(SUM(duration_minutes), 0) as total_min, COUNT(*) as count
-        FROM focus_sessions
-        WHERE user_id = ? AND DATE(created_at) = CURRENT_DATE
-      `).get(userId) as any;
-
-      allTimeRow = await db.prepare(`
-        SELECT COALESCE(SUM(duration_minutes), 0) as total_min, COUNT(*) as count
-        FROM focus_sessions WHERE user_id = ?
-      `).get(userId) as any;
-
-      recentSessions = await db.prepare(`
-        SELECT id, subject, topic, duration_minutes as duration_min, created_at as started_at
-        FROM focus_sessions
-        WHERE user_id = ? AND DATE(created_at) = CURRENT_DATE 
-        ORDER BY created_at DESC LIMIT 5
-      `).all(userId);
-    } catch (e1: any) {
-      errorLog.push('Schema 1 error: ' + e1.message);
-      try {
-        // 2. Fallback to the original schema (duration_min, started_at)
-        weekSessions = await db.prepare(`
-          SELECT date(CAST(started_at as timestamp)) as day, subject, topic, SUM(duration_min) as total_min, COUNT(*) as session_count
-          FROM focus_sessions
-          WHERE user_id = ? AND CAST(started_at as timestamp) >= CURRENT_DATE - INTERVAL '7 days'
-          GROUP BY day, subject ORDER BY day ASC
-        `).all(userId);
-
-        todayRow = await db.prepare(`
-          SELECT COALESCE(SUM(duration_min), 0) as total_min, COUNT(*) as count
-          FROM focus_sessions
-          WHERE user_id = ? AND DATE(CAST(started_at as timestamp)) = CURRENT_DATE
-        `).get(userId) as any;
-
-        allTimeRow = await db.prepare(`
-          SELECT COALESCE(SUM(duration_min), 0) as total_min, COUNT(*) as count
-          FROM focus_sessions WHERE user_id = ?
-        `).get(userId) as any;
-
-        recentSessions = await db.prepare(`
-          SELECT id, subject, topic, duration_min, started_at
-          FROM focus_sessions
-          WHERE user_id = ? AND DATE(CAST(started_at as timestamp)) = CURRENT_DATE 
-          ORDER BY started_at DESC LIMIT 5
-        `).all(userId);
-      } catch (e2: any) {
-        errorLog.push('Schema 2 error: ' + e2.message);
-        
-        // THE ULTIMATE FIX: If both schemas fail, the table is corrupted or has wrong FKs.
-        // We will drop and recreate it perfectly so it never fails again.
-        try {
-          await db.prepare(`DROP TABLE IF EXISTS focus_sessions CASCADE`).run();
-          await db.prepare(`
-            CREATE TABLE focus_sessions (
-              id text PRIMARY KEY,
-              user_id text NOT NULL,
-              subject text,
-              topic text,
-              task_name text,
-              mode text,
-              duration_min integer,
-              duration_minutes integer,
-              started_at timestamp with time zone DEFAULT now(),
-              created_at timestamp with time zone DEFAULT now()
-            )
-          `).run();
-          
-          return NextResponse.json({
-            weekData: [],
-            todayTotalMin: 0,
-            todaySessions: 0,
-            allTimeTotalMin: 0,
-            allTimeCount: 0,
-            recentSessions: [],
-            recovered: true
-          });
-        } catch (fatalError: any) {
-          throw new Error('FATAL RECOVERY FAILED: ' + fatalError.message + ' | Previous errors: ' + errorLog.join(' | '));
-        }
-      }
-    }
+    // 4. Son 10 çalışma oturumu
+    const recentSessions = await db.prepare(`
+      SELECT 
+        id, subject, topic, task_name, mode, 
+        COALESCE(duration_minutes, duration_min, 0)::int as duration_min,
+        COALESCE(duration_minutes, duration_min, 0)::int as duration_minutes,
+        created_at as started_at, created_at
+      FROM focus_sessions
+      WHERE user_id = ?
+      ORDER BY created_at DESC 
+      LIMIT 10
+    `).all(userId) as any[];
 
     return NextResponse.json({
-      weekData: weekSessions,
-      todayTotalMin: todayRow?.total_min || 0,
-      todaySessions: todayRow?.count || 0,
-      allTimeTotalMin: allTimeRow?.total_min || 0,
-      allTimeCount: allTimeRow?.count || 0,
-      recentSessions
+      weekData: (weekSessions || []).map(w => ({
+        day: typeof w.day === 'string' ? w.day : new Date(w.day).toISOString().split('T')[0],
+        total_min: Number(w.total_min) || 0,
+        session_count: Number(w.session_count) || 0
+      })),
+      todayTotalMin: Number(todayRow?.total_min) || 0,
+      todaySessions: Number(todayRow?.count) || 0,
+      allTimeTotalMin: Number(allTimeRow?.total_min) || 0,
+      allTimeCount: Number(allTimeRow?.count) || 0,
+      recentSessions: (recentSessions || []).map(s => ({
+        ...s,
+        duration_min: Number(s.duration_min) || 0,
+        duration_minutes: Number(s.duration_minutes) || 0
+      }))
     });
   } catch (err: any) {
-    console.error(err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error('Focus GET API Error:', err);
+    return NextResponse.json({ error: err.message || 'Veriler alınamadı' }, { status: 500 });
   }
 }
 
 export async function POST(req: NextRequest) {
-  const userId = await getUserId();
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
   try {
-    const { subject, topic, taskName, mode, durationMin } = await req.json();
-    if (!mode || !durationMin) return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
 
-    // Check if the table has duration_min or duration_minutes by trying one and catching, 
-    // but the safest is to just use both if we assume both exist, or handle it dynamically.
-    // Given the alter table added duration_minutes, let's insert into duration_minutes and created_at.
-    // If it fails, fallback to duration_min and started_at.
-    try {
-      // 1. Try the full schema (old + new columns)
-      await db.prepare(`
-        INSERT INTO focus_sessions (id, user_id, subject, topic, task_name, mode, duration_minutes, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, now())
-      `).run(uuidv4(), userId, subject ?? null, topic ?? null, taskName ?? null, mode, durationMin);
-    } catch (e1: any) {
-      try {
-        // 2. Fallback to older schema
-        await db.prepare(`
-          INSERT INTO focus_sessions (id, user_id, subject, topic, task_name, mode, duration_min)
-          VALUES (?, ?, ?, ?, ?, ?, ?)
-        `).run(uuidv4(), userId, subject ?? null, topic ?? null, taskName ?? null, mode, durationMin);
-      } catch (e2: any) {
-        try {
-          // 3. Fallback to barebones schema (if they ran the custom SQL which lacks task_name and mode)
-          await db.prepare(`
-            INSERT INTO focus_sessions (id, user_id, subject, topic, duration_minutes, created_at)
-            VALUES (?, ?, ?, ?, ?, now())
-          `).run(uuidv4(), userId, subject ?? null, topic ?? null, durationMin);
-        } catch (e3: any) {
-          // THE ULTIMATE FIX: The table is completely corrupted or has wrong foreign keys.
-          // Drop and recreate it perfectly, then insert.
-          await db.prepare(`DROP TABLE IF EXISTS focus_sessions CASCADE`).run();
-          await db.prepare(`
-            CREATE TABLE focus_sessions (
-              id text PRIMARY KEY,
-              user_id text NOT NULL,
-              subject text,
-              topic text,
-              task_name text,
-              mode text,
-              duration_min integer,
-              duration_minutes integer,
-              started_at timestamp with time zone DEFAULT now(),
-              created_at timestamp with time zone DEFAULT now()
-            )
-          `).run();
-          
-          await db.prepare(`
-            INSERT INTO focus_sessions (id, user_id, subject, topic, task_name, mode, duration_minutes, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, now())
-          `).run(uuidv4(), userId, subject ?? null, topic ?? null, taskName ?? null, mode, durationMin);
-        }
-      }
-    }
+    const body = await req.json();
+    const { subject, topic, taskName, mode = 'pomodoro', durationMin = 25 } = body;
+    const dur = Number(durationMin) || 25;
+    const id = uuidv4();
 
+    // 1. Oturumu kaydet
+    await db.prepare(`
+      INSERT INTO focus_sessions (id, user_id, subject, topic, task_name, mode, duration_minutes, duration_min, created_at, started_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+    `).run(id, userId, subject || null, topic || null, taskName || null, mode, dur, dur);
+
+    // 2. Eğer odak oturumu ise XP ve Lig Puanı ekle (Garanti UPSERT)
     if (mode === 'pomodoro') {
       try {
         await db.prepare(`
-          UPDATE user_stats SET
-            xp = COALESCE(xp, 0) + 25,
-            league_points = COALESCE(league_points, 0) + 25
-          WHERE user_id = ?
+          INSERT INTO user_stats (user_id, xp, league_points, streak_days, solved_questions, success_rate, league)
+          VALUES (?, 25, 25, 1, 0, 0, 'Bronz')
+          ON CONFLICT (user_id) DO UPDATE SET
+            xp = COALESCE(user_stats.xp, 0) + 25,
+            league_points = COALESCE(user_stats.league_points, 0) + 25
         `).run(userId);
-        
-        // Update daily quests
+
+        // Günlük görev kontrolü
         await db.prepare(`
           UPDATE daily_quests 
-          SET current_value = current_value + ? 
-          WHERE user_id = ? AND date = CURRENT_DATE AND quest_type = 'focus' AND is_completed = 0
-        `).run(durationMin, userId);
-
-      } catch(e) {
-        // ignore if user_stats row doesn't exist yet
+          SET progress = COALESCE(progress, 0) + ? 
+          WHERE user_id = ? AND created_date = CURRENT_DATE::text AND is_completed = 0
+        `).run(dur, userId);
+      } catch (statsErr) {
+        console.warn('Stats update non-fatal error:', statsErr);
       }
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, id });
   } catch (err: any) {
-    console.error(err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error('Focus POST API Error:', err);
+    return NextResponse.json({ error: err.message || 'Kayıt başarısız' }, { status: 500 });
   }
 }

@@ -201,10 +201,10 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
         durationMin: pendingSession.durationMin,
       });
       if (!res.success) {
-        alert('Sunucu hatası: ' + res.error);
+        console.warn('Focus session save warning:', res.error);
       }
     } catch (e: any) {
-      alert('Kayıt edilemedi: ' + e.message);
+      console.error('Kayıt edilemedi:', e);
     }
     setPendingSession(null);
   }, [pendingSession]);

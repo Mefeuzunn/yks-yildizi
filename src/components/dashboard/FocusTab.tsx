@@ -24,13 +24,14 @@ const MODE_CONFIG: Record<Mode, { label: string; color: string; glow: string; mi
 
 const SUBJECTS = [
   { label: 'Matematik', emoji: '📐', color: '#3b82f6' },
-  { label: 'Türkçe',    emoji: '📖', color: '#f59e0b' },
-  { label: 'Fizik',     emoji: '⚡', color: '#ec4899' },
+  { label: 'Geometri',  emoji: '📐', color: '#6366f1' },
+  { label: 'Türkçe',    emoji: '📖', color: '#ef4444' },
+  { label: 'Edebiyat',  emoji: '✍️', color: '#ec4899' },
+  { label: 'Fizik',     emoji: '⚡', color: '#06b6d4' },
   { label: 'Kimya',     emoji: '🧪', color: '#10b981' },
-  { label: 'Biyoloji',  emoji: '🔬', color: '#a78bfa' },
-  { label: 'Tarih',     emoji: '🏛️', color: '#f97316' },
+  { label: 'Biyoloji',  emoji: '🔬', color: '#8b5cf6' },
+  { label: 'Tarih',     emoji: '🏛️', color: '#f59e0b' },
   { label: 'Coğrafya',  emoji: '🌍', color: '#14b8a6' },
-  { label: 'Edebiyat',  emoji: '✍️', color: '#e879f9' },
   { label: 'Felsefe',   emoji: '🤔', color: '#fb923c' },
   { label: 'Din Kültürü', emoji: '☪️', color: '#84cc16' },
 ];
@@ -720,7 +721,7 @@ export default function FocusTab() {
                     <div style={{ fontSize: '13px', fontWeight: 700, color: '#e2e8f0', display: 'flex', alignItems: 'center', gap: '6px' }}>
                       {session.mode === 'pomodoro' ? (
                         <>
-                          <span style={{ color: '#8b5cf6' }}>🎯</span>
+                          <span>{SUBJECTS.find(s => s.label.toLowerCase() === (session.subject || '').toLowerCase())?.emoji || '🎯'}</span>
                           {session.subject || 'Serbest Çalışma'}
                         </>
                       ) : session.mode === 'shortBreak' ? (
