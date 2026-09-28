@@ -2240,8 +2240,9 @@ function TeacherDashboardContent() {
                 <p style={{ color: 'var(--text-secondary)' }}>Sınıf kodunuzu öğrencilerinizle paylaşarak başlayın.</p>
               </div>
             ) : (
-              <div className="premium-card table-responsive-container" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', padding: 0 }}>
-                <table style={{ width: '100%', minWidth: '650px', borderCollapse: 'collapse' }}>
+              <>
+                <div className="desktop-only premium-card table-responsive-container" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', padding: 0 }}>
+                  <table style={{ width: '100%', minWidth: '650px', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.02)' }}>
                       {[
@@ -2408,9 +2409,173 @@ function TeacherDashboardContent() {
                   </tbody>
                 </table>
               </div>
-            )}
-          </motion.div>
-        )}
+
+              {/* Mobile View: High-Touch Cards */}
+              <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {filteredStudents.map((s, idx) => {
+                  const isAtRisk = (s.streak_days ?? 0) === 0 && !s.is_live_focusing;
+                  const isBreak = s.live_status === 'break' || s.live_status === 'break_paused' || s.live_mode?.includes('Break');
+                  const isPaused = s.live_status === 'paused';
+                  const breakMinutesLeft = Math.max(1, Math.ceil((s.active_time_left_sec || 300) / 60));
+
+                  return (
+                    <div
+                      key={s.id}
+                      className="premium-card"
+                      onClick={(e) => {
+                        const target = e.target as HTMLElement;
+                        if (target.tagName === 'SELECT' || target.tagName === 'BUTTON' || target.closest('button') || target.closest('select')) return;
+                        setSelectedStudentId(s.id);
+                      }}
+                      style={{
+                        padding: '16px',
+                        borderRadius: '16px',
+                        background: isAtRisk ? 'rgba(239,68,68,0.04)' : 'rgba(255,255,255,0.03)',
+                        border: isAtRisk ? '1px solid rgba(239,68,68,0.25)' : '1px solid rgba(255,255,255,0.08)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '12px',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      {/* Header: Avatar, Name, Alan & Class Badges */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <div style={{ width: 40, height: 40, borderRadius: '50%', background: `linear-gradient(135deg, ${['#38bdf8','#10b981','#a855f7','#f59e0b','#f43f5e'][idx % 5]}, ${['#0ea5e9','#059669','#7c3aed','#d97706','#dc2626'][idx % 5]})`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '1rem', flexShrink: 0 }}>
+                            {s.username?.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <div style={{ color: '#fff', fontWeight: 700, fontSize: '0.98rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <span>{s.username}</span>
+                              {isAtRisk && <AlertTriangle size={13} color="#ef4444" title="Hareketsiz öğrenci" />}
+                            </div>
+                            <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginTop: '2px', flexWrap: 'wrap' }}>
+                              {s.sinif && <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>{s.sinif}. Sınıf</span>}
+                              {s.class_names && <span style={{ color: '#38bdf8', fontSize: '0.75rem' }}>• {s.class_names}</span>}
+                            </div>
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                          {s.alan && <Badge label={s.alan} color={ALAN_COLORS[s.alan] ?? '#9ca3af'} />}
+                          <Badge label={s.league ?? 'Bronz'} color={LEAGUE_COLORS[s.league] ?? '#cd7f32'} />
+                        </div>
+                      </div>
+
+                      {/* Live Status Pill */}
+                      {s.is_live_focusing && (
+                        <div style={{ alignSelf: 'flex-start' }}>
+                          {isBreak ? (
+                            <span style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 5,
+                              padding: '4px 10px',
+                              borderRadius: 12,
+                              background: 'rgba(245,158,11,0.18)',
+                              border: '1px solid rgba(245,158,11,0.35)',
+                              color: '#fcd34d',
+                              fontSize: '0.75rem',
+                              fontWeight: 700
+                            }}>
+                              <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#f59e0b' }} />
+                              ☕ MOLADA: {s.live_mode === 'longBreak' ? 'Uzun Mola' : 'Kısa Mola'} ({breakMinutesLeft} dk)
+                            </span>
+                          ) : isPaused ? (
+                            <span style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 5,
+                              padding: '4px 10px',
+                              borderRadius: 12,
+                              background: 'rgba(59,130,246,0.18)',
+                              border: '1px solid rgba(59,130,246,0.35)',
+                              color: '#93c5fd',
+                              fontSize: '0.75rem',
+                              fontWeight: 700
+                            }}>
+                              <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#3b82f6' }} />
+                              ⏸️ DURAKLATILDI: {s.active_subject || 'Odak'} ({s.focus_elapsed_min || 1} dk)
+                            </span>
+                          ) : (
+                            <span style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 5,
+                              padding: '4px 10px',
+                              borderRadius: 12,
+                              background: 'rgba(16,185,129,0.18)',
+                              border: '1px solid rgba(16,185,129,0.35)',
+                              color: '#6ee7b7',
+                              fontSize: '0.75rem',
+                              fontWeight: 700
+                            }}>
+                              <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#10b981' }} />
+                              🟢 CANLI: {s.active_subject || 'Odak'} ({s.focus_elapsed_min || 1} dk)
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Stats Grid: 4 compact columns */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', padding: '10px 8px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', textAlign: 'center' }}>
+                        <div>
+                          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Çözülen</div>
+                          <div style={{ color: '#38bdf8', fontWeight: 800, fontSize: '0.95rem', marginTop: '2px' }}>{s.solved_questions ?? 0}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Başarı</div>
+                          <div style={{ color: successColor(s.success_rate ?? 0), fontWeight: 800, fontSize: '0.95rem', marginTop: '2px' }}>
+                            %{(s.success_rate ?? 0).toFixed(0)}
+                          </div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Seri</div>
+                          <div style={{ color: s.streak_days > 0 ? '#f59e0b' : '#ef4444', fontWeight: 800, fontSize: '0.95rem', marginTop: '2px' }}>
+                            {s.streak_days > 0 ? `${s.streak_days} 🔥` : '0'}
+                          </div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>XP</div>
+                          <div style={{ color: '#a78bfa', fontWeight: 800, fontSize: '0.95rem', marginTop: '2px' }}>{s.xp ?? 0}</div>
+                        </div>
+                      </div>
+
+                      {/* Bottom Actions: Class assign & Buttons */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', flexWrap: 'wrap', paddingTop: '4px' }}>
+                        <select 
+                          value={s.class_id || ''} 
+                          onChange={(e) => handleAssignStudent(s.id, e.target.value)}
+                          style={{ flex: 1, minWidth: '130px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '6px 8px', borderRadius: '8px', fontSize: '0.78rem' }}
+                        >
+                          <option value="">-- Havuz (Sınıfsız) --</option>
+                          {classes.map(c => <option key={c.id} value={c.id}>{c.class_name}</option>)}
+                        </select>
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); setAwardXpModal(s); }}
+                            style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)', border: 'none', color: '#fff', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 700 }}
+                          >
+                            <Star size={12} fill="currentColor" /> XP
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); setSelectedStudentId(s.id); }}
+                            style={{ background: 'rgba(56,189,248,0.15)', border: '1px solid rgba(56,189,248,0.3)', color: '#38bdf8', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 700 }}
+                          >
+                            <BarChart2 size={12} /> Detay
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </motion.div>
+      )}
 
         {/* ══════════════════════════════════════════
             TAB: ÖDEVLER
@@ -2623,7 +2788,7 @@ function TeacherDashboardContent() {
                 </div>
 
                 {/* Kurumsal KPI Grid Kartları (6'lı Kart) */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(175px, 1fr))', gap: '0.9rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))', gap: '0.9rem' }}>
                   <div style={{ background: 'rgba(56,189,248,0.06)', border: '1px solid rgba(56,189,248,0.2)', borderRadius: 14, padding: '1.1rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#38bdf8', marginBottom: 8 }}>
                       <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.04em' }}>TOPLAM ÖĞRENCİ</span>
@@ -2693,8 +2858,8 @@ function TeacherDashboardContent() {
                   {(analytics.classPerformance ?? []).length === 0 ? (
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', margin: '1rem 0' }}>Henüz kayıtlı sınıf bulunmuyor.</p>
                   ) : (
-                    <div style={{ overflowX: 'auto' }}>
-                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                    <div className="table-responsive-container" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                      <table style={{ width: '100%', minWidth: '650px', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                         <thead>
                           <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.02)' }}>
                             {['Sınıf Adı', 'Öğrenci', 'Ortalama Başarı', 'Toplam Soru', 'Odak Saati', 'Ort. Seri', 'Risk Durumu', 'İşlem'].map((h, i) => (
@@ -2775,7 +2940,7 @@ function TeacherDashboardContent() {
                       </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '1rem' }}>
                       {analytics.subjectDistribution.map((s: any, idx: number) => {
                         const colors = ['#38bdf8', '#a855f7', '#10b981', '#f59e0b', '#f43f5e', '#ec4899'];
                         const col = colors[idx % colors.length];
@@ -2811,7 +2976,7 @@ function TeacherDashboardContent() {
                       </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.85rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '0.85rem' }}>
                       {analytics.topWeaknesses.map((w: any, idx: number) => {
                         const isHigh = w.severity === 'high';
                         const isMed = w.severity === 'medium';

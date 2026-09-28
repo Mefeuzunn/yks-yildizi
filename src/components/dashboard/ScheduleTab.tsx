@@ -50,6 +50,7 @@ const PRESET_COLORS = [
 ];
 
 const DAYS = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
+const FULL_DAYS = ['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'];
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 function ColorPicker({ value, onChange }: { value: string; onChange: (c: string) => void }) {
@@ -185,6 +186,7 @@ export default function ScheduleTab() {
   const [editNotes, setEditNotes]           = useState('');
   const [editDuration, setEditDuration]     = useState(2);
   const [editColor, setEditColor]           = useState('#8b5cf6');
+  const [showMobileTimeline, setShowMobileTimeline] = useState(false);
   
   // Current hour highlight
   const nowHour = new Date().getHours();
@@ -217,6 +219,9 @@ export default function ScheduleTab() {
   };
   const handleBlockClick = (b: ScheduleBlock) => { setEditBlock(b); setEditTitle(b.title); setEditNotes(b.notes||''); setEditDuration(b.duration); setEditColor(b.color); };
 
+  const dayBlocks = blocks.filter(b => b.day === currentDayView).sort((a,b) => a.time - b.time);
+  const dayTotalHours = dayBlocks.reduce((acc, b) => acc + (b.duration || 0), 0);
+
   const inputStyle: React.CSSProperties = { width:'100%', padding:'10px 14px', background:'#0b0f19', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'10px', color:'#fff', fontSize:'14px', outline:'none', boxSizing:'border-box' };
   const textareaStyle: React.CSSProperties = { ...inputStyle, resize:'vertical', minHeight:'80px', fontFamily:'inherit', lineHeight:1.5 };
 
@@ -225,7 +230,7 @@ export default function ScheduleTab() {
       style={{display:'flex',flexDirection:'column',gap:'1.5rem',height:'100%',position:'relative'}}>
 
       
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <h2 style={{fontSize:'1.8rem',fontWeight:800,color:'var(--text-primary)',marginBottom:'0.25rem',display:'flex',alignItems:'center',gap:'0.75rem'}}>
             📅 Çalışma Programı
@@ -256,18 +261,285 @@ export default function ScheduleTab() {
         </button>
       </div>
 
-      {/* View Toggle */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-        <button onClick={() => setViewMode('week')} style={{ flex: 1, padding: '8px', borderRadius: '8px', background: viewMode === 'week' ? '#3b82f6' : '#1e293b', color: '#fff', border: 'none', fontWeight: 600 }}>Haftalık Görünüm</button>
-        <button onClick={() => setViewMode('day')} style={{ flex: 1, padding: '8px', borderRadius: '8px', background: viewMode === 'day' ? '#3b82f6' : '#1e293b', color: '#fff', border: 'none', fontWeight: 600 }}>Günlük Görünüm</button>
-      </div>
-      {viewMode === 'day' && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-          <button onClick={() => setCurrentDayView(prev => (prev - 1 + 7) % 7)} style={{ background: '#1e293b', border: 'none', padding: '8px 12px', borderRadius: '8px', color: '#fff' }}>Önceki Gün</button>
-          <h3 style={{ margin: 0, color: '#fff' }}>{DAYS[currentDayView]}</h3>
-          <button onClick={() => setCurrentDayView(prev => (prev + 1) % 7)} style={{ background: '#1e293b', border: 'none', padding: '8px 12px', borderRadius: '8px', color: '#fff' }}>Sonraki Gün</button>
+      {/* ── Mobile View: Day Ribbon & Modern Card List ── */}
+      <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        {/* Day Selector Ribbon */}
+        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '6px', WebkitOverflowScrolling: 'touch' }}>
+          {DAYS.map((d, index) => {
+            const isSelected = currentDayView === index;
+            const isToday = index === today;
+            const count = blocks.filter(b => b.day === index).length;
+            return (
+              <button
+                key={d}
+                type="button"
+                onClick={() => {
+                  setCurrentDayView(index);
+                  setViewMode('day');
+                }}
+                style={{
+                  flex: '1 0 54px',
+                  minWidth: '54px',
+                  padding: '10px 6px',
+                  borderRadius: '14px',
+                  border: isSelected 
+                    ? '1.5px solid #a78bfa' 
+                    : isToday 
+                      ? '1px solid rgba(167,139,250,0.4)' 
+                      : '1px solid rgba(255,255,255,0.08)',
+                  background: isSelected 
+                    ? 'linear-gradient(135deg, rgba(139,92,246,0.35), rgba(99,102,241,0.25))' 
+                    : isToday 
+                      ? 'rgba(167,139,250,0.08)' 
+                      : 'rgba(255,255,255,0.03)',
+                  color: isSelected ? '#fff' : isToday ? '#a78bfa' : 'var(--text-secondary)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '3px',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                  boxShadow: isSelected ? '0 4px 14px rgba(139,92,246,0.25)' : 'none',
+                }}
+              >
+                <span style={{ fontSize: '13px', fontWeight: isSelected || isToday ? 800 : 600 }}>{d}</span>
+                {isToday && (
+                  <span style={{ fontSize: '9px', fontWeight: 700, color: '#a78bfa', background: 'rgba(167,139,250,0.2)', padding: '1px 4px', borderRadius: '4px' }}>
+                    Bugün
+                  </span>
+                )}
+                <span style={{ fontSize: '10px', color: isSelected ? '#c4b5fd' : count > 0 ? '#9ca3af' : '#4b5563', fontWeight: 600, marginTop: '2px' }}>
+                  {count > 0 ? `${count} blok` : '-'}
+                </span>
+              </button>
+            );
+          })}
         </div>
-      )}
+
+        {/* Selected Day Summary Card */}
+        <div className="premium-card" style={{ padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02))', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)', gap: '10px' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: '#fff' }}>
+                {FULL_DAYS[currentDayView]}
+              </h3>
+              {currentDayView === today && (
+                <span style={{ fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: '6px', background: 'rgba(167,139,250,0.2)', color: '#a78bfa' }}>
+                  Bugün
+                </span>
+              )}
+            </div>
+            <p style={{ margin: '4px 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}>
+              {dayBlocks.length > 0 ? `${dayBlocks.length} çalışma • Toplam ${dayTotalHours} saat` : 'Planlanmış çalışma yok'}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => openAddModal(currentDayView, Math.min(22, Math.max(7, nowHour)))}
+            style={{
+              background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+              border: 'none',
+              color: '#fff',
+              padding: '9px 14px',
+              borderRadius: '10px',
+              fontSize: '12px',
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(139,92,246,0.3)',
+              flexShrink: 0
+            }}
+          >
+            <Plus size={14} /> Blok Ekle
+          </button>
+        </div>
+
+        {/* Selected Day Blocks */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {dayBlocks.length === 0 ? (
+            <div className="premium-card" style={{ padding: '28px 16px', textAlign: 'center', borderRadius: '14px', border: '1px dashed rgba(255,255,255,0.1)' }}>
+              <CalIcon size={32} color="#6b7280" style={{ margin: '0 auto 8px', display: 'block', opacity: 0.6 }} />
+              <p style={{ color: '#fff', fontWeight: 600, fontSize: '14px', margin: '0 0 4px' }}>Bu gün boş görünüyor</p>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '12px', margin: '0 0 14px' }}>Programına çalışma ekleyerek gününü planla.</p>
+              <button
+                type="button"
+                onClick={() => openAddModal(currentDayView, 9)}
+                style={{
+                  background: 'rgba(139,92,246,0.15)',
+                  border: '1px solid rgba(139,92,246,0.3)',
+                  color: '#c4b5fd',
+                  padding: '8px 16px',
+                  borderRadius: '10px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                + İlk Çalışmayı Ekle
+              </button>
+            </div>
+          ) : (
+            dayBlocks.map(b => (
+              <div
+                key={b.id}
+                onClick={() => handleBlockClick(b)}
+                className="premium-card"
+                style={{
+                  padding: '14px 16px',
+                  borderRadius: '14px',
+                  background: 'rgba(255,255,255,0.025)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderLeft: `4px solid ${b.color}`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px',
+                  cursor: 'pointer'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, color: b.color, background: b.color + '18', padding: '3px 8px', borderRadius: '6px' }}>
+                    <Clock size={11} /> {getHourRangeStr(b.time, b.duration)} ({b.duration} saat)
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); handleBlockClick(b); }}
+                      style={{ background: 'rgba(255,255,255,0.06)', border: 'none', color: '#9ca3af', padding: '5px 8px', borderRadius: '6px', cursor: 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                    >
+                      <Pencil size={11} /> Düzenle
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); deleteBlock(b.id); }}
+                      style={{ background: 'rgba(239,68,68,0.1)', border: 'none', color: '#ef4444', padding: '5px 8px', borderRadius: '6px', cursor: 'pointer', fontSize: '11px' }}
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#fff' }}>{b.title}</h4>
+                  {b.notes && (
+                    <p style={{ margin: '4px 0 0', fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                      📝 {b.notes}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Timeline toggle button */}
+        <button
+          type="button"
+          onClick={() => setShowMobileTimeline(prev => !prev)}
+          style={{
+            width: '100%',
+            padding: '10px',
+            borderRadius: '10px',
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid rgba(255,255,255,0.06)',
+            color: '#9ca3af',
+            fontSize: '12px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '6px',
+            marginTop: '4px'
+          }}
+        >
+          {showMobileTimeline ? '▲ Saatlik Çizelgeyi Gizle' : '▼ 24 Saatlik Çizelgeyi Aç'}
+        </button>
+
+        {showMobileTimeline && (
+          <div className="premium-card" style={{ padding: 0, overflowX: 'hidden', borderRadius: '14px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '52px 1fr', maxHeight: '400px', overflowY: 'auto' }} className="custom-scrollbar">
+              <div style={{ borderRight: '1px solid var(--border-strong)' }}>
+                {VISIBLE_HOURS.map((h, i) => {
+                  const isNow = h === nowHour;
+                  return (
+                    <div key={h} style={{
+                      height: `${SLOT_HEIGHT}px`,
+                      padding: '3px 6px 0',
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      color: isNow ? '#a78bfa' : 'var(--text-secondary)',
+                      textAlign: 'right',
+                      borderBottom: i < SLOT_COUNT - 1 ? '1px solid var(--border-light)' : 'none',
+                    }}>
+                      {formatHour(h)}
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{ position: 'relative', display: 'grid', gridTemplateRows: `repeat(${SLOT_COUNT}, ${SLOT_HEIGHT}px)` }}>
+                {Array.from({ length: SLOT_COUNT }).map((_, ti) => {
+                  const hour = slotIndexToHour(ti);
+                  return (
+                    <div
+                      key={ti}
+                      onClick={() => openAddModal(currentDayView, ti)}
+                      style={{
+                        borderBottom: '1px solid var(--border-light)',
+                        cursor: 'pointer',
+                        background: hour === nowHour && currentDayView === today ? 'rgba(167,139,250,0.12)' : 'transparent'
+                      }}
+                    />
+                  );
+                })}
+                {dayBlocks.map(b => {
+                  const startIndex = hourToSlotIndex(b.time);
+                  if (startIndex === -1) return null;
+                  return (
+                    <div
+                      key={b.id}
+                      onClick={(e) => { e.stopPropagation(); handleBlockClick(b); }}
+                      style={{
+                        position: 'absolute',
+                        top: `${startIndex * SLOT_HEIGHT + 3}px`,
+                        left: '4px',
+                        right: '4px',
+                        height: `${b.duration * SLOT_HEIGHT - 6}px`,
+                        backgroundColor: b.color + '22',
+                        border: `1px solid ${b.color}50`,
+                        borderLeft: `4px solid ${b.color}`,
+                        borderRadius: '8px',
+                        padding: '6px 8px',
+                        cursor: 'pointer',
+                        zIndex: 10,
+                        overflow: 'hidden'
+                      }}
+                    >
+                      <span style={{ fontSize: '11px', fontWeight: 700, color: '#fff', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.title}</span>
+                      <span style={{ fontSize: '10px', color: b.color, fontWeight: 600 }}>{b.duration}s</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Desktop-Only: Full Weekly/Daily Grid and View Toggle ── */}
+      <div className="desktop-only" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', flex: 1 }}>
+        {/* View Toggle */}
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+          <button onClick={() => setViewMode('week')} style={{ flex: 1, padding: '8px', borderRadius: '8px', background: viewMode === 'week' ? '#3b82f6' : '#1e293b', color: '#fff', border: 'none', fontWeight: 600 }}>Haftalık Görünüm</button>
+          <button onClick={() => setViewMode('day')} style={{ flex: 1, padding: '8px', borderRadius: '8px', background: viewMode === 'day' ? '#3b82f6' : '#1e293b', color: '#fff', border: 'none', fontWeight: 600 }}>Günlük Görünüm</button>
+        </div>
+        {viewMode === 'day' && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <button onClick={() => setCurrentDayView(prev => (prev - 1 + 7) % 7)} style={{ background: '#1e293b', border: 'none', padding: '8px 12px', borderRadius: '8px', color: '#fff' }}>Önceki Gün</button>
+            <h3 style={{ margin: 0, color: '#fff' }}>{DAYS[currentDayView]}</h3>
+            <button onClick={() => setCurrentDayView(prev => (prev + 1) % 7)} style={{ background: '#1e293b', border: 'none', padding: '8px 12px', borderRadius: '8px', color: '#fff' }}>Sonraki Gün</button>
+          </div>
+        )}
 
 
 
@@ -419,16 +691,18 @@ export default function ScheduleTab() {
           </div>
         </div>
       </div>
+      </div>
 
       {/* ── Quick Add Modal ── */}
       <AnimatePresence>
         {isModalOpen && (
-          <div style={{position:'fixed',inset:0,backgroundColor:'rgba(0,0,0,0.6)',zIndex:100,display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(6px)'}}
+          <div className="modal-overlay-mobile" style={{position:'fixed',inset:0,backgroundColor:'rgba(0,0,0,0.6)',zIndex:100,display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(6px)'}}
             onClick={()=>setIsModalOpen(false)}>
             <motion.div initial={{scale:0.9,opacity:0}} animate={{scale:1,opacity:1}} exit={{scale:0.9,opacity:0}}
               onClick={e=>e.stopPropagation()}
+              className="modal-content"
               style={{backgroundColor:'#131827',padding:'28px',borderRadius:'24px',width:'520px',maxWidth:'95vw',border:'1px solid rgba(255,255,255,0.08)',boxShadow:'0 30px 70px rgba(0,0,0,0.5)',maxHeight:'90vh',overflowY:'auto'}}>
-
+              <div className="modal-drag-handle" />
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'20px'}}>
                 <h3 style={{fontSize:'18px',fontWeight:700,color:'#fff',margin:0}}>📌 Çalışma Ekle</h3>
                 <button onClick={()=>setIsModalOpen(false)} style={{background:'none',border:'none',color:'#9ca3af',cursor:'pointer'}}><X size={20}/></button>
@@ -511,12 +785,13 @@ export default function ScheduleTab() {
       {/* ── Edit Modal ── */}
       <AnimatePresence>
         {editBlock && (
-          <div style={{position:'fixed',inset:0,backgroundColor:'rgba(0,0,0,0.6)',zIndex:100,display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(6px)'}}
+          <div className="modal-overlay-mobile" style={{position:'fixed',inset:0,backgroundColor:'rgba(0,0,0,0.6)',zIndex:100,display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(6px)'}}
             onClick={()=>setEditBlock(null)}>
             <motion.div initial={{scale:0.9,opacity:0}} animate={{scale:1,opacity:1}} exit={{scale:0.9,opacity:0}}
               onClick={e=>e.stopPropagation()}
+              className="modal-content"
               style={{backgroundColor:'#131827',padding:'28px',borderRadius:'24px',width:'480px',maxWidth:'95vw',border:'1px solid rgba(255,255,255,0.08)',boxShadow:'0 30px 70px rgba(0,0,0,0.5)',maxHeight:'90vh',overflowY:'auto'}}>
-
+              <div className="modal-drag-handle" />
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'20px'}}>
                 <h3 style={{fontSize:'18px',fontWeight:700,color:'#fff',margin:0,display:'flex',alignItems:'center',gap:'8px'}}>
                   <Pencil size={14} style={{color:editColor}}/> Çalışmayı Düzenle

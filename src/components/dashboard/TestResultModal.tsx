@@ -90,9 +90,9 @@ export default function TestResultModal({ isOpen, onClose, resultData }: TestRes
             </div>
 
             {/* Radar Chart Right */}
-            <div style={{ flex: 1, backgroundColor: '#0e121e', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', padding: '1rem', height: '300px' }}>
+            <div style={{ flex: 1, backgroundColor: '#0e121e', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', padding: '1rem', height: '300px', minWidth: 0 }}>
               <h3 style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem', textAlign: 'center', marginBottom: '1rem' }}>Yetenek Analizi</h3>
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                 <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
                   <PolarGrid stroke="rgba(255,255,255,0.1)" />
                   <PolarAngleAxis dataKey="subject" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }} />

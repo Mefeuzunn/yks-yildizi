@@ -414,8 +414,8 @@ export default function AnalysisTab() {
           {/* SVG Çizgi Grafiği */}
           <div 
             ref={scrollContainerRef}
-            style={{ flex: 1, position: 'relative', minHeight: '220px', overflowX: 'auto', overflowY: 'hidden', scrollbarWidth: 'thin' }}
-            className="smooth-scroll"
+            style={{ flex: 1, minWidth: 0, position: 'relative', minHeight: '220px', overflowX: 'auto', overflowY: 'hidden', scrollbarWidth: 'thin', WebkitOverflowScrolling: 'touch' }}
+            className="smooth-scroll table-responsive-container"
           >
             {currentExams.length === 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '180px', color: '#64748b' }}>

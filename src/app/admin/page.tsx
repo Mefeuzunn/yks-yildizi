@@ -139,8 +139,8 @@ export default function AdminPage() {
           
           <div className="premium-card" style={{ padding: '2rem' }}>
             <h2 style={{ fontSize: '1.25rem', color: '#fff', marginBottom: '1.5rem' }}>Öğrenci Alan Dağılımı</h2>
-            <div style={{ height: '200px', width: '100%' }}>
-              <ResponsiveContainer width="100%" height="100%">
+            <div style={{ height: '200px', width: '100%', minWidth: 0 }}>
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={200}>
                 <PieChart>
                   <Pie data={mockStats} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
                     {mockStats.map((entry, index) => (
@@ -163,8 +163,8 @@ export default function AdminPage() {
 
           <div className="premium-card" style={{ padding: '2rem' }}>
             <h2 style={{ fontSize: '1.25rem', color: '#fff', marginBottom: '1.5rem' }}>Haftalık Aktif Kullanıcı</h2>
-            <div style={{ height: '200px', width: '100%' }}>
-              <ResponsiveContainer width="100%" height="100%">
+            <div style={{ height: '200px', width: '100%', minWidth: 0 }}>
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={200}>
                 <BarChart data={mockActivity}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                   <XAxis dataKey="day" stroke="var(--text-muted)" axisLine={false} tickLine={false} fontSize={12} />
