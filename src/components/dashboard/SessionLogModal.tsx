@@ -86,7 +86,7 @@ export default function SessionLogModal() {
     if (pendingSession) {
       const pref = pendingSession.prefilledSubject;
       setSelectedSubject(pref ?? null);
-      setSelectedTopic(null);
+      setSelectedTopic(pendingSession.prefilledTopic ?? null);
       setTopicSearch('');
       setSolvedTest(false);
       setQuestionsCount('');

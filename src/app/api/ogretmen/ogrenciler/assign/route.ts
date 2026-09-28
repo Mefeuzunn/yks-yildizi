@@ -15,8 +15,16 @@ export async function POST(request: Request) {
     const { student_id, class_id } = await request.json();
     if (!student_id) return NextResponse.json({ error: 'Öğrenci ID gerekli' }, { status: 400 });
 
-    // Verify student belongs to this teacher
-    const isMyStudent = await db.prepare('SELECT 1 FROM teacher_students WHERE teacher_id = ? AND student_id = ?').get(user.id, student_id);
+    // Verify student belongs to this teacher (either via teacher_students or class_students)
+    const isMyStudent = await db.prepare(`
+      SELECT 1 FROM class_students cs 
+      JOIN teacher_classes tc ON cs.class_id = tc.id 
+      WHERE tc.teacher_id = ? AND cs.student_id = ?
+      UNION
+      SELECT 1 FROM teacher_students 
+      WHERE teacher_id = ? AND student_id = ?
+    `).get(user.id, student_id, user.id, student_id);
+
     if (!isMyStudent) return NextResponse.json({ error: 'Bu öğrenci size bağlı değil' }, { status: 403 });
 
     // Remove student from any existing classes owned by this teacher
@@ -33,12 +41,12 @@ export async function POST(request: Request) {
       const isValidClass = await db.prepare('SELECT 1 FROM teacher_classes WHERE id = ? AND teacher_id = ?').get(class_id, user.id);
       if (!isValidClass) return NextResponse.json({ error: 'Geçersiz sınıf' }, { status: 400 });
       
-      await db.prepare('INSERT INTO class_students (class_id, student_id) VALUES (?, ?)').run(class_id, student_id);
+      await db.prepare('INSERT INTO class_students (class_id, student_id) VALUES (?, ?) ON CONFLICT DO NOTHING').run(class_id, student_id);
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Öğrenci atama hatası:', error);
-    return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Sunucu hatası' }, { status: 500 });
   }
 }

@@ -14,6 +14,7 @@ export interface PendingSession {
   mode: Mode;
   durationMin: number;
   prefilledSubject: string | null;
+  prefilledTopic?: string | null;
 }
 
 interface TimerContextValue {
@@ -23,6 +24,7 @@ interface TimerContextValue {
   isRunning: boolean;
   pomodoroCount: number;
   selectedSubject: string | null;
+  selectedTopic: string | null;
   durations: Record<Mode, number>;
   activeSound: string | null;
   volume: number;
@@ -34,6 +36,7 @@ interface TimerContextValue {
   switchMode: (m: Mode) => void;
   saveSettings: (d: Record<Mode, number>) => void;
   setSelectedSubject: (s: string | null) => void;
+  setSelectedTopic: (t: string | null) => void;
   playSound: (id: string, url: string) => void;
   stopSound: () => void;
   saveSession: (
@@ -61,6 +64,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
   const [isRunning, setIsRunning] = useState(false);
   const [pomodoroCount, setPomodoroCount] = useState(0);
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
+  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [pendingSession, setPendingSession] = useState<PendingSession | null>(null);
 
 
@@ -76,6 +80,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
         if (parsed.mode) setMode(parsed.mode);
         if (parsed.pomodoroCount !== undefined) setPomodoroCount(parsed.pomodoroCount);
         if (parsed.selectedSubject !== undefined) setSelectedSubject(parsed.selectedSubject);
+        if (parsed.selectedTopic !== undefined) setSelectedTopic(parsed.selectedTopic);
         if (parsed.pendingSession !== undefined) setPendingSession(parsed.pendingSession);
         
         if (parsed.timeLeft !== undefined && parsed.totalSec !== undefined) {
@@ -104,6 +109,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
       mode,
       pomodoroCount,
       selectedSubject,
+      selectedTopic,
       timeLeft,
       totalSec,
       isRunning,
@@ -111,7 +117,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
       lastTick: isRunning ? Date.now() : null
     };
     localStorage.setItem('yks_timer_state', JSON.stringify(stateToSave));
-  }, [durations, mode, pomodoroCount, selectedSubject, timeLeft, totalSec, isRunning, pendingSession, isHydrated]);
+  }, [durations, mode, pomodoroCount, selectedSubject, selectedTopic, timeLeft, totalSec, isRunning, pendingSession, isHydrated]);
 
   // Sound State
   const [activeSound, setActiveSound] = useState<string | null>(null);
@@ -119,13 +125,62 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Refs to always have current values inside setInterval callback
+  // Refs to always have current values inside callbacks
   const modeRef = useRef(mode);
   const durationsRef = useRef(durations);
   const selectedSubjectRef = useRef(selectedSubject);
+  const selectedTopicRef = useRef(selectedTopic);
+  const timeLeftRef = useRef(timeLeft);
   useEffect(() => { modeRef.current = mode; }, [mode]);
   useEffect(() => { durationsRef.current = durations; }, [durations]);
   useEffect(() => { selectedSubjectRef.current = selectedSubject; }, [selectedSubject]);
+  useEffect(() => { selectedTopicRef.current = selectedTopic; }, [selectedTopic]);
+  useEffect(() => { timeLeftRef.current = timeLeft; }, [timeLeft]);
+
+  // Live Focus Heartbeat to Supabase / Backend for Teachers
+  useEffect(() => {
+    if (!isRunning || mode !== 'pomodoro') {
+      fetch('/api/user/focus/live', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'stop' })
+      }).catch(() => {});
+      return;
+    }
+
+    const sendHeartbeat = () => {
+      fetch('/api/user/focus/live', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'heartbeat',
+          subject: selectedSubject || 'Genel Çalışma',
+          topic: selectedTopic || '',
+          mode: 'pomodoro',
+          durationMin: durations.pomodoro || 25,
+          timeLeftSec: timeLeftRef.current
+        })
+      }).catch(() => {});
+    };
+
+    sendHeartbeat();
+    const interval = setInterval(sendHeartbeat, 20000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [isRunning, mode, selectedSubject, selectedTopic, durations.pomodoro]);
+
+  // Before unload cleanup
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (isRunning && mode === 'pomodoro') {
+        navigator.sendBeacon?.('/api/user/focus/live', JSON.stringify({ action: 'stop' }));
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isRunning, mode]);
 
   const handleSessionComplete = useCallback(() => {
     const finishedMode = modeRef.current;
@@ -142,6 +197,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
         mode: finishedMode,
         durationMin: finishedDuration,
         prefilledSubject: selectedSubjectRef.current,
+        prefilledTopic: selectedTopicRef.current,
       });
     } else {
       // Molalar ASLA odak süresine eklenmez ve kaydedilmez.
@@ -283,9 +339,9 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <TimerContext.Provider value={{
-      mode, timeLeft, totalSec, isRunning, pomodoroCount, selectedSubject, durations,
+      mode, timeLeft, totalSec, isRunning, pomodoroCount, selectedSubject, selectedTopic, durations,
       activeSound, volume, pendingSession,
-      toggle, reset, skip, switchMode, saveSettings, setSelectedSubject,
+      toggle, reset, skip, switchMode, saveSettings, setSelectedSubject, setSelectedTopic,
       playSound, stopSound, setVolume, saveSession, dismissSession
     }}>
       {children}

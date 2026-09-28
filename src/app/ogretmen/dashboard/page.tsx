@@ -20,8 +20,27 @@ import { useAuth } from '@/context/AuthContext';
 type Tab = 'genel' | 'siniflar' | 'ogrenciler' | 'odevler' | 'analiz' | 'kaynaklar' | 'duyurular' | 'profil';
 
 interface ClassItem { id: string; class_name: string; class_code: string; student_count: number; avg_success: number; created_at: string; }
-interface StudentItem { id: string; username: string; alan: string; sinif: string; solved_questions: number; success_rate: number; league: string; league_points: number; streak_days: number; }
-interface AssignmentItem { id: string; title: string; description: string; due_date: string; total_assigned: number; submitted_count: number; created_at: string; }
+interface StudentItem {
+  id: string;
+  username: string;
+  alan: string;
+  sinif: string;
+  solved_questions: number;
+  success_rate: number;
+  league: string;
+  league_points: number;
+  streak_days: number;
+  class_id?: string;
+  class_name?: string;
+  class_names?: string;
+  is_live_focusing?: boolean;
+  active_subject?: string;
+  active_topic?: string;
+  active_duration_min?: number;
+  active_started_at?: string;
+  active_time_left_sec?: number;
+  focus_elapsed_min?: number;
+}
 interface ResourceItem { id: string; title: string; content: string; subject: string; topic: string; resource_type: string; class_id: string; created_at: string; }
 interface AnnouncementItem { id: string; title: string; content: string; class_id: string; class_name?: string; created_at: string; }
 
@@ -629,140 +648,581 @@ function TeacherProfileTab() {
 function StudentDetailModal({ studentId, onClose }: { studentId: string; onClose: () => void }) {
   const [data, setData] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
+  const [activeSubTab, setActiveSubTab] = React.useState<'overview' | 'sessions' | 'weaknesses' | 'exams' | 'assignments'>('overview');
+
+  const fetchDetail = React.useCallback(async (isInitial = false) => {
+    if (!studentId) return;
+    if (isInitial) setLoading(true);
+    try {
+      const res = await fetch(`/api/ogretmen/ogrenciler/${studentId}/detail`);
+      if (res.ok) {
+        const d = await res.json();
+        setData(d);
+      }
+    } catch (e) {
+      console.error('Fetch student detail error:', e);
+    } finally {
+      if (isInitial) setLoading(false);
+    }
+  }, [studentId]);
 
   React.useEffect(() => {
-    if (!studentId) return;
-    setLoading(true);
-    fetch(`/api/ogretmen/ogrenciler/${studentId}/detail`)
-      .then(res => res.json())
-      .then(d => { setData(d); setLoading(false); })
-      .catch(e => { console.error(e); setLoading(false); });
-  }, [studentId]);
+    fetchDetail(true);
+    // Real-time live status polling every 12 seconds while modal is open
+    const pollInterval = setInterval(() => {
+      fetchDetail(false);
+    }, 12000);
+    return () => clearInterval(pollInterval);
+  }, [fetchDetail]);
+
+  // Close on Escape key
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   if (!studentId) return null;
 
   return (
     <AnimatePresence>
-      <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', justifyContent: 'flex-end', backdropFilter: 'blur(4px)' }} onClick={onClose}>
+      <div 
+        style={{ 
+          position: 'fixed', 
+          inset: 0, 
+          background: 'rgba(5, 8, 16, 0.75)', 
+          zIndex: 9999, 
+          display: 'flex', 
+          justifyContent: 'flex-end', 
+          backdropFilter: 'blur(8px)' 
+        }} 
+        onClick={onClose}
+      >
         <motion.div
           initial={{ x: '100%' }}
           animate={{ x: 0 }}
           exit={{ x: '100%' }}
-          transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          style={{ width: '100%', maxWidth: 600, background: '#0b0f19', borderLeft: '1px solid rgba(255,255,255,0.1)', height: '100%', overflowY: 'auto', padding: '2rem', display: 'flex', flexDirection: 'column' }}
+          transition={{ type: 'spring', damping: 26, stiffness: 220 }}
+          style={{ 
+            width: '100%', 
+            maxWidth: 880, 
+            background: '#0d111a', 
+            borderLeft: '1px solid rgba(255,255,255,0.1)', 
+            height: '100%', 
+            overflowY: 'auto', 
+            padding: '2rem', 
+            display: 'flex', 
+            flexDirection: 'column',
+            boxShadow: '-10px 0 40px rgba(0,0,0,0.6)'
+          }}
           onClick={e => e.stopPropagation()}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-            <h2 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Öğrenci Analizi</h2>
-            <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: 8, padding: 8, color: '#9ca3af', cursor: 'pointer', display: 'flex' }}><X size={20} /></button>
+          {/* Header */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg,#38bdf8,#6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+                <BarChart2 size={20} />
+              </div>
+              <div>
+                <h2 style={{ color: '#fff', fontSize: '1.3rem', fontWeight: 800, margin: 0 }}>Öğrenci Gelişim & Analiz Paneli</h2>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem', margin: 0 }}>Canlı odak verileri, soru analizi ve ders dağılımı</p>
+              </div>
+            </div>
+            <button 
+              onClick={onClose} 
+              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: 8, color: '#9ca3af', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}
+            >
+              <X size={20} />
+            </button>
           </div>
 
           {loading ? (
-             <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
-               <Loader2 size={32} color="#10b981" style={{ animation: 'spin 1s linear infinite' }} />
-             </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '6rem', gap: 16 }}>
+              <Loader2 size={36} color="#38bdf8" style={{ animation: 'spin 1s linear infinite' }} />
+              <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Öğrencinin tüm verileri derleniyor...</span>
+            </div>
           ) : !data || data.error ? (
-             <div style={{ color: '#ef4444', textAlign: 'center', padding: '2rem' }}>Veri yüklenemedi.</div>
+            <div style={{ color: '#ef4444', textAlign: 'center', padding: '3rem', background: 'rgba(239,68,68,0.05)', borderRadius: 12, border: '1px solid rgba(239,68,68,0.2)' }}>
+              <AlertTriangle size={32} style={{ margin: '0 auto 10px', display: 'block' }} />
+              <div>{data?.error || 'Öğrenci verileri yüklenemedi.'}</div>
+            </div>
           ) : (
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-               {/* Header Info */}
-               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                 <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg,#38bdf8,#0ea5e9)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.8rem', fontWeight: 800 }}>
-                   {data.student?.username?.charAt(0).toUpperCase()}
-                 </div>
-                 <div>
-                   <h3 style={{ color: '#fff', fontSize: '1.4rem', fontWeight: 700, margin: 0 }}>{data.student?.username}</h3>
-                   <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: 4 }}>
-                     {data.className || 'Sınıf Yok'} • {data.student?.alan || 'Alan Yok'} • {data.student?.sinif || '-'} Sınıf
-                   </div>
-                 </div>
-                 <div style={{ marginLeft: 'auto' }}>
-                   <Badge label={data.stats?.league || 'Bronz'} color={LEAGUE_COLORS[data.stats?.league] || '#cd7f32'} />
-                 </div>
-               </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              
+              {/* ── 1. Öğrenci Kimlik Kartı ── */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', padding: '1.25rem', background: 'rgba(255,255,255,0.02)', borderRadius: 14, border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'linear-gradient(135deg,#38bdf8,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.6rem', fontWeight: 800, flexShrink: 0, boxShadow: '0 4px 15px rgba(56,189,248,0.25)' }}>
+                  {data.student?.username?.charAt(0).toUpperCase()}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <h3 style={{ color: '#fff', fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>{data.student?.username}</h3>
+                    <Badge label={data.stats?.league || 'Bronz'} color={LEAGUE_COLORS[data.stats?.league] || '#cd7f32'} />
+                    {data.student?.alan && <Badge label={data.student.alan} color={ALAN_COLORS[data.student.alan] || '#38bdf8'} />}
+                  </div>
+                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: 5, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                    <span>🏫 <strong>Sınıf:</strong> {data.className || 'Sınıf Yok'}</span>
+                    {data.student?.sinif && <span>• {data.student.sinif}. Sınıf</span>}
+                    {data.student?.target_university && <span style={{ color: '#a78bfa' }}>• 🎯 {data.student.target_university}</span>}
+                  </div>
+                </div>
+              </div>
 
-               {/* Stats Row */}
-               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem' }}>
-                 <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: 12, textAlign: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
-                   <div style={{ color: '#38bdf8', fontSize: '1.4rem', fontWeight: 800 }}>{data.stats?.solved_questions || 0}</div>
-                   <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginTop: 4 }}>Çözülen</div>
-                 </div>
-                 <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: 12, textAlign: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
-                   <div style={{ color: successColor(Number(data.stats?.success_rate) || 0), fontSize: '1.4rem', fontWeight: 800 }}>%{(Number(data.stats?.success_rate) || 0).toFixed(1)}</div>
-                   <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginTop: 4 }}>Başarı</div>
-                 </div>
-                 <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: 12, textAlign: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
-                   <div style={{ color: '#f59e0b', fontSize: '1.4rem', fontWeight: 800 }}>{data.stats?.streak_days || 0} 🔥</div>
-                   <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginTop: 4 }}>Seri (Gün)</div>
-                 </div>
-                 <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: 12, textAlign: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
-                   <div style={{ color: '#a855f7', fontSize: '1.4rem', fontWeight: 800 }}>{data.stats?.xp || 0}</div>
-                   <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginTop: 4 }}>XP</div>
-                 </div>
-               </div>
+              {/* ── 2. Canlı Odaklanma Bildirimi (Live Presence Banner) ── */}
+              {data.liveSession?.isLive ? (
+                <div style={{
+                  padding: '16px 20px',
+                  borderRadius: 14,
+                  background: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(6,78,59,0.25))',
+                  border: '1.5px solid rgba(16,185,129,0.4)',
+                  boxShadow: '0 0 25px rgba(16,185,129,0.15)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: 14
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                    <div style={{ position: 'relative', width: 16, height: 16 }}>
+                      <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: '#10b981', opacity: 0.6, animation: 'ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite' }} />
+                      <div style={{ position: 'absolute', inset: 2, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 10px #10b981' }} />
+                    </div>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                        <span style={{ color: '#10b981', fontWeight: 800, fontSize: '0.92rem', letterSpacing: '0.04em' }}>
+                          ŞU AN CANLI ODAKLANIYOR
+                        </span>
+                        <span style={{ background: 'rgba(16,185,129,0.25)', color: '#6ee7b7', fontSize: '0.75rem', fontWeight: 700, padding: '2px 8px', borderRadius: 8 }}>
+                          {data.liveSession.subject}
+                        </span>
+                        {data.liveSession.topic && (
+                          <span style={{ color: '#e2e8f0', fontSize: '0.82rem', fontWeight: 600 }}>
+                            • {data.liveSession.topic}
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: 4 }}>
+                        ⏱️ <strong>{data.liveSession.elapsed_min} dakikadır</strong> çalışıyor • Hedef: {data.liveSession.duration_min} dk Pomodoro • Kalan süre: ~{Math.max(0, Math.floor(data.liveSession.time_left_sec / 60))} dk
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ background: 'rgba(16,185,129,0.2)', padding: '6px 14px', borderRadius: 20, color: '#a7f3d0', fontSize: '0.8rem', fontWeight: 700, border: '1px solid rgba(16,185,129,0.3)' }}>
+                    🟢 Aktif Odakta
+                  </div>
+                </div>
+              ) : (
+                <div style={{ padding: '12px 18px', borderRadius: 12, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 10, color: '#94a3b8', fontSize: '0.82rem' }}>
+                  <Clock size={16} color="#64748b" />
+                  <span>Şu an aktif bir odak oturumu yok (Öğrenci mola veriyor veya çevrimdışı).</span>
+                </div>
+              )}
 
-               {/* Focus Summary */}
-               <div style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.05), rgba(5,150,105,0.05))', padding: '1rem', borderRadius: 12, border: '1px solid rgba(16,185,129,0.2)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                 <Clock size={24} color="#10b981" />
-                 <div>
-                   <div style={{ color: '#fff', fontWeight: 600 }}>Son 7 Gün Odaklanma</div>
-                   <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{data.focusSessions?.total_minutes || 0} dakika ({data.focusSessions?.session_count || 0} oturum)</div>
-                 </div>
-               </div>
+              {/* ── 3. Genel KPI İstatistikleri ── */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '0.65rem' }}>
+                <div style={{ background: 'rgba(168,85,247,0.07)', padding: '0.85rem', borderRadius: 12, border: '1px solid rgba(168,85,247,0.2)', textAlign: 'center' }}>
+                  <div style={{ color: '#c084fc', fontSize: '1.25rem', fontWeight: 800 }}>
+                    {Math.round((data.totals?.totalMinutes || 0) / 60 * 10) / 10} <span style={{ fontSize: '0.75rem' }}>saat</span>
+                  </div>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '0.7rem', marginTop: 3 }}>Toplam Odak</div>
+                </div>
+                <div style={{ background: 'rgba(56,189,248,0.07)', padding: '0.85rem', borderRadius: 12, border: '1px solid rgba(56,189,248,0.2)', textAlign: 'center' }}>
+                  <div style={{ color: '#38bdf8', fontSize: '1.25rem', fontWeight: 800 }}>
+                    {data.totals?.totalQuestions || data.stats?.solved_questions || 0}
+                  </div>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '0.7rem', marginTop: 3 }}>Çözülen Soru</div>
+                </div>
+                <div style={{ background: 'rgba(16,185,129,0.07)', padding: '0.85rem', borderRadius: 12, border: '1px solid rgba(16,185,129,0.2)', textAlign: 'center' }}>
+                  <div style={{ color: '#10b981', fontSize: '1.25rem', fontWeight: 800 }}>
+                    {(Number(data.totals?.totalNet) || 0).toFixed(1)}
+                  </div>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '0.7rem', marginTop: 3 }}>Net Skoru</div>
+                </div>
+                <div style={{ background: 'rgba(245,158,11,0.07)', padding: '0.85rem', borderRadius: 12, border: '1px solid rgba(245,158,11,0.2)', textAlign: 'center' }}>
+                  <div style={{ color: successColor(Number(data.stats?.success_rate) || 0), fontSize: '1.25rem', fontWeight: 800 }}>
+                    %{(Number(data.stats?.success_rate) || 0).toFixed(1)}
+                  </div>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '0.7rem', marginTop: 3 }}>Başarı Oranı</div>
+                </div>
+                <div style={{ background: 'rgba(249,115,22,0.07)', padding: '0.85rem', borderRadius: 12, border: '1px solid rgba(249,115,22,0.2)', textAlign: 'center' }}>
+                  <div style={{ color: '#f97316', fontSize: '1.25rem', fontWeight: 800 }}>
+                    {data.stats?.streak_days || 0} 🔥
+                  </div>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '0.7rem', marginTop: 3 }}>Seri (Gün)</div>
+                </div>
+                <div style={{ background: 'rgba(234,179,8,0.07)', padding: '0.85rem', borderRadius: 12, border: '1px solid rgba(234,179,8,0.2)', textAlign: 'center' }}>
+                  <div style={{ color: '#facc15', fontSize: '1.25rem', fontWeight: 800 }}>
+                    {data.stats?.xp || 0}
+                  </div>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '0.7rem', marginTop: 3 }}>Toplam XP</div>
+                </div>
+              </div>
 
-               {/* Weakness Heatmap */}
-               <div>
-                 <h4 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 700, margin: '0 0 1rem', display: 'flex', alignItems: 'center', gap: 8 }}>
-                   <Target size={18} color="#ef4444" /> Zayıf Konular
-                 </h4>
-                 {data.weaknesses?.length > 0 ? (
-                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
-                     {data.weaknesses.map((w: any, i: number) => {
-                       const isHigh = w.error_count > 10;
-                       return (
-                         <div key={i} style={{ padding: '0.85rem', background: isHigh ? 'rgba(239,68,68,0.1)' : 'rgba(245,158,11,0.1)', borderRadius: 10, border: `1px solid ${isHigh ? 'rgba(239,68,68,0.2)' : 'rgba(245,158,11,0.2)'}` }}>
-                           <div style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase' }}>{w.subject}</div>
-                           <div style={{ color: '#fff', fontSize: '0.85rem', fontWeight: 600, margin: '2px 0 6px' }}>{w.topic}</div>
-                           <div style={{ color: isHigh ? '#fca5a5' : '#fcd34d', fontSize: '0.75rem', fontWeight: 700 }}>{w.error_count} Hata</div>
-                         </div>
-                       )
-                     })}
-                   </div>
-                 ) : (
-                   <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontStyle: 'italic' }}>Son 30 günde yeterli hata verisi yok.</div>
-                 )}
-               </div>
+              {/* ── 4. Alt Tab Navigasyonu ── */}
+              <div style={{ display: 'flex', gap: 6, borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '0.5rem', flexWrap: 'wrap' }}>
+                {[
+                  { key: 'overview', label: '📊 Genel Analiz & Grafikler' },
+                  { key: 'sessions', label: `⏱️ Odak Oturumları (${data.recentSessions?.length || 0})` },
+                  { key: 'weaknesses', label: `🎯 Zayıf Konular (${data.weaknesses?.length || 0})` },
+                  { key: 'exams', label: `📝 Denemeler (${data.mockExams?.length || 0})` },
+                  { key: 'assignments', label: `📋 Ödev Durumu (${data.assignments?.length || 0})` },
+                ].map(tab => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveSubTab(tab.key as any)}
+                    style={{
+                      padding: '8px 14px',
+                      borderRadius: 10,
+                      background: activeSubTab === tab.key ? 'rgba(56,189,248,0.15)' : 'transparent',
+                      border: `1px solid ${activeSubTab === tab.key ? 'rgba(56,189,248,0.3)' : 'transparent'}`,
+                      color: activeSubTab === tab.key ? '#38bdf8' : '#94a3b8',
+                      fontSize: '0.82rem',
+                      fontWeight: activeSubTab === tab.key ? 700 : 500,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s'
+                    }}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
 
-               {/* Assignments */}
-               <div>
-                 <h4 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 700, margin: '0 0 1rem', display: 'flex', alignItems: 'center', gap: 8 }}>
-                   <ClipboardList size={18} color="#3b82f6" /> Ödev Geçmişi
-                 </h4>
-                 {data.assignments?.length > 0 ? (
-                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                     {data.assignments.map((a: any, i: number) => (
-                       <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.85rem', background: 'rgba(255,255,255,0.02)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.05)' }}>
-                         <div>
-                           <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.9rem' }}>{a.title}</div>
-                           <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: 2 }}>{a.submitted_at ? `Teslim: ${formatDate(a.submitted_at)}` : `Son: ${formatDate(a.due_date)}`}</div>
-                         </div>
-                         <div style={{ textAlign: 'right' }}>
-                           {a.status === 'graded' ? (
-                             <Badge label={`Not: ${a.score}`} color="#10b981" />
-                           ) : a.status === 'submitted' ? (
-                             <Badge label="Bekliyor" color="#f59e0b" />
-                           ) : (
-                             <Badge label="Eksik" color="#ef4444" />
-                           )}
-                         </div>
-                       </div>
-                     ))}
-                   </div>
-                 ) : (
-                   <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontStyle: 'italic' }}>Atanmış ödev bulunmuyor.</div>
-                 )}
-               </div>
-             </div>
+              {/* ── 5. TAB 1: Genel Analiz & Grafikler ── */}
+              {activeSubTab === 'overview' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  
+                  {/* Son 14 Günlük Odaklanma Bar Grafiği */}
+                  <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '1.25rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <BarChart2 size={16} color="#a855f7" />
+                        <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Son 14 Gün — Günlük Odak Süresi & Soru Trendi</span>
+                      </div>
+                      <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Mor = Odak Dakikası • Mavi = Soru</span>
+                    </div>
+
+                    {(!data.dailyActivity || data.dailyActivity.length === 0) ? (
+                      <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                        Son 14 günde kaydedilmiş odak oturumu bulunmuyor.
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem', height: 120, paddingTop: 10 }}>
+                        {(() => {
+                          const maxMin = Math.max(...data.dailyActivity.map((d: any) => d.total_minutes || 0), 30);
+                          return data.dailyActivity.map((d: any, idx: number) => {
+                            const pct = Math.max(8, ((d.total_minutes || 0) / maxMin) * 100);
+                            const dayName = new Date(d.day).toLocaleDateString('tr-TR', { weekday: 'short', day: 'numeric' });
+                            return (
+                              <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, flex: 1, height: '100%', justifyContent: 'flex-end' }}>
+                                <div style={{ fontSize: '0.65rem', color: '#38bdf8', fontWeight: 700 }}>
+                                  {d.total_questions > 0 ? `${d.total_questions}S` : ''}
+                                </div>
+                                <div
+                                  title={`${d.day}: ${d.total_minutes} dakika odak, ${d.total_questions} soru`}
+                                  style={{
+                                    width: '100%',
+                                    maxWidth: 32,
+                                    height: `${pct}%`,
+                                    background: 'linear-gradient(180deg, #a855f7, #6366f1)',
+                                    borderRadius: '6px 6px 0 0',
+                                    transition: 'height 0.4s ease',
+                                    boxShadow: '0 0 8px rgba(168,85,247,0.2)'
+                                  }}
+                                />
+                                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+                                  {dayName}
+                                </span>
+                              </div>
+                            );
+                          });
+                        })()}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Ders Bazlı Çalışma & Soru Dağılımı */}
+                  <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '1.25rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: '1rem' }}>
+                      <BookOpen size={16} color="#38bdf8" />
+                      <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Ders Bazlı Toplam Çalışma & Net Analizi</span>
+                    </div>
+
+                    {(!data.subjectBreakdown || data.subjectBreakdown.length === 0) ? (
+                      <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                        Henüz ders bazlı çalışma verisi oluşmamış.
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                        {data.subjectBreakdown.map((s: any, idx: number) => {
+                          const maxMin = data.subjectBreakdown[0]?.total_minutes || 1;
+                          const pct = Math.round(((s.total_minutes || 0) / maxMin) * 100);
+                          const colors = ['#38bdf8', '#8b5cf6', '#10b981', '#f59e0b', '#ec4899', '#06b6d4', '#f97316'];
+                          const color = colors[idx % colors.length];
+
+                          return (
+                            <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', padding: '10px 14px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.04)' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                  <span style={{ width: 10, height: 10, borderRadius: '50%', background: color }} />
+                                  <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.88rem' }}>{s.subject}</span>
+                                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>({s.session_count} oturum)</span>
+                                </div>
+                                <div style={{ display: 'flex', gap: 12, alignItems: 'center', fontSize: '0.8rem' }}>
+                                  <span style={{ color: '#cbd5e1' }}>⏱️ <strong>{Math.round((s.total_minutes || 0) / 60 * 10) / 10} saat</strong></span>
+                                  <span style={{ color: '#38bdf8' }}>📝 <strong>{s.total_questions || 0} soru</strong></span>
+                                  <span style={{ color: '#10b981', fontWeight: 700 }}>🎯 {Number(s.total_net || 0).toFixed(1)} Net</span>
+                                </div>
+                              </div>
+                              <div style={{ height: 6, background: 'rgba(255,255,255,0.06)', borderRadius: 3, overflow: 'hidden' }}>
+                                <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: 3, transition: 'width 0.5s ease' }} />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                </div>
+              )}
+
+              {/* ── 6. TAB 2: Odak Oturumları & Soru Takibi Tablosu ── */}
+              {activeSubTab === 'sessions' && (
+                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, overflow: 'hidden' }}>
+                  <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <Clock size={16} color="#10b981" />
+                      <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Öğrencinin Tamamladığı Odak & Soru Oturumları</span>
+                    </div>
+                    <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Son 50 Oturum</span>
+                  </div>
+
+                  {(!data.recentSessions || data.recentSessions.length === 0) ? (
+                    <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                      Henüz kaydedilmiş çalışma oturumu bulunmuyor.
+                    </div>
+                  ) : (
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                        <thead>
+                          <tr style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)', color: 'var(--text-secondary)', textAlign: 'left' }}>
+                            <th style={{ padding: '10px 14px' }}>Tarih</th>
+                            <th style={{ padding: '10px 14px' }}>Ders</th>
+                            <th style={{ padding: '10px 14px' }}>Konu</th>
+                            <th style={{ padding: '10px 14px' }}>Süre</th>
+                            <th style={{ padding: '10px 14px' }}>Soru</th>
+                            <th style={{ padding: '10px 14px' }}>D / Y / B</th>
+                            <th style={{ padding: '10px 14px' }}>Net</th>
+                            <th style={{ padding: '10px 14px' }}>Soru Hızı</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {data.recentSessions.map((session: any) => {
+                            const dateStr = session.created_at 
+                              ? new Date(session.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+                              : '—';
+                            const hasQuestions = (session.questions_solved || 0) > 0;
+                            const pace = hasQuestions ? Math.round((session.duration_min * 60) / session.questions_solved) : null;
+
+                            return (
+                              <tr key={session.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                                <td style={{ padding: '10px 14px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{dateStr}</td>
+                                <td style={{ padding: '10px 14px' }}>
+                                  <span style={{ background: 'rgba(56,189,248,0.12)', color: '#38bdf8', padding: '3px 8px', borderRadius: 6, fontWeight: 700, fontSize: '0.75rem' }}>
+                                    {session.subject || 'Genel'}
+                                  </span>
+                                </td>
+                                <td style={{ padding: '10px 14px', color: '#fff', fontWeight: 600 }}>
+                                  {session.topic || session.task_name || 'Genel Tekrar'}
+                                </td>
+                                <td style={{ padding: '10px 14px', color: '#a855f7', fontWeight: 700 }}>
+                                  {session.duration_min} dk
+                                </td>
+                                <td style={{ padding: '10px 14px', color: hasQuestions ? '#fff' : 'var(--text-muted)', fontWeight: 600 }}>
+                                  {hasQuestions ? `${session.questions_solved} soru` : '—'}
+                                </td>
+                                <td style={{ padding: '10px 14px' }}>
+                                  {hasQuestions ? (
+                                    <span style={{ fontSize: '0.78rem' }}>
+                                      <strong style={{ color: '#10b981' }}>{session.correct_count}D</strong> • <strong style={{ color: '#ef4444' }}>{session.wrong_count}Y</strong> • <span style={{ color: '#94a3b8' }}>{session.empty_count}B</span>
+                                    </span>
+                                  ) : '—'}
+                                </td>
+                                <td style={{ padding: '10px 14px' }}>
+                                  {hasQuestions ? (
+                                    <span style={{ color: '#f59e0b', fontWeight: 800, background: 'rgba(245,158,11,0.1)', padding: '2px 8px', borderRadius: 6 }}>
+                                      {session.net_score} Net
+                                    </span>
+                                  ) : '—'}
+                                </td>
+                                <td style={{ padding: '10px 14px', color: 'var(--text-muted)' }}>
+                                  {pace ? `${pace} sn/soru` : '—'}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ── 7. TAB 3: Zayıf Konular (Hata Defteri) ── */}
+              {activeSubTab === 'weaknesses' && (
+                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '1.25rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: '1.25rem' }}>
+                    <Target size={18} color="#ef4444" />
+                    <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Öğrencinin En Çok Hata Yaptığı Konular (Son 30 Gün)</span>
+                  </div>
+
+                  {(!data.weaknesses || data.weaknesses.length === 0) ? (
+                    <div style={{ textAlign: 'center', padding: '3rem', color: '#10b981', fontSize: '0.88rem' }}>
+                      <CheckCircle size={32} style={{ margin: '0 auto 8px', display: 'block' }} />
+                      Harika! Öğrencinin son 30 günde birikmiş kritik hatası bulunmuyor.
+                    </div>
+                  ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '0.75rem' }}>
+                      {data.weaknesses.map((w: any, idx: number) => {
+                        const isHigh = w.error_count >= 10;
+                        const isMedium = w.error_count >= 5;
+                        return (
+                          <div
+                            key={idx}
+                            style={{
+                              padding: '1rem',
+                              background: isHigh ? 'rgba(239,68,68,0.08)' : isMedium ? 'rgba(245,158,11,0.08)' : 'rgba(255,255,255,0.02)',
+                              borderRadius: 12,
+                              border: `1px solid ${isHigh ? 'rgba(239,68,68,0.3)' : isMedium ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.06)'}`
+                            }}
+                          >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                              <span style={{ color: 'var(--text-muted)', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase' }}>
+                                {w.subject}
+                              </span>
+                              <span style={{
+                                padding: '2px 8px',
+                                borderRadius: 12,
+                                fontSize: '0.7rem',
+                                fontWeight: 800,
+                                background: isHigh ? 'rgba(239,68,68,0.2)' : isMedium ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.06)',
+                                color: isHigh ? '#fca5a5' : isMedium ? '#fcd34d' : '#cbd5e1'
+                              }}>
+                                {isHigh ? 'KRİTİK' : isMedium ? 'ORTA' : 'DÜŞÜK'}
+                              </span>
+                            </div>
+                            <div style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 700, margin: '4px 0 8px' }}>
+                              {w.topic}
+                            </div>
+                            <div style={{ color: isHigh ? '#ef4444' : isMedium ? '#f59e0b' : 'var(--text-muted)', fontSize: '0.78rem', fontWeight: 700 }}>
+                              {w.error_count} Yanlış Soru
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ── 8. TAB 4: Deneme Sınavları ── */}
+              {activeSubTab === 'exams' && (
+                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, overflow: 'hidden' }}>
+                  <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <FileText size={16} color="#f59e0b" />
+                    <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Öğrencinin Çözdüğü Deneme Sınavları</span>
+                  </div>
+
+                  {(!data.mockExams || data.mockExams.length === 0) ? (
+                    <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                      Kayıtlı deneme sınavı sonucu bulunmuyor.
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      {data.mockExams.map((exam: any) => (
+                        <div
+                          key={exam.id}
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '1rem 1.25rem',
+                            borderBottom: '1px solid rgba(255,255,255,0.04)'
+                          }}
+                        >
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <Badge label={exam.exam_type || 'TYT'} color="#38bdf8" />
+                              <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>{exam.exam_name || 'Deneme Sınavı'}</span>
+                            </div>
+                            <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: 4 }}>
+                              {exam.exam_date ? new Date(exam.exam_date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Tarih yok'}
+                            </div>
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <div style={{ color: '#10b981', fontWeight: 800, fontSize: '1.1rem' }}>
+                              {exam.total_net != null ? `${exam.total_net} Net` : '—'}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ── 9. TAB 5: Bu Öğretmenin Ödevleri (İzolasyon) ── */}
+              {activeSubTab === 'assignments' && (
+                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, overflow: 'hidden' }}>
+                  <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <ClipboardList size={16} color="#6366f1" />
+                      <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Bu Öğrenciye Atadığınız Ödevler</span>
+                    </div>
+                    <span style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>Yalnızca sizin ödevleriniz listelenir</span>
+                  </div>
+
+                  {(!data.assignments || data.assignments.length === 0) ? (
+                    <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                      Bu öğrenciye henüz atanmış bir ödeviniz yok.
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      {data.assignments.map((a: any) => (
+                        <div
+                          key={a.id}
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '1rem 1.25rem',
+                            borderBottom: '1px solid rgba(255,255,255,0.04)'
+                          }}
+                        >
+                          <div>
+                            <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.88rem' }}>{a.title}</div>
+                            <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: 3 }}>
+                              {a.submitted_at ? `Teslim Tarihi: ${formatDate(a.submitted_at)}` : a.due_date ? `Son Tarih: ${formatDate(a.due_date)}` : 'Süresiz'}
+                            </div>
+                          </div>
+                          <div>
+                            {a.status === 'graded' ? (
+                              <Badge label={`Not: ${a.score}`} color="#10b981" />
+                            ) : a.status === 'submitted' ? (
+                              <Badge label="Teslim Edildi (Bekliyor)" color="#f59e0b" />
+                            ) : (
+                              <Badge label="Teslim Edilmedi" color="#ef4444" />
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+            </div>
           )}
         </motion.div>
       </div>
@@ -1074,6 +1534,15 @@ function TeacherDashboardContent() {
   useEffect(() => {
     if (activeTab === 'ogrenciler') fetchStudents();
   }, [selectedClassId]);
+
+  // Live polling for student focus activity
+  useEffect(() => {
+    if (!user || user.role !== 'ogretmen' || activeTab !== 'ogrenciler') return;
+    const interval = setInterval(() => {
+      fetchStudents();
+    }, 20000);
+    return () => clearInterval(interval);
+  }, [user, activeTab, fetchStudents]);
 
   // ── Handlers ──
   const handleAssignStudent = async (studentId: string, classId: string) => {
@@ -1570,11 +2039,32 @@ function TeacherDashboardContent() {
                               {s.username?.charAt(0).toUpperCase()}
                             </div>
                             <div>
-                              <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: 6 }}>
-                                {s.username}
+                              <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                                <span>{s.username}</span>
+                                {s.is_live_focusing && (
+                                  <span style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: 5,
+                                    padding: '2px 8px',
+                                    borderRadius: 12,
+                                    background: 'rgba(16,185,129,0.2)',
+                                    border: '1px solid rgba(16,185,129,0.4)',
+                                    color: '#6ee7b7',
+                                    fontSize: '0.72rem',
+                                    fontWeight: 700,
+                                    boxShadow: '0 0 10px rgba(16,185,129,0.2)'
+                                  }}>
+                                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
+                                    CANLI: {s.active_subject || 'Odak'} ({s.focus_elapsed_min || 1} dk)
+                                  </span>
+                                )}
                                 {isAtRisk && <AlertTriangle size={12} color="#ef4444" title="Hareketsiz öğrenci" />}
                               </div>
-                              {s.sinif && <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>{s.sinif}. Sınıf</div>}
+                              <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 2, flexWrap: 'wrap' }}>
+                                {s.sinif && <span style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>{s.sinif}. Sınıf</span>}
+                                {s.class_names && <span style={{ color: '#38bdf8', fontSize: '0.72rem' }}>• {s.class_names}</span>}
+                              </div>
                             </div>
                           </div>
                         </td>
@@ -1613,7 +2103,7 @@ function TeacherDashboardContent() {
                             <button onClick={() => setAwardXpModal(s)} style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)', border: 'none', color: '#fff', padding: '0.4rem 0.85rem', borderRadius: 8, cursor: 'pointer', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 5, fontWeight: 600 }}>
                               <Star size={13} fill="currentColor" /> XP Ver
                             </button>
-                            <button onClick={() => setSelectedStudent(s)} style={{ background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.2)', color: '#38bdf8', padding: '0.4rem 0.85rem', borderRadius: 8, cursor: 'pointer', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 5, fontWeight: 600 }}>
+                            <button onClick={() => setSelectedStudentId(s.id)} style={{ background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.2)', color: '#38bdf8', padding: '0.4rem 0.85rem', borderRadius: 8, cursor: 'pointer', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 5, fontWeight: 600 }}>
                               <BarChart2 size={13} /> Analiz
                             </button>
                           </div>

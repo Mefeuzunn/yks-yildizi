@@ -1,24 +1,12 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import db from '@/lib/yks-db-async';
-import { verifyToken } from '@/lib/jwt';
+import { getAuthenticatedTeacherId } from '@/lib/auth-utils';
 
 export const dynamic = 'force-dynamic';
 
-async function getTeacherId(): Promise<string | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('yks_session')?.value;
-  if (!token) return null;
-  try {
-    const payload = await verifyToken(token);
-    if (payload?.userId) return payload.userId as string;
-  } catch (_) {}
-  return token;
-}
-
 export async function GET(request: Request) {
   try {
-    const teacherId = await getTeacherId();
+    const teacherId = await getAuthenticatedTeacherId(request);
     if (!teacherId) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
 
     const user = await db.prepare('SELECT id, role FROM users WHERE id = ?').get(teacherId) as any;
@@ -29,43 +17,78 @@ export async function GET(request: Request) {
 
     let students: any[];
 
-    if (classId) {
+    if (classId && classId !== 'all') {
+      // Belirli bir sınıfın öğrencilerini getir (yalnızca bu öğretmenin sınıfı ise)
       students = await db.prepare(`
-        SELECT u.id, u.username, u.alan, u.sinif,
-               COALESCE(us.solved_questions, 0) as solved_questions,
-               COALESCE(us.success_rate, 0) as success_rate,
+        SELECT u.id, u.username, u.email, u.alan, u.sinif,
+               COALESCE(us.solved_questions, 0)::int as solved_questions,
+               COALESCE(us.success_rate, 0)::float as success_rate,
                COALESCE(us.league, 'Bronz') as league,
-               COALESCE(us.league_points, 0) as league_points,
-               COALESCE(us.streak_days, 0) as streak_days,
-               cs.class_id
+               COALESCE(us.league_points, 0)::int as league_points,
+               COALESCE(us.streak_days, 0)::int as streak_days,
+               cs.class_id,
+               tc.class_name,
+               COALESCE(afs.last_heartbeat >= NOW() - INTERVAL '2 minutes' AND afs.mode = 'pomodoro', false) as is_live_focusing,
+               afs.subject as active_subject,
+               afs.topic as active_topic,
+               afs.duration_min as active_duration_min,
+               afs.started_at as active_started_at,
+               afs.time_left_sec as active_time_left_sec,
+               GREATEST(1, ROUND(EXTRACT(EPOCH FROM (NOW() - afs.started_at)) / 60))::int as focus_elapsed_min
         FROM users u
         JOIN class_students cs ON u.id = cs.student_id
+        JOIN teacher_classes tc ON cs.class_id = tc.id
         LEFT JOIN user_stats us ON u.id = us.user_id
-        WHERE cs.class_id = ?
-        ORDER BY u.username ASC
-      `).all(classId) as any[];
+        LEFT JOIN active_focus_sessions afs ON u.id = afs.user_id 
+          AND afs.last_heartbeat >= NOW() - INTERVAL '2 minutes' 
+          AND afs.mode = 'pomodoro'
+        WHERE tc.teacher_id = ? AND cs.class_id = ?
+        ORDER BY is_live_focusing DESC, u.username ASC
+      `).all(teacherId, classId) as any[];
     } else {
-      // Get ALL students connected to this teacher
+      // Öğretmenin kayıtlı olduğu TÜM sınıflardaki öğrencileri getir
       students = await db.prepare(`
-        SELECT DISTINCT u.id, u.username, u.alan, u.sinif,
-               COALESCE(us.solved_questions, 0) as solved_questions,
-               COALESCE(us.success_rate, 0) as success_rate,
+        SELECT u.id, u.username, u.email, u.alan, u.sinif,
+               COALESCE(us.solved_questions, 0)::int as solved_questions,
+               COALESCE(us.success_rate, 0)::float as success_rate,
                COALESCE(us.league, 'Bronz') as league,
-               COALESCE(us.league_points, 0) as league_points,
-               COALESCE(us.streak_days, 0) as streak_days,
-               cs.class_id
+               COALESCE(us.league_points, 0)::int as league_points,
+               COALESCE(us.streak_days, 0)::int as streak_days,
+               STRING_AGG(DISTINCT tc.class_name, ', ') as class_names,
+               MAX(cs.class_id) as class_id,
+               COALESCE(BOOL_OR(afs.last_heartbeat >= NOW() - INTERVAL '2 minutes' AND afs.mode = 'pomodoro'), false) as is_live_focusing,
+               MAX(afs.subject) as active_subject,
+               MAX(afs.topic) as active_topic,
+               MAX(afs.duration_min) as active_duration_min,
+               MAX(afs.started_at) as active_started_at,
+               MAX(afs.time_left_sec) as active_time_left_sec,
+               GREATEST(1, ROUND(EXTRACT(EPOCH FROM (NOW() - MAX(afs.started_at))) / 60))::int as focus_elapsed_min
         FROM users u
-        JOIN teacher_students ts ON u.id = ts.student_id
-        LEFT JOIN class_students cs ON u.id = cs.student_id AND cs.class_id IN (SELECT id FROM teacher_classes WHERE teacher_id = ?)
+        JOIN class_students cs ON u.id = cs.student_id
+        JOIN teacher_classes tc ON cs.class_id = tc.id
         LEFT JOIN user_stats us ON u.id = us.user_id
-        WHERE ts.teacher_id = ?
-        ORDER BY u.username ASC
-      `).all(user.id, user.id) as any[];
+        LEFT JOIN active_focus_sessions afs ON u.id = afs.user_id 
+          AND afs.last_heartbeat >= NOW() - INTERVAL '2 minutes' 
+          AND afs.mode = 'pomodoro'
+        WHERE tc.teacher_id = ?
+        GROUP BY u.id, u.username, u.email, u.alan, u.sinif, us.solved_questions, us.success_rate, us.league, us.league_points, us.streak_days
+        ORDER BY is_live_focusing DESC, u.username ASC
+      `).all(teacherId) as any[];
     }
 
-    return NextResponse.json({ students });
-  } catch (error) {
+    return NextResponse.json({ 
+      students: (students || []).map(s => ({
+        ...s,
+        solved_questions: Number(s.solved_questions) || 0,
+        success_rate: Number(s.success_rate) || 0,
+        league_points: Number(s.league_points) || 0,
+        streak_days: Number(s.streak_days) || 0,
+        is_live_focusing: Boolean(s.is_live_focusing),
+        focus_elapsed_min: s.is_live_focusing ? (Number(s.focus_elapsed_min) || 1) : 0,
+      }))
+    });
+  } catch (error: any) {
     console.error('Öğrenciler listeleme hatası:', error);
-    return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Sunucu hatası' }, { status: 500 });
   }
 }
