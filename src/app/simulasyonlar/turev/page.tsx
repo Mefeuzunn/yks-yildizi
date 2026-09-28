@@ -168,7 +168,7 @@ export default function DerivativeSim() {
         </div>
       </div>
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 350px', gap: '2rem' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 350px', gap: '2rem' }} className="mobile-stack">
         
         <div style={{ backgroundColor: '#0e121e', borderRadius: '24px', padding: '1.5rem', border: '1px solid rgba(255,255,255,0.05)', position: 'relative' }}>
           

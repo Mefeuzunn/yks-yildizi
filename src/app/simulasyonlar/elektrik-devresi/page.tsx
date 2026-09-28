@@ -150,7 +150,7 @@ export default function ElectricCircuitSim() {
         </div>
       </div>
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 350px', gap: '2rem' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 350px', gap: '2rem' }} className="mobile-stack">
         
         <div style={{ backgroundColor: '#0e121e', borderRadius: '24px', padding: '2rem', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <canvas ref={canvasRef} width={600} height={400} style={{ backgroundColor: '#0a0d14', borderRadius: '16px' }} />

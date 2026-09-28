@@ -6,6 +6,7 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
+import { triggerHaptic } from '@/lib/haptics';
 
 const MAIN_TABS = [
   { emoji: '🏠', label: 'Ana Sayfa', href: '/dashboard?tab=home' },
@@ -104,6 +105,7 @@ function MobileNavContent() {
             <Link
               key={tab.href}
               href={tab.href}
+              onClick={() => triggerHaptic('light')}
               style={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -141,7 +143,10 @@ function MobileNavContent() {
 
         {/* Daha Fazla Button */}
         <button
-          onClick={() => setIsMoreOpen(true)}
+          onClick={() => {
+            triggerHaptic('medium');
+            setIsMoreOpen(true);
+          }}
           style={{
             display: 'flex',
             flexDirection: 'column',
@@ -171,7 +176,10 @@ function MobileNavContent() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setIsMoreOpen(false)}
+              onClick={() => {
+                triggerHaptic('light');
+                setIsMoreOpen(false);
+              }}
               className="mobile-only"
               style={{
                 position: 'fixed',
@@ -212,7 +220,10 @@ function MobileNavContent() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#fff', margin: 0 }}>Menü</h2>
                 <button
-                  onClick={() => setIsMoreOpen(false)}
+                  onClick={() => {
+                    triggerHaptic('light');
+                    setIsMoreOpen(false);
+                  }}
                   aria-label="Kapat"
                   style={{
                     background: 'rgba(255, 255, 255, 0.08)',
@@ -239,6 +250,10 @@ function MobileNavContent() {
                     <Link
                       key={tab.href}
                       href={tab.href}
+                      onClick={() => {
+                        triggerHaptic('light');
+                        setIsMoreOpen(false);
+                      }}
                       style={{
                         display: 'flex',
                         alignItems: 'center',

@@ -167,19 +167,19 @@ export default function PuanHesaplamaPage() {
   const InputRow = ({ label, exam, subject, max }: { label: string, exam: 'tyt'|'ayt', subject: string, max: number }) => {
     const data = exam === 'tyt' ? tyt[subject] : ayt[subject];
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr 1fr 60px', gap: '0.5rem', alignItems: 'center', marginBottom: '0.75rem', background: 'rgba(255,255,255,0.02)', padding: '0.5rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
-        <div style={{ fontSize: '0.875rem', color: '#cbd5e1', fontWeight: 600 }}>{label}</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(75px, 120px) 1fr 1fr 48px', gap: '0.4rem', alignItems: 'center', marginBottom: '0.75rem', background: 'rgba(255,255,255,0.02)', padding: '0.5rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <div style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</div>
         <input 
           type="number" min="0" max={max} placeholder="D"
           value={data.d} onChange={(e) => handleInputChange(exam, subject, 'd', e.target.value, max)}
-          style={{ width: '100%', padding: '0.5rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '6px', color: '#10b981', textAlign: 'center', outline: 'none' }}
+          style={{ width: '100%', padding: '0.5rem 0.25rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '6px', color: '#10b981', textAlign: 'center', outline: 'none' }}
         />
         <input 
           type="number" min="0" max={max} placeholder="Y"
           value={data.y} onChange={(e) => handleInputChange(exam, subject, 'y', e.target.value, max)}
-          style={{ width: '100%', padding: '0.5rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '6px', color: '#ef4444', textAlign: 'center', outline: 'none' }}
+          style={{ width: '100%', padding: '0.5rem 0.25rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '6px', color: '#ef4444', textAlign: 'center', outline: 'none' }}
         />
-        <div style={{ textAlign: 'center', fontWeight: 800, color: '#fff' }}>{data.n.toFixed(2)}</div>
+        <div style={{ textAlign: 'center', fontWeight: 800, color: '#fff', fontSize: '0.85rem' }}>{data.n.toFixed(1)}</div>
       </div>
     );
   };
@@ -229,12 +229,12 @@ export default function PuanHesaplamaPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           
           {/* OBP Giriş */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="premium-card" style={{ padding: '2rem' }}>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="premium-card" style={{ padding: 'clamp(1.2rem, 3.5vw, 2rem)' }}>
             <h2 style={{ fontSize: '1.25rem', color: '#fff', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Info size={20} color="#38bdf8" /> Diploma Notu (OBP)
             </h2>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '1rem' }}>
+              <div style={{ flex: '1 1 200px' }}>
                 <label style={{ display: 'block', fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Diploma Notunuz (50-100)</label>
                 <input 
                   type="number" min="50" max="100" 
@@ -242,7 +242,7 @@ export default function PuanHesaplamaPage() {
                   style={{ width: '100%', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontSize: '1rem', outline: 'none' }}
                 />
               </div>
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: '1 1 200px' }}>
                 <label style={{ display: 'block', fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Kırık OBP?</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', padding: '0.75rem', borderRadius: '8px' }}>
                   <input type="checkbox" id="kirikObp" checked={hasDiplomaOnceki} onChange={(e) => setHasDiplomaOnceki(e.target.checked)} style={{ width: '18px', height: '18px', cursor: 'pointer' }} />
@@ -253,13 +253,13 @@ export default function PuanHesaplamaPage() {
           </motion.div>
 
           {/* TYT Giriş */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="premium-card" style={{ padding: '2rem' }}>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="premium-card" style={{ padding: 'clamp(1.2rem, 3.5vw, 2rem)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.25rem', color: '#fff', margin: 0 }}>TYT (120 Soru)</h2>
               <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#38bdf8' }}>{results.tytNet.toFixed(2)} Net</div>
             </div>
             
-            <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr 1fr 60px', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(75px, 120px) 1fr 1fr 48px', gap: '0.4rem', marginBottom: '0.5rem' }}>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>DERS</div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center' }}>DOĞRU</div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center' }}>YANLIŞ</div>
@@ -273,10 +273,10 @@ export default function PuanHesaplamaPage() {
           </motion.div>
 
           {/* AYT Giriş */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="premium-card" style={{ padding: '2rem' }}>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="premium-card" style={{ padding: 'clamp(1.2rem, 3.5vw, 2rem)' }}>
             <h2 style={{ fontSize: '1.25rem', color: '#fff', marginBottom: '1.5rem' }}>AYT (Alan Yeterlilik)</h2>
             
-            <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr 1fr 60px', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(75px, 120px) 1fr 1fr 48px', gap: '0.4rem', marginBottom: '0.5rem' }}>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>DERS</div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center' }}>DOĞRU</div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center' }}>YANLIŞ</div>

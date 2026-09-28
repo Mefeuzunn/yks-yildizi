@@ -170,12 +170,14 @@ export default function UnitCircleSim() {
     ctx.stroke();
   };
 
-  const updateAngleFromMouse = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const updateAngleFromPos = (clientX: number, clientY: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left - CX;
-    const y = -(e.clientY - rect.top - CY); // Invert Y for standard math coordinates
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (clientX - rect.left) * scaleX - CX;
+    const y = -((clientY - rect.top) * scaleY - CY); // Invert Y for standard math coordinates
 
     let newAngle = Math.atan2(y, x);
     if (newAngle < 0) {
@@ -184,19 +186,21 @@ export default function UnitCircleSim() {
     setAngle(newAngle);
   };
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     setIsDragging(true);
-    updateAngleFromMouse(e);
+    e.currentTarget.setPointerCapture(e.pointerId);
+    updateAngleFromPos(e.clientX, e.clientY);
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (isDragging) {
-      updateAngleFromMouse(e);
+      updateAngleFromPos(e.clientX, e.clientY);
     }
   };
 
-  const handleMouseUp = () => {
+  const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
     setIsDragging(false);
+    try { e.currentTarget.releasePointerCapture(e.pointerId); } catch (_) {}
   };
 
   // Math conversions
@@ -215,15 +219,15 @@ export default function UnitCircleSim() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0b0c10', color: '#fff', padding: '2rem' }}>
+    <div style={{ minHeight: '100vh', background: '#0b0c10', color: '#fff', padding: 'clamp(1rem, 3vw, 2rem)' }}>
       
       {/* Header */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <Link href="/simulasyonlar" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#8b5cf6', textDecoration: 'none', marginBottom: '1rem', fontWeight: 600 }}>
             <ArrowLeft size={18} /> Simülasyonlara Dön
           </Link>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 800, margin: 0 }}>Dinamik Birim Çember</h1>
+          <h1 style={{ fontSize: 'clamp(1.8rem, 5vw, 2.5rem)', fontWeight: 800, margin: 0 }}>Dinamik Birim Çember</h1>
           <p style={{ color: 'rgba(255,255,255,0.5)', marginTop: '0.5rem' }}>Çember üzerindeki noktayı sürükleyerek trigonometrik değerleri gözlemleyin.</p>
         </div>
         <button 
@@ -235,19 +239,19 @@ export default function UnitCircleSim() {
         </button>
       </div>
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 350px', gap: '2rem' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 350px', gap: '2rem' }} className="mobile-stack">
         
         {/* Canvas Area */}
-        <div style={{ backgroundColor: '#13141c', borderRadius: '16px', padding: '1rem', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div className="simulation-canvas-container" style={{ backgroundColor: '#13141c', borderRadius: '16px', padding: '1rem', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <canvas
             ref={canvasRef}
             width={600}
             height={600}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
-            style={{ cursor: isDragging ? 'grabbing' : 'grab', backgroundColor: '#0b0c10', borderRadius: '50%', boxShadow: '0 0 40px rgba(0,0,0,0.5)' }}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerUp}
+            style={{ cursor: isDragging ? 'grabbing' : 'grab', backgroundColor: '#0b0c10', borderRadius: '50%', boxShadow: '0 0 40px rgba(0,0,0,0.5)', maxWidth: '100%', height: 'auto', touchAction: 'none' }}
           />
         </div>
 

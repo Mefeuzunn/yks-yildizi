@@ -528,6 +528,31 @@ button:active {
   -webkit-overflow-scrolling: touch;
 }
 
+/* Simulation & two-column grid mobile stacking */
+@media (max-width: 960px) {
+  .mobile-stack {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Interactive Canvas & Simulation Mobile Responsiveness */
+@media (max-width: 768px) {
+  canvas {
+    max-width: 100% !important;
+    height: auto !important;
+    touch-action: none; /* Prevents whole-page drag while manipulating simulation bodies */
+  }
+
+  .simulation-canvas-container {
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+}
+
 .dashboard-main {
   padding: 2rem 3rem;
 }
