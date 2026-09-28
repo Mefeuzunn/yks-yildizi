@@ -65,6 +65,7 @@ export default function SessionLogModal() {
   const [step, setStep] = useState<'subject' | 'topic'>('subject');
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
+  const [durationMinutes, setDurationMinutes] = useState<number>(25);
   const [topicSearch, setTopicSearch] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
@@ -79,7 +80,7 @@ export default function SessionLogModal() {
   const wrongQ = Math.max(0, parseInt(wrongCount) || 0);
   const emptyQ = Math.max(0, totalQ - (correctQ + wrongQ));
   const netQ = Math.max(0, correctQ - (wrongQ * 0.25));
-  const paceSec = totalQ > 0 ? Math.round(((pendingSession?.durationMin || 25) * 60) / totalQ) : 0;
+  const paceSec = totalQ > 0 ? Math.round(((durationMinutes || 25) * 60) / totalQ) : 0;
 
   // Modal açıldığında state sıfırlama
   useEffect(() => {
@@ -87,6 +88,8 @@ export default function SessionLogModal() {
       const pref = pendingSession.prefilledSubject;
       setSelectedSubject(pref ?? null);
       setSelectedTopic(pendingSession.prefilledTopic ?? null);
+      const initialDur = pendingSession.durationMin && pendingSession.durationMin > 0 ? pendingSession.durationMin : 25;
+      setDurationMinutes(initialDur);
       setTopicSearch('');
       setSolvedTest(false);
       setQuestionsCount('');
@@ -118,6 +121,7 @@ export default function SessionLogModal() {
     setIsSaving(true);
     const sub = overrideSubject !== undefined ? overrideSubject : selectedSubject;
     const top = overrideTopic !== undefined ? overrideTopic : selectedTopic;
+    const finalDur = Math.max(1, durationMinutes || 25);
     try {
       await saveSession(sub, top, null, solvedTest && totalQ > 0 ? {
         questionsSolved: totalQ,
@@ -125,7 +129,7 @@ export default function SessionLogModal() {
         wrongCount: wrongQ,
         emptyCount: emptyQ,
         netScore: parseFloat(netQ.toFixed(2)),
-      } : undefined);
+      } : undefined, finalDur);
     } catch (e) {
       console.error('Session save error:', e);
     } finally {
@@ -166,7 +170,7 @@ export default function SessionLogModal() {
             }}
           >
             {/* Header */}
-            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '16px' }}>
               <div style={{
                 width: '64px', height: '64px', borderRadius: '50%',
                 background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
@@ -184,13 +188,88 @@ export default function SessionLogModal() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '6px' }}>
                 <Clock size={15} color="#a78bfa" />
                 <span style={{ color: '#c4b5fd', fontSize: '14px', fontWeight: 700 }}>
-                  {fmt(pendingSession.durationMin)} çalıştın · +25 XP kazandın!
+                  {fmt(durationMinutes)} çalıştın · +{Math.max(25, durationMinutes)} XP kazandın!
                 </span>
               </div>
 
               <p style={{ color: '#94a3b8', fontSize: '13px', marginTop: '6px', marginBottom: 0 }}>
                 Çalışmanı ders ve konuya bağlayarak analiz ve öğretmen paneline kaydet.
               </p>
+            </div>
+
+            {/* ── SÜRE DÜZENLEME (Öğrenci Kendi Girebilir) ── */}
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(56,189,248,0.08), rgba(139,92,246,0.08))',
+              border: '1.5px solid rgba(56,189,248,0.25)',
+              borderRadius: '16px',
+              padding: '12px 16px',
+              marginBottom: '16px',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Clock size={16} color="#38bdf8" />
+                  <span style={{ fontSize: '13px', fontWeight: 700, color: '#f1f5f9' }}>
+                    Çalışma Süresi:
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setDurationMinutes(d => Math.max(1, d - 5))}
+                    title="-5 dakika"
+                    style={{
+                      width: '28px', height: '28px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)',
+                      background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: 'pointer', fontWeight: 800, fontSize: '14px'
+                    }}
+                  >-</button>
+                  <input
+                    type="number"
+                    min={1}
+                    max={600}
+                    value={durationMinutes}
+                    onChange={e => setDurationMinutes(Math.max(1, parseInt(e.target.value) || 0))}
+                    style={{
+                      width: '64px', textAlign: 'center', padding: '5px 8px', borderRadius: '8px',
+                      background: 'rgba(56,189,248,0.12)', border: '1.5px solid rgba(56,189,248,0.4)',
+                      color: '#38bdf8', fontSize: '15px', fontWeight: 800, outline: 'none'
+                    }}
+                  />
+                  <span style={{ fontSize: '13px', color: '#94a3b8', fontWeight: 600 }}>dk</span>
+                  <button
+                    type="button"
+                    onClick={() => setDurationMinutes(d => Math.min(600, d + 5))}
+                    title="+5 dakika"
+                    style={{
+                      width: '28px', height: '28px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)',
+                      background: 'rgba(255,255,255,0.06)', color: '#fff', cursor: 'pointer', fontWeight: 800, fontSize: '14px'
+                    }}
+                  >+</button>
+                </div>
+              </div>
+
+              {/* Hızlı Süre Seçim Butonları */}
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                {[15, 20, 25, 30, 40, 45, 60, 90, 120].map(min => (
+                  <button
+                    key={min}
+                    type="button"
+                    onClick={() => setDurationMinutes(min)}
+                    style={{
+                      padding: '4px 9px',
+                      borderRadius: '8px',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      border: `1px solid ${durationMinutes === min ? '#38bdf8' : 'rgba(255,255,255,0.08)'}`,
+                      background: durationMinutes === min ? 'rgba(56,189,248,0.22)' : 'rgba(255,255,255,0.03)',
+                      color: durationMinutes === min ? '#38bdf8' : '#94a3b8',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s'
+                    }}
+                  >
+                    {min} dk
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Clickable Step Tabs */}

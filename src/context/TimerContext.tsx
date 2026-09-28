@@ -50,7 +50,8 @@ interface TimerContextValue {
       wrongCount?: number;
       emptyCount?: number;
       netScore?: number;
-    }
+    },
+    customDurationMin?: number
   ) => Promise<void>;
   dismissSession: () => void;
 }
@@ -208,10 +209,10 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
       const targetSec = targetMin * 60;
       const elapsedSec = targetSec - timeLeftRef.current;
 
-      // If near completion (timeLeft <= 60) or elapsed is close to target, give full target minutes.
-      // Otherwise record elapsed minutes (minimum 1 minute).
+      // If elapsed is at least 2 minutes and less than target - 30s, use elapsed.
+      // Otherwise default to targetMin (e.g. 25, 45, etc.) so user gets credit for their set goal!
       let finalDurationMin = targetMin;
-      if (timeLeftRef.current > 60 && elapsedSec < targetSec - 30) {
+      if (elapsedSec >= 120 && elapsedSec < targetSec - 30) {
         finalDurationMin = Math.max(1, Math.round(elapsedSec / 60));
       }
 
@@ -303,10 +304,15 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
       wrongCount?: number;
       emptyCount?: number;
       netScore?: number;
-    }
+    },
+    customDurationMin?: number
   ) => {
     if (!pendingSession) return;
     try {
+      const finalDuration = (customDurationMin !== undefined && customDurationMin > 0)
+        ? Math.round(customDurationMin)
+        : (pendingSession.durationMin || 25);
+
       const res = await fetch('/api/user/focus', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -315,7 +321,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
           topic,
           taskName,
           mode: pendingSession.mode,
-          durationMin: pendingSession.durationMin,
+          durationMin: finalDuration,
           questionsSolved: testStats?.questionsSolved || 0,
           correctCount: testStats?.correctCount || 0,
           wrongCount: testStats?.wrongCount || 0,
@@ -334,21 +340,8 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
   }, [pendingSession]);
 
   const dismissSession = useCallback(() => {
-    if (pendingSession) {
-      fetch('/api/user/focus', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          subject: null,
-          topic: null,
-          taskName: null,
-          mode: pendingSession.mode,
-          durationMin: pendingSession.durationMin,
-        }),
-      }).catch(() => {});
-    }
     setPendingSession(null);
-  }, [pendingSession]);
+  }, []);
 
   const playSound = useCallback((id: string, url: string) => {
     if (activeSound === id) {
