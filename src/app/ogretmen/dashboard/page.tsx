@@ -153,6 +153,7 @@ function Modal({ open, onClose, title, children, maxW = 560 }: any) {
         onClick={onClose}
       >
         <motion.div
+          className="modal-content"
           initial={{ opacity: 0, scale: 0.93, y: 16 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.93 }}
@@ -729,6 +730,7 @@ function StudentDetailModal({ studentId, onClose }: { studentId: string; onClose
         onClick={onClose}
       >
         <motion.div
+          className="modal-drawer-responsive custom-scrollbar"
           initial={{ x: '100%' }}
           animate={{ x: 0 }}
           exit={{ x: '100%' }}

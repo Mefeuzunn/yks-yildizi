@@ -29,6 +29,7 @@ export default function MistakeDetailModal({ isOpen, onClose, mistakeData }: Mis
         }}
       >
         <motion.div 
+          className="modal-content"
           initial={{ scale: 0.95, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           style={{

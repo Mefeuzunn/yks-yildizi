@@ -393,7 +393,7 @@ export default function VeliDashboardPage() {
       {/* Floating Toast Notification */}
       <AnimatePresence>
         {toastMessage && (
-          <div style={{ position: 'fixed', bottom: '30px', left: '50%', transform: 'translateX(-50%)', zIndex: 9999 }}>
+          <div style={{ position: 'fixed', bottom: 'calc(76px + env(safe-area-inset-bottom))', left: '50%', transform: 'translateX(-50%)', zIndex: 9999, width: 'max-content', maxWidth: 'calc(100vw - 32px)' }}>
             <motion.div
               initial={{ opacity: 0, y: 50, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}

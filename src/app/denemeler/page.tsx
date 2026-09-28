@@ -495,7 +495,7 @@ export default function DenemelerPage() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem' }}>
         {/* Grafik Alanı */}
-        <div className="premium-card" style={{ padding: '2rem', overflowX: 'auto' }}>
+        <div className="premium-card table-responsive-container" style={{ padding: 'clamp(1rem, 3vw, 2rem)', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
           <h2 style={{ fontSize: '1.25rem', color: '#fff', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <LucideLineChart size={20} color={activeTab === 'TYT' ? '#10b981' : '#38bdf8'} /> {activeTab} Net Gelişimi Grafiği
           </h2>

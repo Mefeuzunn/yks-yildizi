@@ -153,6 +153,7 @@ export default function SessionLogModal() {
           }}
         >
           <motion.div
+            className="modal-content"
             initial={{ scale: 0.9, y: 30 }}
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.9, y: 30 }}

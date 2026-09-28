@@ -98,8 +98,9 @@ export default function AyarlarPage() {
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
             style={{
               position: 'fixed',
-              bottom: '2rem',
-              right: '2rem',
+              bottom: 'calc(76px + env(safe-area-inset-bottom))',
+              right: '1.5rem',
+              maxWidth: 'calc(100vw - 3rem)',
               background: toast.type === 'success' ? 'rgba(16, 185, 129, 0.9)' : 'rgba(239, 68, 68, 0.9)',
               color: '#fff',
               padding: '1rem 1.5rem',
