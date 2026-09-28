@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { QRCodeSVG } from 'qrcode.react';
 import {
   LayoutDashboard, Users, BookOpen, ClipboardList, Megaphone, FileText,
   Plus, Copy, Check, Loader2, X, TrendingUp, AlertTriangle,
@@ -625,6 +626,150 @@ function TeacherProfileTab() {
   );
 }
 
+function StudentDetailModal({ studentId, onClose }: { studentId: string; onClose: () => void }) {
+  const [data, setData] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    if (!studentId) return;
+    setLoading(true);
+    fetch(`/api/ogretmen/ogrenciler/${studentId}/detail`)
+      .then(res => res.json())
+      .then(d => { setData(d); setLoading(false); })
+      .catch(e => { console.error(e); setLoading(false); });
+  }, [studentId]);
+
+  if (!studentId) return null;
+
+  return (
+    <AnimatePresence>
+      <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', justifyContent: 'flex-end', backdropFilter: 'blur(4px)' }} onClick={onClose}>
+        <motion.div
+          initial={{ x: '100%' }}
+          animate={{ x: 0 }}
+          exit={{ x: '100%' }}
+          transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+          style={{ width: '100%', maxWidth: 600, background: '#0b0f19', borderLeft: '1px solid rgba(255,255,255,0.1)', height: '100%', overflowY: 'auto', padding: '2rem', display: 'flex', flexDirection: 'column' }}
+          onClick={e => e.stopPropagation()}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+            <h2 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Öğrenci Analizi</h2>
+            <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: 8, padding: 8, color: '#9ca3af', cursor: 'pointer', display: 'flex' }}><X size={20} /></button>
+          </div>
+
+          {loading ? (
+             <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
+               <Loader2 size={32} color="#10b981" style={{ animation: 'spin 1s linear infinite' }} />
+             </div>
+          ) : !data || data.error ? (
+             <div style={{ color: '#ef4444', textAlign: 'center', padding: '2rem' }}>Veri yüklenemedi.</div>
+          ) : (
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+               {/* Header Info */}
+               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                 <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg,#38bdf8,#0ea5e9)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.8rem', fontWeight: 800 }}>
+                   {data.student?.username?.charAt(0).toUpperCase()}
+                 </div>
+                 <div>
+                   <h3 style={{ color: '#fff', fontSize: '1.4rem', fontWeight: 700, margin: 0 }}>{data.student?.username}</h3>
+                   <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: 4 }}>
+                     {data.className || 'Sınıf Yok'} • {data.student?.alan || 'Alan Yok'} • {data.student?.sinif || '-'} Sınıf
+                   </div>
+                 </div>
+                 <div style={{ marginLeft: 'auto' }}>
+                   <Badge label={data.stats?.league || 'Bronz'} color={LEAGUE_COLORS[data.stats?.league] || '#cd7f32'} />
+                 </div>
+               </div>
+
+               {/* Stats Row */}
+               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem' }}>
+                 <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: 12, textAlign: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
+                   <div style={{ color: '#38bdf8', fontSize: '1.4rem', fontWeight: 800 }}>{data.stats?.solved_questions || 0}</div>
+                   <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginTop: 4 }}>Çözülen</div>
+                 </div>
+                 <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: 12, textAlign: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
+                   <div style={{ color: successColor(data.stats?.success_rate || 0), fontSize: '1.4rem', fontWeight: 800 }}>%{(data.stats?.success_rate || 0).toFixed(1)}</div>
+                   <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginTop: 4 }}>Başarı</div>
+                 </div>
+                 <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: 12, textAlign: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
+                   <div style={{ color: '#f59e0b', fontSize: '1.4rem', fontWeight: 800 }}>{data.stats?.streak_days || 0} 🔥</div>
+                   <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginTop: 4 }}>Seri (Gün)</div>
+                 </div>
+                 <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: 12, textAlign: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
+                   <div style={{ color: '#a855f7', fontSize: '1.4rem', fontWeight: 800 }}>{data.stats?.xp || 0}</div>
+                   <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginTop: 4 }}>XP</div>
+                 </div>
+               </div>
+
+               {/* Focus Summary */}
+               <div style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.05), rgba(5,150,105,0.05))', padding: '1rem', borderRadius: 12, border: '1px solid rgba(16,185,129,0.2)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                 <Clock size={24} color="#10b981" />
+                 <div>
+                   <div style={{ color: '#fff', fontWeight: 600 }}>Son 7 Gün Odaklanma</div>
+                   <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{data.focusSessions?.total_minutes || 0} dakika ({data.focusSessions?.session_count || 0} oturum)</div>
+                 </div>
+               </div>
+
+               {/* Weakness Heatmap */}
+               <div>
+                 <h4 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 700, margin: '0 0 1rem', display: 'flex', alignItems: 'center', gap: 8 }}>
+                   <Target size={18} color="#ef4444" /> Zayıf Konular
+                 </h4>
+                 {data.weaknesses?.length > 0 ? (
+                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
+                     {data.weaknesses.map((w: any, i: number) => {
+                       const isHigh = w.error_count > 10;
+                       return (
+                         <div key={i} style={{ padding: '0.85rem', background: isHigh ? 'rgba(239,68,68,0.1)' : 'rgba(245,158,11,0.1)', borderRadius: 10, border: `1px solid ${isHigh ? 'rgba(239,68,68,0.2)' : 'rgba(245,158,11,0.2)'}` }}>
+                           <div style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase' }}>{w.subject}</div>
+                           <div style={{ color: '#fff', fontSize: '0.85rem', fontWeight: 600, margin: '2px 0 6px' }}>{w.topic}</div>
+                           <div style={{ color: isHigh ? '#fca5a5' : '#fcd34d', fontSize: '0.75rem', fontWeight: 700 }}>{w.error_count} Hata</div>
+                         </div>
+                       )
+                     })}
+                   </div>
+                 ) : (
+                   <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontStyle: 'italic' }}>Son 30 günde yeterli hata verisi yok.</div>
+                 )}
+               </div>
+
+               {/* Assignments */}
+               <div>
+                 <h4 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 700, margin: '0 0 1rem', display: 'flex', alignItems: 'center', gap: 8 }}>
+                   <ClipboardList size={18} color="#3b82f6" /> Ödev Geçmişi
+                 </h4>
+                 {data.assignments?.length > 0 ? (
+                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                     {data.assignments.map((a: any, i: number) => (
+                       <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.85rem', background: 'rgba(255,255,255,0.02)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.05)' }}>
+                         <div>
+                           <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.9rem' }}>{a.title}</div>
+                           <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: 2 }}>{a.submitted_at ? `Teslim: ${formatDate(a.submitted_at)}` : `Son: ${formatDate(a.due_date)}`}</div>
+                         </div>
+                         <div style={{ textAlign: 'right' }}>
+                           {a.status === 'graded' ? (
+                             <Badge label={`Not: ${a.score}`} color="#10b981" />
+                           ) : a.status === 'submitted' ? (
+                             <Badge label="Bekliyor" color="#f59e0b" />
+                           ) : (
+                             <Badge label="Eksik" color="#ef4444" />
+                           )}
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                 ) : (
+                   <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontStyle: 'italic' }}>Atanmış ödev bulunmuyor.</div>
+                 )}
+               </div>
+             </div>
+          )}
+        </motion.div>
+      </div>
+    </AnimatePresence>
+  );
+}
+
 // ─────────────────────────────────────────────
 // MAIN COMPONENT
 // ─────────────────────────────────────────────
@@ -679,6 +824,7 @@ function TeacherDashboardContent() {
   const [announcements, setAnnouncements] = useState<AnnouncementItem[]>([]);
   const [assignmentDetail, setAssignmentDetail] = useState<any>(null);
   const [selectedStudent, setSelectedStudent] = useState<StudentItem | null>(null);
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [studentDetail, setStudentDetail] = useState<any>(null);
   const [studentDetailLoading, setStudentDetailLoading] = useState(false);
 
@@ -745,6 +891,49 @@ function TeacherDashboardContent() {
   // XP Awarding States
   const [awardXpModal, setAwardXpModal] = useState<StudentItem | null>(null);
   const [awardAmount, setAwardAmount] = useState<number>(50);
+
+  // Invite & Leaderboard States
+  const [inviteModal, setInviteModal] = useState<{code: string; url: string; expires: string} | null>(null);
+  const [expandedLeaderboard, setExpandedLeaderboard] = useState<string | null>(null);
+  const [classLeaderboards, setClassLeaderboards] = useState<Record<string, any[]>>({});
+
+  const generateInvite = async (classId: string) => {
+    setSubmitting(true);
+    try {
+      const res = await fetch('/api/ogretmen/sinif/davet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ classId })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setInviteModal({ code: data.code, url: data.url, expires: data.expires });
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Hata');
+      }
+    } catch(e) { console.error(e); }
+    finally { setSubmitting(false); }
+  };
+
+  const toggleLeaderboard = async (classId: string) => {
+    if (expandedLeaderboard === classId) {
+      setExpandedLeaderboard(null);
+      return;
+    }
+    setExpandedLeaderboard(classId);
+    if (!classLeaderboards[classId]) {
+      try {
+        const res = await fetch(`/api/ogretmen/ogrenciler?classId=${classId}`);
+        if (res.ok) {
+          const data = await res.json();
+          const list = data.students ?? [];
+          list.sort((a: any, b: any) => (b.league_points || 0) - (a.league_points || 0));
+          setClassLeaderboards(prev => ({ ...prev, [classId]: list.slice(0, 5) }));
+        }
+      } catch(e) { console.error(e); }
+    }
+  };
 
   // ── Fetch Functions ──
   const fetchDashboard = useCallback(async () => {
@@ -1248,6 +1437,45 @@ function TeacherDashboardContent() {
                           <Trash2 size={15} />
                         </button>
                       </div>
+
+                      {/* Invite & Leaderboard Buttons */}
+                      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                        <button onClick={() => generateInvite(c.id)} disabled={submitting} style={{ flex: 1, background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)', borderRadius: 8, color: '#60a5fa', padding: '0.6rem', cursor: 'pointer', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                          Davet Linki Oluştur
+                        </button>
+                        <button onClick={() => toggleLeaderboard(c.id)} style={{ flex: 1, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 8, color: '#fbbf24', padding: '0.6rem', cursor: 'pointer', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                          <Trophy size={14} /> Liderlik Tablosu
+                        </button>
+                      </div>
+
+                      {/* Leaderboard Section */}
+                      {expandedLeaderboard === c.id && (
+                        <div style={{ marginTop: '1rem', background: 'rgba(0,0,0,0.2)', borderRadius: 10, padding: '1rem', border: '1px solid rgba(255,255,255,0.05)' }}>
+                          <h4 style={{ color: '#fff', fontSize: '0.9rem', margin: '0 0 0.75rem', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <Trophy size={16} color="#fbbf24" /> İlk 5 Öğrenci
+                          </h4>
+                          {(!classLeaderboards[c.id]) ? (
+                            <div style={{ color: '#9ca3af', fontSize: '0.8rem', textAlign: 'center' }}>Yükleniyor...</div>
+                          ) : classLeaderboards[c.id].length === 0 ? (
+                            <div style={{ color: '#9ca3af', fontSize: '0.8rem', textAlign: 'center' }}>Bu sınıfta henüz öğrenci yok.</div>
+                          ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                              {classLeaderboards[c.id].map((student, i) => (
+                                <div key={student.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255,255,255,0.03)', padding: '0.5rem 0.75rem', borderRadius: 8 }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <span style={{ fontSize: '1.1rem' }}>{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`}</span>
+                                    <span style={{ color: '#e5e7eb', fontSize: '0.85rem', fontWeight: 500 }}>{student.username}</span>
+                                  </div>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>{student.league}</span>
+                                    <span style={{ color: '#fbbf24', fontSize: '0.85rem', fontWeight: 700 }}>{student.league_points} XP</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -1323,9 +1551,14 @@ function TeacherDashboardContent() {
                     {filteredStudents.map((s, idx) => {
                       const isAtRisk = (s.streak_days ?? 0) === 0;
                       return (
-                      <tr key={s.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', transition: 'background 0.15s', background: isAtRisk ? 'rgba(239,68,68,0.03)' : 'transparent' }}
+                      <tr key={s.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', transition: 'background 0.15s', background: isAtRisk ? 'rgba(239,68,68,0.03)' : 'transparent', cursor: 'pointer' }}
                         onMouseEnter={e => (e.currentTarget.style.background = isAtRisk ? 'rgba(239,68,68,0.07)' : 'rgba(255,255,255,0.03)')}
                         onMouseLeave={e => (e.currentTarget.style.background = isAtRisk ? 'rgba(239,68,68,0.03)' : 'transparent')}
+                        onClick={(e) => {
+                          const target = e.target as HTMLElement;
+                          if (target.tagName === 'SELECT' || target.tagName === 'BUTTON' || target.closest('button')) return;
+                          setSelectedStudentId(s.id);
+                        }}
                       >
                         <td style={{ padding: '0.85rem 1rem' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -2281,6 +2514,42 @@ function TeacherDashboardContent() {
           </div>
         )}
       </Modal>
+
+      {/* Invite Code Modal */}
+      <Modal open={!!inviteModal} onClose={() => setInviteModal(null)} title="Sınıf Davet Linki" maxW={420}>
+        {inviteModal && (
+          <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div style={{ background: '#fff', padding: '1rem', borderRadius: 12, display: 'inline-block', margin: '0 auto' }}>
+              <QRCodeSVG value={inviteModal.url} size={200} />
+            </div>
+            
+            <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: 10, padding: '1rem' }}>
+              <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginBottom: 6 }}>Davet Kodu</div>
+              <code style={{ color: '#38bdf8', fontSize: '2rem', fontWeight: 800, letterSpacing: '0.1em' }}>{inviteModal.code}</code>
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button onClick={() => {
+                navigator.clipboard.writeText(inviteModal.url);
+                setCopiedCode('invite');
+                setTimeout(() => setCopiedCode(''), 2000);
+              }} style={{ flex: 1, background: copiedCode === 'invite' ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.05)', border: `1px solid ${copiedCode === 'invite' ? '#10b981' : 'rgba(255,255,255,0.1)'}`, borderRadius: 8, color: copiedCode === 'invite' ? '#10b981' : '#e5e7eb', padding: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontWeight: 600 }}>
+                {copiedCode === 'invite' ? <><Check size={16} /> Kopyalandı</> : <><Copy size={16} /> Linki Kopyala</>}
+              </button>
+              
+              <a href={`https://wa.me/?text=${encodeURIComponent(`Sınıfıma katılmak için tıkla: ${inviteModal.url}`)}`} target="_blank" rel="noopener noreferrer" style={{ flex: 1, background: '#25D366', color: '#fff', borderRadius: 8, padding: '0.75rem', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontWeight: 600 }}>
+                WhatsApp'ta Paylaş
+              </a>
+            </div>
+
+            <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+              <Clock size={12} /> Geçerlilik: {new Date(inviteModal.expires).toLocaleString('tr-TR')}
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {selectedStudentId && <StudentDetailModal studentId={selectedStudentId} onClose={() => setSelectedStudentId(null)} />}
 
       <style jsx>{`
         @keyframes spin { to { transform: rotate(360deg); } }
