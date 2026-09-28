@@ -1936,7 +1936,7 @@ function TeacherDashboardContent() {
   const activeTabConfig = TABS.find(t => t.key === activeTab)!;
 
   return (
-    <div style={{ maxWidth: 1280, margin: '0 auto', padding: '2rem 1rem', minHeight: '100vh' }}>
+    <div className="ogretmen-dashboard-wrap" style={{ maxWidth: 1280, margin: '0 auto', padding: '2rem 1rem', minHeight: '100vh' }}>
 
       {/* ── HEADER ── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
@@ -4174,6 +4174,49 @@ function TeacherDashboardContent() {
       <style jsx>{`
         @keyframes spin { to { transform: rotate(360deg); } }
         ::-webkit-scrollbar { display: none; }
+        @media (max-width: 768px) {
+          /* Ana wrapper: bottom nav clearance */
+          .ogretmen-dashboard-wrap {
+            padding-bottom: calc(85px + env(safe-area-inset-bottom, 20px)) !important;
+          }
+          /* Stats grid: 2 kolon */
+          .ogretmen-stats-grid {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 0.75rem !important;
+          }
+          /* Class selector: full width */
+          .ogretmen-class-selector {
+            width: 100% !important;
+            flex-direction: column !important;
+          }
+          /* Tab bar: yatay scroll */
+          .ogretmen-tab-bar {
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            flex-wrap: nowrap !important;
+            padding-bottom: 4px !important;
+          }
+          .ogretmen-tab-bar button {
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
+            min-height: 44px !important;
+          }
+          /* Table: yatay scroll */
+          .ogretmen-table-wrap {
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+          }
+          /* Modal içeriği: bottom sheet */
+          .modal-content-inner {
+            border-radius: 16px 16px 0 0 !important;
+          }
+          /* Genel input fix */
+          .ogretmen-dashboard-wrap input,
+          .ogretmen-dashboard-wrap select,
+          .ogretmen-dashboard-wrap textarea {
+            font-size: 16px !important;
+          }
+        }
       `}</style>
     </div>
   );
