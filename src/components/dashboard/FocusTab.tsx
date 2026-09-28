@@ -331,7 +331,6 @@ export default function FocusTab() {
   const removeTask = (id: string) => setTasks(p => p.filter(t => t.id !== id));
 
   const completedTasks = tasks.filter(t => t.done).length;
-  const maxWeekly = Math.max(...weekData.map(d => d.total_min), 1);
   const dailyGoalMin = 4 * 60; // 4 hours daily goal
   const dailyPct = Math.min(100, (todayMinutes / dailyGoalMin) * 100);
   const selectedSubjectData = SUBJECTS.find(s => s.label === selectedSubject);

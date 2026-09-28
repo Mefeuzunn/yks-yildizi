@@ -72,13 +72,11 @@ export function useFocusData() {
           weekData: weekArr,
         });
       } else {
-        const err = await res.json();
-        console.error("API GET Error:", err);
-        alert("Veriler yüklenirken hata oluştu: " + (err.error || res.statusText));
+        const err = await res.json().catch(() => ({}));
+        console.warn("API GET Error:", err);
       }
     } catch(e: any) {
-      console.error("Fetch Exception:", e);
-      alert("Bağlantı hatası: " + e.message);
+      console.warn("Fetch Exception:", e);
     }
     setLoading(false);
   };
