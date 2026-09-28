@@ -13,6 +13,7 @@ import { useTimer } from '@/context/TimerContext';
 import SessionLogModal from '@/components/dashboard/SessionLogModal';
 import { useFocusData } from '@/hooks/useFocusData';
 import WeeklyFocusChart from '@/components/dashboard/WeeklyFocusChart';
+import { triggerHaptic } from '@/lib/haptics';
 
 type Mode = 'pomodoro' | 'shortBreak' | 'longBreak';
 
@@ -71,29 +72,35 @@ function SettingsModal({ durations, onSave, onClose }: {
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="modal-overlay-mobile"
       style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000,
                display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)' }}
       onClick={onClose}
     >
       <motion.div
+        className="modal-content"
         initial={{ scale: 0.85, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.85, y: 30 }}
         onClick={(e: React.MouseEvent) => e.stopPropagation()}
         style={{ background: '#131827', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '24px',
-                 padding: '40px', width: '420px', maxWidth: '95vw',
+                 padding: 'clamp(20px, 4vw, 36px)', width: '440px', maxWidth: '95vw', maxHeight: '85dvh', overflowY: 'auto',
                  boxShadow: '0 20px 60px rgba(139,92,246,0.2)' }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+        <div className="modal-drag-handle" />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
           <h3 style={{ color: '#fff', fontSize: '20px', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
             <Settings size={20} style={{ color: '#8b5cf6' }}/> Süre Ayarları
           </h3>
           <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: '50%', width: '36px', height: '36px', color: '#9ca3af', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={18}/></button>
         </div>
         <div style={{ marginBottom: '24px', background: 'rgba(255,255,255,0.02)', borderRadius: '14px', padding: '16px' }}>
-          <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 600, marginBottom: '10px', letterSpacing: '0.05em' }}>HIZLI SEÇIM — ODAK SÜRESİ</div>
+          <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 600, marginBottom: '10px', letterSpacing: '0.05em' }}>HIZLI SEÇİM — ODAK SÜRESİ</div>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             {[25, 45, 60, 90, 120, 180].map(min => (
               <button key={min}
-                onClick={() => setLocal(p => ({ ...p, pomodoro: min }))}
+                onClick={() => {
+                  triggerHaptic('light');
+                  setLocal(p => ({ ...p, pomodoro: min }));
+                }}
                 style={{
                   padding: '7px 14px', borderRadius: '10px', fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer',
                   background: local.pomodoro === min ? '#8b5cf6' : 'rgba(255,255,255,0.05)',
@@ -113,8 +120,8 @@ function SettingsModal({ durations, onSave, onClose }: {
             ? `${Math.floor(local[m]/60)}s ${local[m]%60>0?local[m]%60+'dk':''}`
             : `${local[m]} dk`;
           return (
-          <div key={m} style={{ marginBottom: '28px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+          <div key={m} style={{ marginBottom: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
               <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: MODE_CONFIG[m].color }}/>
                 {MODE_CONFIG[m].label}
@@ -122,7 +129,10 @@ function SettingsModal({ durations, onSave, onClose }: {
               <span style={{ color: MODE_CONFIG[m].color, fontWeight: 800, fontSize: '16px' }}>{displayVal}</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <button onClick={() => setLocal(p => ({...p, [m]: Math.max(minMin, p[m] - (m==='pomodoro' && p[m]>60 ? 5 : 1))}))}
+              <button onClick={() => {
+                triggerHaptic('light');
+                setLocal(p => ({...p, [m]: Math.max(minMin, p[m] - (m==='pomodoro' && p[m]>60 ? 5 : 1))}));
+              }}
                 style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#1e293b', border: '1px solid #374151',
                          color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Minus size={16}/>
@@ -136,7 +146,10 @@ function SettingsModal({ durations, onSave, onClose }: {
                   style={{ flex: 1, accentColor: MODE_CONFIG[m].color, cursor: 'pointer', height: '6px' }}
                 />
               </div>
-              <button onClick={() => setLocal(p => ({...p, [m]: Math.min(maxMin, p[m] + (m==='pomodoro' && p[m]>=60 ? 5 : 1))}))}
+              <button onClick={() => {
+                triggerHaptic('light');
+                setLocal(p => ({...p, [m]: Math.min(maxMin, p[m] + (m==='pomodoro' && p[m]>=60 ? 5 : 1))}));
+              }}
                 style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#1e293b', border: '1px solid #374151',
                          color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Plus size={16}/>
@@ -150,10 +163,14 @@ function SettingsModal({ durations, onSave, onClose }: {
           );
         })}
         <button
-          onClick={() => { onSave(local); onClose(); }}
-          style={{ width: '100%', padding: '14px', background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', border: 'none',
+          onClick={() => {
+            triggerHaptic('success');
+            onSave(local);
+            onClose();
+          }}
+          style={{ width: '100%', minHeight: '48px', padding: '14px', background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', border: 'none',
                    borderRadius: '14px', color: '#fff', fontWeight: 700, fontSize: '15px', cursor: 'pointer', marginTop: '8px',
-                   boxShadow: '0 8px 20px rgba(139,92,246,0.3)' }}
+                   boxShadow: '0 8px 20px rgba(139,92,246,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         >
           Kaydet & Uygula
         </button>
@@ -171,40 +188,51 @@ function SubjectPickerModal({ selected, onSelect, onClose }: {
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="modal-overlay-mobile"
       style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000,
                display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)' }}
       onClick={onClose}
     >
       <motion.div
+        className="modal-content"
         initial={{ scale: 0.85, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.85, y: 30 }}
         onClick={(e: React.MouseEvent) => e.stopPropagation()}
         style={{ background: '#131827', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px',
-                 padding: '36px', width: '460px', maxWidth: '95vw',
+                 padding: 'clamp(20px, 4vw, 32px)', width: '460px', maxWidth: '95vw', maxHeight: '85dvh', overflowY: 'auto',
                  boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
+        <div className="modal-drag-handle" />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <h3 style={{ color: '#fff', fontSize: '20px', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
             <BookOpen size={20} style={{ color: '#38bdf8' }}/> Ders Seç
           </h3>
           <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: '50%', width: '36px', height: '36px', color: '#9ca3af', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={18}/></button>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
-          <button onClick={() => { onSelect(null); onClose(); }}
-            style={{ padding: '14px 16px', borderRadius: '14px', border: `2px solid ${!selected ? '#8b5cf6' : 'rgba(255,255,255,0.06)'}`,
+          <button onClick={() => {
+            triggerHaptic('light');
+            onSelect(null);
+            onClose();
+          }}
+            style={{ padding: '12px 14px', minHeight: '44px', borderRadius: '14px', border: `2px solid ${!selected ? '#8b5cf6' : 'rgba(255,255,255,0.06)'}`,
                      background: !selected ? 'rgba(139,92,246,0.1)' : 'rgba(255,255,255,0.02)', cursor: 'pointer',
-                     color: '#9ca3af', fontWeight: 600, fontSize: '14px', textAlign: 'left',
-                     display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '20px' }}>🎯</span> Serbest Çalışma
+                     color: '#9ca3af', fontWeight: 600, fontSize: '13px', textAlign: 'left',
+                     display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '18px' }}>🎯</span> Serbest Çalışma
           </button>
           {SUBJECTS.map(s => (
-            <button key={s.label} onClick={() => { onSelect(s.label); onClose(); }}
-              style={{ padding: '14px 16px', borderRadius: '14px',
+            <button key={s.label} onClick={() => {
+              triggerHaptic('light');
+              onSelect(s.label);
+              onClose();
+            }}
+              style={{ padding: '12px 14px', minHeight: '44px', borderRadius: '14px',
                        border: `2px solid ${selected === s.label ? s.color : 'rgba(255,255,255,0.06)'}`,
                        background: selected === s.label ? s.color + '15' : 'rgba(255,255,255,0.02)',
-                       cursor: 'pointer', fontWeight: 600, fontSize: '14px', textAlign: 'left',
-                       display: 'flex', alignItems: 'center', gap: '10px',
+                       cursor: 'pointer', fontWeight: 600, fontSize: '13px', textAlign: 'left',
+                       display: 'flex', alignItems: 'center', gap: '8px',
                        color: selected === s.label ? '#fff' : '#9ca3af', transition: 'all 0.15s' }}>
-              <span style={{ fontSize: '20px' }}>{s.emoji}</span> {s.label}
+              <span style={{ fontSize: '18px' }}>{s.emoji}</span> {s.label}
             </button>
           ))}
         </div>
@@ -227,23 +255,23 @@ function ZenModeOverlay({ timeLeft, totalSec, cfg, isRunning, pomodoroCount, onT
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}
       style={{ position: 'fixed', inset: 0, zIndex: 9000, background: `radial-gradient(ellipse at center, ${cfg.color}15 0%, #050810 70%)`,
-               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
+               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
     >
-      <button onClick={onExit}
-        style={{ position: 'absolute', top: '24px', right: '24px', background: 'rgba(255,255,255,0.05)',
-                 border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '10px 20px',
-                 color: '#6b7280', cursor: 'pointer', fontSize: '13px', fontWeight: 600,
-                 display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <button onClick={() => { triggerHaptic('light'); onExit(); }}
+        style={{ position: 'absolute', top: 'calc(16px + env(safe-area-inset-top, 16px))', right: '16px', background: 'rgba(255,255,255,0.05)',
+                 border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '8px 16px',
+                 color: '#9ca3af', cursor: 'pointer', fontSize: '13px', fontWeight: 600,
+                 display: 'flex', alignItems: 'center', gap: '6px', zIndex: 50, backdropFilter: 'blur(8px)' }}>
         <Minimize size={16}/> Zen Modundan Çık
       </button>
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '48px' }}>
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '36px' }}>
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} style={{ width: '12px', height: '12px', borderRadius: '50%',
+          <div key={i} style={{ width: '10px', height: '10px', borderRadius: '50%',
                background: i < pomodoroCount % 4 ? cfg.color : 'rgba(255,255,255,0.1)',
                boxShadow: i < pomodoroCount % 4 ? `0 0 8px ${cfg.color}` : 'none' }}/>
         ))}
       </div>
-      <div style={{ position: 'relative', width: 'min(360px, 70vw)', height: 'min(360px, 70vw)', marginBottom: '48px' }}>
+      <div style={{ position: 'relative', width: 'min(320px, 68vw)', height: 'min(320px, 68vw)', marginBottom: '36px' }}>
         <svg viewBox="0 0 300 300" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
           <circle cx="150" cy="150" r={R} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="10"/>
           <motion.circle cx="150" cy="150" r={R} fill="none" stroke={cfg.color} strokeWidth="12"
@@ -251,34 +279,34 @@ function ZenModeOverlay({ timeLeft, totalSec, cfg, isRunning, pomodoroCount, onT
             style={{ filter: `drop-shadow(0 0 20px ${cfg.color})` }} transition={{ duration: 0.8, ease: 'linear' }}/>
         </svg>
         <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ fontSize: 'min(72px, 14vw)', fontWeight: 800, color: '#fff', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.03em', lineHeight: 1 }}>
+          <div style={{ fontSize: 'min(64px, 14vw)', fontWeight: 800, color: '#fff', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.03em', lineHeight: 1 }}>
             {fmt(timeLeft)}
           </div>
-          <div style={{ fontSize: '15px', color: cfg.color, fontWeight: 700, marginTop: '10px', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: '14px', color: cfg.color, fontWeight: 700, marginTop: '8px', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
             {cfg.label}
           </div>
         </div>
       </div>
-      <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-        <button onClick={onToggle}
-          style={{ width: '80px', height: '80px', borderRadius: '50%',
+      <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+        <button onClick={() => { triggerHaptic('medium'); onToggle(); }}
+          style={{ width: '74px', height: '74px', borderRadius: '50%',
                    background: `linear-gradient(135deg, ${cfg.color}, ${cfg.color}bb)`,
                    border: 'none', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
                    cursor: 'pointer', boxShadow: `0 10px 30px ${cfg.glow}` }}>
-          {isRunning ? <Pause size={32} fill="currentColor"/> : <Play size={32} fill="currentColor" style={{ marginLeft: '4px' }}/>}
+          {isRunning ? <Pause size={30} fill="currentColor"/> : <Play size={30} fill="currentColor" style={{ marginLeft: '4px' }}/>}
         </button>
         {cfg.label === 'Odak' && (
-          <button onClick={() => { onFinish(); onExit(); }} title="Oturumu Bitir & Ders/Konu Kaydet"
-            style={{ padding: '14px 24px', borderRadius: '20px',
+          <button onClick={() => { triggerHaptic('success'); onFinish(); onExit(); }} title="Oturumu Bitir & Ders/Konu Kaydet"
+            style={{ padding: '12px 20px', borderRadius: '20px', minHeight: '48px',
                      background: 'rgba(16, 185, 129, 0.2)', border: '1.5px solid rgba(16, 185, 129, 0.5)',
-                     color: '#34d399', fontWeight: 700, fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer',
+                     color: '#34d399', fontWeight: 700, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer',
                      boxShadow: '0 8px 24px rgba(16, 185, 129, 0.25)' }}>
-            <CheckCircle2 size={20} /> Oturumu Bitir
+            <CheckCircle2 size={18} /> Oturumu Bitir
           </button>
         )}
       </div>
-      <div style={{ position: 'absolute', bottom: '48px', color: '#4b5563', fontSize: '15px',
-                    fontStyle: 'italic', maxWidth: '600px', textAlign: 'center', padding: '0 40px', lineHeight: 1.7 }}>
+      <div style={{ position: 'absolute', bottom: 'calc(24px + env(safe-area-inset-bottom, 24px))', color: '#64748b', fontSize: 'clamp(12px, 3.4vw, 14px)',
+                    fontStyle: 'italic', maxWidth: '520px', textAlign: 'center', padding: '0 24px', lineHeight: 1.6 }}>
         "{quote}"
       </div>
     </motion.div>
@@ -371,6 +399,11 @@ export default function FocusTab() {
 
       {/* Modals */}
       <AnimatePresence>
+        {showSettings && (
+          <SettingsModal durations={durations} onSave={saveSettings} onClose={() => setShowSettings(false)}/>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
         {showSubjectPicker && (
           <SubjectPickerModal selected={selectedSubject} onSelect={setSelectedSubject} onClose={() => setShowSubjectPicker(false)}/>
         )}
@@ -383,24 +416,24 @@ export default function FocusTab() {
                        display: 'flex', alignItems: 'center', gap: '12px' }}>
             <Target size={26} style={{ color: '#8b5cf6' }}/> Odak Merkezi
           </h2>
-          <p style={{ color: '#9ca3af', fontSize: '14px', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <p style={{ color: '#9ca3af', fontSize: '14px', margin: 0, display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             Bugün <strong style={{ color: '#fff' }}>{todayMinutes} dk</strong> çalıştın &nbsp;·&nbsp;
             <strong style={{ color: '#fff' }}>{todayCount}</strong> oturum
             &nbsp;·&nbsp; {statusMsg().text}
           </p>
         </div>
         {/* Stats pills */}
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', width: '100%', maxWidth: '420px' }}>
           {[
             { icon: <Flame size={14}/>, label: 'Bugün', value: `${todayMinutes}dk`, color: '#f97316' },
             { icon: <Zap size={14}/>, label: 'Oturum', value: `${allTimeCount}`, color: '#8b5cf6' },
             { icon: <Trophy size={14}/>, label: 'Pomodoro', value: `${pomodoroCount}`, color: '#fcd34d' },
           ].map(s => (
-            <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#131827',
-                 border: `1px solid ${s.color}30`, borderRadius: '12px', padding: '8px 14px' }}>
-              <span style={{ color: s.color }}>{s.icon}</span>
-              <span style={{ color: '#9ca3af', fontSize: '12px', fontWeight: 500 }}>{s.label}:</span>
-              <span style={{ color: '#fff', fontSize: '13px', fontWeight: 700 }}>{s.value}</span>
+            <div key={s.label} style={{ flex: '1 1 95px', minWidth: '95px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: '#131827',
+                 border: `1px solid ${s.color}30`, borderRadius: '12px', padding: '8px 12px' }}>
+              <span style={{ color: s.color, display: 'flex' }}>{s.icon}</span>
+              <span style={{ color: '#9ca3af', fontSize: '11px', fontWeight: 500 }}>{s.label}:</span>
+              <span style={{ color: '#fff', fontSize: '12px', fontWeight: 700 }}>{s.value}</span>
             </div>
           ))}
         </div>
@@ -410,7 +443,7 @@ export default function FocusTab() {
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'flex-start' }}>
 
         {/* ── Timer Card ── */}
-        <div style={{ flex: '1 1 300px', maxWidth: '460px', width: '100%', background: '#0f172a', border: `1px solid ${cfg.glow}`, borderRadius: '28px', padding: '32px',
+        <div style={{ flex: '1 1 300px', maxWidth: '100%', width: '100%', background: '#0f172a', border: `1px solid ${cfg.glow}`, borderRadius: '28px', padding: 'clamp(20px, 4vw, 32px)',
                       display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative',
                       overflow: 'hidden', boxShadow: `0 10px 60px -10px ${cfg.glow}` }}>
           {/* Glow bg */}
@@ -418,23 +451,29 @@ export default function FocusTab() {
                         width: '100%', maxWidth: '300px', aspectRatio: '1/1', borderRadius: '50%',
                         background: cfg.color, filter: 'blur(100px)', opacity: 0.05, pointerEvents: 'none' }}/>
 
-          {/* Top actions - only zen mode */}
-          <div style={{ position: 'absolute', top: '20px', right: '20px', display: 'flex', gap: '8px' }}>
-            <button onClick={() => setIsZenMode(true)} title="Zen Modu"
+          {/* Top actions */}
+          <div style={{ position: 'absolute', top: '16px', right: '16px', display: 'flex', gap: '8px', zIndex: 10 }}>
+            <button onClick={() => { triggerHaptic('light'); setShowSettings(true); }} title="Süre Ayarları"
               style={{ background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: '10px',
                        width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center',
                        color: '#9ca3af', cursor: 'pointer' }}>
-              <Maximize size={15}/>
+              <Settings size={16}/>
+            </button>
+            <button onClick={() => { triggerHaptic('medium'); setIsZenMode(true); }} title="Zen Modu"
+              style={{ background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: '10px',
+                       width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                       color: '#9ca3af', cursor: 'pointer' }}>
+              <Maximize size={16}/>
             </button>
           </div>
 
           {/* Mode selector */}
-          <div style={{ display: 'flex', background: 'rgba(255,255,255,0.03)', padding: '6px', borderRadius: '18px',
-                        marginBottom: '32px', gap: '4px', width: '100%', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', background: 'rgba(255,255,255,0.03)', padding: '5px', borderRadius: '16px',
+                        marginBottom: '28px', gap: '4px', width: '100%', maxWidth: '360px', justifyContent: 'center' }}>
             {(['pomodoro','shortBreak','longBreak'] as Mode[]).map(m => (
-              <button key={m} onClick={() => switchMode(m)}
-                style={{ flex: 1, padding: '9px 12px', borderRadius: '13px', fontSize: '12px', fontWeight: 700,
-                         border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+              <button key={m} onClick={() => { triggerHaptic('light'); switchMode(m); }}
+                style={{ flex: 1, padding: 'clamp(7px, 2vw, 9px) clamp(8px, 2.5vw, 12px)', borderRadius: '12px', fontSize: 'clamp(11px, 2.8vw, 12px)', fontWeight: 700,
+                         border: 'none', cursor: 'pointer', transition: 'all 0.2s', minWidth: 0, whiteSpace: 'nowrap',
                          background: mode === m ? MODE_CONFIG[m].color : 'transparent',
                          color: mode === m ? '#fff' : '#6b7280',
                          boxShadow: mode === m ? `0 4px 14px ${MODE_CONFIG[m].glow}` : 'none' }}>
@@ -444,7 +483,7 @@ export default function FocusTab() {
           </div>
 
           {/* Pomodoro dots */}
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} style={{ width: '10px', height: '10px', borderRadius: '50%',
                    background: i < pomodoroCount % 4 ? cfg.color : 'rgba(255,255,255,0.1)',
@@ -465,7 +504,7 @@ export default function FocusTab() {
               />
             </svg>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 10 }}>
-              <div style={{ fontSize: '54px', fontWeight: 800, color: '#fff', fontVariantNumeric: 'tabular-nums',
+              <div style={{ fontSize: 'clamp(44px, 12vw, 54px)', fontWeight: 800, color: '#fff', fontVariantNumeric: 'tabular-nums',
                             letterSpacing: '-0.03em', lineHeight: 1, textShadow: `0 0 30px ${cfg.glow}` }}>
                 {fmt(timeLeft)}
               </div>
@@ -477,11 +516,11 @@ export default function FocusTab() {
           </div>
 
           {/* Selected Subject Badge */}
-          <button onClick={() => setShowSubjectPicker(true)}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '32px',
+          <button onClick={() => { triggerHaptic('light'); setShowSubjectPicker(true); }}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '28px',
                      background: selectedSubjectData ? selectedSubjectData.color + '20' : 'rgba(255,255,255,0.05)',
                      border: `1px solid ${selectedSubjectData ? selectedSubjectData.color + '40' : 'rgba(255,255,255,0.1)'}`,
-                     borderRadius: '100px', padding: '7px 16px', cursor: 'pointer', transition: 'all 0.2s' }}>
+                     borderRadius: '100px', padding: '7px 16px', minHeight: '38px', cursor: 'pointer', transition: 'all 0.2s' }}>
             <span style={{ fontSize: '16px' }}>{selectedSubjectData?.emoji ?? '🎯'}</span>
             <span style={{ fontSize: '13px', fontWeight: 600,
                            color: selectedSubjectData ? '#fff' : '#6b7280' }}>
@@ -492,32 +531,32 @@ export default function FocusTab() {
 
           {/* Controls */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <button onClick={reset} title="Sıfırla"
+            <button onClick={() => { triggerHaptic('warning'); reset(); }} title="Sıfırla"
               style={{ width: '50px', height: '50px', borderRadius: '50%',
                        background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
-                       color: '#9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                       color: '#9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', touchAction: 'manipulation' }}>
               <RotateCcw size={20}/>
             </button>
-            <motion.button onClick={toggle} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+            <motion.button onClick={() => { triggerHaptic('medium'); toggle(); }} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
               style={{ width: '76px', height: '76px', borderRadius: '50%',
                        background: `linear-gradient(135deg, ${cfg.color}, ${cfg.color}cc)`,
                        border: 'none', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                       cursor: 'pointer', boxShadow: `0 12px 30px ${cfg.glow}` }}>
+                       cursor: 'pointer', boxShadow: `0 12px 30px ${cfg.glow}`, touchAction: 'manipulation' }}>
               {isRunning ? <Pause size={34} fill="currentColor"/> : <Play size={34} fill="currentColor" style={{ marginLeft: '4px' }}/>}
             </motion.button>
             {mode === 'pomodoro' ? (
-              <button onClick={finishSession} title="Oturumu Bitir & Ders/Konu Kaydet"
+              <button onClick={() => { triggerHaptic('success'); finishSession(); }} title="Oturumu Bitir & Ders/Konu Kaydet"
                 style={{ width: '50px', height: '50px', borderRadius: '50%',
                          background: 'rgba(16, 185, 129, 0.12)', border: '1.5px solid rgba(16, 185, 129, 0.45)',
                          color: '#34d399', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-                         transition: 'all 0.2s', boxShadow: '0 4px 14px rgba(16,185,129,0.2)' }}>
+                         transition: 'all 0.2s', boxShadow: '0 4px 14px rgba(16,185,129,0.2)', touchAction: 'manipulation' }}>
                 <CheckCircle2 size={22}/>
               </button>
             ) : (
-              <button onClick={skip} title="Geç"
+              <button onClick={() => { triggerHaptic('light'); skip(); }} title="Geç"
                 style={{ width: '50px', height: '50px', borderRadius: '50%',
                          background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
-                         color: '#9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                         color: '#9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', touchAction: 'manipulation' }}>
                 <SkipForward size={20}/>
               </button>
             )}
@@ -528,11 +567,12 @@ export default function FocusTab() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={finishSession}
+              onClick={() => { triggerHaptic('success'); finishSession(); }}
               style={{
                 marginTop: '16px',
                 width: '100%',
                 maxWidth: '320px',
+                minHeight: '48px',
                 padding: '12px 18px',
                 borderRadius: '16px',
                 background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(5, 150, 105, 0.28))',
@@ -546,7 +586,8 @@ export default function FocusTab() {
                 gap: '8px',
                 cursor: 'pointer',
                 boxShadow: '0 4px 18px rgba(16, 185, 129, 0.2)',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                touchAction: 'manipulation'
               }}
             >
               <CheckCircle2 size={18} />
@@ -574,6 +615,7 @@ export default function FocusTab() {
                   return (
                     <button key={min}
                       onClick={() => {
+                        triggerHaptic('light');
                         const newD = { ...durations, [mode]: min };
                         saveSettings(newD);
                       }}
@@ -583,7 +625,8 @@ export default function FocusTab() {
                         background: isActive ? cfg.color + '20' : 'rgba(255,255,255,0.03)',
                         color: isActive ? cfg.color : '#6b7280',
                         cursor: 'pointer', transition: 'all 0.15s',
-                        boxShadow: isActive ? `0 0 10px ${cfg.color}30` : 'none'
+                        boxShadow: isActive ? `0 0 10px ${cfg.color}30` : 'none',
+                        touchAction: 'manipulation'
                       }}>
                       {label}
                     </button>
@@ -598,7 +641,7 @@ export default function FocusTab() {
         <div style={{ flex: '999 1 300px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
           {/* Daily Progress */}
-          <div style={{ background: '#131827', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: '24px' }}>
+          <div style={{ background: '#131827', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: 'clamp(18px, 4vw, 24px)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Flame size={16} style={{ color: '#f97316' }}/> Günlük Hedef
@@ -623,8 +666,8 @@ export default function FocusTab() {
           </div>
 
           {/* Ambient Sounds */}
-          <div style={{ background: '#131827', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: '20px' }}>
-            <button onClick={() => setSoundsExpanded(e => !e)}
+          <div style={{ background: '#131827', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: 'clamp(16px, 4vw, 20px)' }}>
+            <button onClick={() => { triggerHaptic('light'); setSoundsExpanded(e => !e); }}
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%',
                        background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -648,17 +691,17 @@ export default function FocusTab() {
               {soundsExpanded && (
                 <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }} style={{ overflow: 'hidden' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))', gap: '8px', marginTop: '16px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 82px), 1fr))', gap: '8px', marginTop: '16px' }}>
                     {AMBIENT_SOUNDS.map(s => {
                       const isActive = activeSound === s.id;
                       return (
-                        <button key={s.id} onClick={() => playSound(s.id, s.url)}
+                        <button key={s.id} onClick={() => { triggerHaptic('light'); playSound(s.id, s.url); }}
                           style={{ background: isActive ? s.color + '15' : 'rgba(255,255,255,0.03)',
                                    border: `1px solid ${isActive ? s.color + '50' : 'rgba(255,255,255,0.05)'}`,
-                                   borderRadius: '14px', padding: '14px 8px',
-                                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px',
-                                   cursor: 'pointer', transition: 'all 0.2s' }}>
-                          <span style={{ color: isActive ? s.color : '#6b7280' }}>{s.icon}</span>
+                                   borderRadius: '14px', padding: '12px 6px', minHeight: '68px',
+                                   display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                                   cursor: 'pointer', transition: 'all 0.2s', touchAction: 'manipulation' }}>
+                          <span style={{ color: isActive ? s.color : '#6b7280', display: 'flex' }}>{s.icon}</span>
                           <span style={{ fontSize: '11px', fontWeight: 600, color: isActive ? '#fff' : '#9ca3af' }}>{s.label}</span>
                           {isActive && <div style={{ width: '16px', height: '3px', borderRadius: '2px', background: s.color,
                                                      boxShadow: `0 0 6px ${s.color}` }}/>}
@@ -683,7 +726,7 @@ export default function FocusTab() {
           </div>
 
           {/* Tasks */}
-          <div style={{ background: '#131827', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: '24px' }}>
+          <div style={{ background: '#131827', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: 'clamp(18px, 4vw, 24px)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <CheckCircle2 size={16} style={{ color: '#10b981' }}/> Görev Listesi
@@ -702,11 +745,11 @@ export default function FocusTab() {
               <button type="submit"
                 style={{ background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', border: 'none', borderRadius: '12px',
                          width: '42px', height: '42px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                         color: '#fff', cursor: 'pointer' }}>
+                         color: '#fff', cursor: 'pointer', flexShrink: 0, touchAction: 'manipulation' }}>
                 <Plus size={18}/>
               </button>
             </form>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '220px', overflowY: 'auto' }}>
               {tasks.length === 0 ? (
                 <div style={{ textAlign: 'center', color: '#4b5563', fontSize: '13px', padding: '16px 0' }}>
                   Henüz görev yok. Başlamak için bir görev ekle!
@@ -714,21 +757,21 @@ export default function FocusTab() {
               ) : tasks.map(t => (
                 <motion.div key={t.id} layout
                   style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.02)',
-                           padding: '11px 12px', borderRadius: '12px',
+                           padding: '10px 12px', minHeight: '44px', borderRadius: '12px',
                            border: `1px solid ${t.done ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.04)'}` }}>
-                  <button onClick={() => toggleTask(t.id)}
-                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer',
-                             color: t.done ? '#10b981' : '#4b5563', display: 'flex', flexShrink: 0 }}>
-                    {t.done ? <CheckCircle2 size={18}/> : <Circle size={18}/>}
+                  <button onClick={() => { triggerHaptic('light'); toggleTask(t.id); }}
+                    style={{ background: 'none', border: 'none', padding: '4px', cursor: 'pointer',
+                             color: t.done ? '#10b981' : '#4b5563', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '32px', minHeight: '32px', flexShrink: 0 }}>
+                    {t.done ? <CheckCircle2 size={20}/> : <Circle size={20}/>}
                   </button>
                   <span style={{ flex: 1, fontSize: '13px', color: t.done ? '#6b7280' : '#e2e8f0',
                                  textDecoration: t.done ? 'line-through' : 'none', wordBreak: 'break-word' }}>
                     {t.text}
                   </span>
-                  <button onClick={() => removeTask(t.id)}
+                  <button onClick={() => { triggerHaptic('light'); removeTask(t.id); }}
                     style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer',
-                             padding: 0, opacity: 0.5, flexShrink: 0, display: 'flex' }}>
-                    <X size={14}/>
+                             padding: '4px', opacity: 0.6, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '32px', minHeight: '32px' }}>
+                    <X size={16}/>
                   </button>
                 </motion.div>
               ))}
@@ -752,12 +795,12 @@ export default function FocusTab() {
       </div>
 
       {/* ── Recent Sessions ── */}
-      <div style={{ marginTop: '24px', background: '#0f172a', border: `1px solid rgba(255,255,255,0.04)`, borderRadius: '24px', padding: '32px' }}>
+      <div style={{ marginTop: '24px', background: '#0f172a', border: `1px solid rgba(255,255,255,0.04)`, borderRadius: '24px', padding: 'clamp(18px, 4vw, 32px)' }}>
         <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#fff', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <BookOpen size={18} style={{ color: '#8b5cf6' }}/> Son Çalışmalar
         </h3>
         {recentSessions.length > 0 ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '16px' }}>
             {recentSessions.map((session: any) => (
               <div key={session.id} style={{
                 background: '#131827', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px',

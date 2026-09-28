@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Play, Pause, RotateCcw, Coffee, BookOpen, Music } from 'lucide-react';
 import FocusBeats from '@/components/FocusBeats';
+import { triggerHaptic } from '@/lib/haptics';
 
 type Mode = 'pomodoro' | 'shortBreak' | 'longBreak';
 
@@ -66,7 +67,7 @@ export default function PomodoroPage() {
   };
 
   return (
-    <div style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+    <div style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 'clamp(1rem, 4vw, 2rem)' }}>
       
       {/* Background ambient effect */}
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: -1, background: `radial-gradient(circle at center, ${mode === 'pomodoro' ? 'rgba(239,68,68,0.1)' : mode === 'shortBreak' ? 'rgba(16,185,129,0.1)' : 'rgba(56,189,248,0.1)'} 0%, transparent 70%)`, transition: 'background 1s ease' }} />
@@ -78,65 +79,71 @@ export default function PomodoroPage() {
         style={{ 
           width: '100%', 
           maxWidth: '500px', 
-          padding: '3rem', 
+          padding: 'clamp(1.5rem, 5vw, 3rem)', 
           textAlign: 'center',
           backdropFilter: 'blur(20px)',
           background: 'rgba(15, 16, 21, 0.7)',
           border: `1px solid ${mode === 'pomodoro' ? 'rgba(239,68,68,0.2)' : mode === 'shortBreak' ? 'rgba(16,185,129,0.2)' : 'rgba(56,189,248,0.2)'}`
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '3rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '2.5rem' }}>
           <button 
-            onClick={() => switchMode('pomodoro')}
+            onClick={() => { triggerHaptic('light'); switchMode('pomodoro'); }}
             className="btn-interactive"
             style={{ 
               background: mode === 'pomodoro' ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
-              color: mode === 'pomodoro' ? '#ef4444' : 'var(--text-secondary)'
+              color: mode === 'pomodoro' ? '#ef4444' : 'var(--text-secondary)',
+              padding: '0.5rem 0.85rem',
+              fontSize: '0.9rem'
             }}
           >
-            <BookOpen size={18} style={{ marginRight: '8px' }} /> Odak
+            <BookOpen size={16} style={{ marginRight: '6px' }} /> Odak
           </button>
           <button 
-            onClick={() => switchMode('shortBreak')}
+            onClick={() => { triggerHaptic('light'); switchMode('shortBreak'); }}
             className="btn-interactive"
             style={{ 
               background: mode === 'shortBreak' ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
-              color: mode === 'shortBreak' ? '#10b981' : 'var(--text-secondary)'
+              color: mode === 'shortBreak' ? '#10b981' : 'var(--text-secondary)',
+              padding: '0.5rem 0.85rem',
+              fontSize: '0.9rem'
             }}
           >
-            <Coffee size={18} style={{ marginRight: '8px' }} /> Kısa Mola
+            <Coffee size={16} style={{ marginRight: '6px' }} /> Kısa Mola
           </button>
           <button 
-            onClick={() => switchMode('longBreak')}
+            onClick={() => { triggerHaptic('light'); switchMode('longBreak'); }}
             className="btn-interactive"
             style={{ 
               background: mode === 'longBreak' ? 'rgba(56, 189, 248, 0.2)' : 'transparent',
-              color: mode === 'longBreak' ? '#38bdf8' : 'var(--text-secondary)'
+              color: mode === 'longBreak' ? '#38bdf8' : 'var(--text-secondary)',
+              padding: '0.5rem 0.85rem',
+              fontSize: '0.9rem'
             }}
           >
-            <Coffee size={18} style={{ marginRight: '8px' }} /> Uzun Mola
+            <Coffee size={16} style={{ marginRight: '6px' }} /> Uzun Mola
           </button>
         </div>
 
         {/* Circular Progress & Timer */}
-        <div style={{ position: 'relative', width: '250px', height: '250px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'relative', width: '240px', height: '240px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
-            <circle cx="125" cy="125" r="115" stroke="rgba(255,255,255,0.05)" strokeWidth="8" fill="none" />
+            <circle cx="120" cy="120" r="110" stroke="rgba(255,255,255,0.05)" strokeWidth="8" fill="none" />
             <motion.circle 
-              cx="125" 
-              cy="125" 
-              r="115" 
+              cx="120" 
+              cy="120" 
+              r="110" 
               stroke={mode === 'pomodoro' ? '#ef4444' : mode === 'shortBreak' ? '#10b981' : '#38bdf8'} 
               strokeWidth="8" 
               fill="none" 
               strokeLinecap="round"
-              strokeDasharray={2 * Math.PI * 115}
-              strokeDashoffset={2 * Math.PI * 115 * (1 - getProgress() / 100)}
+              strokeDasharray={2 * Math.PI * 110}
+              strokeDashoffset={2 * Math.PI * 110 * (1 - getProgress() / 100)}
               style={{ transition: 'stroke-dashoffset 1s linear' }}
             />
           </svg>
           <div style={{ 
-            fontSize: '4rem', 
+            fontSize: 'clamp(2.8rem, 11vw, 3.8rem)', 
             fontWeight: 800, 
             fontFamily: 'var(--font-display)',
             color: '#fff',
@@ -146,26 +153,32 @@ export default function PomodoroPage() {
           </div>
         </div>
 
-        <div style={{ marginTop: '3rem', display: 'flex', justifyContent: 'center', gap: '1.5rem' }}>
+        <div style={{ marginTop: '2.5rem', display: 'flex', justifyContent: 'center', gap: '1.25rem', alignItems: 'center' }}>
           <button 
-            onClick={toggleTimer}
+            onClick={() => { triggerHaptic('medium'); toggleTimer(); }}
             style={{ 
               width: '64px', height: '64px', borderRadius: '50%', 
               background: mode === 'pomodoro' ? '#ef4444' : mode === 'shortBreak' ? '#10b981' : '#38bdf8',
               color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              border: 'none', cursor: 'pointer', boxShadow: '0 10px 20px rgba(0,0,0,0.3)'
+              border: 'none', cursor: 'pointer', boxShadow: '0 10px 20px rgba(0,0,0,0.3)',
+              touchAction: 'manipulation'
             }}
             className="hover-scale"
           >
-            {isActive ? <Pause size={32} fill="currentColor" /> : <Play size={32} fill="currentColor" style={{ marginLeft: '4px' }} />}
+            {isActive ? <Pause size={30} fill="currentColor" /> : <Play size={30} fill="currentColor" style={{ marginLeft: '4px' }} />}
           </button>
-          
           <button 
-            onClick={resetTimer}
-            className="btn-interactive"
-            style={{ padding: '1rem', background: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)' }}
+            onClick={() => { triggerHaptic('warning'); resetTimer(); }}
+            style={{ 
+              width: '46px', height: '46px', borderRadius: '50%', 
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', touchAction: 'manipulation'
+            }}
+            className="hover-scale"
           >
-            <RotateCcw size={24} />
+            <RotateCcw size={20} />
           </button>
         </div>
 
