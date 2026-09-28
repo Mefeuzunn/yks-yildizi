@@ -193,15 +193,20 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
   const saveSession = useCallback(async (subject: string | null, topic: string | null, taskName: string | null) => {
     if (!pendingSession) return;
     try {
-      const res = await saveFocusSession({
-        subject,
-        topic,
-        taskName,
-        mode: pendingSession.mode,
-        durationMin: pendingSession.durationMin,
+      const res = await fetch('/api/user/focus', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subject,
+          topic,
+          taskName,
+          mode: pendingSession.mode,
+          durationMin: pendingSession.durationMin,
+        }),
       });
-      if (!res.success) {
-        console.warn('Focus session save warning:', res.error);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        console.warn('Focus session save warning:', data.error);
       }
     } catch (e: any) {
       console.error('Kayıt edilemedi:', e);
@@ -211,12 +216,16 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
 
   const dismissSession = useCallback(() => {
     if (pendingSession) {
-      saveFocusSession({
-        subject: null,
-        topic: null,
-        taskName: null,
-        mode: pendingSession.mode,
-        durationMin: pendingSession.durationMin
+      fetch('/api/user/focus', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subject: null,
+          topic: null,
+          taskName: null,
+          mode: pendingSession.mode,
+          durationMin: pendingSession.durationMin,
+        }),
       }).catch(() => {});
     }
     setPendingSession(null);
