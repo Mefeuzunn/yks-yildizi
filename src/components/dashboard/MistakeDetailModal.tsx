@@ -21,6 +21,7 @@ export default function MistakeDetailModal({ isOpen, onClose, mistakeData }: Mis
   return (
     <AnimatePresence>
       <motion.div 
+        className="modal-overlay-mobile"
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
@@ -38,6 +39,8 @@ export default function MistakeDetailModal({ isOpen, onClose, mistakeData }: Mis
             overflow: 'hidden', display: 'flex', flexDirection: 'column'
           }}
         >
+          {/* Mobile Drag Handle */}
+          <div className="mobile-only modal-drag-handle" style={{ marginTop: 8 }} />
           {/* Header */}
           <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>

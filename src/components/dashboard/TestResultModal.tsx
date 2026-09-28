@@ -29,6 +29,7 @@ export default function TestResultModal({ isOpen, onClose, resultData }: TestRes
   return (
     <AnimatePresence>
       <motion.div 
+        className="modal-overlay-mobile"
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
@@ -37,6 +38,7 @@ export default function TestResultModal({ isOpen, onClose, resultData }: TestRes
         }}
       >
         <motion.div 
+          className="modal-content"
           initial={{ scale: 0.9, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           style={{
@@ -45,6 +47,8 @@ export default function TestResultModal({ isOpen, onClose, resultData }: TestRes
             overflow: 'hidden', display: 'flex', flexDirection: 'column'
           }}
         >
+          {/* Mobile Drag Handle */}
+          <div className="mobile-only modal-drag-handle" style={{ marginTop: 8 }} />
           {/* Header */}
           <div style={{ padding: '2rem', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>

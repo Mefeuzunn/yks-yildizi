@@ -149,6 +149,7 @@ function Modal({ open, onClose, title, children, maxW = 560 }: any) {
   return (
     <AnimatePresence>
       <div
+        className="modal-overlay-mobile"
         style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backdropFilter: 'blur(8px)' }}
         onClick={onClose}
       >
@@ -161,6 +162,9 @@ function Modal({ open, onClose, title, children, maxW = 560 }: any) {
           style={{ background: 'linear-gradient(135deg,#12141c,#0d0f18)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, width: '100%', maxWidth: maxW, maxHeight: '88vh', overflowY: 'auto', padding: '2rem', boxShadow: '0 32px 80px rgba(0,0,0,0.6)' }}
           onClick={e => e.stopPropagation()}
         >
+          {/* Mobile Drag Handle */}
+          <div className="mobile-only modal-drag-handle" />
+
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <h2 style={{ fontSize: '1.35rem', fontWeight: 700, color: '#fff', margin: 0 }}>{title}</h2>
             <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.07)', border: 'none', borderRadius: 8, cursor: 'pointer', color: '#9ca3af', padding: '6px', display: 'flex', alignItems: 'center' }}>

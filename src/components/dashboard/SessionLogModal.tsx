@@ -146,6 +146,7 @@ export default function SessionLogModal() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          className="modal-overlay-mobile"
           style={{
             position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.88)',
             zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -170,6 +171,9 @@ export default function SessionLogModal() {
               boxShadow: '0 25px 70px rgba(0,0,0,0.7), 0 0 50px rgba(139,92,246,0.25)',
             }}
           >
+            {/* Mobile Drag Handle */}
+            <div className="mobile-only modal-drag-handle" />
+
             {/* Header */}
             <div style={{ textAlign: 'center', marginBottom: '16px' }}>
               <div style={{

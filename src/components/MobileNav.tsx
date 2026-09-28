@@ -63,15 +63,17 @@ function MobileNavContent() {
   }, [pathname, searchParams]);
 
   const checkIsActive = (href: string) => {
+    const [targetPath, targetQuery] = href.split('?');
+    if (pathname !== targetPath) return false;
     const tab = searchParams?.get('tab');
-    if ((href === '/dashboard' || href === '/dashboard?tab=home') && (!tab || tab === 'home') && pathname === '/dashboard') {
-      return true;
-    } else if (href.includes(`?tab=${tab}`) && tab) {
-      return true;
-    } else if (href === pathname && !href.includes('?')) {
-      return true;
+    if (!targetQuery) {
+      return !tab || tab === 'home';
     }
-    return false;
+    const paramMatch = targetQuery.match(/tab=([^&]+)/);
+    if (paramMatch) {
+      return tab === paramMatch[1];
+    }
+    return true;
   };
 
   return (
@@ -193,38 +195,44 @@ function MobileNavContent() {
                 left: 0,
                 right: 0,
                 backgroundColor: '#131827',
-                borderTopLeftRadius: '20px',
-                borderTopRightRadius: '20px',
-                padding: '24px',
+                borderTopLeftRadius: '24px',
+                borderTopRightRadius: '24px',
+                padding: '16px 20px',
                 paddingBottom: 'calc(24px + env(safe-area-inset-bottom))',
                 zIndex: 101,
-                borderTop: '1px solid rgba(255, 255, 255, 0.05)',
-                maxHeight: '80vh',
+                borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                maxHeight: '82dvh',
                 overflowY: 'auto',
+                boxShadow: '0 -10px 40px rgba(0,0,0,0.5)',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#fff', margin: 0 }}>Menü</h2>
+              {/* Native Drag Handle */}
+              <div className="modal-drag-handle" style={{ marginBottom: 14 }} />
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#fff', margin: 0 }}>Menü</h2>
                 <button
                   onClick={() => setIsMoreOpen(false)}
+                  aria-label="Kapat"
                   style={{
-                    background: 'rgba(255, 255, 255, 0.05)',
+                    background: 'rgba(255, 255, 255, 0.08)',
                     border: 'none',
                     borderRadius: '50%',
-                    width: '32px',
-                    height: '32px',
+                    width: '36px',
+                    height: '36px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: '#94a3b8',
                     cursor: 'pointer',
+                    touchAction: 'manipulation',
                   }}
                 >
                   <X size={18} />
                 </button>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
                 {currentMoreTabs.map((tab) => {
                   const active = checkIsActive(tab.href);
                   return (
