@@ -26,7 +26,7 @@ export async function GET() {
     const user = await db.prepare('SELECT id, role FROM users WHERE id = ?').get(teacherId) as any;
     if (!user || user.role !== 'ogretmen') return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
 
-    const classes = await db.prepare(`
+    const rawClasses = await db.prepare(`
       SELECT tc.id, tc.class_name, tc.class_code, tc.created_at,
              COUNT(cs.student_id) as student_count,
              ROUND(CAST(AVG(COALESCE(us.success_rate, 0)) AS NUMERIC), 1) as avg_success
@@ -37,6 +37,12 @@ export async function GET() {
       GROUP BY tc.id
       ORDER BY tc.created_at DESC
     `).all(user.id) as any[];
+
+    const classes = (rawClasses || []).map(c => ({
+      ...c,
+      student_count: Number(c.student_count) || 0,
+      avg_success: Number(c.avg_success) || 0,
+    }));
 
     return NextResponse.json({ classes });
   } catch (error) {

@@ -688,7 +688,7 @@ function StudentDetailModal({ studentId, onClose }: { studentId: string; onClose
                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginTop: 4 }}>Çözülen</div>
                  </div>
                  <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: 12, textAlign: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
-                   <div style={{ color: successColor(data.stats?.success_rate || 0), fontSize: '1.4rem', fontWeight: 800 }}>%{(data.stats?.success_rate || 0).toFixed(1)}</div>
+                   <div style={{ color: successColor(Number(data.stats?.success_rate) || 0), fontSize: '1.4rem', fontWeight: 800 }}>%{(Number(data.stats?.success_rate) || 0).toFixed(1)}</div>
                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginTop: 4 }}>Başarı</div>
                  </div>
                  <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: 12, textAlign: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
@@ -907,7 +907,11 @@ function TeacherDashboardContent() {
       });
       if (res.ok) {
         const data = await res.json();
-        setInviteModal({ code: data.code, url: data.url, expires: data.expires });
+        setInviteModal({
+          code: data.code,
+          url: data.inviteUrl || data.url || '',
+          expires: data.expiresAt || data.expires || ''
+        });
       } else {
         const err = await res.json();
         alert(err.error || 'Hata');
@@ -1400,11 +1404,11 @@ function TeacherDashboardContent() {
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
                           <div style={{ background: `${col}18`, color: col, padding: '4px 12px', borderRadius: 20, fontSize: '0.8rem', fontWeight: 700, border: `1px solid ${col}30` }}>
-                            {c.student_count} öğrenci
+                            {Number(c.student_count) || 0} öğrenci
                           </div>
-                          {c.student_count > 0 && (
-                            <div style={{ color: successColor(c.avg_success ?? 0), fontSize: '0.78rem', fontWeight: 700 }}>
-                              Ort. %{(c.avg_success ?? 0).toFixed(1)}
+                          {Number(c.student_count) > 0 && (
+                            <div style={{ color: successColor(Number(c.avg_success) || 0), fontSize: '0.78rem', fontWeight: 700 }}>
+                              Ort. %{(Number(c.avg_success) || 0).toFixed(1)}
                             </div>
                           )}
                         </div>
@@ -2520,7 +2524,7 @@ function TeacherDashboardContent() {
         {inviteModal && (
           <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <div style={{ background: '#fff', padding: '1rem', borderRadius: 12, display: 'inline-block', margin: '0 auto' }}>
-              <QRCodeSVG value={inviteModal.url} size={200} />
+              <QRCodeSVG value={inviteModal.url || 'https://yks-yildizi.vercel.app'} size={200} />
             </div>
             
             <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: 10, padding: '1rem' }}>
@@ -2530,20 +2534,20 @@ function TeacherDashboardContent() {
 
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button onClick={() => {
-                navigator.clipboard.writeText(inviteModal.url);
+                if (inviteModal.url) navigator.clipboard.writeText(inviteModal.url);
                 setCopiedCode('invite');
                 setTimeout(() => setCopiedCode(''), 2000);
               }} style={{ flex: 1, background: copiedCode === 'invite' ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.05)', border: `1px solid ${copiedCode === 'invite' ? '#10b981' : 'rgba(255,255,255,0.1)'}`, borderRadius: 8, color: copiedCode === 'invite' ? '#10b981' : '#e5e7eb', padding: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontWeight: 600 }}>
                 {copiedCode === 'invite' ? <><Check size={16} /> Kopyalandı</> : <><Copy size={16} /> Linki Kopyala</>}
               </button>
               
-              <a href={`https://wa.me/?text=${encodeURIComponent(`Sınıfıma katılmak için tıkla: ${inviteModal.url}`)}`} target="_blank" rel="noopener noreferrer" style={{ flex: 1, background: '#25D366', color: '#fff', borderRadius: 8, padding: '0.75rem', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontWeight: 600 }}>
+              <a href={`https://wa.me/?text=${encodeURIComponent(`Sınıfıma katılmak için tıkla: ${inviteModal.url || ''}`)}`} target="_blank" rel="noopener noreferrer" style={{ flex: 1, background: '#25D366', color: '#fff', borderRadius: 8, padding: '0.75rem', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontWeight: 600 }}>
                 WhatsApp'ta Paylaş
               </a>
             </div>
 
             <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-              <Clock size={12} /> Geçerlilik: {new Date(inviteModal.expires).toLocaleString('tr-TR')}
+              <Clock size={12} /> Geçerlilik: {inviteModal.expires ? new Date(inviteModal.expires).toLocaleString('tr-TR') : '7 Gün'}
             </div>
           </div>
         )}
