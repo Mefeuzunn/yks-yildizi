@@ -134,12 +134,11 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
         prefilledSubject: selectedSubjectRef.current,
       });
     } else {
-      // For breaks, auto-save without modal
-      fetch('/api/user/focus', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subject: null, topic: null, taskName: null, mode: finishedMode, durationMin: finishedDuration }),
-      }).catch(() => {});
+      // Molalar ASLA odak süresine eklenmez ve kaydedilmez.
+      // Tarayıcı bildirimi varsa kullanıcıyı haberdar et
+      if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+        new Notification('Mola Bitti! ⏰', { body: 'Mola süresi tamamlandı. Yeni bir odak oturumuna başlayabilirsin.' });
+      }
     }
   }, []);
 
@@ -174,7 +173,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
   const reset = () => { setIsRunning(false); setTimeLeft(totalSec); };
   const skip = () => {
     setIsRunning(false);
-    handleSessionComplete();
+    // Atlanınca (Geç basılınca) oturum tamamlanmış sayılmaz ve kaydedilmez
     const next: Mode = mode === 'pomodoro'
       ? ((pomodoroCount + 1) % 4 === 0 ? 'longBreak' : 'shortBreak')
       : 'pomodoro';

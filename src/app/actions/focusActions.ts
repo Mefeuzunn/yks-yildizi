@@ -18,6 +18,10 @@ export async function saveFocusSession(data: {
     return { success: false, error: 'Oturum bulunamadı' };
   }
 
+  if (data.mode === 'shortBreak' || data.mode === 'longBreak') {
+    return { success: true, ignored: true };
+  }
+
   const dur = Number(data.durationMin) || 25;
   const id = uuidv4();
 

@@ -12,37 +12,42 @@ export async function GET(req: Request) {
     const userId = await getAuthenticatedUserId(req);
     if (!userId) return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
 
-    // 1. Son 7 günün günlük toplam odak dakikaları
+    // 1. Son 7 günün günlük toplam odak dakikaları (SADECE odak/çalışma oturumları)
     const weekSessions = await db.prepare(`
       SELECT 
         DATE(created_at) as day, 
         COALESCE(SUM(COALESCE(duration_minutes, duration_min, 0)), 0)::int as total_min,
         COUNT(*)::int as session_count
       FROM focus_sessions
-      WHERE user_id = ? AND created_at >= CURRENT_DATE - INTERVAL '7 days'
+      WHERE user_id = ? 
+        AND created_at >= CURRENT_DATE - INTERVAL '7 days'
+        AND (mode = 'pomodoro' OR mode IS NULL OR mode NOT IN ('shortBreak', 'longBreak'))
       GROUP BY DATE(created_at)
       ORDER BY day ASC
     `).all(userId) as any[];
 
-    // 2. Bugünün toplamı
+    // 2. Bugünün toplamı (SADECE odak/çalışma oturumları)
     const todayRow = await db.prepare(`
       SELECT 
         COALESCE(SUM(COALESCE(duration_minutes, duration_min, 0)), 0)::int as total_min, 
         COUNT(*)::int as count
       FROM focus_sessions
-      WHERE user_id = ? AND DATE(created_at) = CURRENT_DATE
+      WHERE user_id = ? 
+        AND DATE(created_at) = CURRENT_DATE
+        AND (mode = 'pomodoro' OR mode IS NULL OR mode NOT IN ('shortBreak', 'longBreak'))
     `).get(userId) as any;
 
-    // 3. Tüm zamanların toplamı
+    // 3. Tüm zamanların toplamı (SADECE odak/çalışma oturumları)
     const allTimeRow = await db.prepare(`
       SELECT 
         COALESCE(SUM(COALESCE(duration_minutes, duration_min, 0)), 0)::int as total_min, 
         COUNT(*)::int as count
       FROM focus_sessions 
       WHERE user_id = ?
+        AND (mode = 'pomodoro' OR mode IS NULL OR mode NOT IN ('shortBreak', 'longBreak'))
     `).get(userId) as any;
 
-    // 4. Son 10 çalışma oturumu
+    // 4. Son 10 çalışma oturumu (SADECE odak/çalışma oturumları)
     const recentSessions = await db.prepare(`
       SELECT 
         id, subject, topic, task_name, mode, 
@@ -51,6 +56,7 @@ export async function GET(req: Request) {
         created_at as started_at, created_at
       FROM focus_sessions
       WHERE user_id = ?
+        AND (mode = 'pomodoro' OR mode IS NULL OR mode NOT IN ('shortBreak', 'longBreak'))
       ORDER BY created_at DESC 
       LIMIT 10
     `).all(userId) as any[];
@@ -84,16 +90,26 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const { subject, topic, taskName, mode = 'pomodoro', durationMin = 25 } = body;
+
+    // Mola oturumları (shortBreak, longBreak) ASLA odak süresine eklenmez ve kaydedilmez
+    if (mode === 'shortBreak' || mode === 'longBreak') {
+      return NextResponse.json({ 
+        success: true, 
+        ignored: true, 
+        message: 'Mola oturumları odak süresine dahil edilmez.' 
+      });
+    }
+
     const dur = Number(durationMin) || 25;
     const id = uuidv4();
 
-    // 1. Oturumu kaydet
+    // 1. Gerçek odak oturumunu kaydet
     await db.prepare(`
       INSERT INTO focus_sessions (id, user_id, subject, topic, task_name, mode, duration_minutes, duration_min, created_at, started_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
     `).run(id, userId, subject || null, topic || null, taskName || null, mode, dur, dur);
 
-    // 2. Eğer odak oturumu ise XP ve Lig Puanı ekle (Garanti UPSERT)
+    // 2. XP ve Lig Puanı ekle (Garanti UPSERT)
     if (mode === 'pomodoro') {
       try {
         await db.prepare(`

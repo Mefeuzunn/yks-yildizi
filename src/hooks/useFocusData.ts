@@ -122,8 +122,7 @@ export function useFocusData() {
       });
       if (!res.ok) throw new Error("Save failed");
     } catch (e: any) {
-      console.error("Kayıt hatası:", e);
-      alert("HATA: " + e.message);
+      console.warn("Kayıt hatası:", e);
       setSessions((prev) => prev.filter(s => s.id !== optimisticSession.id));
       // Simplistic rollback for stats:
       setStats((prev) => ({

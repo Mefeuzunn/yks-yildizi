@@ -84,7 +84,7 @@ export async function POST(req: Request) {
       }
     } else if (context === 'focus_60') {
       const today = new Date().toISOString().split('T')[0];
-      const focus = await db.prepare("SELECT SUM(duration_min) as total_focus FROM focus_sessions WHERE user_id = ? AND DATE(created_at) = ?").get(userId, today);
+      const focus = await db.prepare("SELECT SUM(duration_min) as total_focus FROM focus_sessions WHERE user_id = ? AND DATE(created_at) = ? AND (mode = 'pomodoro' OR mode IS NULL OR mode NOT IN ('shortBreak', 'longBreak'))").get(userId, today);
       if (focus && focus.total_focus >= 60) {
         conditionMet = true;
       }
