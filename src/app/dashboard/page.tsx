@@ -48,6 +48,7 @@ const HedefTab = dynamic(() => import('@/components/dashboard/HedefTab'), { load
 const TercihRobotuTab = dynamic(() => import('@/components/dashboard/TercihRobotuTab'), { loading: () => _renderSkeleton() });
 const TercihListemTab = dynamic(() => import('@/components/dashboard/TercihListemTab'), { loading: () => _renderSkeleton() });
 const AstraTutorTab = dynamic(() => import('@/components/dashboard/AstraTutorTab'), { loading: () => _renderSkeleton() });
+const SinifimTab = dynamic(() => import('@/components/dashboard/SinifimTab'), { loading: () => _renderSkeleton() });
 
 function _renderSkeleton() {
   return (
@@ -501,6 +502,7 @@ function DashboardContent() {
         {activeTab === 'astratutor' && <AstraTutorTab key="astratutor" />}
         {activeTab === 'tercih-robotu' && <TercihRobotuTab key="tercih-robotu" />}
         {activeTab === 'tercih-listem' && <TercihListemTab key="tercih-listem" />}
+        {(activeTab === 'sinif' || activeTab === 'sinifim') && <SinifimTab key="sinif" />}
         {activeTab === 'forum' && <ForumTab key="forum" />}
         {activeTab === 'profile' && <ProfileTab key="profile" />}
       </AnimatePresence>

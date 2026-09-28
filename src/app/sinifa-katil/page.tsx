@@ -51,8 +51,8 @@ function JoinClassContent() {
         setClassName(data.className);
         
         setTimeout(() => {
-          router.push('/dashboard');
-        }, 2000);
+          router.push('/dashboard?tab=sinif');
+        }, 1500);
       }
     } catch (err) {
       setStatus('error');
