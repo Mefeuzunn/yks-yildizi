@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Layers, Plus, BookOpen, Loader2, X, ChevronRight, BrainCircuit } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
+import { haptics } from '@/lib/haptics';
 
 export default function FlashcardsDashboard() {
   const { user } = useAuth();
@@ -53,6 +54,7 @@ export default function FlashcardsDashboard() {
         body: JSON.stringify(newCard)
       });
       if (res.ok) {
+        haptics.notification('success');
         setIsModalOpen(false);
         setNewCard({ subject: 'Biyoloji', topic: '', front: '', back: '' });
         fetchCards();
@@ -84,38 +86,41 @@ export default function FlashcardsDashboard() {
   });
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '2rem 1rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '3rem', flexWrap: 'wrap', gap: '1rem' }}>
+    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '1.5rem 1rem calc(85px + env(safe-area-inset-bottom, 20px)) 1rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(2, 132, 199, 0.2))', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
-            <Layers size={28} color="#38bdf8" />
+          <div style={{ width: '52px', height: '52px', borderRadius: '16px', background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(2, 132, 199, 0.2))', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+            <Layers size={26} color="#38bdf8" />
           </div>
           <div>
-            <h1 style={{ fontSize: '2rem', color: '#fff', marginBottom: '0.25rem' }}>Flashcard Kütüphanesi</h1>
-            <p style={{ color: 'var(--text-secondary)' }}>Ders ve konu bazlı aralıklı tekrar sistemi.</p>
+            <h1 style={{ fontSize: '1.75rem', color: '#fff', marginBottom: '0.25rem' }}>Flashcard Kütüphanesi</h1>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Ders ve konu bazlı aralıklı tekrar sistemi.</p>
           </div>
         </div>
         <button 
-          onClick={() => setIsModalOpen(true)}
-          className="btn-interactive" style={{ background: 'linear-gradient(135deg, #38bdf8 0%, #0284c7 100%)', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.5rem' }}
+          onClick={() => {
+            haptics.selection();
+            setIsModalOpen(true);
+          }}
+          className="btn-interactive" style={{ background: 'linear-gradient(135deg, #38bdf8 0%, #0284c7 100%)', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.25rem', minHeight: '44px' }}
         >
           <Plus size={20} /> Kart Ekle
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '3rem' }}>
-        <div className="premium-card" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ background: 'rgba(56,189,248,0.1)', padding: '1rem', borderRadius: '12px' }}><Layers size={24} color="#38bdf8" /></div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '2.5rem' }}>
+        <div className="premium-card" style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ background: 'rgba(56,189,248,0.1)', padding: '0.85rem', borderRadius: '12px' }}><Layers size={22} color="#38bdf8" /></div>
           <div>
-             <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff' }}>{totalCards}</div>
-             <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Toplam Kart</div>
+             <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff' }}>{totalCards}</div>
+             <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Toplam Kart</div>
           </div>
         </div>
-        <div className="premium-card" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem', border: totalDue > 0 ? '1px solid rgba(16, 185, 129, 0.3)' : '' }}>
-          <div style={{ background: 'rgba(16,185,129,0.1)', padding: '1rem', borderRadius: '12px' }}><BrainCircuit size={24} color="#10b981" /></div>
+        <div className="premium-card" style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', border: totalDue > 0 ? '1px solid rgba(16, 185, 129, 0.3)' : '' }}>
+          <div style={{ background: 'rgba(16,185,129,0.1)', padding: '0.85rem', borderRadius: '12px' }}><BrainCircuit size={22} color="#10b981" /></div>
           <div>
-             <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#10b981' }}>{totalDue}</div>
-             <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Bugün Tekrar Edilecek</div>
+             <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#10b981' }}>{totalDue}</div>
+             <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Bugün Tekrar Edilecek</div>
           </div>
         </div>
       </div>
@@ -123,26 +128,26 @@ export default function FlashcardsDashboard() {
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}><Loader2 className="spin" size={32} color="#38bdf8" /></div>
       ) : subjects.length === 0 ? (
-        <div className="premium-card" style={{ padding: '4rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+        <div className="premium-card" style={{ padding: '3rem 1.5rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
            <BookOpen size={48} color="rgba(255,255,255,0.2)" />
-           <h2 style={{ fontSize: '1.5rem', color: '#fff' }}>Henüz kart eklenmemiş</h2>
-           <p style={{ color: 'var(--text-secondary)' }}>Öğrenmek istediğin kavramlar için hemen yeni flashcard'lar oluştur.</p>
-           <button onClick={() => setIsModalOpen(true)} className="btn-interactive" style={{ background: 'rgba(255,255,255,0.1)', marginTop: '1rem' }}>Kart Eklemeye Başla</button>
+           <h2 style={{ fontSize: '1.35rem', color: '#fff' }}>Henüz kart eklenmemiş</h2>
+           <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>Öğrenmek istediğin kavramlar için hemen yeni flashcard'lar oluştur.</p>
+           <button onClick={() => { haptics.selection(); setIsModalOpen(true); }} className="btn-interactive" style={{ background: 'rgba(255,255,255,0.1)', marginTop: '0.5rem', minHeight: '44px', padding: '0.75rem 1.5rem' }}>Kart Eklemeye Başla</button>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {subjects.map(subject => {
             const topics = Object.keys(groupedCards[subject]);
             return (
-              <div key={subject} className="premium-card" style={{ padding: '1.5rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '1rem', marginBottom: '1rem' }}>
-                   <h2 style={{ fontSize: '1.5rem', color: '#fff', fontWeight: 700 }}>{subject}</h2>
+              <div key={subject} className="premium-card" style={{ padding: '1.25rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.85rem', marginBottom: '1rem' }}>
+                   <h2 style={{ fontSize: '1.25rem', color: '#fff', fontWeight: 700 }}>{subject}</h2>
                    <Link href={`/flashcards/study?subject=${encodeURIComponent(subject)}`}>
                      <span style={{ color: '#38bdf8', fontSize: '0.875rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }}>Tüm Dersi Çalış <ChevronRight size={16} /></span>
                    </Link>
                 </div>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '0.85rem' }}>
                   {topics.map(topic => {
                     const data = groupedCards[subject][topic];
                     const hasDue = data.due > 0;
@@ -154,8 +159,8 @@ export default function FlashcardsDashboard() {
                           cursor: 'pointer', transition: 'all 0.2s',
                           display: 'flex', flexDirection: 'column', gap: '0.5rem'
                         }} className="hover-lift">
-                          <h3 style={{ fontSize: '1.1rem', color: '#fff', fontWeight: 600 }}>{topic}</h3>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.875rem' }}>
+                          <h3 style={{ fontSize: '1.05rem', color: '#fff', fontWeight: 600 }}>{topic}</h3>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem' }}>
                             <span style={{ color: 'var(--text-secondary)' }}>{data.total} Kart</span>
                             {hasDue ? (
                               <span style={{ color: '#10b981', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -176,66 +181,75 @@ export default function FlashcardsDashboard() {
         </div>
       )}
 
-      {/* New Card Modal */}
+      {/* New Card Modal (Desktop centered, Mobile bottom-sheet) */}
       <AnimatePresence>
         {isModalOpen && (
-          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backdropFilter: 'blur(5px)' }}>
+          <div 
+            className="flashcard-modal-overlay"
+            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.75)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backdropFilter: 'blur(5px)' }}
+            onClick={() => setIsModalOpen(false)}
+          >
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="flashcard-modal-box"
               style={{ background: '#0f1015', padding: '2rem', borderRadius: '16px', width: '100%', maxWidth: '500px', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}
+              onClick={(e) => e.stopPropagation()}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <h2 style={{ fontSize: '1.5rem', color: '#fff' }}>Yeni Kart Ekle</h2>
-                <button onClick={() => setIsModalOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}><X size={24} /></button>
+              {/* Drag handle for mobile */}
+              <div className="mobile-only modal-drag-handle" style={{ width: 40, height: 4, background: 'rgba(255,255,255,0.2)', borderRadius: 2, margin: '-0.5rem auto 1rem' }} />
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                <h2 style={{ fontSize: '1.35rem', color: '#fff', margin: 0, fontWeight: 700 }}>Yeni Kart Ekle</h2>
+                <button onClick={() => setIsModalOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '4px' }}><X size={22} /></button>
               </div>
               
               <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
                   <div>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Ders</label>
+                    <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.82rem' }}>Ders</label>
                     <select 
                       value={newCard.subject}
                       onChange={e => setNewCard({...newCard, subject: e.target.value})}
-                      className="premium-input"
+                      className="premium-input modal-input-touch"
                     >
                       {['Biyoloji', 'Tarih', 'Coğrafya', 'Kimya', 'Fizik', 'Edebiyat', 'Matematik'].map(t => <option key={t} value={t} style={{background: '#0f1015'}}>{t}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Konu</label>
+                    <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.82rem' }}>Konu</label>
                     <input 
                       type="text" 
                       value={newCard.topic}
                       onChange={e => setNewCard({...newCard, topic: e.target.value})}
-                      className="premium-input" 
+                      className="premium-input modal-input-touch" 
                       placeholder="Örn: Hücre"
                     />
                   </div>
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Ön Yüz (Soru / Terim)</label>
+                  <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.82rem' }}>Ön Yüz (Soru / Terim)</label>
                   <input 
                     type="text" 
                     value={newCard.front}
                     onChange={e => setNewCard({...newCard, front: e.target.value})}
-                    className="premium-input" 
+                    className="premium-input modal-input-touch" 
                     placeholder="Mitokondri ne işe yarar?"
                     required
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Arka Yüz (Cevap / Tanım)</label>
+                  <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.82rem' }}>Arka Yüz (Cevap / Tanım)</label>
                   <textarea 
                     value={newCard.back}
                     onChange={e => setNewCard({...newCard, back: e.target.value})}
-                    className="premium-input" 
-                    style={{ minHeight: '100px', resize: 'vertical' }}
+                    className="premium-input modal-input-touch" 
+                    style={{ minHeight: '90px', resize: 'vertical' }}
                     placeholder="Hücrenin enerji santralidir."
                     required
                   />
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
-                  <button type="submit" className="btn-interactive" disabled={isSubmitting} style={{ background: 'linear-gradient(135deg, #38bdf8, #0284c7)', color: '#fff', border: 'none' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+                  <button type="submit" className="btn-interactive" disabled={isSubmitting} style={{ background: 'linear-gradient(135deg, #38bdf8, #0284c7)', color: '#fff', border: 'none', minHeight: '44px', padding: '0.75rem 1.5rem', fontWeight: 600 }}>
                     {isSubmitting ? <Loader2 className="spin" size={20} /> : 'Kartı Kaydet'}
                   </button>
                 </div>
@@ -249,6 +263,24 @@ export default function FlashcardsDashboard() {
         .spin { animation: spin 1s linear infinite; }
         .hover-lift:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); border-color: rgba(56,189,248,0.4) !important; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        @media (max-width: 768px) {
+          .flashcard-modal-overlay {
+            align-items: flex-end !important;
+            padding: 0 !important;
+          }
+          .flashcard-modal-box {
+            border-bottom-left-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+            border-top-left-radius: 24px !important;
+            border-top-right-radius: 24px !important;
+            max-height: 90vh !important;
+            overflow-y: auto !important;
+            padding: 1.25rem !important;
+          }
+          .modal-input-touch {
+            font-size: 16px !important;
+          }
+        }
       `}</style>
     </div>
   );

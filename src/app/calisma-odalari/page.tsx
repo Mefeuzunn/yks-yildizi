@@ -38,7 +38,7 @@ export default function CalismaOdalariLobby() {
   }
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem calc(85px + env(safe-area-inset-bottom, 20px)) 1rem' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '3rem' }}>
         <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--accent-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Users size={24} color="var(--accent)" />
@@ -76,7 +76,7 @@ export default function CalismaOdalariLobby() {
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginBottom: '2rem' }}>{theme.label}</p>
 
               <Link href={`/calisma-odalari/${room.id}`} style={{ marginTop: 'auto' }}>
-                <button className="btn-secondary" style={{ width: '100%', padding: '0.75rem' }}>
+                <button className="btn-secondary" style={{ width: '100%', minHeight: '44px', padding: '0.75rem', fontWeight: 600, cursor: 'pointer' }}>
                   Odaya Katıl
                 </button>
               </Link>
