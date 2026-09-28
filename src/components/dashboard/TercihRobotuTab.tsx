@@ -61,7 +61,7 @@ export default function TercihRobotuTab() {
       animate={{ opacity: 1, y: 0 }} 
       exit={{ opacity: 0, y: -10 }} 
       transition={{ duration: 0.3 }}
-      className="relative"
+      className="relative pb-24 md:pb-0"
     >
       <div className="absolute top-[-100px] right-[-100px] w-[400px] h-[400px] bg-sky-500/20 rounded-full blur-[120px] pointer-events-none" />
 
@@ -90,7 +90,7 @@ export default function TercihRobotuTab() {
             placeholder="Üniversite veya Bölüm adı ara..." 
             value={q} onChange={e => setQ(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && search()}
-            className="w-full bg-black/40 border border-white/5 rounded-2xl pl-12 pr-4 py-4 text-white outline-none focus:border-sky-500/50 focus:bg-sky-500/5 transition-all"
+            className="w-full bg-black/40 border border-white/5 rounded-2xl pl-12 pr-4 py-4 text-white outline-none focus:border-sky-500/50 focus:bg-sky-500/5 transition-all text-base"
           />
         </div>
         <div className="w-full md:w-48 relative">
@@ -100,7 +100,7 @@ export default function TercihRobotuTab() {
             placeholder="SAY, EA..." 
             value={scoreType} onChange={e => setScoreType(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && search()}
-            className="w-full bg-black/40 border border-white/5 rounded-2xl pl-12 pr-4 py-4 text-white outline-none focus:border-sky-500/50 focus:bg-sky-500/5 transition-all uppercase"
+            className="w-full bg-black/40 border border-white/5 rounded-2xl pl-12 pr-4 py-4 text-white outline-none focus:border-sky-500/50 focus:bg-sky-500/5 transition-all uppercase text-base"
           />
         </div>
         <button 

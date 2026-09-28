@@ -454,10 +454,10 @@ export default function DenemelerPage() {
   const currentSubjects = activeTab === 'TYT' ? TYT_SUBJECTS : AYT_SUBJECTS[userAlan];
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
+    <div className="denemeler-page-wrap" style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
       
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '3rem', flexWrap: 'wrap', gap: '1rem' }}>
+      <div className="denemeler-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '3rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <BarChart2 size={24} color="#10b981" />
@@ -482,7 +482,7 @@ export default function DenemelerPage() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', padding: '4px', marginBottom: '2rem', width: 'fit-content' }}>
+      <div className="denemeler-tabs" style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', padding: '4px', marginBottom: '2rem', width: 'fit-content' }}>
         <button 
           onClick={() => setActiveTab('TYT')}
           style={{ padding: '0.5rem 2rem', borderRadius: '6px', fontSize: '0.875rem', fontWeight: 600, background: activeTab === 'TYT' ? 'rgba(16, 185, 129, 0.2)' : 'transparent', color: activeTab === 'TYT' ? '#fff' : 'var(--text-muted)', border: 'none', cursor: 'pointer', transition: 'all 0.2s' }}
@@ -544,7 +544,7 @@ export default function DenemelerPage() {
         </div>
 
         {/* Alt Kısım: Özet ve Liste */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>
+        <div className="denemeler-bottom-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>
           
           {/* Son Deneme Özeti */}
           <motion.div className="premium-card" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} key={activeTab}>
@@ -618,6 +618,7 @@ export default function DenemelerPage() {
         {isModalOpen && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
             <motion.div 
+              className="denemeler-modal-inner"
               initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
               style={{ background: '#1e293b', padding: '2rem', borderRadius: '16px', width: '100%', maxWidth: '600px', border: '1px solid rgba(255,255,255,0.1)', maxHeight: '90vh', overflowY: 'auto' }}
             >
@@ -656,13 +657,6 @@ export default function DenemelerPage() {
                       <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '4px', background: 'linear-gradient(90deg, transparent, #10b981, transparent)', animation: 'scanAnim 2s infinite ease-in-out' }} />
                       <Loader2 size={24} color="#10b981" className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
                       <span style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 600 }}>Optik form taranıyor ve hatalar çözümleniyor...</span>
-                      <style jsx>{`
-                        @keyframes scanAnim {
-                          0% { top: 0%; }
-                          50% { top: 100%; }
-                          100% { top: 0%; }
-                        }
-                      `}</style>
                     </div>
                   ) : scanDone ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -702,7 +696,7 @@ export default function DenemelerPage() {
                   <input type="date" required value={newExam.date || ''} onChange={e => handleInputChange('date', e.target.value)} style={{ width: '100%', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff' }} />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '1rem' }}>
+                <div className="denemeler-subject-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '1rem' }}>
                   {(modalTab === 'TYT' ? TYT_SUBJECTS : AYT_SUBJECTS[userAlan]).map((sub) => (
                     <div key={sub.id}>
                       <label style={{ display: 'block', fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>{sub.label} Net</label>
@@ -732,6 +726,37 @@ export default function DenemelerPage() {
           </div>
         )}
       </AnimatePresence>
+
+      <style jsx>{`
+        @keyframes scanAnim {
+          0% { top: 0%; }
+          50% { top: 100%; }
+          100% { top: 0%; }
+        }
+        @media (max-width: 768px) {
+          .denemeler-page-wrap { padding-bottom: calc(85px + env(safe-area-inset-bottom, 20px)) !important; padding-top: 1rem !important; }
+          .denemeler-header { flex-direction: column !important; align-items: flex-start !important; gap: 0.75rem !important; }
+          .denemeler-header h1 { font-size: 1.4rem !important; }
+          .denemeler-tabs { width: 100% !important; }
+          .denemeler-tabs button { flex: 1 !important; font-size: 0.8rem !important; padding: 0.4rem 0.5rem !important; }
+          .denemeler-bottom-grid { grid-template-columns: 1fr !important; }
+          .denemeler-modal-inner {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            top: auto !important;
+            max-height: 92vh !important;
+            border-radius: 20px 20px 0 0 !important;
+            padding: 1.5rem 1rem !important;
+          }
+          .denemeler-modal-inner input,
+          .denemeler-modal-inner select {
+            font-size: 16px !important;
+          }
+          .denemeler-subject-grid { grid-template-columns: 1fr 1fr !important; }
+        }
+      `}</style>
 
     </div>
   );

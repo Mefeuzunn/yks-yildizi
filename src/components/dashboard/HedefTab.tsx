@@ -85,11 +85,11 @@ export default function HedefTab() {
   const targetPct = totalTargetNet > 0 ? Math.min(100, Math.round((avgTotalNet / totalTargetNet) * 100)) : 0;
 
   return (
-    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="hedef-tab-wrap" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       
       {/* Target selection card */}
       <div className="premium-card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+        <div className="hedef-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <h2 style={{ fontSize: '1.4rem', color: 'var(--text-primary)', fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8, margin: 0 }}>
               <Target size={22} color="var(--accent)" /> Hedefim & Net Sihirbazı
@@ -100,7 +100,7 @@ export default function HedefTab() {
             <select 
               value={selectedTarget}
               onChange={e => setSelectedTarget(e.target.value)}
-              className="premium-input"
+              className="premium-input hedef-select"
               style={{ width: 'auto', minWidth: '280px' }}
             >
               {data.availableTargets?.map((t: string) => (
@@ -143,7 +143,7 @@ export default function HedefTab() {
       </div>
 
       {/* Net Wizard Split grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '1.5rem' }}>
+      <div className="hedef-wizard-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '1.5rem' }}>
         
         {/* Left Side: Subject Net Progress Bars */}
         <div className="premium-card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -211,6 +211,15 @@ export default function HedefTab() {
 
       </div>
 
+      <style jsx>{`
+        @media (max-width: 768px) {
+          .hedef-tab-wrap { gap: 1rem !important; }
+          .hedef-card-header { flex-direction: column !important; align-items: flex-start !important; }
+          .hedef-select { width: 100% !important; min-width: unset !important; font-size: 16px !important; }
+          .hedef-wizard-grid { grid-template-columns: 1fr !important; }
+          .hedef-tab-wrap .premium-card { padding: 1.25rem !important; }
+        }
+      `}</style>
     </motion.div>
   );
 }

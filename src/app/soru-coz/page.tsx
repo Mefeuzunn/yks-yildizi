@@ -10,6 +10,7 @@ import {
 import AstraTutorChat from '@/components/AstraTutorChat';
 import { useAuth } from '@/context/AuthContext';
 import { BADGES } from '@/lib/badges';
+import { haptics } from '@/lib/haptics';
 
 // --- Scratchpad Sub-component ---
 function Scratchpad() {
@@ -230,10 +231,17 @@ export default function SoruCozPage() {
 
   const handleAnswer = async (option: string) => {
     if (isAnswered) return;
+    haptics.impact('light');
     setSelectedOption(option);
     const correct = option === question.dogruCevap;
     setIsCorrect(correct);
     setIsAnswered(true);
+
+    if (correct) {
+      haptics.notification('success');
+    } else {
+      haptics.notification('error');
+    }
 
     if (correct && user) {
       setXpAnimation(true);
@@ -286,7 +294,7 @@ export default function SoruCozPage() {
   };
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem', minHeight: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1.5rem 1rem calc(85px + env(safe-area-inset-bottom, 20px)) 1rem', minHeight: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}>
       
       {/* Header bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
@@ -295,25 +303,29 @@ export default function SoruCozPage() {
             <Brain size={24} color="var(--accent)" />
           </div>
           <div>
-            <h1 style={{ fontSize: '1.6rem', color: 'var(--text-primary)', marginBottom: '0.25rem', fontWeight: 800 }}>Parametrik YKS Soru Çöz</h1>
+            <h1 style={{ fontSize: '1.5rem', color: 'var(--text-primary)', marginBottom: '0.25rem', fontWeight: 800 }}>Parametrik YKS Soru Çöz</h1>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Dinamik, formülleri değişen adaptif YKS soru bankası</p>
           </div>
         </div>
 
         {/* Action controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--surface)', padding: '0.5rem 1rem', borderRadius: '12px', border: '1px solid var(--border-light)', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--surface)', padding: '0.5rem 0.85rem', borderRadius: '12px', border: '1px solid var(--border-light)', boxShadow: '0 1px 2px rgba(0,0,0,0.05)', minHeight: '40px' }}>
             <Star size={16} color="#f59e0b" fill="#f59e0b" />
             <span style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 700 }}>{user?.league_points || 0} Puan</span>
           </div>
 
           <button 
-            onClick={() => { setIsSidebarOpen(!isSidebarOpen); setSidebarTab('tutor'); }}
+            onClick={() => { 
+              haptics.selection();
+              setIsSidebarOpen(!isSidebarOpen); 
+              setSidebarTab('tutor'); 
+            }}
             className="btn-interactive"
             style={{ 
               display: 'flex', alignItems: 'center', gap: 6, 
               background: isSidebarOpen && sidebarTab === 'tutor' ? 'var(--accent)' : 'var(--surface)', 
-              color: isSidebarOpen && sidebarTab === 'tutor' ? '#fff' : 'var(--text-primary)', border: '1px solid var(--border-strong)', padding: '0.5rem 1rem', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 600
+              color: isSidebarOpen && sidebarTab === 'tutor' ? '#fff' : 'var(--text-primary)', border: '1px solid var(--border-strong)', padding: '0.5rem 0.85rem', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 600, minHeight: '40px'
             }}
           >
             <MessageSquare size={16} color={isSidebarOpen && sidebarTab === 'tutor' ? '#fff' : 'var(--accent)'} /> 
@@ -321,12 +333,16 @@ export default function SoruCozPage() {
           </button>
 
           <button 
-            onClick={() => { setIsSidebarOpen(!isSidebarOpen); setSidebarTab('scratchpad'); }}
+            onClick={() => { 
+              haptics.selection();
+              setIsSidebarOpen(!isSidebarOpen); 
+              setSidebarTab('scratchpad'); 
+            }}
             className="btn-interactive"
             style={{ 
               display: 'flex', alignItems: 'center', gap: 6, 
               background: isSidebarOpen && sidebarTab === 'scratchpad' ? 'var(--accent)' : 'var(--surface)', 
-              color: isSidebarOpen && sidebarTab === 'scratchpad' ? '#fff' : 'var(--text-primary)', border: '1px solid var(--border-strong)', padding: '0.5rem 1rem', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 600
+              color: isSidebarOpen && sidebarTab === 'scratchpad' ? '#fff' : 'var(--text-primary)', border: '1px solid var(--border-strong)', padding: '0.5rem 0.85rem', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 600, minHeight: '40px'
             }}
           >
             <Edit3 size={16} color={isSidebarOpen && sidebarTab === 'scratchpad' ? '#fff' : 'var(--accent)'} /> 
@@ -336,11 +352,11 @@ export default function SoruCozPage() {
       </div>
 
       {/* Filter Options Bar */}
-      <div className="premium-card" style={{ padding: '1rem 1.5rem', marginBottom: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+      <div className="premium-card" style={{ padding: '0.85rem 1.25rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.85rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600 }}>
           <SlidersHorizontal size={16} /> Hızlı Filtrele:
         </div>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
           {/* Subject Filter */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Ders:</span>
@@ -348,7 +364,7 @@ export default function SoruCozPage() {
               value={filterSubject}
               onChange={e => setFilterSubject(e.target.value)}
               className="premium-input"
-              style={{ width: 'auto', padding: '0.35rem 2rem 0.35rem 0.75rem', fontSize: '0.8rem' }}
+              style={{ width: 'auto', padding: '0.35rem 1.75rem 0.35rem 0.65rem', fontSize: '0.8rem' }}
             >
               <option value="all">Tüm Dersler</option>
               <option value="Matematik">Matematik</option>
@@ -365,7 +381,7 @@ export default function SoruCozPage() {
               value={filterDifficulty}
               onChange={e => setFilterDifficulty(e.target.value)}
               className="premium-input"
-              style={{ width: 'auto', padding: '0.35rem 2rem 0.35rem 0.75rem', fontSize: '0.8rem' }}
+              style={{ width: 'auto', padding: '0.35rem 1.75rem 0.35rem 0.65rem', fontSize: '0.8rem' }}
             >
               <option value="all">Tüm Seviyeler</option>
               <option value="2">Kolay</option>
@@ -377,7 +393,7 @@ export default function SoruCozPage() {
       </div>
 
       {/* Main Workspace grid */}
-      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: isSidebarOpen ? '1fr 420px' : '1fr', gap: '2rem', transition: 'all 0.3s', alignItems: 'stretch' }}>
+      <div className="soru-workspace-grid" style={{ flex: 1, display: 'grid', gridTemplateColumns: isSidebarOpen ? '1fr 420px' : '1fr', gap: '1.5rem', transition: 'all 0.3s', alignItems: 'stretch' }}>
         
         {/* Left Side: Question Display */}
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -519,65 +535,76 @@ export default function SoruCozPage() {
           )}
         </div>
 
-        {/* Right Side: Interactive Sidebar Panel */}
+        {/* Right Side: Interactive Sidebar Panel (Desktop Side, Mobile Bottom-Sheet) */}
         <AnimatePresence>
           {isSidebarOpen && question && (
-            <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              className="premium-card"
-              style={{ 
-                display: 'flex', flexDirection: 'column', height: '100%', 
-                border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden', padding: 0
-              }}
-            >
-              {/* Tab Header Selector */}
-              <div style={{ display: 'flex', background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-                <button
-                  onClick={() => setSidebarTab('tutor')}
-                  style={{
-                    flex: 1, padding: '1rem', border: 'none', background: sidebarTab === 'tutor' ? 'rgba(168, 85, 247, 0.1)' : 'transparent',
-                    color: sidebarTab === 'tutor' ? '#c084fc' : 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 700,
-                    cursor: 'pointer', borderBottom: sidebarTab === 'tutor' ? '2px solid #a855f7' : '2px solid transparent',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all 0.2s'
-                  }}
-                >
-                  <Sparkles size={14} /> Sokratik AI Tutor
-                </button>
-                <button
-                  onClick={() => setSidebarTab('scratchpad')}
-                  style={{
-                    flex: 1, padding: '1rem', border: 'none', background: sidebarTab === 'scratchpad' ? 'rgba(56, 189, 248, 0.1)' : 'transparent',
-                    color: sidebarTab === 'scratchpad' ? '#38bdf8' : 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 700,
-                    cursor: 'pointer', borderBottom: sidebarTab === 'scratchpad' ? '2px solid #38bdf8' : '2px solid transparent',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all 0.2s'
-                  }}
-                >
-                  <Edit3 size={14} /> Karalama Defteri
-                </button>
-                <button 
-                  onClick={() => setIsSidebarOpen(false)}
-                  style={{ padding: '0.75rem', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                >
-                  <X size={18} />
-                </button>
-              </div>
+            <>
+              {/* Mobile Backdrop */}
+              <div 
+                className="mobile-only soru-sidebar-mobile-backdrop"
+                onClick={() => setIsSidebarOpen(false)}
+              />
 
-              {/* Tab Contents */}
-              <div style={{ flex: 1, overflowY: 'auto', padding: '1.25rem' }}>
-                {sidebarTab === 'tutor' ? (
-                  <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    <AstraTutorChat 
-                      questionContext={question} 
-                      onClose={() => setIsSidebarOpen(false)} 
-                    />
-                  </div>
-                ) : (
-                  <Scratchpad />
-                )}
-              </div>
-            </motion.div>
+              <motion.div 
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 30 }}
+                className="premium-card soru-sidebar-mobile-drawer"
+                style={{ 
+                  display: 'flex', flexDirection: 'column', height: '100%', 
+                  border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden', padding: 0
+                }}
+              >
+                {/* Drag Handle for mobile */}
+                <div className="mobile-only modal-drag-handle" style={{ width: 40, height: 4, background: 'rgba(255,255,255,0.2)', borderRadius: 2, margin: '8px auto 4px' }} />
+
+                {/* Tab Header Selector */}
+                <div style={{ display: 'flex', background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.08)', alignItems: 'center' }}>
+                  <button
+                    onClick={() => { haptics.selection(); setSidebarTab('tutor'); }}
+                    style={{
+                      flex: 1, padding: '0.85rem', border: 'none', background: sidebarTab === 'tutor' ? 'rgba(168, 85, 247, 0.1)' : 'transparent',
+                      color: sidebarTab === 'tutor' ? '#c084fc' : 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 700,
+                      cursor: 'pointer', borderBottom: sidebarTab === 'tutor' ? '2px solid #a855f7' : '2px solid transparent',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all 0.2s'
+                    }}
+                  >
+                    <Sparkles size={14} /> Sokratik AI Tutor
+                  </button>
+                  <button
+                    onClick={() => { haptics.selection(); setSidebarTab('scratchpad'); }}
+                    style={{
+                      flex: 1, padding: '0.85rem', border: 'none', background: sidebarTab === 'scratchpad' ? 'rgba(56, 189, 248, 0.1)' : 'transparent',
+                      color: sidebarTab === 'scratchpad' ? '#38bdf8' : 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 700,
+                      cursor: 'pointer', borderBottom: sidebarTab === 'scratchpad' ? '2px solid #38bdf8' : '2px solid transparent',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all 0.2s'
+                    }}
+                  >
+                    <Edit3 size={14} /> Karalama Defteri
+                  </button>
+                  <button 
+                    onClick={() => setIsSidebarOpen(false)}
+                    style={{ padding: '0.75rem 1rem', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+
+                {/* Tab Contents */}
+                <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
+                  {sidebarTab === 'tutor' ? (
+                    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                      <AstraTutorChat 
+                        questionContext={question} 
+                        onClose={() => setIsSidebarOpen(false)} 
+                      />
+                    </div>
+                  ) : (
+                    <Scratchpad />
+                  )}
+                </div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
       </div>
@@ -585,6 +612,33 @@ export default function SoruCozPage() {
       <style jsx>{`
         .spin { animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        @media (max-width: 768px) {
+          .soru-workspace-grid {
+            grid-template-columns: 1fr !important;
+            gap: 1rem !important;
+          }
+          .soru-sidebar-mobile-drawer {
+            position: fixed !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            height: 85vh !important;
+            max-height: 85vh !important;
+            border-top-left-radius: 24px !important;
+            border-top-right-radius: 24px !important;
+            border-bottom-left-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+            z-index: 100 !important;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.7) !important;
+          }
+          .soru-sidebar-mobile-backdrop {
+            position: fixed !important;
+            inset: 0 !important;
+            background: rgba(0,0,0,0.6) !important;
+            z-index: 99 !important;
+            backdrop-filter: blur(4px) !important;
+          }
+        }
       `}</style>
       
       {/* Badge Unlock Notification */}

@@ -37,8 +37,8 @@ export default function MistakesTab() {
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className="mistakes-tab-wrap" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+      <div className="mistakes-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h2 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#fff', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             ❌ Yanlışlarım (Hata Defteri)
@@ -54,7 +54,7 @@ export default function MistakesTab() {
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
+      <div className="mistakes-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
         <div style={{ backgroundColor: '#0e121e', borderRadius: '12px', padding: '1.5rem', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', padding: '1rem', borderRadius: '50%', color: '#ef4444' }}>
             <AlertCircle size={24} />
@@ -99,7 +99,7 @@ export default function MistakesTab() {
              <div style={{ padding: '2rem', textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>Henüz kaydedilmiş bir yanlışınız bulunmuyor.</div>
           )}
           {filteredMistakes.map((m, i) => (
-            <div key={m.id} style={{ padding: '1.5rem', borderBottom: i === filteredMistakes.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div key={m.id} className="mistake-item" style={{ padding: '1.5rem', borderBottom: i === filteredMistakes.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
                 <div style={{ backgroundColor: 'rgba(255,255,255,0.03)', padding: '0.75rem 1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', minWidth: '80px', textAlign: 'center' }}>
                   {m.subject}
@@ -111,7 +111,7 @@ export default function MistakesTab() {
               </div>
               <button 
                 onClick={() => setSelectedMistake(m)}
-                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', backgroundColor: 'rgba(139, 92, 246, 0.1)', color: '#c084fc', border: '1px solid rgba(139, 92, 246, 0.2)', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }} className="hover:bg-purple-500/20"
+                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', backgroundColor: 'rgba(139, 92, 246, 0.1)', color: '#c084fc', border: '1px solid rgba(139, 92, 246, 0.2)', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }} className="hover:bg-purple-500/20 mistake-solve-btn"
               >
                 Çözümü İncele <ArrowRight size={14} />
               </button>
@@ -131,6 +131,16 @@ export default function MistakesTab() {
         onClose={() => setIsScanModalOpen(false)}
         onSaved={() => { fetchErrors(); setIsScanModalOpen(false); }}
       />
+
+      <style jsx>{`
+        @media (max-width: 768px) {
+          .mistakes-header { flex-direction: column !important; align-items: flex-start !important; }
+          .mistakes-stats-grid { grid-template-columns: 1fr 1fr !important; gap: 0.75rem !important; }
+          .mistake-item { flex-direction: column !important; align-items: flex-start !important; gap: 0.75rem !important; }
+          .mistake-solve-btn { width: 100% !important; justify-content: center !important; }
+          .mistakes-tab-wrap { padding-bottom: calc(85px + env(safe-area-inset-bottom, 20px)) !important; }
+        }
+      `}</style>
     </motion.div>
   );
 }
