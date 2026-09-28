@@ -36,8 +36,18 @@ interface TimerContextValue {
   setSelectedSubject: (s: string | null) => void;
   playSound: (id: string, url: string) => void;
   stopSound: () => void;
-  setVolume: (v: number) => void;
-  saveSession: (subject: string | null, topic: string | null, taskName: string | null) => Promise<void>;
+  saveSession: (
+    subject: string | null, 
+    topic: string | null, 
+    taskName: string | null,
+    testStats?: {
+      questionsSolved?: number;
+      correctCount?: number;
+      wrongCount?: number;
+      emptyCount?: number;
+      netScore?: number;
+    }
+  ) => Promise<void>;
   dismissSession: () => void;
 }
 
@@ -189,7 +199,18 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Called by FocusTab after user fills in subject+topic in the modal
-  const saveSession = useCallback(async (subject: string | null, topic: string | null, taskName: string | null) => {
+  const saveSession = useCallback(async (
+    subject: string | null, 
+    topic: string | null, 
+    taskName: string | null,
+    testStats?: {
+      questionsSolved?: number;
+      correctCount?: number;
+      wrongCount?: number;
+      emptyCount?: number;
+      netScore?: number;
+    }
+  ) => {
     if (!pendingSession) return;
     try {
       const res = await fetch('/api/user/focus', {
@@ -201,6 +222,11 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
           taskName,
           mode: pendingSession.mode,
           durationMin: pendingSession.durationMin,
+          questionsSolved: testStats?.questionsSolved || 0,
+          correctCount: testStats?.correctCount || 0,
+          wrongCount: testStats?.wrongCount || 0,
+          emptyCount: testStats?.emptyCount || 0,
+          netScore: testStats?.netScore || 0,
         }),
       });
       const data = await res.json().catch(() => ({}));

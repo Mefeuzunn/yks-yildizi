@@ -68,6 +68,19 @@ export default function SessionLogModal() {
   const [topicSearch, setTopicSearch] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
+  // Soru / Test Takibi State
+  const [solvedTest, setSolvedTest] = useState(false);
+  const [questionsCount, setQuestionsCount] = useState('');
+  const [correctCount, setCorrectCount] = useState('');
+  const [wrongCount, setWrongCount] = useState('');
+
+  const totalQ = Math.max(0, parseInt(questionsCount) || 0);
+  const correctQ = Math.max(0, parseInt(correctCount) || 0);
+  const wrongQ = Math.max(0, parseInt(wrongCount) || 0);
+  const emptyQ = Math.max(0, totalQ - (correctQ + wrongQ));
+  const netQ = Math.max(0, correctQ - (wrongQ * 0.25));
+  const paceSec = totalQ > 0 ? Math.round(((pendingSession?.durationMin || 25) * 60) / totalQ) : 0;
+
   // Modal açıldığında state sıfırlama ve otomatik yönlendirme
   useEffect(() => {
     if (pendingSession) {
@@ -75,6 +88,10 @@ export default function SessionLogModal() {
       setSelectedSubject(pref ?? null);
       setSelectedTopic(null);
       setTopicSearch('');
+      setSolvedTest(false);
+      setQuestionsCount('');
+      setCorrectCount('');
+      setWrongCount('');
       if (pref) {
         setStep('topic');
       } else {
@@ -105,7 +122,13 @@ export default function SessionLogModal() {
     const sub = overrideSubject !== undefined ? overrideSubject : selectedSubject;
     const top = overrideTopic !== undefined ? overrideTopic : selectedTopic;
     try {
-      await saveSession(sub, top, null);
+      await saveSession(sub, top, null, solvedTest && totalQ > 0 ? {
+        questionsSolved: totalQ,
+        correctCount: correctQ,
+        wrongCount: wrongQ,
+        emptyCount: emptyQ,
+        netScore: parseFloat(netQ.toFixed(2)),
+      } : undefined);
     } catch (e) {
       console.error('Session save error:', e);
     } finally {
@@ -352,6 +375,121 @@ export default function SessionLogModal() {
                           </button>
                         );
                       })
+                    )}
+                  </div>
+
+                  {/* ─── TEST / SORU ÇÖZÜMÜ BÖLÜMÜ ─── */}
+                  <div style={{
+                    marginBottom: '16px',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: `1px solid ${solvedTest ? 'rgba(139,92,246,0.4)' : 'rgba(255,255,255,0.06)'}`,
+                    borderRadius: '16px', padding: '14px',
+                    transition: 'all 0.2s'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '18px' }}>📝</span>
+                        <div>
+                          <div style={{ fontSize: '13px', fontWeight: 700, color: '#f1f5f9' }}>Bu oturumda soru çözdün mü?</div>
+                          <div style={{ fontSize: '11px', color: '#94a3b8' }}>Doğru ve yanlışlarını gir, netini analizine yansıt</div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setSolvedTest(!solvedTest)}
+                        style={{
+                          padding: '6px 14px', borderRadius: '10px', fontSize: '12px', fontWeight: 700,
+                          background: solvedTest ? 'linear-gradient(135deg, #8b5cf6, #6d28d9)' : 'rgba(255,255,255,0.06)',
+                          color: solvedTest ? '#fff' : '#94a3b8',
+                          border: `1px solid ${solvedTest ? '#8b5cf6' : 'rgba(255,255,255,0.1)'}`,
+                          cursor: 'pointer', transition: 'all 0.2s'
+                        }}
+                      >
+                        {solvedTest ? '✓ Test Çözdüm' : '+ Soru Ekle'}
+                      </button>
+                    </div>
+
+                    {solvedTest && (
+                      <div style={{ marginTop: '14px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginBottom: '10px' }}>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '10px', color: '#94a3b8', fontWeight: 700, marginBottom: '4px' }}>🔢 TOPLAM SORU</label>
+                            <input
+                              type="number"
+                              min={0}
+                              placeholder="Örn: 20"
+                              value={questionsCount}
+                              onChange={e => setQuestionsCount(e.target.value)}
+                              style={{
+                                width: '100%', padding: '8px 10px', borderRadius: '8px',
+                                background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)',
+                                color: '#fff', fontSize: '13px', fontWeight: 700, outline: 'none', boxSizing: 'border-box'
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '10px', color: '#4ade80', fontWeight: 700, marginBottom: '4px' }}>✅ DOĞRU (D)</label>
+                            <input
+                              type="number"
+                              min={0}
+                              placeholder="0"
+                              value={correctCount}
+                              onChange={e => setCorrectCount(e.target.value)}
+                              style={{
+                                width: '100%', padding: '8px 10px', borderRadius: '8px',
+                                background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.3)',
+                                color: '#4ade80', fontSize: '13px', fontWeight: 700, outline: 'none', boxSizing: 'border-box'
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '10px', color: '#f87171', fontWeight: 700, marginBottom: '4px' }}>❌ YANLIŞ (Y)</label>
+                            <input
+                              type="number"
+                              min={0}
+                              placeholder="0"
+                              value={wrongCount}
+                              onChange={e => setWrongCount(e.target.value)}
+                              style={{
+                                width: '100%', padding: '8px 10px', borderRadius: '8px',
+                                background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.3)',
+                                color: '#f87171', fontSize: '13px', fontWeight: 700, outline: 'none', boxSizing: 'border-box'
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {totalQ > 0 && (
+                          <div style={{
+                            display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center',
+                            background: 'rgba(139,92,246,0.1)', padding: '8px 12px', borderRadius: '10px',
+                            border: '1px solid rgba(139,92,246,0.2)'
+                          }}>
+                            <span style={{ fontSize: '12px', color: '#c4b5fd', fontWeight: 700 }}>
+                              🎯 Net: <strong style={{ color: '#fff' }}>{netQ.toFixed(2)}</strong>
+                            </span>
+                            <span style={{ color: 'rgba(255,255,255,0.2)' }}>•</span>
+                            <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                              Boş: <strong style={{ color: '#cbd5e1' }}>{emptyQ}</strong>
+                            </span>
+                            <span style={{ color: 'rgba(255,255,255,0.2)' }}>•</span>
+                            <span style={{ fontSize: '12px', color: '#4ade80' }}>
+                              Başarı: %{totalQ > 0 ? Math.round((correctQ / totalQ) * 100) : 0}
+                            </span>
+                            {paceSec > 0 && (
+                              <>
+                                <span style={{ color: 'rgba(255,255,255,0.2)' }}>•</span>
+                                <span style={{ fontSize: '12px', color: '#38bdf8' }}>
+                                  ⚡ {paceSec} sn/s
+                                </span>
+                              </>
+                            )}
+                            <span style={{ marginLeft: 'auto', fontSize: '11px', color: '#fbbf24', fontWeight: 700 }}>
+                              +{totalQ * 2 + correctQ * 3} XP
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     )}
                   </div>
 

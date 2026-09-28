@@ -742,6 +742,16 @@ export default function FocusTab() {
                         {session.topic}
                       </div>
                     )}
+                    {session.questions_solved && session.questions_solved > 0 ? (
+                      <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ color: '#38bdf8', fontWeight: 600 }}>📝 {session.questions_solved} Soru</span>
+                        <span>•</span>
+                        <span style={{ color: '#4ade80', fontWeight: 600 }}>{session.correct_count}D</span>
+                        <span style={{ color: '#f87171', fontWeight: 600 }}>{session.wrong_count}Y</span>
+                        <span>•</span>
+                        <span style={{ color: '#c4b5fd', fontWeight: 700 }}>{session.net_score} Net</span>
+                      </div>
+                    ) : null}
                   </div>
                   <div style={{
                     background: session.mode === 'pomodoro' ? 'rgba(139,92,246,0.15)' :

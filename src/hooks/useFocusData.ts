@@ -8,14 +8,34 @@ export type FocusSession = {
   topic: string | null;
   duration_minutes: number;
   created_at: string;
+  questions_solved?: number;
+  correct_count?: number;
+  wrong_count?: number;
+  empty_count?: number;
+  net_score?: number;
 };
 
 export type FocusStats = {
   todayTotalMin: number;
   todaySessions: number;
+  todayQuestions: number;
+  todayCorrect: number;
+  todayWrong: number;
   allTimeTotalMin: number;
   allTimeCount: number;
-  weekData: { day: string; total_min: number }[];
+  allTimeQuestions: number;
+  allTimeCorrect: number;
+  allTimeWrong: number;
+  weekData: { day: string; total_min: number; total_questions: number }[];
+  subjectBreakdown: {
+    subject: string;
+    total_min: number;
+    total_questions: number;
+    total_correct: number;
+    total_wrong: number;
+    total_net: number;
+    session_count: number;
+  }[];
 };
 
 export function useFocusData() {
@@ -24,9 +44,16 @@ export function useFocusData() {
   const [stats, setStats] = useState<FocusStats>({
     todayTotalMin: 0,
     todaySessions: 0,
+    todayQuestions: 0,
+    todayCorrect: 0,
+    todayWrong: 0,
     allTimeTotalMin: 0,
     allTimeCount: 0,
+    allTimeQuestions: 0,
+    allTimeCorrect: 0,
+    allTimeWrong: 0,
     weekData: [],
+    subjectBreakdown: [],
   });
   const [loading, setLoading] = useState(true);
 
@@ -47,7 +74,12 @@ export function useFocusData() {
           setSessions(data.recentSessions.map((s: any) => ({
             ...s,
             created_at: s.started_at,
-            duration_minutes: s.duration_min
+            duration_minutes: Number(s.duration_minutes || s.duration_min) || 0,
+            questions_solved: Number(s.questions_solved) || 0,
+            correct_count: Number(s.correct_count) || 0,
+            wrong_count: Number(s.wrong_count) || 0,
+            empty_count: Number(s.empty_count) || 0,
+            net_score: Number(s.net_score) || 0,
           })));
         }
         
@@ -60,16 +92,24 @@ export function useFocusData() {
           const iso = d.toISOString().split('T')[0];
           const daySessions = data.weekData?.filter((s: { day: string; total_min: number }) => s.day.split('T')[0] === iso) || [];
           const dailyTotal = daySessions.reduce((acc: number, curr: any) => acc + (Number(curr.total_min) || 0), 0);
+          const dailyQuestions = daySessions.reduce((acc: number, curr: any) => acc + (Number(curr.total_questions) || 0), 0);
           const dayName = days[d.getDay() === 0 ? 6 : d.getDay() - 1];
-          return { day: dayName, total_min: dailyTotal };
+          return { day: dayName, total_min: dailyTotal, total_questions: dailyQuestions };
         });
 
         setStats({
           todayTotalMin: Number(data.todayTotalMin) || 0,
           todaySessions: Number(data.todaySessions) || 0,
+          todayQuestions: Number(data.todayQuestions) || 0,
+          todayCorrect: Number(data.todayCorrect) || 0,
+          todayWrong: Number(data.todayWrong) || 0,
           allTimeTotalMin: Number(data.allTimeTotalMin) || 0,
           allTimeCount: Number(data.allTimeCount) || 0,
+          allTimeQuestions: Number(data.allTimeQuestions) || 0,
+          allTimeCorrect: Number(data.allTimeCorrect) || 0,
+          allTimeWrong: Number(data.allTimeWrong) || 0,
           weekData: weekArr,
+          subjectBreakdown: data.subjectBreakdown || [],
         });
       } else {
         const err = await res.json().catch(() => ({}));
