@@ -49,10 +49,10 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
     <AuthProvider>
       <TimerProvider>
       <div style={{ minHeight: '100vh', backgroundColor: '#0b0f19', overflowX: 'hidden' }}>
-        <React.Suspense fallback={<div style={{ width: 240, borderRight: '1px solid #1f2937' }} />}>
+        <React.Suspense fallback={<div className="desktop-only" style={{ width: 220, borderRight: '1px solid #1f2937' }} />}>
           <AppSidebar />
         </React.Suspense>
-        <React.Suspense fallback={<div style={{ height: 60 }} />}>
+        <React.Suspense fallback={<div className="mobile-only" style={{ height: 60 }} />}>
           <MobileNav />
         </React.Suspense>
         <main

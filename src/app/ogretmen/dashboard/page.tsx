@@ -2097,7 +2097,7 @@ function TeacherDashboardContent() {
                 <button onClick={() => setActiveModal('sinif')} className="btn-interactive" style={{ background: '#10b981' }}>Sınıf Oluştur</button>
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(320px,1fr))', gap: '1.25rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))', gap: '1.25rem' }}>
                 {classes.map((c, idx) => {
                   const colors = ['#10b981', '#38bdf8', '#a855f7', '#f59e0b', '#f43f5e', '#3b82f6'];
                   const col = colors[idx % colors.length];
@@ -2234,8 +2234,8 @@ function TeacherDashboardContent() {
                 <p style={{ color: 'var(--text-secondary)' }}>Sınıf kodunuzu öğrencilerinizle paylaşarak başlayın.</p>
               </div>
             ) : (
-              <div className="premium-card" style={{ overflow: 'hidden', padding: 0 }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <div className="premium-card table-responsive-container" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', padding: 0 }}>
+                <table style={{ width: '100%', minWidth: '650px', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.02)' }}>
                       {[
@@ -2961,7 +2961,7 @@ function TeacherDashboardContent() {
                 </div>
 
                 {/* Öğrenci Performans Segmentasyonu (2 Kolon Grid) */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '1.25rem' }}>
                   {/* Sol: En Başarılı Öğrenciler (Tıklanabilir detay modalı) */}
                   <div className="premium-card" style={{ padding: '1.5rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
@@ -3035,7 +3035,7 @@ function TeacherDashboardContent() {
                 </div>
 
                 {/* Lig ve Başarı Bantları Dağılımı */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '1.25rem' }}>
                   {/* Başarı Dağılımı */}
                   <div className="premium-card" style={{ padding: '1.5rem' }}>
                     <h3 style={{ color: '#fff', margin: '0 0 1.25rem', fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -3104,7 +3104,7 @@ function TeacherDashboardContent() {
                 <h3 style={{ color: '#fff' }}>Henüz kaynak paylaşılmadı</h3>
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: '1rem' }}>
                 {resources.map((r) => {
                   const typeColor = r.resource_type === 'note' ? '#38bdf8' : r.resource_type === 'link' ? '#10b981' : '#f59e0b';
                   const typeLabel = r.resource_type === 'note' ? 'Ders Notu' : r.resource_type === 'link' ? 'Bağlantı' : 'Görev';

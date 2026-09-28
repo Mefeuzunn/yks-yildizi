@@ -29,15 +29,12 @@ export default function GlobalTimerWidget() {
     <AnimatePresence>
       {showWidget && (
         <motion.div
+          className="global-timer-widget"
           initial={{ opacity: 0, y: 50, scale: 0.9 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 50, scale: 0.9 }}
           transition={{ type: 'spring', damping: 20, stiffness: 300 }}
           style={{
-            position: 'fixed',
-            bottom: '24px',
-            right: '24px',
-            zIndex: 9999,
             display: 'flex',
             alignItems: 'center',
             gap: '12px',

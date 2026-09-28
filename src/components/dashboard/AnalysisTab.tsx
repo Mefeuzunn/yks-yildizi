@@ -317,7 +317,7 @@ export default function AnalysisTab() {
       </div>
 
       {/* ─── Ana Grafikler Bölümü (Deneme Takibi & Günlük Odak) ─── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 420px), 1fr))', gap: '1.5rem' }}>
         
         {/* Sol: İnteraktif Deneme Takip Çizgisi */}
         <div className="premium-card" style={{ padding: '1.75rem', display: 'flex', flexDirection: 'column' }}>
@@ -675,7 +675,7 @@ export default function AnalysisTab() {
       </div>
 
       {/* ─── Alt Bölüm: YZ Eğitim Koçu & Soru/Hata Dağılımı ─── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '1.5rem' }}>
         
         {/* YZ Eğitim Koçu Analizi (Dinamik & Gerçek Verilere Dayalı) */}
         <div className="premium-card" style={{ padding: '1.75rem', position: 'relative', overflow: 'hidden', borderLeft: '4px solid #8b5cf6' }}>

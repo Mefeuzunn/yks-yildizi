@@ -73,7 +73,7 @@ export default function OdevlerimPage() {
         <ClipboardList size={32} color="#8b5cf6" /> Ödevlerim
       </h1>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))', gap: '1.5rem' }}>
         {assignments.length > 0 ? assignments.map(a => (
           <motion.div key={a.id} whileHover={{ y: -5 }} style={{
             background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)',

@@ -49,7 +49,7 @@ export default function CalismaOdalariLobby() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: '2rem' }}>
         {rooms.map((room, i) => {
           const theme = getThemeDetails(room.theme);
           
