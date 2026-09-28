@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAuthenticatedTeacherId } from '@/lib/auth-utils';
 import db from '@/lib/yks-db-async';
+import crypto from 'crypto';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,7 +16,7 @@ export async function GET(
       return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
     }
 
-    const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(teacherId) as any;
+    const user = await db.prepare('SELECT id, role FROM users WHERE id = ?').get(teacherId) as any;
     if (!user || user.role !== 'ogretmen') {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
     }
@@ -59,7 +60,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
     }
 
-    const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(teacherId) as any;
+    const user = await db.prepare('SELECT id, role FROM users WHERE id = ?').get(teacherId) as any;
     if (!user || user.role !== 'ogretmen') {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
     }
@@ -76,29 +77,86 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { studentId, score } = body;
+    const { studentId, status, score } = body;
 
     if (!studentId) {
       return NextResponse.json({ error: 'Öğrenci ID gerekli' }, { status: 400 });
     }
 
-    if (score === undefined || score === null) {
-      return NextResponse.json({ error: 'Puan gerekli' }, { status: 400 });
+    let newStatus = status;
+    let newScore = score !== undefined && score !== null && score !== '' ? Number(score) : null;
+    let submittedAt: string | null = null;
+
+    if (newScore !== null && !isNaN(newScore)) {
+      newStatus = 'graded';
+      submittedAt = new Date().toISOString();
+    } else if (status === 'completed' || status === 'submitted') {
+      newStatus = 'completed';
+      submittedAt = new Date().toISOString();
+    } else if (status === 'not_completed') {
+      newStatus = 'not_completed';
+      submittedAt = null;
+      newScore = null;
+    } else if (status === 'pending') {
+      newStatus = 'pending';
+      submittedAt = null;
+      newScore = null;
     }
 
-    const result = await db.prepare(`
-      UPDATE assignment_submissions
-      SET status = 'graded', score = ?
-      WHERE assignment_id = ? AND student_id = ?
-    `).run(score, id, studentId);
+    const subId = crypto.randomUUID();
 
-    if (result.changes === 0) {
-      return NextResponse.json({ error: 'Gönderim bulunamadı' }, { status: 404 });
-    }
+    await db.prepare(`
+      INSERT INTO assignment_submissions (id, assignment_id, student_id, status, score, submitted_at)
+      VALUES (?, ?, ?, ?, ?, ?)
+      ON CONFLICT (assignment_id, student_id) DO UPDATE SET
+        status = EXCLUDED.status,
+        score = EXCLUDED.score,
+        submitted_at = EXCLUDED.submitted_at
+    `).run(
+      subId,
+      id,
+      studentId,
+      newStatus || 'completed',
+      newScore,
+      submittedAt
+    );
 
-    return NextResponse.json({ success: true, message: 'Not verildi' });
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Ödev durumu güncellendi',
+      status: newStatus,
+      score: newScore
+    });
   } catch (error) {
-    console.error('Ödev puanlama hatası:', error);
+    console.error('Ödev durumu güncelleme hatası:', error);
+    return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const teacherId = await getAuthenticatedTeacherId(request);
+
+    if (!teacherId) {
+      return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
+    }
+
+    const user = await db.prepare('SELECT id, role FROM users WHERE id = ?').get(teacherId) as any;
+    if (!user || user.role !== 'ogretmen') {
+      return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
+    }
+
+    const { id } = await params;
+
+    await db.prepare('DELETE FROM assignment_submissions WHERE assignment_id = ?').run(id);
+    await db.prepare('DELETE FROM assignments WHERE id = ? AND teacher_id = ?').run(id, user.id);
+
+    return NextResponse.json({ success: true, message: 'Ödev silindi' });
+  } catch (error) {
+    console.error('Ödev silme hatası:', error);
     return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });
   }
 }

@@ -658,9 +658,13 @@ function StudentDetailModal({ studentId, onClose }: { studentId: string; onClose
       if (res.ok) {
         const d = await res.json();
         setData(d);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        setData({ error: err.error || 'Öğrenci verileri yüklenemedi.' });
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error('Fetch student detail error:', e);
+      setData({ error: e.message || 'Öğrenci verileri yüklenemedi.' });
     } finally {
       if (isInitial) setLoading(false);
     }
@@ -1634,7 +1638,35 @@ function TeacherDashboardContent() {
         body: JSON.stringify({ studentId, score })
       });
       fetchAssignmentDetail(assignmentId);
+      fetchAssignments();
     } catch (e) { console.error(e); }
+  };
+
+  const handleUpdateAssignmentStatus = async (assignmentId: string, studentId: string, status: 'completed' | 'not_completed') => {
+    // Optimistik anlık UI güncellemesi
+    setAssignmentDetail((prev: any) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        submissions: (prev.submissions || []).map((sub: any) =>
+          sub.student_id === studentId
+            ? { ...sub, status, score: status === 'not_completed' ? null : sub.score }
+            : sub
+        )
+      };
+    });
+
+    try {
+      await fetch(`/api/ogretmen/odev/${assignmentId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId, status })
+      });
+      fetchAssignmentDetail(assignmentId);
+      fetchAssignments();
+    } catch (e) {
+      console.error('Update assignment status error:', e);
+    }
   };
 
   const copyToClipboard = (code: string) => {
@@ -2618,46 +2650,103 @@ function TeacherDashboardContent() {
             )}
             <h4 style={{ color: '#fff', marginBottom: '1rem', fontSize: '0.95rem' }}>Öğrenci Durumları</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-              {(assignmentDetail.submissions ?? []).map((sub: any) => (
-                <div key={sub.student_id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.85rem 1rem', background: 'rgba(255,255,255,0.03)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.07)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <div style={{ width: 30, height: 30, borderRadius: '50%', background: '#3b82f620', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6', fontWeight: 700, fontSize: '0.8rem' }}>
-                      {sub.username?.charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.875rem' }}>{sub.username}</div>
-                      <div style={{ fontSize: '0.72rem', color: sub.status === 'submitted' ? '#10b981' : sub.status === 'graded' ? '#38bdf8' : '#6b7280' }}>
-                        {sub.status === 'pending' ? '⏳ Bekleniyor' : sub.status === 'submitted' ? '✅ Teslim Edildi' : `🎯 Notlandı: ${sub.score}/100`}
+              {(assignmentDetail.submissions ?? []).map((sub: any) => {
+                const isCompleted = sub.status === 'completed' || sub.status === 'submitted' || sub.status === 'graded';
+                const isNotCompleted = sub.status === 'not_completed';
+
+                return (
+                  <div key={sub.student_id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.85rem 1rem', background: 'rgba(255,255,255,0.03)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.07)', flexWrap: 'wrap', gap: 10 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 160 }}>
+                      <div style={{ width: 34, height: 34, borderRadius: '50%', background: isCompleted ? 'rgba(16,185,129,0.2)' : isNotCompleted ? 'rgba(239,68,68,0.2)' : '#3b82f620', display: 'flex', alignItems: 'center', justifyContent: 'center', color: isCompleted ? '#10b981' : isNotCompleted ? '#ef4444' : '#3b82f6', fontWeight: 700, fontSize: '0.85rem' }}>
+                        {sub.username?.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.875rem' }}>{sub.username}</div>
+                        <div style={{ fontSize: '0.72rem', display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                          {isCompleted ? (
+                            <span style={{ color: '#10b981', fontWeight: 700 }}>
+                              ✅ Yaptı {sub.status === 'graded' && `(${sub.score}/100)`}
+                            </span>
+                          ) : isNotCompleted ? (
+                            <span style={{ color: '#ef4444', fontWeight: 700 }}>❌ Yapmadı</span>
+                          ) : (
+                            <span style={{ color: '#f59e0b', fontWeight: 600 }}>⏳ Bekleniyor</span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  {sub.status === 'submitted' && (
-                    <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-                      <input
-                        type="number" min={0} max={100}
-                        placeholder="Not"
-                        value={gradeInput[sub.student_id] ?? ''}
-                        onChange={e => setGradeInput(prev => ({ ...prev, [sub.student_id]: e.target.value }))}
-                        style={{ ...inp, width: 70, padding: '0.4rem 0.6rem', fontSize: '0.85rem' }}
-                      />
+
+                    {/* Aksiyon Butonları: Yaptı / Yapmadı & Notlandırma */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      {/* Yaptı Butonu */}
                       <button
-                        onClick={() => {
-                          const score = parseInt(gradeInput[sub.student_id] ?? '');
-                          if (!isNaN(score) && score >= 0 && score <= 100) {
-                            handleGrade(assignmentDetail.id, sub.student_id, score);
-                            setGradeInput(prev => { const n = { ...prev }; delete n[sub.student_id]; return n; });
-                          }
+                        onClick={() => handleUpdateAssignmentStatus(assignmentDetail.id, sub.student_id, 'completed')}
+                        style={{
+                          background: isCompleted ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.04)',
+                          border: isCompleted ? '1.5px solid #10b981' : '1px solid rgba(255,255,255,0.1)',
+                          color: isCompleted ? '#34d399' : '#9ca3af',
+                          padding: '0.45rem 0.85rem',
+                          borderRadius: 8,
+                          cursor: 'pointer',
+                          fontSize: '0.8rem',
+                          fontWeight: 700,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 5,
+                          transition: 'all 0.15s'
                         }}
-                        style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', color: '#10b981', padding: '0.4rem 0.75rem', borderRadius: 8, cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700 }}>
-                        Kaydet
+                      >
+                        ✅ Yaptı
                       </button>
+
+                      {/* Yapmadı Butonu */}
+                      <button
+                        onClick={() => handleUpdateAssignmentStatus(assignmentDetail.id, sub.student_id, 'not_completed')}
+                        style={{
+                          background: isNotCompleted ? 'rgba(239,68,68,0.25)' : 'rgba(255,255,255,0.04)',
+                          border: isNotCompleted ? '1.5px solid #ef4444' : '1px solid rgba(255,255,255,0.1)',
+                          color: isNotCompleted ? '#f87171' : '#9ca3af',
+                          padding: '0.45rem 0.85rem',
+                          borderRadius: 8,
+                          cursor: 'pointer',
+                          fontSize: '0.8rem',
+                          fontWeight: 700,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 5,
+                          transition: 'all 0.15s'
+                        }}
+                      >
+                        ❌ Yapmadı
+                      </button>
+
+                      {/* İsteğe Bağlı Puan Girişi */}
+                      {isCompleted && (
+                        <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center', marginLeft: 4 }}>
+                          <input
+                            type="number" min={0} max={100}
+                            placeholder={sub.score != null ? String(sub.score) : "Not"}
+                            value={gradeInput[sub.student_id] ?? ''}
+                            onChange={e => setGradeInput(prev => ({ ...prev, [sub.student_id]: e.target.value }))}
+                            style={{ ...inp, width: 62, padding: '0.4rem 0.5rem', fontSize: '0.8rem', textAlign: 'center' }}
+                          />
+                          <button
+                            onClick={() => {
+                              const score = parseInt(gradeInput[sub.student_id] ?? '');
+                              if (!isNaN(score) && score >= 0 && score <= 100) {
+                                handleGrade(assignmentDetail.id, sub.student_id, score);
+                                setGradeInput(prev => { const n = { ...prev }; delete n[sub.student_id]; return n; });
+                              }
+                            }}
+                            style={{ background: 'rgba(56,189,248,0.15)', border: '1px solid rgba(56,189,248,0.3)', color: '#38bdf8', padding: '0.4rem 0.65rem', borderRadius: 8, cursor: 'pointer', fontSize: '0.78rem', fontWeight: 700 }}>
+                            {sub.score != null ? 'Güncelle' : 'Puanla'}
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  )}
-                  {sub.status === 'graded' && (
-                    <div style={{ color: '#38bdf8', fontWeight: 800, fontSize: '1.1rem' }}>{sub.score}/100</div>
-                  )}
-                </div>
-              ))}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
