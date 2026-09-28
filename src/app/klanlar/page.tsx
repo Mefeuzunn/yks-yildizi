@@ -200,7 +200,7 @@ export default function KlanlarPage() {
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1100px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div style={{ padding: 'clamp(16px, 4vw, 32px) clamp(12px, 3vw, 24px)', maxWidth: '1100px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 20px))' }}>
 
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
@@ -380,18 +380,18 @@ export default function KlanlarPage() {
             /* Klan Detayı */
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               {/* Klan Başlığı */}
-              <div style={{ ...card, background: `linear-gradient(135deg, ${myClan.color}22, rgba(255,255,255,0.02))`, border: `1px solid ${myClan.color}44` }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <div style={{ fontSize: '3rem' }}>{myClan.icon}</div>
-                  <div style={{ flex: 1 }}>
+              <div style={{ ...card, background: `linear-gradient(135deg, ${myClan.color}22, rgba(255,255,255,0.02))`, border: `1px solid ${myClan.color}44`, padding: 'clamp(16px, 4vw, 24px)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                  <div style={{ fontSize: '3rem', flexShrink: 0 }}>{myClan.icon}</div>
+                  <div style={{ flex: '1 1 200px', minWidth: '180px' }}>
                     <h2 style={{ color: '#fff', margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>{myClan.name}</h2>
                     <p style={{ color: '#94a3b8', margin: '0.25rem 0 0', fontSize: '0.85rem' }}>{myClan.description}</p>
-                    <div style={{ display: 'flex', gap: '1rem', marginTop: '0.75rem' }}>
+                    <div style={{ display: 'flex', gap: '1rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
                       <span style={{ color: '#a78bfa', fontWeight: 700 }}>⚡ {myClan.weekly_xp} Haftalık XP</span>
                       <span style={{ color: '#64748b', fontSize: '0.85rem' }}>• {myClan.member_count} Üye</span>
                     </div>
                   </div>
-                  <button onClick={leaveClan} style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '10px', padding: '8px 14px', color: '#f87171', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600, fontSize: '0.8rem' }}>
+                  <button onClick={leaveClan} style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '10px', padding: '8px 14px', color: '#f87171', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600, fontSize: '0.8rem', marginLeft: 'auto' }}>
                     <LogOut size={14} /> Ayrıl
                   </button>
                 </div>
@@ -479,35 +479,37 @@ export default function KlanlarPage() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={() => setSelectedClan(null)}
             style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '1rem' }}>
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+            <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
               onClick={e => e.stopPropagation()}
-              style={{ background: '#12141c', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '20px', padding: '2rem', maxWidth: '480px', width: '100%', maxHeight: '80vh', overflowY: 'auto' }}>
+              className="modal-bottom-sheet"
+              style={{ background: '#12141c', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '20px', padding: 'clamp(20px, 4vw, 32px)', maxWidth: '480px', width: '100%', maxHeight: '85vh', overflowY: 'auto' }}>
+              <div className="modal-drag-handle" />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <span style={{ fontSize: '2.5rem' }}>{selectedClan.icon}</span>
                   <div>
-                    <h2 style={{ color: '#fff', margin: 0 }}>{selectedClan.name}</h2>
+                    <h2 style={{ color: '#fff', margin: 0, fontSize: '1.3rem' }}>{selectedClan.name}</h2>
                     <p style={{ color: '#64748b', margin: 0, fontSize: '0.8rem' }}>{selectedClan.member_count} üye</p>
                   </div>
                 </div>
-                <button onClick={() => setSelectedClan(null)} style={{ background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer' }}>
-                  <X size={24} />
+                <button onClick={() => setSelectedClan(null)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', cursor: 'pointer' }}>
+                  <X size={20} />
                 </button>
               </div>
-              <p style={{ color: '#94a3b8', marginBottom: '1.5rem' }}>{selectedClan.description}</p>
+              <p style={{ color: '#94a3b8', marginBottom: '1.5rem', fontSize: '0.9rem', lineHeight: 1.5 }}>{selectedClan.description}</p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                <div style={{ background: 'rgba(139,92,246,0.1)', borderRadius: '10px', padding: '1rem', textAlign: 'center' }}>
+                <div style={{ background: 'rgba(139,92,246,0.1)', borderRadius: '12px', padding: '1rem', textAlign: 'center', border: '1px solid rgba(139,92,246,0.2)' }}>
                   <div style={{ color: '#a78bfa', fontWeight: 800, fontSize: '1.5rem' }}>{selectedClan.weekly_xp}</div>
-                  <div style={{ color: '#64748b', fontSize: '0.75rem' }}>Haftalık XP</div>
+                  <div style={{ color: '#64748b', fontSize: '0.75rem', marginTop: '2px' }}>Haftalık XP</div>
                 </div>
-                <div style={{ background: 'rgba(59,130,246,0.1)', borderRadius: '10px', padding: '1rem', textAlign: 'center' }}>
+                <div style={{ background: 'rgba(59,130,246,0.1)', borderRadius: '12px', padding: '1rem', textAlign: 'center', border: '1px solid rgba(59,130,246,0.2)' }}>
                   <div style={{ color: '#93c5fd', fontWeight: 800, fontSize: '1.5rem' }}>{selectedClan.total_xp}</div>
-                  <div style={{ color: '#64748b', fontSize: '0.75rem' }}>Toplam XP</div>
+                  <div style={{ color: '#64748b', fontSize: '0.75rem', marginTop: '2px' }}>Toplam XP</div>
                 </div>
               </div>
               {!myClan && (
                 <button onClick={() => { joinClan(selectedClan.id); setSelectedClan(null); }}
-                  style={{ width: '100%', marginTop: '1.5rem', background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', border: 'none', borderRadius: '12px', padding: '12px', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}>
+                  style={{ width: '100%', marginTop: '1.5rem', background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', border: 'none', borderRadius: '12px', padding: '14px', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}>
                   Bu Klana Katıl
                 </button>
               )}

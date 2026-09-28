@@ -66,7 +66,7 @@ export default function LeaderboardPage() {
   const progressPercent = userLeague === 'Şampiyon' || userLeague === 'Elmas' ? 100 : Math.min(100, Math.max(0, (userScore / nextTarget.xp) * 100));
 
   return (
-    <div className="custom-scrollbar" style={{ padding: '32px 24px', maxWidth: '1200px', margin: '0 auto', minHeight: '100vh', paddingBottom: '100px' }}>
+    <div className="custom-scrollbar" style={{ padding: 'clamp(16px, 4vw, 32px) clamp(12px, 3vw, 24px)', maxWidth: '1200px', margin: '0 auto', minHeight: '100vh', paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 20px))' }}>
       
       <header style={{ marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '16px' }}>
         <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'linear-gradient(135deg, #facc15 0%, #eab308 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 30px rgba(234, 179, 8, 0.3)' }}>
@@ -85,7 +85,7 @@ export default function LeaderboardPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '24px', alignItems: 'start' }}>
         
         {/* LEFT COLUMN — Current User Status */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ backgroundColor: '#131827', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '24px', padding: '32px', position: 'relative', overflow: 'hidden' }}>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ backgroundColor: '#131827', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '24px', padding: 'clamp(20px, 4vw, 32px)', position: 'relative', overflow: 'hidden' }}>
           {/* Background Glow */}
           <div style={{ position: 'absolute', top: '-50px', right: '-50px', width: '150px', height: '150px', background: 'rgba(250, 204, 21, 0.15)', filter: 'blur(50px)', borderRadius: '50%' }} />
 
@@ -136,68 +136,199 @@ export default function LeaderboardPage() {
 
         </motion.div>
 
-        {/* RIGHT COLUMN — Global Ranking Table */}
+        {/* RIGHT COLUMN — Global Ranking Table (Desktop) & Podium/Cards (Mobile) */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} style={{ backgroundColor: '#131827', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '24px', overflow: 'hidden' }}>
           
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-            <thead>
-              <tr style={{ backgroundColor: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                <th style={{ padding: '16px 24px', width: '60px', fontSize: '12px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '1px' }}>#</th>
-                <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '1px' }}>Öğrenci</th>
-                <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '1px' }}>Lig</th>
-                <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '1px', textAlign: 'right' }}>XP Puanı</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leaderboard.length === 0 && (
-                 <tr><td colSpan={4} style={{ padding: '24px', textAlign: 'center', color: '#9ca3af' }}>Henüz kimse puan kazanmamış.</td></tr>
-              )}
-              {leaderboard.map((userRow, idx) => {
-                const isCurrentUser = userRow.isCurrentUser;
-                
-                let rankDisplay: React.ReactNode = <span style={{ color: '#9ca3af' }}>{userRow.rank}</span>;
-                if (userRow.rank === 1) rankDisplay = <span style={{ fontSize: '20px' }}>🥇</span>;
-                if (userRow.rank === 2) rankDisplay = <span style={{ fontSize: '20px' }}>🥈</span>;
-                if (userRow.rank === 3) rankDisplay = <span style={{ fontSize: '20px' }}>🥉</span>;
+          {/* DESKTOP TABLE */}
+          <div className="desktop-only" style={{ width: '100%' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+              <thead>
+                <tr style={{ backgroundColor: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                  <th style={{ padding: '16px 24px', width: '60px', fontSize: '12px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '1px' }}>#</th>
+                  <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '1px' }}>Öğrenci</th>
+                  <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '1px' }}>Lig</th>
+                  <th style={{ padding: '16px 24px', fontSize: '12px', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '1px', textAlign: 'right' }}>XP Puanı</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leaderboard.length === 0 && (
+                   <tr><td colSpan={4} style={{ padding: '24px', textAlign: 'center', color: '#9ca3af' }}>Henüz kimse puan kazanmamış.</td></tr>
+                )}
+                {leaderboard.map((userRow, idx) => {
+                  const isCurrentUser = userRow.isCurrentUser;
+                  
+                  let rankDisplay: React.ReactNode = <span style={{ color: '#9ca3af' }}>{userRow.rank}</span>;
+                  if (userRow.rank === 1) rankDisplay = <span style={{ fontSize: '20px' }}>🥇</span>;
+                  if (userRow.rank === 2) rankDisplay = <span style={{ fontSize: '20px' }}>🥈</span>;
+                  if (userRow.rank === 3) rankDisplay = <span style={{ fontSize: '20px' }}>🥉</span>;
 
-                return (
-                  <tr 
-                    key={userRow.rank} 
-                    style={{ 
-                      backgroundColor: isCurrentUser ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
-                      borderBottom: idx === leaderboard.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.03)',
-                      transition: 'background-color 0.2s',
-                    }}
-                  >
-                    <td style={{ padding: '16px 24px', fontSize: '15px', fontWeight: userRow.rank <= 3 ? 800 : 600 }}>
-                      {rankDisplay}
-                    </td>
-                    <td style={{ padding: '16px 24px', fontSize: '15px', fontWeight: isCurrentUser ? 700 : 500, color: isCurrentUser ? '#fff' : '#d1d5db', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #374151, #1f2937)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: '#fff', border: isCurrentUser ? '2px solid #6366f1' : 'none' }}>
-                        {(userRow.name || 'U').substring(0,2).toUpperCase()}
+                  return (
+                    <tr 
+                      key={userRow.rank} 
+                      style={{ 
+                        backgroundColor: isCurrentUser ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
+                        borderBottom: idx === leaderboard.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.03)',
+                        transition: 'background-color 0.2s',
+                      }}
+                    >
+                      <td style={{ padding: '16px 24px', fontSize: '15px', fontWeight: userRow.rank <= 3 ? 800 : 600 }}>
+                        {rankDisplay}
+                      </td>
+                      <td style={{ padding: '16px 24px', fontSize: '15px', fontWeight: isCurrentUser ? 700 : 500, color: isCurrentUser ? '#fff' : '#d1d5db', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #374151, #1f2937)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: '#fff', border: isCurrentUser ? '2px solid #6366f1' : 'none' }}>
+                          {(userRow.name || 'U').substring(0,2).toUpperCase()}
+                        </div>
+                        {userRow.name}
+                      </td>
+                      <td style={{ padding: '16px 24px' }}>
+                        <div style={{ 
+                          display: 'inline-flex', alignItems: 'center', gap: '6px',
+                          fontSize: '12px', fontWeight: 700, padding: '4px 10px', borderRadius: '100px',
+                          backgroundColor: LEAGUE_COLORS[userRow.tier]?.bg || LEAGUE_COLORS['Bronz'].bg,
+                          color: LEAGUE_COLORS[userRow.tier]?.color || LEAGUE_COLORS['Bronz'].color,
+                          border: `1px solid ${LEAGUE_COLORS[userRow.tier]?.border || LEAGUE_COLORS['Bronz'].border}`,
+                        }}>
+                          {LEAGUE_COLORS[userRow.tier]?.icon || <Medal size={16} />}
+                          {userRow.tier}
+                        </div>
+                      </td>
+                      <td style={{ padding: '16px 24px', fontSize: '15px', fontWeight: 700, color: isCurrentUser ? '#6366f1' : '#f3f4f6', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                        {userRow.score.toLocaleString('tr-TR')}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* MOBILE VIEW — PODIUM + CARD LIST */}
+          <div className="mobile-only" style={{ padding: '16px 12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', padding: '0 4px' }}>
+              <span style={{ fontSize: '12px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Liderlik Sıralaması
+              </span>
+              <span style={{ fontSize: '12px', color: '#6b7280' }}>
+                {leaderboard.length} Öğrenci
+              </span>
+            </div>
+
+            {leaderboard.length === 0 ? (
+              <div style={{ padding: '24px', textAlign: 'center', color: '#9ca3af', fontSize: '14px' }}>
+                Henüz kimse puan kazanmamış.
+              </div>
+            ) : (
+              <>
+                {/* Top 3 Podium (Shown if >= 3 users) */}
+                {leaderboard.length >= 3 && (
+                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: '8px', marginBottom: '24px', paddingTop: '16px' }}>
+                    {/* 2nd Place */}
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'linear-gradient(135deg, #9ca3af, #4b5563)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '14px', border: '2px solid #9ca3af', boxShadow: '0 4px 12px rgba(156, 163, 175, 0.3)', position: 'relative' }}>
+                        {(leaderboard[1].name || 'U').substring(0,2).toUpperCase()}
+                        <span style={{ position: 'absolute', top: -10, fontSize: '16px' }}>🥈</span>
                       </div>
-                      {userRow.name}
-                    </td>
-                    <td style={{ padding: '16px 24px' }}>
-                      <div style={{ 
-                        display: 'inline-flex', alignItems: 'center', gap: '6px',
-                        fontSize: '12px', fontWeight: 700, padding: '4px 10px', borderRadius: '100px',
-                        backgroundColor: LEAGUE_COLORS[userRow.tier]?.bg || LEAGUE_COLORS['Bronz'].bg,
-                        color: LEAGUE_COLORS[userRow.tier]?.color || LEAGUE_COLORS['Bronz'].color,
-                        border: `1px solid ${LEAGUE_COLORS[userRow.tier]?.border || LEAGUE_COLORS['Bronz'].border}`,
-                      }}>
-                        {LEAGUE_COLORS[userRow.tier]?.icon || <Medal size={16} />}
-                        {userRow.tier}
+                      <div style={{ fontSize: '12px', fontWeight: 700, color: '#e5e7eb', marginTop: '6px', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '85px' }}>
+                        {leaderboard[1].name}
                       </div>
-                    </td>
-                    <td style={{ padding: '16px 24px', fontSize: '15px', fontWeight: 700, color: isCurrentUser ? '#6366f1' : '#f3f4f6', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
-                      {userRow.score.toLocaleString('tr-TR')}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      <div style={{ fontSize: '11px', color: '#9ca3af', fontWeight: 600 }}>
+                        {leaderboard[1].score.toLocaleString('tr-TR')} XP
+                      </div>
+                      <div style={{ width: '100%', height: '52px', background: 'linear-gradient(180deg, rgba(156,163,175,0.2) 0%, rgba(156,163,175,0.05) 100%)', borderRadius: '8px 8px 0 0', marginTop: '6px', borderTop: '2px solid #9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af', fontWeight: 800, fontSize: '16px' }}>
+                        2
+                      </div>
+                    </div>
+
+                    {/* 1st Place (Center, Elevated) */}
+                    <div style={{ flex: 1.15, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <div style={{ width: '54px', height: '54px', borderRadius: '50%', background: 'linear-gradient(135deg, #facc15, #ca8a04)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', fontWeight: 900, fontSize: '16px', border: '3px solid #facc15', boxShadow: '0 0 20px rgba(250, 204, 21, 0.5)', position: 'relative' }}>
+                        {(leaderboard[0].name || 'U').substring(0,2).toUpperCase()}
+                        <span style={{ position: 'absolute', top: -14, fontSize: '20px' }}>👑</span>
+                      </div>
+                      <div style={{ fontSize: '13px', fontWeight: 800, color: '#facc15', marginTop: '6px', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100px' }}>
+                        {leaderboard[0].name}
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#fef08a', fontWeight: 700 }}>
+                        {leaderboard[0].score.toLocaleString('tr-TR')} XP
+                      </div>
+                      <div style={{ width: '100%', height: '74px', background: 'linear-gradient(180deg, rgba(250,204,21,0.25) 0%, rgba(250,204,21,0.05) 100%)', borderRadius: '10px 10px 0 0', marginTop: '6px', borderTop: '3px solid #facc15', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#facc15', fontWeight: 900, fontSize: '20px' }}>
+                        1
+                      </div>
+                    </div>
+
+                    {/* 3rd Place */}
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'linear-gradient(135deg, #d97706, #78350f)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '14px', border: '2px solid #d97706', boxShadow: '0 4px 12px rgba(217, 119, 6, 0.3)', position: 'relative' }}>
+                        {(leaderboard[2].name || 'U').substring(0,2).toUpperCase()}
+                        <span style={{ position: 'absolute', top: -10, fontSize: '16px' }}>🥉</span>
+                      </div>
+                      <div style={{ fontSize: '12px', fontWeight: 700, color: '#e5e7eb', marginTop: '6px', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '85px' }}>
+                        {leaderboard[2].name}
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#9ca3af', fontWeight: 600 }}>
+                        {leaderboard[2].score.toLocaleString('tr-TR')} XP
+                      </div>
+                      <div style={{ width: '100%', height: '40px', background: 'linear-gradient(180deg, rgba(217,119,6,0.2) 0%, rgba(217,119,6,0.05) 100%)', borderRadius: '8px 8px 0 0', marginTop: '6px', borderTop: '2px solid #d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d97706', fontWeight: 800, fontSize: '16px' }}>
+                        3
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Card List of all users */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {leaderboard.map((userRow) => {
+                    const isCurrentUser = userRow.isCurrentUser;
+                    const tierInfo = LEAGUE_COLORS[userRow.tier] || LEAGUE_COLORS['Bronz'];
+
+                    return (
+                      <div
+                        key={userRow.rank}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '10px',
+                          padding: '12px 14px',
+                          borderRadius: '14px',
+                          backgroundColor: isCurrentUser ? 'rgba(99, 102, 241, 0.15)' : 'rgba(255,255,255,0.03)',
+                          border: isCurrentUser ? '1px solid rgba(99, 102, 241, 0.4)' : '1px solid rgba(255,255,255,0.05)',
+                          transition: 'transform 0.15s ease'
+                        }}
+                      >
+                        {/* Rank */}
+                        <div style={{ width: '28px', textAlign: 'center', fontSize: '13px', fontWeight: 800, color: userRow.rank === 1 ? '#facc15' : userRow.rank === 2 ? '#9ca3af' : userRow.rank === 3 ? '#d97706' : '#6b7280' }}>
+                          {userRow.rank <= 3 ? (userRow.rank === 1 ? '🥇' : userRow.rank === 2 ? '🥈' : '🥉') : `#${userRow.rank}`}
+                        </div>
+
+                        {/* Avatar */}
+                        <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: 'linear-gradient(135deg, #374151, #1f2937)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: '#fff', border: isCurrentUser ? '2px solid #6366f1' : '1px solid rgba(255,255,255,0.1)', flexShrink: 0 }}>
+                          {(userRow.name || 'U').substring(0,2).toUpperCase()}
+                        </div>
+
+                        {/* Name & Tier */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: '14px', fontWeight: isCurrentUser ? 700 : 600, color: isCurrentUser ? '#fff' : '#e5e7eb', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {userRow.name} {isCurrentUser && <span style={{ fontSize: '11px', color: '#a5b4fc', fontWeight: 500 }}>(Sen)</span>}
+                          </div>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '10px', fontWeight: 700, padding: '1px 6px', borderRadius: '6px', backgroundColor: tierInfo.bg, color: tierInfo.color, marginTop: '2px' }}>
+                            {userRow.tier}
+                          </div>
+                        </div>
+
+                        {/* XP */}
+                        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                          <div style={{ fontSize: '14px', fontWeight: 800, color: isCurrentUser ? '#818cf8' : '#fff', fontVariantNumeric: 'tabular-nums' }}>
+                            {userRow.score.toLocaleString('tr-TR')}
+                          </div>
+                          <div style={{ fontSize: '10px', color: '#6b7280', fontWeight: 600 }}>XP</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </div>
 
         </motion.div>
       </div>

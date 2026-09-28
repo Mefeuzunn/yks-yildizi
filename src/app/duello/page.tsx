@@ -6,6 +6,7 @@ import { Swords, Search, Trophy, Loader2, CheckCircle2, XCircle, Clock, Zap, Act
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import confetti from 'canvas-confetti';
+import { haptics } from '@/lib/haptics';
 
 type DuelState = 'idle' | 'waiting' | 'starting' | 'active' | 'finished';
 
@@ -132,6 +133,7 @@ export default function DuelloPage() {
 
   const handleAnswer = async (opt: string) => {
     if (selectedOption || phase !== 'active' || !duelId) return;
+    haptics.selection();
     setSelectedOption(opt);
     
     try {
@@ -143,6 +145,11 @@ export default function DuelloPage() {
       const data = await res.json();
       if (res.ok) {
          setIsAnswerCorrect(data.isCorrect);
+         if (data.isCorrect) {
+           haptics.notification('success');
+         } else {
+           haptics.notification('warning');
+         }
          // Anlık skoru görmek için poll tetikle
          pollStatus(duelId);
       }
@@ -165,7 +172,7 @@ export default function DuelloPage() {
   const subjects = ['Karisik', 'Matematik', 'Fen', 'Tarih', 'Turkce'];
 
   return (
-    <div style={{ background: '#020617', minHeight: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column', color: '#fff', padding: '2rem' }}>
+    <div className="duel-container" style={{ background: '#020617', minHeight: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column', color: '#fff', padding: '2rem' }}>
       
       {phase !== 'idle' && (
         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
@@ -300,22 +307,22 @@ export default function DuelloPage() {
             <motion.div key="active" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ width: '100%' }}>
               
               {/* Top Bar */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', background: 'rgba(255,255,255,0.03)', padding: '1.5rem 2rem', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <div className="duel-top-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', background: 'rgba(255,255,255,0.03)', padding: '1.5rem 2rem', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)' }}>
                 
                 {/* Player 1 */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '33%' }}>
-                  <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.25rem', fontWeight: 800 }}>
+                <div className="duel-player-me" style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '33%' }}>
+                  <div className="duel-avatar" style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.25rem', fontWeight: 800 }}>
                     {me?.username?.substring(0,2).toUpperCase()}
                   </div>
                   <div>
-                    <div style={{ color: '#9ca3af', fontWeight: 600, fontSize: '0.9rem' }}>{me?.username}</div>
-                    <div style={{ color: '#fff', fontWeight: 900, fontSize: '1.5rem' }}>{me?.score || 0}</div>
+                    <div className="duel-username" style={{ color: '#9ca3af', fontWeight: 600, fontSize: '0.9rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{me?.username}</div>
+                    <div className="duel-score" style={{ color: '#fff', fontWeight: 900, fontSize: '1.5rem' }}>{me?.score || 0}</div>
                   </div>
                 </div>
 
                 {/* Center Status */}
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '33%' }}>
-                  <div style={{ background: '#ef4444', color: '#fff', padding: '0.25rem 1rem', borderRadius: '999px', fontWeight: 800, fontSize: '0.9rem', marginBottom: '0.5rem', letterSpacing: '0.1em' }}>
+                <div className="duel-center-status" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '33%' }}>
+                  <div className="duel-round-pill" style={{ background: '#ef4444', color: '#fff', padding: '0.25rem 1rem', borderRadius: '999px', fontWeight: 800, fontSize: '0.9rem', marginBottom: '0.5rem', letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>
                      Round {currentRound}/10
                   </div>
                   <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '999px', overflow: 'hidden' }}>
@@ -324,8 +331,8 @@ export default function DuelloPage() {
                 </div>
 
                 {/* Player 2 */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexDirection: 'row-reverse', width: '33%', textAlign: 'right' }}>
-                  <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'linear-gradient(135deg, #f59e0b, #ea580c)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.25rem', fontWeight: 800, position: 'relative' }}>
+                <div className="duel-player-opp" style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexDirection: 'row-reverse', width: '33%', textAlign: 'right' }}>
+                  <div className="duel-avatar" style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'linear-gradient(135deg, #f59e0b, #ea580c)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.25rem', fontWeight: 800, position: 'relative' }}>
                     {opponent?.username ? opponent.username.substring(0,2).toUpperCase() : '?'}
                     {opponent?.answeredCurrentRound && (
                        <div style={{ position: 'absolute', top: -4, right: -4, background: '#10b981', borderRadius: '50%', padding: '2px', border: '2px solid #020617' }}>
@@ -334,22 +341,22 @@ export default function DuelloPage() {
                     )}
                   </div>
                   <div>
-                    <div style={{ color: '#9ca3af', fontWeight: 600, fontSize: '0.9rem' }}>{opponent?.username || 'Rakip'}</div>
-                    <div style={{ color: '#fff', fontWeight: 900, fontSize: '1.5rem' }}>{opponent?.score || 0}</div>
+                    <div className="duel-username" style={{ color: '#9ca3af', fontWeight: 600, fontSize: '0.9rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{opponent?.username || 'Rakip'}</div>
+                    <div className="duel-score" style={{ color: '#fff', fontWeight: 900, fontSize: '1.5rem' }}>{opponent?.score || 0}</div>
                   </div>
                 </div>
               </div>
 
               {/* Question Area */}
-              <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '24px', padding: '3rem', minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
+              <div className="duel-question-area" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '24px', padding: '3rem', minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
                 {!question ? (
                   <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Loader2 size={48} className="spin" color="#ef4444" />
                   </div>
                 ) : (
                   <>
-                    <h3 style={{ fontSize: '1.5rem', color: '#f8fafc', lineHeight: 1.6, marginBottom: '3rem', textAlign: 'center', fontWeight: 600 }}>{question.metin}</h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: 'auto' }}>
+                    <h3 className="duel-question-text" style={{ fontSize: '1.5rem', color: '#f8fafc', lineHeight: 1.6, marginBottom: '3rem', textAlign: 'center', fontWeight: 600 }}>{question.metin}</h3>
+                    <div className="duel-options-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: 'auto' }}>
                       {question.secenekler.map((opt: string, idx: number) => {
                         const labels = ['A', 'B', 'C', 'D', 'E'];
                         const isSelected = selectedOption === opt;
@@ -385,6 +392,7 @@ export default function DuelloPage() {
                             key={idx}
                             onClick={() => handleAnswer(opt)}
                             disabled={!!selectedOption}
+                            className="duel-option-button"
                             style={{
                               padding: '1.25rem', borderRadius: '16px', background: bg, border,
                               color: textColor, fontSize: '1.1rem', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '1rem',
@@ -395,10 +403,10 @@ export default function DuelloPage() {
                             onMouseOver={(e) => { if (!selectedOption) e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
                             onMouseOut={(e) => { if (!selectedOption) e.currentTarget.style.background = bg; }}
                           >
-                            <span style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '1.1rem' }}>{labels[idx]}</span>
-                            {opt}
-                            {isSelected && isAnswerCorrect === true && <CheckCircle2 size={24} color="#10b981" style={{ marginLeft: 'auto' }} />}
-                            {isSelected && isAnswerCorrect === false && <XCircle size={24} color="#ef4444" style={{ marginLeft: 'auto' }} />}
+                            <span className="duel-option-label" style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '1.1rem', flexShrink: 0 }}>{labels[idx]}</span>
+                            <span style={{ flex: 1 }}>{opt}</span>
+                            {isSelected && isAnswerCorrect === true && <CheckCircle2 size={24} color="#10b981" style={{ marginLeft: 'auto', flexShrink: 0 }} />}
+                            {isSelected && isAnswerCorrect === false && <XCircle size={24} color="#ef4444" style={{ marginLeft: 'auto', flexShrink: 0 }} />}
                           </button>
                         );
                       })}
@@ -411,7 +419,7 @@ export default function DuelloPage() {
 
           {phase === 'finished' && (
             <motion.div key="finished" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} style={{ textAlign: 'center', width: '100%', maxWidth: '600px' }}>
-              <div style={{ background: 'rgba(255,255,255,0.03)', padding: '4rem', borderRadius: '32px', border: winnerId === user.id ? '2px solid #f59e0b' : winnerId === 'draw' ? '2px solid #3b82f6' : '1px solid rgba(255,255,255,0.1)', boxShadow: winnerId === user.id ? '0 0 40px rgba(245, 158, 11, 0.2)' : 'none' }}>
+              <div className="duel-finished-card" style={{ background: 'rgba(255,255,255,0.03)', padding: '4rem', borderRadius: '32px', border: winnerId === user.id ? '2px solid #f59e0b' : winnerId === 'draw' ? '2px solid #3b82f6' : '1px solid rgba(255,255,255,0.1)', boxShadow: winnerId === user.id ? '0 0 40px rgba(245, 158, 11, 0.2)' : 'none' }}>
                 {winnerId === user.id ? (
                   <>
                     <motion.div animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
@@ -471,8 +479,70 @@ export default function DuelloPage() {
 
       <style jsx>{`
         .spin { animation: spin 1s linear infinite; }
-        .radar-circle { animation: radar 2s infinite ease-out; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+          :global(.duel-container) {
+            padding: 12px 10px calc(80px + env(safe-area-inset-bottom, 20px)) 10px !important;
+          }
+          :global(.duel-top-bar) {
+            padding: 10px 12px !important;
+            border-radius: 16px !important;
+            margin-bottom: 0.75rem !important;
+          }
+          :global(.duel-avatar) {
+            width: 36px !important;
+            height: 36px !important;
+            font-size: 1rem !important;
+            border-radius: 10px !important;
+          }
+          :global(.duel-username) {
+            font-size: 0.75rem !important;
+            max-width: 70px !important;
+          }
+          :global(.duel-score) {
+            font-size: 1.15rem !important;
+          }
+          :global(.duel-round-pill) {
+            font-size: 0.75rem !important;
+            padding: 2px 8px !important;
+            margin-bottom: 4px !important;
+          }
+          :global(.duel-player-me), :global(.duel-player-opp) {
+            gap: 6px !important;
+          }
+          :global(.duel-question-area) {
+            padding: 16px 12px !important;
+            border-radius: 18px !important;
+            min-height: auto !important;
+          }
+          :global(.duel-question-text) {
+            font-size: 1.05rem !important;
+            margin-bottom: 1.25rem !important;
+            line-height: 1.5 !important;
+          }
+          :global(.duel-options-grid) {
+            grid-template-columns: 1fr !important;
+            gap: 8px !important;
+          }
+          :global(.duel-option-button) {
+            grid-column: span 1 !important;
+            padding: 12px 14px !important;
+            font-size: 0.95rem !important;
+            border-radius: 14px !important;
+            min-height: 48px !important;
+          }
+          :global(.duel-option-label) {
+            width: 30px !important;
+            height: 30px !important;
+            font-size: 0.9rem !important;
+          }
+          :global(.duel-finished-card) {
+            padding: 24px 16px !important;
+            border-radius: 20px !important;
+          }
+        }
+        .radar-circle { animation: radar 2s infinite ease-out; }
         @keyframes radar { 0% { transform: scale(0.5); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
         .dots-anim { animation: dots 1.5s infinite steps(4, end); display: inline-block; width: 24px; text-align: left; }
         @keyframes dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } 100% { content: ''; } }

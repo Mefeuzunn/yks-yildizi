@@ -26,3 +26,9 @@ export function triggerHaptic(type: 'light' | 'medium' | 'heavy' | 'success' | '
     // Ignore devices that block vibration without user gesture
   }
 }
+
+export const haptics = {
+  selection: () => triggerHaptic('light'),
+  impact: (style: 'light' | 'medium' | 'heavy' = 'medium') => triggerHaptic(style),
+  notification: (type: 'success' | 'warning' = 'success') => triggerHaptic(type),
+};
