@@ -40,13 +40,37 @@ interface StudentItem {
   active_started_at?: string;
   active_time_left_sec?: number;
   focus_elapsed_min?: number;
+  live_status?: string;
+  live_mode?: string;
 }
 interface ResourceItem { id: string; title: string; content: string; subject: string; topic: string; resource_type: string; class_id: string; created_at: string; }
-interface AnnouncementItem { id: string; title: string; content: string; class_id: string; class_name?: string; created_at: string; }
+interface AnnouncementItem { id: string; title: string; content: string; class_id: string; class_name?: string; category?: string; event_date?: string; created_at: string; }
+interface AssignmentItem { id: string; title: string; description?: string; category?: string; subject?: string; topic?: string; target_sinif?: string; due_date?: string; created_at: string; total_assigned: number; submitted_count: number; }
 
 // ─────────────────────────────────────────────
-// HELPERS
+// HELPERS & CONSTANTS
 // ─────────────────────────────────────────────
+const ANNOUNCEMENT_CATEGORIES = ['Tümü', 'Genel', 'Sınav Duyurusu', 'Ödev Hatırlatma', 'Etkinlik', 'Ders Programı', 'Önemli'];
+const ANNOUNCEMENT_CATEGORY_COLORS: Record<string, string> = {
+  Genel: '#8b5cf6',
+  'Sınav Duyurusu': '#f43f5e',
+  'Ödev Hatırlatma': '#f59e0b',
+  Etkinlik: '#10b981',
+  'Ders Programı': '#3b82f6',
+  Önemli: '#ef4444',
+};
+
+const ASSIGNMENT_CATEGORIES = ['Tümü', 'Genel', 'TYT Deneme', 'AYT Deneme', 'Konu Testi', 'Haftalık Ödev', 'Soru Çözümü', 'Proje'];
+const ASSIGNMENT_CATEGORY_COLORS: Record<string, string> = {
+  Genel: '#6b7280',
+  'TYT Deneme': '#38bdf8',
+  'AYT Deneme': '#a855f7',
+  'Konu Testi': '#10b981',
+  'Haftalık Ödev': '#f59e0b',
+  'Soru Çözümü': '#ec4899',
+  Proje: '#6366f1',
+};
+
 const LEAGUE_COLORS: Record<string, string> = {
   Bronz: '#cd7f32', Gümüş: '#9ca3af', Altın: '#f59e0b',
   Elmas: '#38bdf8', Zümrüt: '#10b981', Efsane: '#a855f7',
@@ -775,51 +799,146 @@ function StudentDetailModal({ studentId, onClose }: { studentId: string; onClose
               </div>
 
               {/* ── 2. Canlı Odaklanma Bildirimi (Live Presence Banner) ── */}
-              {data.liveSession?.isLive ? (
-                <div style={{
-                  padding: '16px 20px',
-                  borderRadius: 14,
-                  background: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(6,78,59,0.25))',
-                  border: '1.5px solid rgba(16,185,129,0.4)',
-                  boxShadow: '0 0 25px rgba(16,185,129,0.15)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  flexWrap: 'wrap',
-                  gap: 14
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                    <div style={{ position: 'relative', width: 16, height: 16 }}>
-                      <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: '#10b981', opacity: 0.6, animation: 'ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite' }} />
-                      <div style={{ position: 'absolute', inset: 2, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 10px #10b981' }} />
+              {data.liveSession?.isLive ? (() => {
+                const isBreak = data.liveSession.status === 'break' || data.liveSession.status === 'break_paused' || data.liveSession.mode?.includes('Break');
+                const isPaused = data.liveSession.status === 'paused';
+
+                if (isBreak) {
+                  const breakMinutesLeft = Math.max(1, Math.ceil((data.liveSession.time_left_sec || 300) / 60));
+                  return (
+                    <div style={{
+                      padding: '16px 20px',
+                      borderRadius: 14,
+                      background: 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(180,83,9,0.25))',
+                      border: '1.5px solid rgba(245,158,11,0.4)',
+                      boxShadow: '0 0 25px rgba(245,158,11,0.15)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      flexWrap: 'wrap',
+                      gap: 14
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                        <div style={{ position: 'relative', width: 16, height: 16 }}>
+                          <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: '#f59e0b', opacity: 0.6, animation: 'ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite' }} />
+                          <div style={{ position: 'absolute', inset: 2, borderRadius: '50%', background: '#f59e0b', boxShadow: '0 0 10px #f59e0b' }} />
+                        </div>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                            <span style={{ color: '#f59e0b', fontWeight: 800, fontSize: '0.92rem', letterSpacing: '0.04em' }}>
+                              ŞU AN MOLADA
+                            </span>
+                            <span style={{ background: 'rgba(245,158,11,0.25)', color: '#fcd34d', fontSize: '0.75rem', fontWeight: 700, padding: '2px 8px', borderRadius: 8 }}>
+                              {data.liveSession.mode === 'longBreak' ? 'Uzun Mola' : 'Kısa Mola'}
+                            </span>
+                            {data.liveSession.topic && (
+                              <span style={{ color: '#e2e8f0', fontSize: '0.82rem', fontWeight: 600 }}>
+                                • {data.liveSession.topic}
+                              </span>
+                            )}
+                          </div>
+                          <div style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: 4 }}>
+                            ☕ Zihinsel dinlenme seansı • Kalan mola süresi: ~<strong>{breakMinutesLeft} dakika</strong>
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ background: 'rgba(245,158,11,0.2)', padding: '6px 14px', borderRadius: 20, color: '#fef3c7', fontSize: '0.8rem', fontWeight: 700, border: '1px solid rgba(245,158,11,0.3)' }}>
+                        ☕ Molada
+                      </div>
                     </div>
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                        <span style={{ color: '#10b981', fontWeight: 800, fontSize: '0.92rem', letterSpacing: '0.04em' }}>
-                          ŞU AN CANLI ODAKLANIYOR
-                        </span>
-                        <span style={{ background: 'rgba(16,185,129,0.25)', color: '#6ee7b7', fontSize: '0.75rem', fontWeight: 700, padding: '2px 8px', borderRadius: 8 }}>
-                          {data.liveSession.subject}
-                        </span>
-                        {data.liveSession.topic && (
-                          <span style={{ color: '#e2e8f0', fontSize: '0.82rem', fontWeight: 600 }}>
-                            • {data.liveSession.topic}
+                  );
+                }
+
+                if (isPaused) {
+                  return (
+                    <div style={{
+                      padding: '16px 20px',
+                      borderRadius: 14,
+                      background: 'linear-gradient(135deg, rgba(59,130,246,0.15), rgba(30,58,138,0.25))',
+                      border: '1.5px solid rgba(59,130,246,0.4)',
+                      boxShadow: '0 0 25px rgba(59,130,246,0.15)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      flexWrap: 'wrap',
+                      gap: 14
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                        <div style={{ position: 'relative', width: 16, height: 16 }}>
+                          <div style={{ position: 'absolute', inset: 2, borderRadius: '50%', background: '#3b82f6', boxShadow: '0 0 10px #3b82f6' }} />
+                        </div>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                            <span style={{ color: '#93c5fd', fontWeight: 800, fontSize: '0.92rem', letterSpacing: '0.04em' }}>
+                              SEANS DURAKLATILDI
+                            </span>
+                            <span style={{ background: 'rgba(59,130,246,0.25)', color: '#bfdbfe', fontSize: '0.75rem', fontWeight: 700, padding: '2px 8px', borderRadius: 8 }}>
+                              {data.liveSession.subject}
+                            </span>
+                            {data.liveSession.topic && (
+                              <span style={{ color: '#e2e8f0', fontSize: '0.82rem', fontWeight: 600 }}>
+                                • {data.liveSession.topic}
+                              </span>
+                            )}
+                          </div>
+                          <div style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: 4 }}>
+                            ⏸️ <strong>{data.liveSession.elapsed_min} dakikadır</strong> açık • Seans geçici olarak bekletiliyor
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ background: 'rgba(59,130,246,0.2)', padding: '6px 14px', borderRadius: 20, color: '#dbeafe', fontSize: '0.8rem', fontWeight: 700, border: '1px solid rgba(59,130,246,0.3)' }}>
+                        ⏸️ Duraklatıldı
+                      </div>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div style={{
+                    padding: '16px 20px',
+                    borderRadius: 14,
+                    background: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(6,78,59,0.25))',
+                    border: '1.5px solid rgba(16,185,129,0.4)',
+                    boxShadow: '0 0 25px rgba(16,185,129,0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: 14
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                      <div style={{ position: 'relative', width: 16, height: 16 }}>
+                        <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: '#10b981', opacity: 0.6, animation: 'ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite' }} />
+                        <div style={{ position: 'absolute', inset: 2, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 10px #10b981' }} />
+                      </div>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                          <span style={{ color: '#10b981', fontWeight: 800, fontSize: '0.92rem', letterSpacing: '0.04em' }}>
+                            ŞU AN CANLI ODAKLANIYOR
                           </span>
-                        )}
-                      </div>
-                      <div style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: 4 }}>
-                        ⏱️ <strong>{data.liveSession.elapsed_min} dakikadır</strong> çalışıyor • Hedef: {data.liveSession.duration_min} dk Pomodoro • Kalan süre: ~{Math.max(0, Math.floor(data.liveSession.time_left_sec / 60))} dk
+                          <span style={{ background: 'rgba(16,185,129,0.25)', color: '#6ee7b7', fontSize: '0.75rem', fontWeight: 700, padding: '2px 8px', borderRadius: 8 }}>
+                            {data.liveSession.subject}
+                          </span>
+                          {data.liveSession.topic && (
+                            <span style={{ color: '#e2e8f0', fontSize: '0.82rem', fontWeight: 600 }}>
+                              • {data.liveSession.topic}
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: 4 }}>
+                          ⏱️ <strong>{data.liveSession.elapsed_min} dakikadır</strong> çalışıyor • Hedef: {data.liveSession.duration_min} dk Pomodoro • Kalan süre: ~{Math.max(0, Math.floor(data.liveSession.time_left_sec / 60))} dk
+                        </div>
                       </div>
                     </div>
+                    <div style={{ background: 'rgba(16,185,129,0.2)', padding: '6px 14px', borderRadius: 20, color: '#a7f3d0', fontSize: '0.8rem', fontWeight: 700, border: '1px solid rgba(16,185,129,0.3)' }}>
+                      🟢 Aktif Odakta
+                    </div>
                   </div>
-                  <div style={{ background: 'rgba(16,185,129,0.2)', padding: '6px 14px', borderRadius: 20, color: '#a7f3d0', fontSize: '0.8rem', fontWeight: 700, border: '1px solid rgba(16,185,129,0.3)' }}>
-                    🟢 Aktif Odakta
-                  </div>
-                </div>
-              ) : (
+                );
+              })() : (
                 <div style={{ padding: '12px 18px', borderRadius: 12, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 10, color: '#94a3b8', fontSize: '0.82rem' }}>
                   <Clock size={16} color="#64748b" />
-                  <span>Şu an aktif bir odak oturumu yok (Öğrenci mola veriyor veya çevrimdışı).</span>
+                  <span>Şu an aktif bir odak oturumu yok (Öğrenci çevrimdışı veya serbest modda).</span>
                 </div>
               )}
 
@@ -1341,9 +1460,20 @@ function TeacherDashboardContent() {
 
   // Form states
   const [newClassName, setNewClassName] = useState('');
-  const [newAssignment, setNewAssignment] = useState({ title: '', description: '', class_id: '', due_date: '' });
+  const [newAssignment, setNewAssignment] = useState({
+    title: '', description: '', class_id: '', due_date: '',
+    category: 'Genel', subject: '', topic: '', generateQuestions: false, questionCount: 5
+  });
   const [newResource, setNewResource] = useState({ title: '', content: '', subject: '', topic: '', resource_type: 'note', class_id: '' });
-  const [newAnnouncement, setNewAnnouncement] = useState({ title: '', content: '', class_id: '' });
+  const [newAnnouncement, setNewAnnouncement] = useState({
+    title: '', content: '', class_id: '', category: 'Genel', event_date: ''
+  });
+
+  // Edit & Category Filter States
+  const [editingAssignment, setEditingAssignment] = useState<any>(null);
+  const [editingAnnouncement, setEditingAnnouncement] = useState<any>(null);
+  const [announcementCategory, setAnnouncementCategory] = useState<string>('Tümü');
+  const [assignmentCategory, setAssignmentCategory] = useState<string>('Tümü');
 
   // UI states
   const [loading, setLoading] = useState(false);
@@ -1666,6 +1796,84 @@ function TeacherDashboardContent() {
       fetchAssignments();
     } catch (e) {
       console.error('Update assignment status error:', e);
+    }
+  };
+
+  const handleUpdateAssignment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingAssignment || !editingAssignment.title) return;
+    setSubmitting(true);
+    try {
+      const res = await fetch(`/api/ogretmen/odev/${editingAssignment.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...editingAssignment,
+          isAssignmentUpdate: true
+        })
+      });
+      if (res.ok) {
+        fetchAssignments();
+        fetchDashboard();
+        setEditingAssignment(null);
+        setActiveModal(null);
+      }
+    } catch (e) {
+      console.error('Update assignment error:', e);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDeleteAssignment = async (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!confirm('Bu ödevi ve tüm öğrenci teslimlerini silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) return;
+    try {
+      const res = await fetch(`/api/ogretmen/odev/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        fetchAssignments();
+        fetchDashboard();
+        if (activeModal === 'odevDetay') setActiveModal(null);
+      }
+    } catch (e) {
+      console.error('Delete assignment error:', e);
+    }
+  };
+
+  const handleUpdateAnnouncement = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingAnnouncement || !editingAnnouncement.title) return;
+    setSubmitting(true);
+    try {
+      const res = await fetch('/api/ogretmen/duyurular', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingAnnouncement)
+      });
+      if (res.ok) {
+        fetchAnnouncements();
+        fetchDashboard();
+        setEditingAnnouncement(null);
+        setActiveModal(null);
+      }
+    } catch (e) {
+      console.error('Update announcement error:', e);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDeleteAnnouncement = async (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!confirm('Bu duyuruyu silmek istediğinizden emin misiniz?')) return;
+    try {
+      const res = await fetch(`/api/ogretmen/duyurular?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        fetchAnnouncements();
+        fetchDashboard();
+      }
+    } catch (e) {
+      console.error('Delete announcement error:', e);
     }
   };
 
@@ -2008,9 +2216,9 @@ function TeacherDashboardContent() {
                 <Filter size={14} /> {filteredStudents.length} öğrenci
               </div>
               {/* Risk filter badge */}
-              {students.filter(s => (s.streak_days ?? 0) === 0).length > 0 && (
+              {students.filter(s => (s.streak_days ?? 0) === 0 && !s.is_live_focusing).length > 0 && (
                 <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 10, padding: '0.4rem 0.85rem', color: '#ef4444', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700 }}>
-                  <AlertTriangle size={14} /> {students.filter(s => (s.streak_days ?? 0) === 0).length} öğrenci hareketsiz
+                  <AlertTriangle size={14} /> {students.filter(s => (s.streak_days ?? 0) === 0 && !s.is_live_focusing).length} öğrenci hareketsiz
                 </div>
               )}
             </div>
@@ -2054,7 +2262,7 @@ function TeacherDashboardContent() {
                   </thead>
                   <tbody>
                     {filteredStudents.map((s, idx) => {
-                      const isAtRisk = (s.streak_days ?? 0) === 0;
+                      const isAtRisk = (s.streak_days ?? 0) === 0 && !s.is_live_focusing;
                       return (
                       <tr key={s.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', transition: 'background 0.15s', background: isAtRisk ? 'rgba(239,68,68,0.03)' : 'transparent', cursor: 'pointer' }}
                         onMouseEnter={e => (e.currentTarget.style.background = isAtRisk ? 'rgba(239,68,68,0.07)' : 'rgba(255,255,255,0.03)')}
@@ -2073,24 +2281,72 @@ function TeacherDashboardContent() {
                             <div>
                               <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                                 <span>{s.username}</span>
-                                {s.is_live_focusing && (
-                                  <span style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: 5,
-                                    padding: '2px 8px',
-                                    borderRadius: 12,
-                                    background: 'rgba(16,185,129,0.2)',
-                                    border: '1px solid rgba(16,185,129,0.4)',
-                                    color: '#6ee7b7',
-                                    fontSize: '0.72rem',
-                                    fontWeight: 700,
-                                    boxShadow: '0 0 10px rgba(16,185,129,0.2)'
-                                  }}>
-                                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
-                                    CANLI: {s.active_subject || 'Odak'} ({s.focus_elapsed_min || 1} dk)
-                                  </span>
-                                )}
+                                {s.is_live_focusing && (() => {
+                                  const isBreak = s.live_status === 'break' || s.live_status === 'break_paused' || s.live_mode?.includes('Break');
+                                  const isPaused = s.live_status === 'paused';
+
+                                  if (isBreak) {
+                                    const breakMinutesLeft = Math.max(1, Math.ceil((s.active_time_left_sec || 300) / 60));
+                                    return (
+                                      <span style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: 5,
+                                        padding: '2px 8px',
+                                        borderRadius: 12,
+                                        background: 'rgba(245,158,11,0.2)',
+                                        border: '1px solid rgba(245,158,11,0.4)',
+                                        color: '#fcd34d',
+                                        fontSize: '0.72rem',
+                                        fontWeight: 700,
+                                        boxShadow: '0 0 10px rgba(245,158,11,0.2)'
+                                      }}>
+                                        <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#f59e0b', boxShadow: '0 0 8px #f59e0b' }} />
+                                        ☕ MOLADA: {s.live_mode === 'longBreak' ? 'Uzun Mola' : 'Kısa Mola'} ({breakMinutesLeft} dk kaldı)
+                                      </span>
+                                    );
+                                  }
+
+                                  if (isPaused) {
+                                    return (
+                                      <span style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: 5,
+                                        padding: '2px 8px',
+                                        borderRadius: 12,
+                                        background: 'rgba(59,130,246,0.2)',
+                                        border: '1px solid rgba(59,130,246,0.4)',
+                                        color: '#93c5fd',
+                                        fontSize: '0.72rem',
+                                        fontWeight: 700,
+                                        boxShadow: '0 0 10px rgba(59,130,246,0.2)'
+                                      }}>
+                                        <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#3b82f6', boxShadow: '0 0 8px #3b82f6' }} />
+                                        ⏸️ DURAKLATILDI: {s.active_subject || 'Odak'} ({s.focus_elapsed_min || 1} dk)
+                                      </span>
+                                    );
+                                  }
+
+                                  return (
+                                    <span style={{
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: 5,
+                                      padding: '2px 8px',
+                                      borderRadius: 12,
+                                      background: 'rgba(16,185,129,0.2)',
+                                      border: '1px solid rgba(16,185,129,0.4)',
+                                      color: '#6ee7b7',
+                                      fontSize: '0.72rem',
+                                      fontWeight: 700,
+                                      boxShadow: '0 0 10px rgba(16,185,129,0.2)'
+                                    }}>
+                                      <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
+                                      🟢 CANLI: {s.active_subject || 'Odak'} ({s.focus_elapsed_min || 1} dk)
+                                    </span>
+                                  );
+                                })()}
                                 {isAtRisk && <AlertTriangle size={12} color="#ef4444" title="Hareketsiz öğrenci" />}
                               </div>
                               <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 2, flexWrap: 'wrap' }}>
@@ -2153,74 +2409,163 @@ function TeacherDashboardContent() {
         {/* ══════════════════════════════════════════
             TAB: ÖDEVLER
         ══════════════════════════════════════════ */}
-        {activeTab === 'odevler' && (
-          <motion.div key="odevler" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <h2 style={{ color: '#fff', fontSize: '1.4rem', fontWeight: 700, margin: 0 }}>Ödevler</h2>
-              <button onClick={() => setActiveModal('odev')} className="btn-interactive" style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#000', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}>
-                <Plus size={16} /> Ödev Ata
-              </button>
-            </div>
+        {activeTab === 'odevler' && (() => {
+          const filteredAssignments = assignments.filter(a => {
+            if (assignmentCategory === 'Tümü') return true;
+            return (a.category || 'Genel') === assignmentCategory;
+          });
 
-            {assignments.length === 0 ? (
-              <div className="premium-card" style={{ padding: '4rem', textAlign: 'center' }}>
-                <ClipboardList size={52} color="rgba(255,255,255,0.1)" style={{ margin: '0 auto 1rem', display: 'block' }} />
-                <h3 style={{ color: '#fff' }}>Henüz ödev ataması yapılmadı</h3>
+          return (
+            <motion.div key="odevler" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: 10 }}>
+                <div>
+                  <h2 style={{ color: '#fff', fontSize: '1.4rem', fontWeight: 700, margin: 0 }}>Ödevler</h2>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', margin: '4px 0 0' }}>Sınıflara atanan ödevlerin teslim durumu, notlandırma ve kategori yönetimi</p>
+                </div>
+                <button onClick={() => setActiveModal('odev')} className="btn-interactive" style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#000', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', fontWeight: 700 }}>
+                  <Plus size={16} /> Ödev Ata
+                </button>
               </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {assignments.map((a) => {
-                  const submitRate = a.total_assigned > 0 ? (a.submitted_count / a.total_assigned) * 100 : 0;
-                  const left = daysLeft(a.due_date);
-                  const isOverdue = left !== null && left < 0;
-                  const isUrgent = left !== null && left >= 0 && left <= 2;
+
+              {/* Kategori Filtre Çubuğu */}
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', overflowX: 'auto', paddingBottom: '4px' }}>
+                {ASSIGNMENT_CATEGORIES.map(cat => {
+                  const isActive = assignmentCategory === cat;
+                  const catColor = ASSIGNMENT_CATEGORY_COLORS[cat] || '#f59e0b';
                   return (
-                    <div key={a.id} className="premium-card" style={{ padding: '1.5rem', cursor: 'pointer', transition: 'transform 0.15s, box-shadow 0.15s' }}
-                      onClick={() => { fetchAssignmentDetail(a.id); setActiveModal('odevDetay'); }}
-                      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.4)'; }}
-                      onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}
+                    <button
+                      key={cat}
+                      onClick={() => setAssignmentCategory(cat)}
+                      style={{
+                        padding: '6px 14px',
+                        borderRadius: 20,
+                        fontSize: '0.8rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        background: isActive ? catColor : 'rgba(255,255,255,0.04)',
+                        color: isActive ? '#fff' : '#9ca3af',
+                        border: `1px solid ${isActive ? catColor : 'rgba(255,255,255,0.08)'}`,
+                        transition: 'all 0.15s',
+                        whiteSpace: 'nowrap'
+                      }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem', flexWrap: 'wrap' }}>
-                            <h3 style={{ color: '#fff', fontSize: '1.05rem', fontWeight: 700, margin: 0 }}>{a.title}</h3>
-                            {isOverdue && <Badge label="Süresi Geçti" color="#ef4444" />}
-                            {isUrgent && !isOverdue && <Badge label="Acil" color="#f59e0b" />}
-                          </div>
-                          {a.description && <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: 0, lineHeight: 1.5 }}>{a.description.substring(0, 100)}{a.description.length > 100 ? '…' : ''}</p>}
-                        </div>
-                        <div style={{ textAlign: 'right', marginLeft: '1rem', flexShrink: 0 }}>
-                          <div style={{ color: '#fff', fontWeight: 800, fontSize: '1.2rem' }}>{a.submitted_count}<span style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 400 }}>/{a.total_assigned}</span></div>
-                          <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>teslim</div>
-                        </div>
-                      </div>
-
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.6rem' }}>
-                        <MiniBar value={a.submitted_count} max={a.total_assigned} color={submitRate === 100 ? '#10b981' : submitRate >= 50 ? '#f59e0b' : '#ef4444'} />
-                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', whiteSpace: 'nowrap' }}>{Math.round(submitRate)}%</span>
-                      </div>
-
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                          {submitRate === 100 && <Badge label="Tamamlandı ✓" color="#10b981" />}
-                        </div>
-                        {a.due_date && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: isOverdue ? '#ef4444' : isUrgent ? '#f59e0b' : 'var(--text-muted)', fontSize: '0.78rem' }}>
-                            <Calendar size={12} />
-                            {isOverdue ? 'Süresi doldu' : `Son: ${formatDate(a.due_date)}`}
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                      {cat}
+                    </button>
                   );
                 })}
               </div>
-            )}
-          </motion.div>
-        )}
+
+              {filteredAssignments.length === 0 ? (
+                <div className="premium-card" style={{ padding: '4rem', textAlign: 'center' }}>
+                  <ClipboardList size={52} color="rgba(255,255,255,0.1)" style={{ margin: '0 auto 1rem', display: 'block' }} />
+                  <h3 style={{ color: '#fff', margin: 0 }}>
+                    {assignments.length === 0 ? 'Henüz ödev ataması yapılmadı' : 'Bu kategoride ödev bulunamadı'}
+                  </h3>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: 6 }}>Yeni bir ödev oluşturarak öğrencilerinize görev atayabilirsiniz.</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {filteredAssignments.map((a) => {
+                    const submitRate = a.total_assigned > 0 ? (a.submitted_count / a.total_assigned) * 100 : 0;
+                    const left = daysLeft(a.due_date);
+                    const isOverdue = left !== null && left < 0;
+                    const isUrgent = left !== null && left >= 0 && left <= 2;
+                    const catColor = ASSIGNMENT_CATEGORY_COLORS[a.category || 'Genel'] || '#f59e0b';
+
+                    return (
+                      <div key={a.id} className="premium-card" style={{ padding: '1.5rem', cursor: 'pointer', transition: 'transform 0.15s, box-shadow 0.15s', borderLeft: `3px solid ${catColor}` }}
+                        onClick={() => { fetchAssignmentDetail(a.id); setActiveModal('odevDetay'); }}
+                        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.4)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem', gap: 10, flexWrap: 'wrap' }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.45rem', flexWrap: 'wrap' }}>
+                              <Badge label={a.category || 'Genel'} color={catColor} />
+                              {a.target_sinif && <Badge label={a.target_sinif} color="#6b7280" />}
+                              {a.subject && (
+                                <span style={{ fontSize: '0.75rem', color: '#a78bfa', background: 'rgba(167,139,250,0.1)', padding: '2px 8px', borderRadius: 6, fontWeight: 600 }}>
+                                  {a.subject}{a.topic ? ` • ${a.topic}` : ''}
+                                </span>
+                              )}
+                              {isOverdue && <Badge label="Süresi Geçti" color="#ef4444" />}
+                              {isUrgent && !isOverdue && <Badge label="Acil" color="#f59e0b" />}
+                            </div>
+                            <h3 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 700, margin: '0 0 0.35rem' }}>{a.title}</h3>
+                            {a.description && <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: 0, lineHeight: 1.5 }}>{a.description.substring(0, 120)}{a.description.length > 120 ? '…' : ''}</p>}
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
+                            <div style={{ textAlign: 'right' }}>
+                              <div style={{ color: '#fff', fontWeight: 800, fontSize: '1.25rem' }}>
+                                {a.submitted_count}<span style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 400 }}>/{a.total_assigned}</span>
+                              </div>
+                              <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>teslim edildi</div>
+                            </div>
+
+                            {/* Aksiyonlar: Düzenle & Sil */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginLeft: '0.5rem' }}>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditingAssignment({
+                                    id: a.id,
+                                    title: a.title,
+                                    description: a.description || '',
+                                    due_date: a.due_date ? a.due_date.split('T')[0] : '',
+                                    category: a.category || 'Genel',
+                                    subject: a.subject || '',
+                                    topic: a.topic || ''
+                                  });
+                                  setActiveModal('odevDuzenle');
+                                }}
+                                title="Ödevi Düzenle"
+                                style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: 8, padding: '6px 12px', color: '#f59e0b', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.78rem', fontWeight: 600, transition: 'all 0.15s' }}
+                              >
+                                <PenLine size={13} /> Düzenle
+                              </button>
+                              <button
+                                onClick={(e) => handleDeleteAssignment(a.id, e)}
+                                title="Ödevi Sil"
+                                style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 8, padding: '6px 12px', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.78rem', fontWeight: 600, transition: 'all 0.15s' }}
+                              >
+                                <Trash2 size={13} /> Sil
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.6rem' }}>
+                          <MiniBar value={a.submitted_count} max={a.total_assigned} color={submitRate === 100 ? '#10b981' : submitRate >= 50 ? '#f59e0b' : '#ef4444'} />
+                          <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', whiteSpace: 'nowrap' }}>{Math.round(submitRate)}%</span>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+                          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            {submitRate === 100 && <Badge label="Tamamlandı ✓" color="#10b981" />}
+                            <span style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>Oluşturulma: {formatDate(a.created_at)}</span>
+                          </div>
+                          {a.due_date && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: isOverdue ? '#ef4444' : isUrgent ? '#f59e0b' : '#38bdf8', fontSize: '0.78rem', fontWeight: 600 }}>
+                              <Calendar size={13} />
+                              {isOverdue ? 'Son Teslim Geçti' : `Son Teslim: ${formatDate(a.due_date)}`}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </motion.div>
+          );
+        })()}
 
         {/* ══════════════════════════════════════════
             TAB: ANALİZ
+        ══════════════════════════════════════════ */}
+        {/* ══════════════════════════════════════════
+            TAB: ANALİZ (KURUMSAL BAŞARI MERKEZİ)
         ══════════════════════════════════════════ */}
         {activeTab === 'analiz' && (
           <motion.div key="analiz" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
@@ -2229,106 +2574,333 @@ function TeacherDashboardContent() {
                 <Loader2 size={36} color="#f43f5e" style={{ animation: 'spin 1s linear infinite' }} />
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
-                {/* AI Asistan Bölümü */}
+                {/* Başlık ve Yenile Butonu */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+                  <div>
+                    <h2 style={{ color: '#fff', fontSize: '1.45rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <BarChart2 size={24} color="#f43f5e" /> Kurumsal Analiz & Başarı Merkezi
+                    </h2>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: '4px 0 0' }}>
+                      Kurumunuzdaki tüm sınıfların, branşların ve yüzlerce öğrencinin derinlemesine analitiği
+                    </p>
+                  </div>
+                  <button 
+                    onClick={() => { fetchAnalytics(); fetchClasses(); if (aiClassId) fetchClassInsights(aiClassId); }}
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#e2e8f0', padding: '8px 16px', borderRadius: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.82rem', fontWeight: 600, transition: 'background 0.2s' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                  >
+                    <RefreshCw size={14} /> Analizi Yenile
+                  </button>
+                </div>
+
+                {/* AI Asistan ve Haftalık Rapor Bölümü */}
                 <AIAssistantWidget classId={aiClassId} />
                 <WeeklyReportWidget classId={aiClassId} />
 
-                {/* AI Insights (Faz 3) */}
-                <div className="premium-card" style={{ padding: '1.5rem', background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(16, 185, 129, 0.05))', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
-                  <h3 style={{ color: '#fff', margin: '0 0 1rem', fontSize: '1.1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <BrainCircuit size={20} color="#a78bfa" /> Yapay Zeka Sınıf Asistanı
-                  </h3>
-                  <p style={{ color: '#e2e8f0', fontSize: '0.95rem', lineHeight: 1.6, margin: 0 }}>
-                    {analytics.aiInsight || "Sınıflarınızın verileri henüz analiz ediliyor..."}
+                {/* Dinamik AI Kurumsal Yönetici Özeti */}
+                <div className="premium-card" style={{ padding: '1.5rem', background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(16, 185, 129, 0.08))', border: '1px solid rgba(139, 92, 246, 0.35)', borderRadius: 16 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '0.75rem' }}>
+                    <div style={{ width: 34, height: 34, borderRadius: 10, background: 'linear-gradient(135deg, #8b5cf6, #10b981)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <BrainCircuit size={18} color="#fff" />
+                    </div>
+                    <div>
+                      <h4 style={{ color: '#fff', margin: 0, fontSize: '1rem', fontWeight: 700 }}>AstraTutor Kurumsal Değerlendirme & Teşhis</h4>
+                      <span style={{ color: '#a78bfa', fontSize: '0.75rem', fontWeight: 600 }}>Yapay Zeka Destekli Kurum Analitiği</span>
+                    </div>
+                  </div>
+                  <p style={{ color: '#e2e8f0', fontSize: '0.92rem', lineHeight: 1.7, margin: 0 }}>
+                    {analytics.aiInsight || "Sınıflarınızın çalışma ve deneme verileri derleniyor..."}
                   </p>
                 </div>
 
-                {/* Top summary */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: '1rem' }}>
-                  <StatCard label="Teslim Oranı" value={`%${analytics.submissionStats?.rate ?? 0}`} icon={CheckCircle} color="#10b981" sub={`${analytics.submissionStats?.submitted ?? 0}/${analytics.submissionStats?.total ?? 0} teslim`} />
-                  <StatCard label="Notlanan Ödev" value={analytics.submissionStats?.graded ?? 0} icon={PenLine} color="#38bdf8" />
-                  <StatCard label="Haftalık Ödev" value={analytics.recentAssignments ?? 0} icon={ClipboardList} color="#f59e0b" sub="son 7 gün" />
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
-
-                  {/* Class performance */}
-                  <div className="premium-card" style={{ padding: '1.5rem' }}>
-                    <h3 style={{ color: '#fff', margin: '0 0 1.25rem', fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <BarChart2 size={18} color="#f43f5e" /> Sınıf Performansları
-                    </h3>
-                    {(analytics.classPerformance ?? []).length === 0 ? (
-                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Veri yok.</p>
-                    ) : (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
-                        {analytics.classPerformance.map((c: any, i: number) => {
-                          const colors = ['#10b981', '#38bdf8', '#a855f7', '#f59e0b', '#f43f5e'];
-                          const col = colors[i % colors.length];
-                          return (
-                            <div key={c.id}>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                                <span style={{ color: '#fff', fontWeight: 600, fontSize: '0.875rem' }}>{c.class_name}</span>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>{c.student_count} öğrenci</span>
-                                  <span style={{ color: col, fontWeight: 700, fontSize: '0.875rem' }}>%{c.avg_success}</span>
-                                </div>
-                              </div>
-                              <MiniBar value={c.avg_success} max={100} color={col} />
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
+                {/* Kurumsal KPI Grid Kartları (6'lı Kart) */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(175px, 1fr))', gap: '0.9rem' }}>
+                  <div style={{ background: 'rgba(56,189,248,0.06)', border: '1px solid rgba(56,189,248,0.2)', borderRadius: 14, padding: '1.1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#38bdf8', marginBottom: 8 }}>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.04em' }}>TOPLAM ÖĞRENCİ</span>
+                      <Users size={18} />
+                    </div>
+                    <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#fff' }}>{analytics.overview?.totalStudents || 0}</div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', marginTop: 4 }}>{analytics.overview?.totalClasses || 0} Aktif Sınıf</div>
                   </div>
 
-                  {/* Success bands donut */}
-                  <div className="premium-card" style={{ padding: '1.5rem' }}>
-                    <h3 style={{ color: '#fff', margin: '0 0 1.25rem', fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <Target size={18} color="#38bdf8" /> Başarı Dağılımı
-                    </h3>
-                    {(() => {
-                      const { low = 0, mid = 0, high = 0 } = analytics.successBands ?? {};
-                      const total = low + mid + high || 1;
-                      const bands = [
-                        { label: 'Yüksek (≥70%)', value: high, color: '#10b981' },
-                        { label: 'Orta (40-70%)', value: mid, color: '#f59e0b' },
-                        { label: 'Düşük (<40%)', value: low, color: '#ef4444' },
-                      ];
-                      return (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                          {bands.map(b => (
-                            <div key={b.label}>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-                                <span style={{ color: b.color, fontSize: '0.85rem', fontWeight: 600 }}>{b.label}</span>
-                                <span style={{ color: '#fff', fontWeight: 700 }}>{b.value} öğrenci <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>({Math.round((b.value / total) * 100)}%)</span></span>
-                              </div>
-                              <MiniBar value={b.value} max={total} color={b.color} />
-                            </div>
-                          ))}
-                        </div>
-                      );
-                    })()}
+                  <div style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 14, padding: '1.1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#10b981', marginBottom: 8 }}>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.04em' }}>ORTALAMA BAŞARI</span>
+                      <Target size={18} />
+                    </div>
+                    <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#10b981' }}>%{analytics.overview?.avgSuccessRate || 0}</div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', marginTop: 4 }}>Kurum Geneli Başarı</div>
+                  </div>
+
+                  <div style={{ background: 'rgba(168,85,247,0.06)', border: '1px solid rgba(168,85,247,0.2)', borderRadius: 14, padding: '1.1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#a855f7', marginBottom: 8 }}>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.04em' }}>TOPLAM ODAK SÜRESİ</span>
+                      <Clock size={18} />
+                    </div>
+                    <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#c084fc' }}>{analytics.overview?.totalFocusHours || 0} <span style={{ fontSize: '0.85rem' }}>Saat</span></div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', marginTop: 4 }}>Tamamlanan Pomodoro Seansları</div>
+                  </div>
+
+                  <div style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 14, padding: '1.1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#f59e0b', marginBottom: 8 }}>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.04em' }}>ÇÖZÜLEN TOPLAM SORU</span>
+                      <BookOpen size={18} />
+                    </div>
+                    <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#fbbf24' }}>{analytics.overview?.totalSolvedQuestions || 0}</div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', marginTop: 4 }}>Soru Çözüm Kayıtları</div>
+                  </div>
+
+                  <div style={{ background: 'rgba(236,72,153,0.06)', border: '1px solid rgba(236,72,153,0.2)', borderRadius: 14, padding: '1.1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#ec4899', marginBottom: 8 }}>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.04em' }}>AKTİF ÖĞRENCİ (7 GÜN)</span>
+                      <Flame size={18} />
+                    </div>
+                    <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#f472b6' }}>%{analytics.overview?.activeStudentRate || 0}</div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', marginTop: 4 }}>Haftalık Çalışan Öğrenci</div>
+                  </div>
+
+                  <div style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 14, padding: '1.1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#6366f1', marginBottom: 8 }}>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.04em' }}>ÖDEV TESLİM ORANI</span>
+                      <CheckCircle size={18} />
+                    </div>
+                    <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#818cf8' }}>%{analytics.submissionStats?.rate ?? 0}</div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', marginTop: 4 }}>{analytics.submissionStats?.submitted || 0}/{analytics.submissionStats?.total || 0} Teslim Edildi</div>
                   </div>
                 </div>
 
-                {/* Sınıf AI Analizi */}
-                <div className="premium-card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '0.5rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                {/* Sınıf Karşılaştırma & Başarı Matrisi */}
+                <div className="premium-card" style={{ padding: '1.5rem', overflow: 'hidden' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: 10 }}>
                     <div>
-                      <h3 style={{ color: '#fff', margin: 0, fontSize: '1.2rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <Sparkles size={20} color="#a855f7" style={{ fill: '#a855f7' }} /> Sınıf AI Analizi & Ortak Zayıf Yönler
+                      <h3 style={{ color: '#fff', margin: 0, fontSize: '1.05rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <BarChart2 size={18} color="#f43f5e" /> Sınıf Karşılaştırma & Başarı Matrisi
                       </h3>
-                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: 4 }}>Sınıf genelindeki hata istatistiklerine göre adaptif eğitim planı.</p>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem', margin: '4px 0 0' }}>Kurumunuzdaki sınıfların başarı, soru çözümü ve odaklanma kıyaslaması</p>
+                    </div>
+                  </div>
+
+                  {(analytics.classPerformance ?? []).length === 0 ? (
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', margin: '1rem 0' }}>Henüz kayıtlı sınıf bulunmuyor.</p>
+                  ) : (
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.02)' }}>
+                            {['Sınıf Adı', 'Öğrenci', 'Ortalama Başarı', 'Toplam Soru', 'Odak Saati', 'Ort. Seri', 'Risk Durumu', 'İşlem'].map((h, i) => (
+                              <th key={i} style={{ padding: '0.75rem 1rem', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                                {h}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {analytics.classPerformance.map((c: any, i: number) => {
+                            const colors = ['#10b981', '#38bdf8', '#a855f7', '#f59e0b', '#f43f5e'];
+                            const col = colors[i % colors.length];
+                            return (
+                              <tr key={c.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', transition: 'background 0.15s' }}>
+                                <td style={{ padding: '0.85rem 1rem', color: '#fff', fontWeight: 700 }}>
+                                  {c.class_name}
+                                </td>
+                                <td style={{ padding: '0.85rem 1rem', color: '#38bdf8', fontWeight: 600 }}>
+                                  {c.student_count} öğrenci
+                                </td>
+                                <td style={{ padding: '0.85rem 1rem' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                    <div style={{ width: 90 }}>
+                                      <MiniBar value={c.avg_success || 0} max={100} color={col} />
+                                    </div>
+                                    <span style={{ color: col, fontWeight: 700 }}>%{c.avg_success || 0}</span>
+                                  </div>
+                                </td>
+                                <td style={{ padding: '0.85rem 1rem', color: '#fbbf24', fontWeight: 700 }}>
+                                  {c.total_solved || 0}
+                                </td>
+                                <td style={{ padding: '0.85rem 1rem', color: '#c084fc', fontWeight: 600 }}>
+                                  {c.total_focus_hours || 0} saat
+                                </td>
+                                <td style={{ padding: '0.85rem 1rem', color: '#f59e0b' }}>
+                                  {c.avg_streak || 0} gün 🔥
+                                </td>
+                                <td style={{ padding: '0.85rem 1rem' }}>
+                                  {c.at_risk_count > 0 ? (
+                                    <span style={{ background: 'rgba(239,68,68,0.15)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)', padding: '2px 8px', borderRadius: 8, fontSize: '0.72rem', fontWeight: 700 }}>
+                                      ⚠️ {c.at_risk_count} Riskli
+                                    </span>
+                                  ) : (
+                                    <span style={{ color: '#10b981', fontSize: '0.75rem', fontWeight: 600 }}>✅ Dengeli</span>
+                                  )}
+                                </td>
+                                <td style={{ padding: '0.85rem 1rem' }}>
+                                  <button
+                                    onClick={() => {
+                                      setAiClassId(c.id);
+                                      setSelectedClassId(c.id);
+                                      fetchClassInsights(c.id);
+                                    }}
+                                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#e2e8f0', padding: '4px 10px', borderRadius: 6, cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600 }}
+                                  >
+                                    AI Analiz Et
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+
+                {/* Branş ve Ders Bazlı Çalışma & Soru Dağılımı */}
+                {analytics.subjectDistribution && analytics.subjectDistribution.length > 0 && (
+                  <div className="premium-card" style={{ padding: '1.5rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: 10 }}>
+                      <div>
+                        <h3 style={{ color: '#fff', margin: 0, fontSize: '1.05rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <BookOpen size={18} color="#38bdf8" /> Branş & Ders Bazlı Çalışma ve Soru Dağılımı
+                        </h3>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem', margin: '4px 0 0' }}>Kurum öğrencilerinin hangi derslere ağırlık verdiğinin detaylı dökümü</p>
+                      </div>
                     </div>
 
-                    {/* Class Selector Dropdown */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+                      {analytics.subjectDistribution.map((s: any, idx: number) => {
+                        const colors = ['#38bdf8', '#a855f7', '#10b981', '#f59e0b', '#f43f5e', '#ec4899'];
+                        const col = colors[idx % colors.length];
+                        return (
+                          <div key={s.subject} style={{ padding: '1.1rem', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                              <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>{s.subject}</span>
+                              <span style={{ color: col, fontWeight: 800, fontSize: '0.85rem' }}>{s.total_hours || (Math.round((s.total_minutes || 0) / 60 * 10) / 10)} saat</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: 6 }}>
+                              <span>{s.total_questions || 0} soru</span>
+                              <span>✅ {s.total_correct || 0} D / ❌ {s.total_wrong || 0} Y</span>
+                            </div>
+                            <div style={{ height: 5, background: 'rgba(255,255,255,0.06)', borderRadius: 3, overflow: 'hidden' }}>
+                              <div style={{ height: '100%', width: `${Math.min(100, (s.total_correct / (Math.max(1, s.total_questions))) * 100)}%`, background: col, borderRadius: 3 }} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Kritik Konu Hata Haritası & Acil Eylem Tablosu */}
+                {analytics.topWeaknesses && analytics.topWeaknesses.length > 0 && (
+                  <div className="premium-card" style={{ padding: '1.5rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: 10 }}>
+                      <div>
+                        <h3 style={{ color: '#fff', margin: 0, fontSize: '1.05rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <AlertTriangle size={18} color="#ef4444" /> Kurum Genelinde En Çok Zorlanılan Kritik Konular
+                        </h3>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem', margin: '4px 0 0' }}>Öğrencilerin hata kayıtlarından otomatik tespit edilen acil pekiştirme alanları</p>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.85rem' }}>
+                      {analytics.topWeaknesses.map((w: any, idx: number) => {
+                        const isHigh = w.severity === 'high';
+                        const isMed = w.severity === 'medium';
+                        return (
+                          <div key={idx} style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', border: `1px solid ${isHigh ? 'rgba(239,68,68,0.3)' : isMed ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.06)'}`, borderRadius: 12 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                              <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.88rem' }}>{w.subject} — {w.topic}</span>
+                              <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: 8, background: isHigh ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)', color: isHigh ? '#fca5a5' : '#fcd34d' }}>
+                                {isHigh ? '🔴 KRİTİK' : isMed ? '🟡 ORTA' : '🔵 DÜŞÜK'}
+                              </span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+                              <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                                {w.error_count} hata · {w.affected_students} öğrenci etkileniyor
+                              </span>
+                              <button
+                                onClick={() => {
+                                  setNewAssignment({
+                                    title: `${w.subject} — ${w.topic} Pekiştirme Testi`,
+                                    description: `Kurum genelinde ${w.topic} konusunda yapılan hataları telafi etmek için hazırlanan pekiştirme ödevidir.`,
+                                    subject: w.subject,
+                                    topic: w.topic,
+                                    category: 'Pekiştirme',
+                                    target_class_id: aiClassId || (classes[0]?.id ?? ''),
+                                    due_date: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
+                                  });
+                                  setActiveModal('odev');
+                                }}
+                                style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.25), rgba(99,102,241,0.2))', border: '1px solid rgba(139,92,246,0.4)', color: '#c4b5fd', padding: '4px 10px', borderRadius: 6, cursor: 'pointer', fontSize: '0.72rem', fontWeight: 700 }}
+                              >
+                                ⚡ Ödev Ata
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Günlük Aktivite & Zaman Çizelgesi Trendi */}
+                {analytics.dailyTrend && analytics.dailyTrend.length > 0 && (
+                  <div className="premium-card" style={{ padding: '1.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: '1.25rem' }}>
+                      <Calendar size={18} color="#10b981" />
+                      <div>
+                        <h3 style={{ color: '#fff', margin: 0, fontSize: '1rem', fontWeight: 700 }}>Son 14 Günlük Kurumsal Aktivite & Soru Çözüm Trendi</h3>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', margin: '2px 0 0' }}>Kurum öğrencilerinin günlük toplam odaklanma ve soru çözüm temposu</p>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem', height: 90, paddingBottom: 6 }}>
+                      {(() => {
+                        const maxVal = Math.max(...analytics.dailyTrend.map((d: any) => d.total_questions || d.total_minutes || 0), 10);
+                        return analytics.dailyTrend.map((d: any, idx: number) => {
+                          const heightPct = Math.max(6, Math.min(100, Math.round(((d.total_questions || d.total_minutes) / maxVal) * 100)));
+                          const label = new Date(d.day).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+                          return (
+                            <div key={idx} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, height: '100%', justifyContent: 'flex-end' }}>
+                              <div
+                                title={`${label}: ${d.total_questions || 0} soru, ${d.total_minutes || 0} dk odak`}
+                                style={{
+                                  width: '100%',
+                                  height: `${heightPct}%`,
+                                  background: 'linear-gradient(180deg, #10b981, #059669)',
+                                  borderRadius: '4px 4px 0 0',
+                                  transition: 'height 0.4s ease',
+                                }}
+                              />
+                              <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{label}</span>
+                            </div>
+                          );
+                        });
+                      })()}
+                    </div>
+                  </div>
+                )}
+
+                {/* Sınıf AI Analizi & Ortak Zayıf Yönler */}
+                <div className="premium-card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                    <div>
+                      <h3 style={{ color: '#fff', margin: 0, fontSize: '1.15rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Sparkles size={20} color="#a855f7" style={{ fill: '#a855f7' }} /> Sınıf Odaklı AI Zayıf Yön Raporu
+                      </h3>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: 4 }}>Seçilen sınıfa ait hata yoğunluğuna göre kişiselleştirilmiş analiz</p>
+                    </div>
+
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Sınıf Seç:</span>
                       <select 
                         value={aiClassId} 
-                        onChange={e => setAiClassId(e.target.value)}
+                        onChange={e => {
+                          setAiClassId(e.target.value);
+                          fetchClassInsights(e.target.value);
+                        }}
                         className="premium-input" 
                         style={{ padding: '0.4rem 2rem 0.4rem 1rem', width: 'auto', fontSize: '0.85rem', minWidth: '160px', background: 'rgba(255,255,255,0.05)', color: '#fff', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)' }}
                       >
@@ -2345,8 +2917,6 @@ function TeacherDashboardContent() {
                     </div>
                   ) : classInsights ? (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', alignItems: 'stretch' }}>
-                      
-                      {/* Left: Collective Weaknesses List */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', background: 'rgba(0,0,0,0.15)', padding: '1.25rem', borderRadius: 14, border: '1px solid rgba(255,255,255,0.03)' }}>
                         <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 700, marginBottom: 4, textAlign: 'left' }}>
                           Ortak Zayıf Konular (Top 3)
@@ -2374,7 +2944,6 @@ function TeacherDashboardContent() {
                         )}
                       </div>
 
-                      {/* Right: AI Insight box */}
                       <div style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.08) 0%, rgba(99, 102, 241, 0.05) 100%)', border: '1px solid rgba(168, 85, 247, 0.15)', padding: '1.5rem', borderRadius: 16, display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative', overflow: 'hidden' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#a855f7', fontWeight: 700, fontSize: '0.9rem' }}>
                           <Zap size={16} color="#a855f7" style={{ fill: '#a855f7' }} /> AI Koçun Sınıf Tavsiyesi
@@ -2383,7 +2952,6 @@ function TeacherDashboardContent() {
                           {classInsights.aiInsight}
                         </div>
                       </div>
-
                     </div>
                   ) : (
                     <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem', padding: '2rem' }}>
@@ -2392,67 +2960,128 @@ function TeacherDashboardContent() {
                   )}
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
-
-                  {/* Top students */}
+                {/* Öğrenci Performans Segmentasyonu (2 Kolon Grid) */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+                  {/* Sol: En Başarılı Öğrenciler (Tıklanabilir detay modalı) */}
                   <div className="premium-card" style={{ padding: '1.5rem' }}>
-                    <h3 style={{ color: '#fff', margin: '0 0 1.25rem', fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <Trophy size={18} color="#f59e0b" /> En Başarılı Öğrenciler
-                    </h3>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                      <h3 style={{ color: '#fff', margin: 0, fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Trophy size={18} color="#f59e0b" /> En Başarılı Yıldız Öğrenciler
+                      </h3>
+                      <span style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>Detay için tıklayın</span>
+                    </div>
+
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                       {(analytics.topStudents ?? []).map((s: any, i: number) => (
-                        <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0.85rem', background: 'rgba(255,255,255,0.03)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div 
+                          key={s.id} 
+                          onClick={() => setSelectedStudentId(s.id)}
+                          style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 0.9rem', background: 'rgba(255,255,255,0.03)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer', transition: 'background 0.2s' }}
+                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+                          onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
+                        >
                           <div style={{ width: 28, height: 28, borderRadius: '50%', background: i === 0 ? 'linear-gradient(135deg,#f59e0b,#d97706)' : i === 1 ? 'linear-gradient(135deg,#9ca3af,#6b7280)' : 'linear-gradient(135deg,#cd7f32,#a05a20)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '0.75rem', flexShrink: 0 }}>
                             {i + 1}
                           </div>
-                          <span style={{ color: '#fff', fontWeight: 600, fontSize: '0.875rem', flex: 1 }}>{s.username}</span>
-                          <span style={{ color: successColor(s.success_rate), fontWeight: 700, fontSize: '0.875rem' }}>%{(s.success_rate ?? 0).toFixed(1)}</span>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.875rem' }}>{s.username}</div>
+                            <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>{s.alan || 'Genel'} · {s.solved_questions || 0} soru</div>
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <span style={{ color: successColor(s.success_rate), fontWeight: 800, fontSize: '0.9rem' }}>%{Number(s.success_rate || 0).toFixed(1)}</span>
+                          </div>
                         </div>
                       ))}
-                      {(analytics.topStudents ?? []).length === 0 && <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Veri yok.</p>}
+                      {(analytics.topStudents ?? []).length === 0 && <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Kayıtlı öğrenci bulunmuyor.</p>}
                     </div>
                   </div>
 
-                  {/* At-risk students */}
+                  {/* Sağ: Dikkat & Destek Gerektiren Öğrenciler (Tıklanabilir) */}
                   <div className="premium-card" style={{ padding: '1.5rem' }}>
-                    <h3 style={{ color: '#fff', margin: '0 0 1.25rem', fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <AlertTriangle size={18} color="#ef4444" /> Dikkat Gerektiren
-                    </h3>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                      <h3 style={{ color: '#fff', margin: 0, fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <AlertTriangle size={18} color="#ef4444" /> Takip & Destek Gerektirenler
+                      </h3>
+                      <span style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>Müdahale için tıklayın</span>
+                    </div>
+
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                       {(analytics.atRiskStudents ?? []).map((s: any) => (
-                        <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0.85rem', background: 'rgba(239,68,68,0.06)', borderRadius: 10, border: '1px solid rgba(239,68,68,0.2)' }}>
+                        <div 
+                          key={s.id} 
+                          onClick={() => setSelectedStudentId(s.id)}
+                          style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 0.9rem', background: 'rgba(239,68,68,0.06)', borderRadius: 10, border: '1px solid rgba(239,68,68,0.2)', cursor: 'pointer', transition: 'background 0.2s' }}
+                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.1)'}
+                          onMouseLeave={e => e.currentTarget.style.background = 'rgba(239,68,68,0.06)'}
+                        >
                           <AlertCircle size={16} color="#ef4444" style={{ flexShrink: 0 }} />
-                          <span style={{ color: '#fff', fontWeight: 600, fontSize: '0.875rem', flex: 1 }}>{s.username}</span>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.875rem' }}>{s.username}</div>
+                            <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>{s.sinif ? `${s.sinif}. Sınıf` : 'Öğrenci'} · {s.solved_questions || 0} soru</div>
+                          </div>
                           <div style={{ textAlign: 'right' }}>
-                            <div style={{ color: '#ef4444', fontWeight: 700, fontSize: '0.85rem' }}>%{(s.success_rate ?? 0).toFixed(1)}</div>
-                            {s.streak_days === 0 && <div style={{ color: 'var(--text-muted)', fontSize: '0.7rem' }}>streak yok</div>}
+                            <div style={{ color: '#ef4444', fontWeight: 800, fontSize: '0.88rem' }}>%{Number(s.success_rate || 0).toFixed(1)}</div>
+                            {s.streak_days === 0 && <div style={{ color: '#f87171', fontSize: '0.68rem', fontWeight: 600 }}>0 gün seri</div>}
                           </div>
                         </div>
                       ))}
                       {(analytics.atRiskStudents ?? []).length === 0 && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#10b981', fontSize: '0.875rem' }}>
-                          <CheckCircle size={16} /> Tüm öğrenciler iyi durumda!
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#10b981', fontSize: '0.875rem', padding: '1rem 0' }}>
+                          <CheckCircle size={16} /> Tüm öğrenciler aktif ve hedeflerinde ilerliyor!
                         </div>
                       )}
                     </div>
                   </div>
                 </div>
 
-                {/* League distribution */}
-                <div className="premium-card" style={{ padding: '1.5rem' }}>
-                  <h3 style={{ color: '#fff', margin: '0 0 1.25rem', fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Shield size={18} color="#a855f7" /> Lig Dağılımı
-                  </h3>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-                    {(analytics.leagueDistribution ?? []).map((l: any) => (
-                      <div key={l.league} style={{ flex: '1 1 140px', padding: '1rem', background: `${LEAGUE_COLORS[l.league] ?? '#9ca3af'}15`, border: `1px solid ${LEAGUE_COLORS[l.league] ?? '#9ca3af'}35`, borderRadius: 12, textAlign: 'center' }}>
-                        <div style={{ fontSize: '1.6rem', fontWeight: 800, color: LEAGUE_COLORS[l.league] ?? '#9ca3af' }}>{l.count}</div>
-                        <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: 2 }}>{l.league}</div>
-                      </div>
-                    ))}
-                    {(analytics.leagueDistribution ?? []).length === 0 && <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Veri yok.</p>}
+                {/* Lig ve Başarı Bantları Dağılımı */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem' }}>
+                  {/* Başarı Dağılımı */}
+                  <div className="premium-card" style={{ padding: '1.5rem' }}>
+                    <h3 style={{ color: '#fff', margin: '0 0 1.25rem', fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <Target size={18} color="#38bdf8" /> Kurumsal Başarı Dağılımı
+                    </h3>
+                    {(() => {
+                      const { low = 0, mid = 0, high = 0 } = analytics.successBands ?? {};
+                      const total = low + mid + high || 1;
+                      const bands = [
+                        { label: 'Yüksek Başarı (≥70%)', value: high, color: '#10b981' },
+                        { label: 'Orta Düzey (40-70%)', value: mid, color: '#f59e0b' },
+                        { label: 'Destek Gerekli (<40%)', value: low, color: '#ef4444' },
+                      ];
+                      return (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+                          {bands.map(b => (
+                            <div key={b.label}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
+                                <span style={{ color: b.color, fontSize: '0.82rem', fontWeight: 600 }}>{b.label}</span>
+                                <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.85rem' }}>{b.value} öğrenci <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>({Math.round((b.value / total) * 100)}%)</span></span>
+                              </div>
+                              <MiniBar value={b.value} max={total} color={b.color} />
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
+                  </div>
+
+                  {/* Lig Dağılımı */}
+                  <div className="premium-card" style={{ padding: '1.5rem' }}>
+                    <h3 style={{ color: '#fff', margin: '0 0 1.25rem', fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <Shield size={18} color="#a855f7" /> Kurum Lig Dağılımı
+                    </h3>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+                      {(analytics.leagueDistribution ?? []).map((l: any) => (
+                        <div key={l.league} style={{ flex: '1 1 120px', padding: '0.9rem', background: `${LEAGUE_COLORS[l.league] ?? '#9ca3af'}15`, border: `1px solid ${LEAGUE_COLORS[l.league] ?? '#9ca3af'}35`, borderRadius: 12, textAlign: 'center' }}>
+                          <div style={{ fontSize: '1.5rem', fontWeight: 800, color: LEAGUE_COLORS[l.league] ?? '#9ca3af' }}>{l.count}</div>
+                          <div style={{ color: 'var(--text-secondary)', fontSize: '0.78rem', marginTop: 2 }}>{l.league}</div>
+                        </div>
+                      ))}
+                      {(analytics.leagueDistribution ?? []).length === 0 && <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Veri yok.</p>}
+                    </div>
                   </div>
                 </div>
+
               </div>
             )}
           </motion.div>
@@ -2502,37 +3131,119 @@ function TeacherDashboardContent() {
         {/* ══════════════════════════════════════════
             TAB: DUYURULAR
         ══════════════════════════════════════════ */}
-        {activeTab === 'duyurular' && (
-          <motion.div key="duyurular" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <h2 style={{ color: '#fff', fontSize: '1.4rem', fontWeight: 700, margin: 0 }}>Duyurular</h2>
-              <button onClick={() => setActiveModal('duyuru')} className="btn-interactive" style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}>
-                <Plus size={16} /> Duyuru Gönder
-              </button>
-            </div>
-            {announcements.length === 0 ? (
-              <div className="premium-card" style={{ padding: '4rem', textAlign: 'center' }}>
-                <Megaphone size={52} color="rgba(255,255,255,0.1)" style={{ margin: '0 auto 1rem', display: 'block' }} />
-                <h3 style={{ color: '#fff' }}>Henüz duyuru gönderilmedi</h3>
+        {activeTab === 'duyurular' && (() => {
+          const filteredAnnouncements = announcements.filter(a => {
+            if (announcementCategory === 'Tümü') return true;
+            return (a.category || 'Genel') === announcementCategory;
+          });
+
+          return (
+            <motion.div key="duyurular" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: 10 }}>
+                <div>
+                  <h2 style={{ color: '#fff', fontSize: '1.4rem', fontWeight: 700, margin: 0 }}>Duyurular</h2>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', margin: '4px 0 0' }}>Sınıflara ve tüm öğrencilere yönelik bilgilendirme ve duyuru yönetimi</p>
+                </div>
+                <button onClick={() => setActiveModal('duyuru')} className="btn-interactive" style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}>
+                  <Plus size={16} /> Duyuru Gönder
+                </button>
               </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {announcements.map((a) => (
-                  <div key={a.id} className="premium-card" style={{ padding: '1.5rem', borderLeft: '3px solid #8b5cf6' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
-                      <h3 style={{ color: '#fff', fontSize: '1.05rem', fontWeight: 700, margin: 0 }}>{a.title}</h3>
-                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexShrink: 0, marginLeft: '1rem' }}>
-                        <Badge label={a.class_name ?? 'Tüm Sınıflar'} color="#8b5cf6" />
+
+              {/* Kategori Filtre Çubuğu */}
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', overflowX: 'auto', paddingBottom: '4px' }}>
+                {ANNOUNCEMENT_CATEGORIES.map(cat => {
+                  const isActive = announcementCategory === cat;
+                  const catColor = ANNOUNCEMENT_CATEGORY_COLORS[cat] || '#8b5cf6';
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => setAnnouncementCategory(cat)}
+                      style={{
+                        padding: '6px 14px',
+                        borderRadius: 20,
+                        fontSize: '0.8rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        background: isActive ? catColor : 'rgba(255,255,255,0.04)',
+                        color: isActive ? '#fff' : '#9ca3af',
+                        border: `1px solid ${isActive ? catColor : 'rgba(255,255,255,0.08)'}`,
+                        transition: 'all 0.15s',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {cat}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {filteredAnnouncements.length === 0 ? (
+                <div className="premium-card" style={{ padding: '4rem', textAlign: 'center' }}>
+                  <Megaphone size={52} color="rgba(255,255,255,0.1)" style={{ margin: '0 auto 1rem', display: 'block' }} />
+                  <h3 style={{ color: '#fff', margin: 0 }}>
+                    {announcements.length === 0 ? 'Henüz duyuru gönderilmedi' : 'Bu kategoride duyuru bulunamadı'}
+                  </h3>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: 6 }}>Yeni bir duyuru ekleyerek öğrencileri bilgilendirebilirsiniz.</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {filteredAnnouncements.map((a) => {
+                    const catColor = ANNOUNCEMENT_CATEGORY_COLORS[a.category || 'Genel'] || '#8b5cf6';
+                    return (
+                      <div key={a.id} className="premium-card" style={{ padding: '1.5rem', borderLeft: `3px solid ${catColor}` }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem', gap: 10, flexWrap: 'wrap' }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.45rem', flexWrap: 'wrap' }}>
+                              <Badge label={a.category || 'Genel'} color={catColor} />
+                              <Badge label={a.class_name ?? 'Tüm Sınıflar'} color="#6b7280" />
+                              {a.event_date && (
+                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: '#38bdf8', fontSize: '0.75rem', fontWeight: 600, background: 'rgba(56,189,248,0.1)', padding: '2px 8px', borderRadius: 6 }}>
+                                  <Calendar size={12} /> Tarih: {formatDate(a.event_date)}
+                                </span>
+                              )}
+                            </div>
+                            <h3 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>{a.title}</h3>
+                          </div>
+
+                          {/* Düzenle & Sil Butonları */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
+                            <button
+                              onClick={() => {
+                                setEditingAnnouncement({
+                                  id: a.id,
+                                  title: a.title,
+                                  content: a.content || '',
+                                  class_id: a.class_id || '',
+                                  category: a.category || 'Genel',
+                                  event_date: a.event_date ? a.event_date.split('T')[0] : ''
+                                });
+                                setActiveModal('duyuruDuzenle');
+                              }}
+                              title="Duyuruyu Düzenle"
+                              style={{ background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.25)', borderRadius: 8, padding: '6px 12px', color: '#38bdf8', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.78rem', fontWeight: 600, transition: 'all 0.15s' }}
+                            >
+                              <PenLine size={13} /> Düzenle
+                            </button>
+                            <button
+                              onClick={(e) => handleDeleteAnnouncement(a.id, e)}
+                              title="Duyuruyu Sil"
+                              style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 8, padding: '6px 12px', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.78rem', fontWeight: 600, transition: 'all 0.15s' }}
+                            >
+                              <Trash2 size={13} /> Sil
+                            </button>
+                          </div>
+                        </div>
+
+                        <p style={{ color: 'var(--text-secondary)', lineHeight: 1.65, margin: '0 0 0.85rem', fontSize: '0.9rem', whiteSpace: 'pre-wrap' }}>{a.content}</p>
+                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Oluşturulma: {formatDate(a.created_at)}</div>
                       </div>
-                    </div>
-                    <p style={{ color: 'var(--text-secondary)', lineHeight: 1.65, margin: '0 0 0.75rem', fontSize: '0.9rem' }}>{a.content}</p>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{formatDate(a.created_at)}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </motion.div>
-        )}
+                    );
+                  })}
+                </div>
+              )}
+            </motion.div>
+          );
+        })()}
 
         {activeTab === 'profil' && (
           <motion.div key="profil" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.25 }}>
@@ -2560,19 +3271,48 @@ function TeacherDashboardContent() {
       <Modal open={activeModal === 'odev'} onClose={() => setActiveModal(null)} title="Yeni Ödev Ata">
         <form onSubmit={handleCreateAssignment} style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
           <input value={newAssignment.title} onChange={e => setNewAssignment({ ...newAssignment, title: e.target.value })} placeholder="Ödev başlığı *" style={inp} required />
-          <textarea value={newAssignment.description} onChange={e => setNewAssignment({ ...newAssignment, description: e.target.value })} placeholder="Açıklama (isteğe bağlı)" style={{ ...inp, minHeight: 90, resize: 'vertical' }} />
-          <select value={newAssignment.class_id} onChange={e => setNewAssignment({ ...newAssignment, class_id: e.target.value })} style={sel} required>
-            <option value="" style={{ background: '#0f1015' }}>Sınıf Seçin *</option>
-            {classes.map(c => <option key={c.id} value={c.id} style={{ background: '#0f1015' }}>{c.class_name}</option>)}
-          </select>
+          <textarea value={newAssignment.description} onChange={e => setNewAssignment({ ...newAssignment, description: e.target.value })} placeholder="Açıklama (isteğe bağlı)" style={{ ...inp, minHeight: 85, resize: 'vertical' }} />
+          
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <div>
+              <label style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'block', marginBottom: 4 }}>Sınıf Seçimi *</label>
+              <select value={newAssignment.class_id} onChange={e => setNewAssignment({ ...newAssignment, class_id: e.target.value })} style={sel} required>
+                <option value="" style={{ background: '#0f1015' }}>Sınıf Seçin *</option>
+                {classes.map(c => <option key={c.id} value={c.id} style={{ background: '#0f1015' }}>{c.class_name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'block', marginBottom: 4 }}>Ödev Kategorisi</label>
+              <select value={newAssignment.category} onChange={e => setNewAssignment({ ...newAssignment, category: e.target.value })} style={sel}>
+                {ASSIGNMENT_CATEGORIES.filter(c => c !== 'Tümü').map(c => (
+                  <option key={c} value={c} style={{ background: '#0f1015' }}>{c}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <div>
+              <label style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'block', marginBottom: 4 }}>Ders (İsteğe bağlı)</label>
+              <input value={newAssignment.subject || ''} onChange={e => setNewAssignment({ ...newAssignment, subject: e.target.value })} placeholder="örn: Matematik" style={inp} />
+            </div>
+            <div>
+              <label style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'block', marginBottom: 4 }}>Konu (İsteğe bağlı)</label>
+              <input value={newAssignment.topic || ''} onChange={e => setNewAssignment({ ...newAssignment, topic: e.target.value })} placeholder="örn: Trigonometri" style={inp} />
+            </div>
+          </div>
+
           <div>
-          <div style={{ display: "flex", gap: "1rem", alignItems: "center", background: "rgba(139, 92, 246, 0.1)", padding: "1rem", borderRadius: "12px", border: "1px solid rgba(139, 92, 246, 0.3)" }}>
+            <label style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'block', marginBottom: 4 }}>Son Teslim Tarihi</label>
+            <input type="date" value={newAssignment.due_date} onChange={e => setNewAssignment({ ...newAssignment, due_date: e.target.value })} style={inp} />
+          </div>
+
+          <div style={{ display: "flex", gap: "1rem", alignItems: "center", background: "rgba(139, 92, 246, 0.1)", padding: "0.85rem 1rem", borderRadius: "12px", border: "1px solid rgba(139, 92, 246, 0.3)" }}>
             <div style={{ flex: 1 }}>
-              <div style={{ color: "#fff", fontWeight: 600, display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                Akıllı Soru Üretimi
+              <div style={{ color: "#fff", fontWeight: 600, display: "flex", alignItems: "center", gap: "0.5rem", fontSize: '0.85rem' }}>
+                <Zap size={15} color="#a78bfa" /> Akıllı Soru Üretimi
               </div>
-              <div style={{ fontSize: "0.75rem", color: "#9ca3af", marginTop: 4 }}>YKS Yıldızı AI Motoru bu ödev için otomatik eşsiz sorular türetsin.</div>
+              <div style={{ fontSize: "0.72rem", color: "#9ca3af", marginTop: 2 }}>YKS Yıldızı AI Motoru bu ödev için otomatik sorular türetsin.</div>
             </div>
             <label style={{ position: "relative", display: "inline-block", width: "40px", height: "24px" }}>
               <input type="checkbox" checked={newAssignment.generateQuestions || false} onChange={e => setNewAssignment({ ...newAssignment, generateQuestions: e.target.checked })} style={{ opacity: 0, width: 0, height: 0 }} />
@@ -2581,20 +3321,51 @@ function TeacherDashboardContent() {
               </span>
             </label>
           </div>
-          {(newAssignment.generateQuestions) && (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.5rem", marginTop: "-0.5rem" }}>
-              <input value={newAssignment.subject || ""} onChange={e => setNewAssignment({ ...newAssignment, subject: e.target.value })} placeholder="Ders (örn: Matematik)" style={inp} />
-              <input value={newAssignment.topic || ""} onChange={e => setNewAssignment({ ...newAssignment, topic: e.target.value })} placeholder="Konu (örn: Limit)" style={inp} />
-              <input type="number" min={1} max={20} value={newAssignment.questionCount || 5} onChange={e => setNewAssignment({ ...newAssignment, questionCount: parseInt(e.target.value) || 5 })} placeholder="Soru Sayısı" style={inp} />
-            </div>
-          )}
-            <label style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', display: 'block', marginBottom: 6 }}>Son Teslim Tarihi</label>
-            <input type="date" value={newAssignment.due_date} onChange={e => setNewAssignment({ ...newAssignment, due_date: e.target.value })} style={inp} />
-          </div>
-          <button type="submit" disabled={submitting} className="btn-interactive" style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#000', width: '100%', fontWeight: 700 }}>
+
+          <button type="submit" disabled={submitting} className="btn-interactive" style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#000', width: '100%', fontWeight: 700, padding: '0.75rem' }}>
             {submitting ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> : 'Ödev Ata'}
           </button>
         </form>
+      </Modal>
+
+      {/* Ödev Düzenle */}
+      <Modal open={activeModal === 'odevDuzenle' && !!editingAssignment} onClose={() => { setActiveModal(null); setEditingAssignment(null); }} title="Ödevi Düzenle">
+        {editingAssignment && (
+          <form onSubmit={handleUpdateAssignment} style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+            <input value={editingAssignment.title} onChange={e => setEditingAssignment({ ...editingAssignment, title: e.target.value })} placeholder="Ödev başlığı *" style={inp} required />
+            <textarea value={editingAssignment.description || ''} onChange={e => setEditingAssignment({ ...editingAssignment, description: e.target.value })} placeholder="Açıklama" style={{ ...inp, minHeight: 85, resize: 'vertical' }} />
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+              <div>
+                <label style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'block', marginBottom: 4 }}>Kategori</label>
+                <select value={editingAssignment.category || 'Genel'} onChange={e => setEditingAssignment({ ...editingAssignment, category: e.target.value })} style={sel}>
+                  {ASSIGNMENT_CATEGORIES.filter(c => c !== 'Tümü').map(c => (
+                    <option key={c} value={c} style={{ background: '#0f1015' }}>{c}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'block', marginBottom: 4 }}>Son Teslim Tarihi</label>
+                <input type="date" value={editingAssignment.due_date || ''} onChange={e => setEditingAssignment({ ...editingAssignment, due_date: e.target.value })} style={inp} />
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+              <div>
+                <label style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'block', marginBottom: 4 }}>Ders</label>
+                <input value={editingAssignment.subject || ''} onChange={e => setEditingAssignment({ ...editingAssignment, subject: e.target.value })} placeholder="Ders" style={inp} />
+              </div>
+              <div>
+                <label style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'block', marginBottom: 4 }}>Konu</label>
+                <input value={editingAssignment.topic || ''} onChange={e => setEditingAssignment({ ...editingAssignment, topic: e.target.value })} placeholder="Konu" style={inp} />
+              </div>
+            </div>
+
+            <button type="submit" disabled={submitting} className="btn-interactive" style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#000', width: '100%', fontWeight: 700, padding: '0.75rem' }}>
+              {submitting ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> : 'Ödevi Güncelle'}
+            </button>
+          </form>
+        )}
       </Modal>
 
       {/* Kaynak Paylaş */}
@@ -2625,21 +3396,116 @@ function TeacherDashboardContent() {
       <Modal open={activeModal === 'duyuru'} onClose={() => setActiveModal(null)} title="Duyuru Gönder">
         <form onSubmit={handleCreateAnnouncement} style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
           <input value={newAnnouncement.title} onChange={e => setNewAnnouncement({ ...newAnnouncement, title: e.target.value })} placeholder="Duyuru başlığı *" style={inp} required />
-          <textarea value={newAnnouncement.content} onChange={e => setNewAnnouncement({ ...newAnnouncement, content: e.target.value })} placeholder="Duyuru içeriği *" style={{ ...inp, minHeight: 120, resize: 'vertical' }} required />
-          <select value={newAnnouncement.class_id} onChange={e => setNewAnnouncement({ ...newAnnouncement, class_id: e.target.value })} style={sel}>
-            <option value="" style={{ background: '#0f1015' }}>📢 Tüm Sınıflar</option>
-            {classes.map(c => <option key={c.id} value={c.id} style={{ background: '#0f1015' }}>{c.class_name}</option>)}
-          </select>
-          <button type="submit" disabled={submitting} className="btn-interactive" style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)', width: '100%' }}>
-            {submitting ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> : 'Gönder'}
+          <textarea value={newAnnouncement.content} onChange={e => setNewAnnouncement({ ...newAnnouncement, content: e.target.value })} placeholder="Duyuru içeriği *" style={{ ...inp, minHeight: 110, resize: 'vertical' }} required />
+          
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <div>
+              <label style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'block', marginBottom: 4 }}>Hedef Sınıf</label>
+              <select value={newAnnouncement.class_id} onChange={e => setNewAnnouncement({ ...newAnnouncement, class_id: e.target.value })} style={sel}>
+                <option value="" style={{ background: '#0f1015' }}>📢 Tüm Sınıflar</option>
+                {classes.map(c => <option key={c.id} value={c.id} style={{ background: '#0f1015' }}>{c.class_name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'block', marginBottom: 4 }}>Duyuru Kategorisi</label>
+              <select value={newAnnouncement.category} onChange={e => setNewAnnouncement({ ...newAnnouncement, category: e.target.value })} style={sel}>
+                {ANNOUNCEMENT_CATEGORIES.filter(c => c !== 'Tümü').map(c => (
+                  <option key={c} value={c} style={{ background: '#0f1015' }}>{c}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'block', marginBottom: 4 }}>Etkinlik / Geçerlilik Tarihi (İsteğe bağlı)</label>
+            <input type="date" value={newAnnouncement.event_date} onChange={e => setNewAnnouncement({ ...newAnnouncement, event_date: e.target.value })} style={inp} />
+          </div>
+
+          <button type="submit" disabled={submitting} className="btn-interactive" style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)', width: '100%', padding: '0.75rem' }}>
+            {submitting ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> : 'Duyuru Yayınla'}
           </button>
         </form>
       </Modal>
 
+      {/* Duyuru Düzenle */}
+      <Modal open={activeModal === 'duyuruDuzenle' && !!editingAnnouncement} onClose={() => { setActiveModal(null); setEditingAnnouncement(null); }} title="Duyuruyu Düzenle">
+        {editingAnnouncement && (
+          <form onSubmit={handleUpdateAnnouncement} style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+            <input value={editingAnnouncement.title} onChange={e => setEditingAnnouncement({ ...editingAnnouncement, title: e.target.value })} placeholder="Duyuru başlığı *" style={inp} required />
+            <textarea value={editingAnnouncement.content || ''} onChange={e => setEditingAnnouncement({ ...editingAnnouncement, content: e.target.value })} placeholder="Duyuru içeriği *" style={{ ...inp, minHeight: 110, resize: 'vertical' }} required />
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+              <div>
+                <label style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'block', marginBottom: 4 }}>Hedef Sınıf</label>
+                <select value={editingAnnouncement.class_id || ''} onChange={e => setEditingAnnouncement({ ...editingAnnouncement, class_id: e.target.value })} style={sel}>
+                  <option value="" style={{ background: '#0f1015' }}>📢 Tüm Sınıflar</option>
+                  {classes.map(c => <option key={c.id} value={c.id} style={{ background: '#0f1015' }}>{c.class_name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'block', marginBottom: 4 }}>Kategori</label>
+                <select value={editingAnnouncement.category || 'Genel'} onChange={e => setEditingAnnouncement({ ...editingAnnouncement, category: e.target.value })} style={sel}>
+                  {ANNOUNCEMENT_CATEGORIES.filter(c => c !== 'Tümü').map(c => (
+                    <option key={c} value={c} style={{ background: '#0f1015' }}>{c}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', display: 'block', marginBottom: 4 }}>Tarih</label>
+              <input type="date" value={editingAnnouncement.event_date || ''} onChange={e => setEditingAnnouncement({ ...editingAnnouncement, event_date: e.target.value })} style={inp} />
+            </div>
+
+            <button type="submit" disabled={submitting} className="btn-interactive" style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)', width: '100%', padding: '0.75rem' }}>
+              {submitting ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> : 'Duyuruyu Güncelle'}
+            </button>
+          </form>
+        )}
+      </Modal>
+
       {/* Ödev Detayı */}
-      <Modal open={activeModal === 'odevDetay' && !!assignmentDetail} onClose={() => { setActiveModal(null); setAssignmentDetail(null); }} title={assignmentDetail?.title ?? 'Ödev Detayı'} maxW={640}>
+      <Modal open={activeModal === 'odevDetay' && !!assignmentDetail} onClose={() => { setActiveModal(null); setAssignmentDetail(null); }} title={assignmentDetail?.title ?? 'Ödev Detayı'} maxW={680}>
         {assignmentDetail && (
           <div>
+            {/* Header: Kategori, Sınıf ve Hızlı İşlemler */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', paddingBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.08)', flexWrap: 'wrap', gap: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                <Badge label={assignmentDetail.category || 'Genel'} color={ASSIGNMENT_CATEGORY_COLORS[assignmentDetail.category || 'Genel'] || '#f59e0b'} />
+                {assignmentDetail.target_sinif && <Badge label={assignmentDetail.target_sinif} color="#6b7280" />}
+                {assignmentDetail.subject && (
+                  <span style={{ fontSize: '0.75rem', color: '#a78bfa', background: 'rgba(167,139,250,0.1)', padding: '2px 8px', borderRadius: 6, fontWeight: 600 }}>
+                    {assignmentDetail.subject}{assignmentDetail.topic ? ` • ${assignmentDetail.topic}` : ''}
+                  </span>
+                )}
+              </div>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <button
+                  onClick={() => {
+                    setEditingAssignment({
+                      id: assignmentDetail.id,
+                      title: assignmentDetail.title,
+                      description: assignmentDetail.description || '',
+                      due_date: assignmentDetail.due_date ? assignmentDetail.due_date.split('T')[0] : '',
+                      category: assignmentDetail.category || 'Genel',
+                      subject: assignmentDetail.subject || '',
+                      topic: assignmentDetail.topic || ''
+                    });
+                    setActiveModal('odevDuzenle');
+                  }}
+                  style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', color: '#f59e0b', padding: '0.4rem 0.75rem', borderRadius: 8, cursor: 'pointer', fontSize: '0.78rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}
+                >
+                  <PenLine size={13} /> Düzenle
+                </button>
+                <button
+                  onClick={() => handleDeleteAssignment(assignmentDetail.id)}
+                  style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', padding: '0.4rem 0.75rem', borderRadius: 8, cursor: 'pointer', fontSize: '0.78rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}
+                >
+                  <Trash2 size={13} /> Sil
+                </button>
+              </div>
+            </div>
+
             {assignmentDetail.description && (
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: 1.65 }}>{assignmentDetail.description}</p>
             )}
@@ -2780,9 +3646,9 @@ function TeacherDashboardContent() {
               </div>
               {/* Risk badge */}
               {studentDetail && (() => {
-                const daysSinceActive = studentDetail.lastActivity
-                  ? Math.floor((Date.now() - new Date(studentDetail.lastActivity).getTime()) / 86400000)
-                  : 999;
+                if (studentDetail.liveSession?.isLive || selectedStudent?.is_live_focusing) return null;
+                if (!studentDetail.lastActivity) return null;
+                const daysSinceActive = Math.floor((Date.now() - new Date(studentDetail.lastActivity).getTime()) / 86400000);
                 if (daysSinceActive >= 7) return (
                   <div style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 10, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                     <AlertTriangle size={16} color="#ef4444" />

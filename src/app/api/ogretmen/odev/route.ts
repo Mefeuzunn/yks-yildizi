@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     if (!user || user.role !== 'ogretmen') return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
 
     const body = await request.json();
-    const { title, description, class_id, due_date, generateQuestions, subject, topic, questionCount = 5 } = body;
+    const { title, description, class_id, due_date, generateQuestions, subject, topic, questionCount = 5, category = 'Genel' } = body;
 
     if (!title || !title.trim()) {
       return NextResponse.json({ error: 'Ödev başlığı gerekli' }, { status: 400 });
@@ -58,15 +58,13 @@ export async function POST(request: Request) {
 
     // YKS Yıldızı Zeki Soru Üretim Motoru (Faz 2 Derin Entegrasyonu)
     if (generateQuestions && subject) {
-      const generated = [];
+      const generated: any[] = [];
       const topicRow = topic ? await db.prepare('SELECT id FROM konular WHERE isim = ?').get(topic) as any : null;
       
       let templates = [];
       if (topicRow) {
         templates = await db.prepare('SELECT * FROM soru_sablonlari WHERE konu_id = ? ORDER BY RANDOM() LIMIT 10').all(topicRow.id) as any[];
       } else {
-        // Just get some random templates for the subject
-        // Normally we'd join dersler but let's just get random for now if topic isn't specified
         templates = await db.prepare('SELECT * FROM soru_sablonlari ORDER BY RANDOM() LIMIT 10').all() as any[];
       }
 
@@ -86,9 +84,21 @@ export async function POST(request: Request) {
 
     await db.transaction(async () => {
       await db.prepare(`
-        INSERT INTO assignments (id, teacher_id, title, description, target_sinif, target_alan, due_date, questions_json)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `).run(assignmentId, user.id, title.trim(), description || null, null, null, due_date || null, questionsJson);
+        INSERT INTO assignments (id, teacher_id, title, description, target_sinif, target_alan, due_date, questions_json, category, subject, topic)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(
+        assignmentId,
+        user.id,
+        title.trim(),
+        description || null,
+        cls.class_name || null,
+        null,
+        due_date ? new Date(due_date).toISOString() : null,
+        questionsJson,
+        category || 'Genel',
+        subject || null,
+        topic || null
+      );
 
       const insertSub = await db.prepare(`
         INSERT INTO assignment_submissions (id, assignment_id, student_id, status)

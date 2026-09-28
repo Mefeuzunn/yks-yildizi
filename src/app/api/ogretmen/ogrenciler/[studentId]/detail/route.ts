@@ -55,20 +55,21 @@ export async function GET(req: Request, { params }: { params: Promise<{ studentI
     let liveSession: any = { isLive: false };
     try {
       const activeSession = await db.prepare(`
-        SELECT user_id, subject, topic, mode, duration_min, time_left_sec, started_at, last_heartbeat,
+        SELECT user_id, subject, topic, mode, duration_min, time_left_sec, status, started_at, last_heartbeat,
                GREATEST(1, ROUND(EXTRACT(EPOCH FROM (NOW() - started_at)) / 60))::int as elapsed_min
         FROM active_focus_sessions
         WHERE user_id = ? 
-          AND last_heartbeat >= NOW() - INTERVAL '2 minutes' 
-          AND mode = 'pomodoro'
+          AND last_heartbeat >= NOW() - INTERVAL '2 minutes'
       `).get(studentId) as any;
 
       if (activeSession) {
+        const liveStatus = activeSession.status || (activeSession.mode?.includes('Break') ? 'break' : 'focusing');
         liveSession = {
           isLive: true,
-          subject: activeSession.subject || 'Genel Çalışma',
+          status: liveStatus,
+          subject: activeSession.subject || (activeSession.mode?.includes('Break') ? 'Mola' : 'Genel Çalışma'),
           topic: activeSession.topic || '',
-          mode: activeSession.mode,
+          mode: activeSession.mode || 'pomodoro',
           duration_min: Number(activeSession.duration_min) || 25,
           time_left_sec: Number(activeSession.time_left_sec) || 0,
           started_at: activeSession.started_at,
@@ -207,11 +208,18 @@ export async function GET(req: Request, { params }: { params: Promise<{ studentI
       console.error('Error fetching total focus summary:', e);
     }
 
+    // 12. Son Aktiflik Zamanı
+    const lastSessionDate = recentSessions?.[0]?.created_at || null;
+    const lastActivity = liveSession?.isLive 
+      ? new Date().toISOString() 
+      : (lastSessionDate || student?.created_at || null);
+
     return NextResponse.json({
       student,
       className: classNames,
       stats: stats || {},
       liveSession,
+      lastActivity,
       totals: {
         totalMinutes: Number(totalFocusRow?.total_minutes) || 0,
         totalQuestions: Number(totalFocusRow?.total_questions) || 0,

@@ -77,10 +77,38 @@ export async function PUT(
     }
 
     const body = await request.json();
+
+    // 1. Ödev Bilgilerini Güncelleme (Başlık, açıklama, tarih, kategori, ders, konu)
+    if (body.isAssignmentUpdate || (body.title !== undefined && !body.studentId)) {
+      const { title, description, due_date, category, subject, topic } = body;
+      if (!title || !title.trim()) {
+        return NextResponse.json({ error: 'Ödev başlığı gerekli' }, { status: 400 });
+      }
+
+      await db.prepare(`
+        UPDATE assignments
+        SET title = ?, description = ?, due_date = ?, category = ?, subject = ?, topic = ?
+        WHERE id = ? AND teacher_id = ?
+      `).run(
+        title.trim(),
+        description || null,
+        due_date ? new Date(due_date).toISOString() : null,
+        category || 'Genel',
+        subject || null,
+        topic || null,
+        id,
+        user.id
+      );
+
+      const updatedAssignment = await db.prepare('SELECT * FROM assignments WHERE id = ?').get(id);
+      return NextResponse.json({ success: true, message: 'Ödev başarıyla güncellendi', assignment: updatedAssignment });
+    }
+
+    // 2. Öğrenci Teslim Durumunu Güncelleme (Yaptı / Yapmadı / Not)
     const { studentId, status, score } = body;
 
     if (!studentId) {
-      return NextResponse.json({ error: 'Öğrenci ID gerekli' }, { status: 400 });
+      return NextResponse.json({ error: 'Öğrenci ID veya Ödev bilgileri gerekli' }, { status: 400 });
     }
 
     let newStatus = status;

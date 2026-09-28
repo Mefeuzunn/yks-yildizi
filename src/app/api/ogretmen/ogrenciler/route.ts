@@ -28,7 +28,9 @@ export async function GET(request: Request) {
                COALESCE(us.streak_days, 0)::int as streak_days,
                cs.class_id,
                tc.class_name,
-               COALESCE(afs.last_heartbeat >= NOW() - INTERVAL '2 minutes' AND afs.mode = 'pomodoro', false) as is_live_focusing,
+               COALESCE(afs.last_heartbeat >= NOW() - INTERVAL '2 minutes', false) as is_live_active,
+               COALESCE(afs.status, 'idle') as active_status,
+               afs.mode as active_mode,
                afs.subject as active_subject,
                afs.topic as active_topic,
                afs.duration_min as active_duration_min,
@@ -40,10 +42,9 @@ export async function GET(request: Request) {
         JOIN teacher_classes tc ON cs.class_id = tc.id
         LEFT JOIN user_stats us ON u.id = us.user_id
         LEFT JOIN active_focus_sessions afs ON u.id = afs.user_id 
-          AND afs.last_heartbeat >= NOW() - INTERVAL '2 minutes' 
-          AND afs.mode = 'pomodoro'
+          AND afs.last_heartbeat >= NOW() - INTERVAL '2 minutes'
         WHERE tc.teacher_id = ? AND cs.class_id = ?
-        ORDER BY is_live_focusing DESC, u.username ASC
+        ORDER BY is_live_active DESC, u.username ASC
       `).all(teacherId, classId) as any[];
     } else {
       // Öğretmenin kayıtlı olduğu TÜM sınıflardaki öğrencileri getir
@@ -56,7 +57,9 @@ export async function GET(request: Request) {
                COALESCE(us.streak_days, 0)::int as streak_days,
                STRING_AGG(DISTINCT tc.class_name, ', ') as class_names,
                MAX(cs.class_id) as class_id,
-               COALESCE(BOOL_OR(afs.last_heartbeat >= NOW() - INTERVAL '2 minutes' AND afs.mode = 'pomodoro'), false) as is_live_focusing,
+               COALESCE(BOOL_OR(afs.last_heartbeat >= NOW() - INTERVAL '2 minutes'), false) as is_live_active,
+               MAX(COALESCE(afs.status, 'idle')) as active_status,
+               MAX(afs.mode) as active_mode,
                MAX(afs.subject) as active_subject,
                MAX(afs.topic) as active_topic,
                MAX(afs.duration_min) as active_duration_min,
@@ -68,24 +71,30 @@ export async function GET(request: Request) {
         JOIN teacher_classes tc ON cs.class_id = tc.id
         LEFT JOIN user_stats us ON u.id = us.user_id
         LEFT JOIN active_focus_sessions afs ON u.id = afs.user_id 
-          AND afs.last_heartbeat >= NOW() - INTERVAL '2 minutes' 
-          AND afs.mode = 'pomodoro'
+          AND afs.last_heartbeat >= NOW() - INTERVAL '2 minutes'
         WHERE tc.teacher_id = ?
         GROUP BY u.id, u.username, u.email, u.alan, u.sinif, us.solved_questions, us.success_rate, us.league, us.league_points, us.streak_days
-        ORDER BY is_live_focusing DESC, u.username ASC
+        ORDER BY is_live_active DESC, u.username ASC
       `).all(teacherId) as any[];
     }
 
     return NextResponse.json({ 
-      students: (students || []).map(s => ({
-        ...s,
-        solved_questions: Number(s.solved_questions) || 0,
-        success_rate: Number(s.success_rate) || 0,
-        league_points: Number(s.league_points) || 0,
-        streak_days: Number(s.streak_days) || 0,
-        is_live_focusing: Boolean(s.is_live_focusing),
-        focus_elapsed_min: s.is_live_focusing ? (Number(s.focus_elapsed_min) || 1) : 0,
-      }))
+      students: (students || []).map(s => {
+        const isLive = Boolean(s.is_live_active);
+        const liveStatus = isLive ? (s.active_status || 'focusing') : 'idle';
+        return {
+          ...s,
+          solved_questions: Number(s.solved_questions) || 0,
+          success_rate: Number(s.success_rate) || 0,
+          league_points: Number(s.league_points) || 0,
+          streak_days: Number(s.streak_days) || 0,
+          is_live_focusing: isLive,
+          live_status: liveStatus,
+          live_mode: isLive ? (s.active_mode || 'pomodoro') : null,
+          focus_elapsed_min: isLive ? (Number(s.focus_elapsed_min) || 1) : 0,
+          active_time_left_sec: isLive ? (Number(s.active_time_left_sec) || 0) : 0,
+        };
+      })
     });
   } catch (error: any) {
     console.error('Öğrenciler listeleme hatası:', error);

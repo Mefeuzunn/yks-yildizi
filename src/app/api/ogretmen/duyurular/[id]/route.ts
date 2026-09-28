@@ -1,87 +1,49 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
-import { v4 as uuidv4 } from 'uuid';
 import { getAuthenticatedTeacherId } from '@/lib/auth-utils';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const teacherId = await getAuthenticatedTeacherId(request);
     if (!teacherId) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
     const user = await db.prepare('SELECT id, role FROM users WHERE id = ?').get(teacherId) as any;
     if (!user || user.role !== 'ogretmen') return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
 
-    const announcements = await db.prepare(`
-      SELECT ta.id, ta.teacher_id, ta.class_id, ta.title, ta.content,
-             COALESCE(ta.category, 'Genel') as category,
-             ta.event_date, ta.created_at,
-             tc.class_name
+    const { id } = await params;
+    const announcement = await db.prepare(`
+      SELECT ta.*, tc.class_name
       FROM teacher_announcements ta
       LEFT JOIN teacher_classes tc ON ta.class_id = tc.id
-      WHERE ta.teacher_id = ?
-      ORDER BY ta.created_at DESC
-    `).all(user.id) as any[];
+      WHERE ta.id = ? AND ta.teacher_id = ?
+    `).get(id, user.id) as any;
 
-    return NextResponse.json({ announcements: announcements || [] });
+    if (!announcement) return NextResponse.json({ error: 'Duyuru bulunamadı' }, { status: 404 });
+    return NextResponse.json({ announcement });
   } catch (error: any) {
-    console.error('Duyurular listeleme hatası:', error);
+    console.error('Duyuru getirme hatası:', error);
     return NextResponse.json({ error: error.message || 'Sunucu hatası' }, { status: 500 });
   }
 }
 
-export async function POST(request: Request) {
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const teacherId = await getAuthenticatedTeacherId(request);
     if (!teacherId) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
     const user = await db.prepare('SELECT id, role FROM users WHERE id = ?').get(teacherId) as any;
     if (!user || user.role !== 'ogretmen') return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
 
+    const { id } = await params;
     const body = await request.json();
     const { title, content, class_id, category = 'Genel', event_date } = body;
 
-    if (!title || !title.trim()) {
-      return NextResponse.json({ error: 'Duyuru başlığı gerekli' }, { status: 400 });
-    }
-
-    if (class_id) {
-      const cls = await db.prepare(
-        'SELECT id FROM teacher_classes WHERE id = ? AND teacher_id = ?'
-      ).get(class_id, user.id) as any;
-
-      if (!cls) {
-        return NextResponse.json({ error: 'Sınıf bulunamadı' }, { status: 404 });
-      }
-    }
-
-    const id = uuidv4();
-    const formattedDate = event_date ? new Date(event_date).toISOString() : null;
-
-    await db.prepare(`
-      INSERT INTO teacher_announcements (id, teacher_id, class_id, title, content, category, event_date)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(id, user.id, class_id || null, title.trim(), content || null, category || 'Genel', formattedDate);
-
-    const created = await db.prepare('SELECT * FROM teacher_announcements WHERE id = ?').get(id);
-
-    return NextResponse.json({ announcement: created }, { status: 201 });
-  } catch (error: any) {
-    console.error('Duyuru oluşturma hatası:', error);
-    return NextResponse.json({ error: error.message || 'Sunucu hatası' }, { status: 500 });
-  }
-}
-
-export async function PUT(request: Request) {
-  try {
-    const teacherId = await getAuthenticatedTeacherId(request);
-    if (!teacherId) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
-    const user = await db.prepare('SELECT id, role FROM users WHERE id = ?').get(teacherId) as any;
-    if (!user || user.role !== 'ogretmen') return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
-
-    const body = await request.json();
-    const { id, title, content, class_id, category = 'Genel', event_date } = body;
-
-    if (!id) return NextResponse.json({ error: 'Duyuru ID gerekli' }, { status: 400 });
     if (!title || !title.trim()) return NextResponse.json({ error: 'Duyuru başlığı gerekli' }, { status: 400 });
 
     const formattedDate = event_date ? new Date(event_date).toISOString() : null;
@@ -104,24 +66,17 @@ export async function PUT(request: Request) {
   }
 }
 
-export async function DELETE(request: Request) {
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const teacherId = await getAuthenticatedTeacherId(request);
     if (!teacherId) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
     const user = await db.prepare('SELECT id, role FROM users WHERE id = ?').get(teacherId) as any;
     if (!user || user.role !== 'ogretmen') return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
 
-    const { searchParams } = new URL(request.url);
-    let id = searchParams.get('id');
-
-    if (!id) {
-      try {
-        const body = await request.json();
-        id = body.id;
-      } catch (_) {}
-    }
-
-    if (!id) return NextResponse.json({ error: 'Duyuru ID gerekli' }, { status: 400 });
+    const { id } = await params;
 
     const result = await db.prepare(`
       DELETE FROM teacher_announcements

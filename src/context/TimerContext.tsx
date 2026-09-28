@@ -141,7 +141,33 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
 
   // Live Focus Heartbeat to Supabase / Backend for Teachers
   useEffect(() => {
-    if (!isRunning || mode !== 'pomodoro') {
+    if (!isHydrated) return;
+
+    let currentStatus: 'focusing' | 'paused' | 'break' | 'break_paused' | null = null;
+    let currentMode = mode;
+    let currentSubject = selectedSubject || 'Genel Çalışma';
+    let currentTopic = selectedTopic || '';
+    let currentDuration = durations[mode] || 25;
+
+    if (mode === 'pomodoro') {
+      if (isRunning) {
+        currentStatus = 'focusing';
+      } else {
+        // If not running, are we paused during an active session?
+        if (timeLeft < totalSec) {
+          currentStatus = 'paused';
+        } else {
+          // Timer is at the very beginning (not started yet)
+          currentStatus = null;
+        }
+      }
+    } else if (mode === 'shortBreak' || mode === 'longBreak') {
+      currentStatus = isRunning ? 'break' : 'break_paused';
+      currentSubject = mode === 'shortBreak' ? 'Kısa Mola' : 'Uzun Mola';
+      currentTopic = selectedSubject ? `${selectedSubject} Molası` : (mode === 'shortBreak' ? '5 Dk Dinlenme' : '15 Dk Dinlenme');
+    }
+
+    if (!currentStatus) {
       fetch('/api/user/focus/live', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -156,33 +182,32 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'heartbeat',
-          subject: selectedSubject || 'Genel Çalışma',
-          topic: selectedTopic || '',
-          mode: 'pomodoro',
-          durationMin: durations.pomodoro || 25,
+          status: currentStatus,
+          mode: currentMode,
+          subject: currentSubject,
+          topic: currentTopic,
+          durationMin: currentDuration,
           timeLeftSec: timeLeftRef.current
         })
       }).catch(() => {});
     };
 
     sendHeartbeat();
-    const interval = setInterval(sendHeartbeat, 20000);
+    const interval = setInterval(sendHeartbeat, isRunning ? 20000 : 35000);
 
     return () => {
       clearInterval(interval);
     };
-  }, [isRunning, mode, selectedSubject, selectedTopic, durations.pomodoro]);
+  }, [isRunning, mode, selectedSubject, selectedTopic, durations, timeLeft, totalSec, isHydrated]);
 
   // Before unload cleanup
   useEffect(() => {
     const handleBeforeUnload = () => {
-      if (isRunning && mode === 'pomodoro') {
-        navigator.sendBeacon?.('/api/user/focus/live', JSON.stringify({ action: 'stop' }));
-      }
+      navigator.sendBeacon?.('/api/user/focus/live', JSON.stringify({ action: 'stop' }));
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [isRunning, mode]);
+  }, []);
 
   const switchMode = useCallback((m: Mode) => {
     setMode(m);
@@ -266,7 +291,15 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
   }, [isRunning, handleSessionComplete]);
 
   const toggle = () => setIsRunning(r => !r);
-  const reset = () => { setIsRunning(false); setTimeLeft(totalSec); };
+  const reset = () => { 
+    setIsRunning(false); 
+    setTimeLeft(totalSec); 
+    fetch('/api/user/focus/live', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'stop' })
+    }).catch(() => {});
+  };
 
   const skip = useCallback(() => {
     if (modeRef.current === 'pomodoro') {
