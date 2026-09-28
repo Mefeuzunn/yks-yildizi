@@ -39,6 +39,7 @@ interface TimerContextValue {
   setSelectedTopic: (t: string | null) => void;
   playSound: (id: string, url: string) => void;
   stopSound: () => void;
+  finishSession: () => void;
   saveSession: (
     subject: string | null, 
     topic: string | null, 
@@ -182,31 +183,67 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [isRunning, mode]);
 
-  const handleSessionComplete = useCallback(() => {
+  const switchMode = useCallback((m: Mode) => {
+    setMode(m);
+    setIsRunning(false);
+    const secs = (durationsRef.current[m] || MODE_CONFIG[m].minutes) * 60;
+    setTotalSec(secs);
+    setTimeLeft(secs);
+  }, []);
+
+  const finishSession = useCallback(() => {
     const finishedMode = modeRef.current;
-    const finishedDuration = durationsRef.current[finishedMode] || MODE_CONFIG[finishedMode].minutes;
+    setIsRunning(false);
+    if (intervalRef.current) clearInterval(intervalRef.current);
+
+    // Stop live focus heartbeat on backend
+    fetch('/api/user/focus/live', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'stop' })
+    }).catch(() => {});
 
     if (finishedMode === 'pomodoro') {
-      setPomodoroCount(c => c + 1);
-      // Show confetti
-      if (typeof window !== 'undefined') {
-        import('canvas-confetti').then(m => m.default({ particleCount: 100, spread: 70, origin: { y: 0.6 } })).catch(() => {});
+      const targetMin = durationsRef.current.pomodoro || 25;
+      const targetSec = targetMin * 60;
+      const elapsedSec = targetSec - timeLeftRef.current;
+
+      // If near completion (timeLeft <= 60) or elapsed is close to target, give full target minutes.
+      // Otherwise record elapsed minutes (minimum 1 minute).
+      let finalDurationMin = targetMin;
+      if (timeLeftRef.current > 60 && elapsedSec < targetSec - 30) {
+        finalDurationMin = Math.max(1, Math.round(elapsedSec / 60));
       }
-      // Set pending session — FocusTab will show the log modal
+
+      setPomodoroCount(c => c + 1);
+
+      // Trigger celebration confetti
+      if (typeof window !== 'undefined') {
+        import('canvas-confetti').then(m => m.default({ particleCount: 110, spread: 70, origin: { y: 0.6 } })).catch(() => {});
+      }
+
+      // Reset timer back to targetSec for next focus
+      setTimeLeft(targetSec);
+
+      // Open the Lesson & Topic selection modal!
       setPendingSession({
-        mode: finishedMode,
-        durationMin: finishedDuration,
-        prefilledSubject: selectedSubjectRef.current,
-        prefilledTopic: selectedTopicRef.current,
+        mode: 'pomodoro',
+        durationMin: finalDurationMin,
+        prefilledSubject: selectedSubjectRef.current || null,
+        prefilledTopic: selectedTopicRef.current || null,
       });
     } else {
       // Molalar ASLA odak süresine eklenmez ve kaydedilmez.
-      // Tarayıcı bildirimi varsa kullanıcıyı haberdar et
       if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
         new Notification('Mola Bitti! ⏰', { body: 'Mola süresi tamamlandı. Yeni bir odak oturumuna başlayabilirsin.' });
       }
+      switchMode('pomodoro');
     }
-  }, []);
+  }, [switchMode]);
+
+  const handleSessionComplete = useCallback(() => {
+    finishSession();
+  }, [finishSession]);
 
   useEffect(() => {
     if (isRunning) {
@@ -227,24 +264,25 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [isRunning, handleSessionComplete]);
 
-  const switchMode = (m: Mode) => {
-    setMode(m);
-    setIsRunning(false);
-    const secs = (durations[m] || MODE_CONFIG[m].minutes) * 60;
-    setTotalSec(secs);
-    setTimeLeft(secs);
-  };
-
   const toggle = () => setIsRunning(r => !r);
   const reset = () => { setIsRunning(false); setTimeLeft(totalSec); };
-  const skip = () => {
+
+  const skip = useCallback(() => {
+    if (modeRef.current === 'pomodoro') {
+      const targetSec = (durationsRef.current.pomodoro || 25) * 60;
+      const elapsedSec = targetSec - timeLeftRef.current;
+      // If student has focused for at least 60 seconds, treat skipping as finishing & saving!
+      if (elapsedSec >= 60) {
+        finishSession();
+        return;
+      }
+    }
     setIsRunning(false);
-    // Atlanınca (Geç basılınca) oturum tamamlanmış sayılmaz ve kaydedilmez
-    const next: Mode = mode === 'pomodoro'
+    const next: Mode = modeRef.current === 'pomodoro'
       ? ((pomodoroCount + 1) % 4 === 0 ? 'longBreak' : 'shortBreak')
       : 'pomodoro';
     switchMode(next);
-  };
+  }, [finishSession, pomodoroCount, switchMode]);
 
   const saveSettings = (d: Record<Mode, number>) => {
     setDurations(d);
@@ -342,7 +380,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
       mode, timeLeft, totalSec, isRunning, pomodoroCount, selectedSubject, selectedTopic, durations,
       activeSound, volume, pendingSession,
       toggle, reset, skip, switchMode, saveSettings, setSelectedSubject, setSelectedTopic,
-      playSound, stopSound, setVolume, saveSession, dismissSession
+      playSound, stopSound, setVolume, finishSession, saveSession, dismissSession
     }}>
       {children}
     </TimerContext.Provider>

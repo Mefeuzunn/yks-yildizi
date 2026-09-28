@@ -214,9 +214,9 @@ function SubjectPickerModal({ selected, onSelect, onClose }: {
 }
 
 // ─── Zen Mode Overlay ──────────────────────────────────────────────────────────
-function ZenModeOverlay({ timeLeft, totalSec, cfg, isRunning, pomodoroCount, onToggle, onExit }: {
+function ZenModeOverlay({ timeLeft, totalSec, cfg, isRunning, pomodoroCount, onToggle, onFinish, onExit }: {
   timeLeft: number; totalSec: number; cfg: typeof MODE_CONFIG.pomodoro;
-  isRunning: boolean; pomodoroCount: number; onToggle: () => void; onExit: () => void;
+  isRunning: boolean; pomodoroCount: number; onToggle: () => void; onFinish: () => void; onExit: () => void;
 }) {
   const progress = ((totalSec - timeLeft) / totalSec) * 100;
   const dashOffset = CIRC - (CIRC * progress) / 100;
@@ -259,13 +259,24 @@ function ZenModeOverlay({ timeLeft, totalSec, cfg, isRunning, pomodoroCount, onT
           </div>
         </div>
       </div>
-      <button onClick={onToggle}
-        style={{ width: '80px', height: '80px', borderRadius: '50%',
-                 background: `linear-gradient(135deg, ${cfg.color}, ${cfg.color}bb)`,
-                 border: 'none', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                 cursor: 'pointer', boxShadow: `0 10px 30px ${cfg.glow}` }}>
-        {isRunning ? <Pause size={32} fill="currentColor"/> : <Play size={32} fill="currentColor" style={{ marginLeft: '4px' }}/>}
-      </button>
+      <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+        <button onClick={onToggle}
+          style={{ width: '80px', height: '80px', borderRadius: '50%',
+                   background: `linear-gradient(135deg, ${cfg.color}, ${cfg.color}bb)`,
+                   border: 'none', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                   cursor: 'pointer', boxShadow: `0 10px 30px ${cfg.glow}` }}>
+          {isRunning ? <Pause size={32} fill="currentColor"/> : <Play size={32} fill="currentColor" style={{ marginLeft: '4px' }}/>}
+        </button>
+        {cfg.label === 'Odak' && (
+          <button onClick={() => { onFinish(); onExit(); }} title="Oturumu Bitir & Ders/Konu Kaydet"
+            style={{ padding: '14px 24px', borderRadius: '20px',
+                     background: 'rgba(16, 185, 129, 0.2)', border: '1.5px solid rgba(16, 185, 129, 0.5)',
+                     color: '#34d399', fontWeight: 700, fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer',
+                     boxShadow: '0 8px 24px rgba(16, 185, 129, 0.25)' }}>
+            <CheckCircle2 size={20} /> Oturumu Bitir
+          </button>
+        )}
+      </div>
       <div style={{ position: 'absolute', bottom: '48px', color: '#4b5563', fontSize: '15px',
                     fontStyle: 'italic', maxWidth: '600px', textAlign: 'center', padding: '0 40px', lineHeight: 1.7 }}>
         "{quote}"
@@ -279,7 +290,7 @@ export default function FocusTab() {
   const timer = useTimer();
   const { mode, timeLeft, totalSec, isRunning, pomodoroCount, selectedSubject,
           durations, activeSound, volume, toggle, reset, skip, switchMode,
-          saveSettings, setSelectedSubject, playSound, stopSound, setVolume } = timer;
+          saveSettings, setSelectedSubject, playSound, stopSound, setVolume, finishSession } = timer;
 
   const [showSettings, setShowSettings] = useState(false);
   const [showSubjectPicker, setShowSubjectPicker] = useState(false);
@@ -354,7 +365,7 @@ export default function FocusTab() {
         {isZenMode && (
           <ZenModeOverlay timeLeft={timeLeft} totalSec={totalSec} cfg={cfg}
             isRunning={isRunning} pomodoroCount={pomodoroCount}
-            onToggle={toggle} onExit={() => setIsZenMode(false)} />
+            onToggle={toggle} onFinish={finishSession} onExit={() => setIsZenMode(false)} />
         )}
       </AnimatePresence>
 
@@ -364,9 +375,6 @@ export default function FocusTab() {
           <SubjectPickerModal selected={selectedSubject} onSelect={setSelectedSubject} onClose={() => setShowSubjectPicker(false)}/>
         )}
       </AnimatePresence>
-
-      {/* Session Log Modal — shown after each Pomodoro completes */}
-      <SessionLogModal />
 
       {/* ── Header ── */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
@@ -497,13 +505,54 @@ export default function FocusTab() {
                        cursor: 'pointer', boxShadow: `0 12px 30px ${cfg.glow}` }}>
               {isRunning ? <Pause size={34} fill="currentColor"/> : <Play size={34} fill="currentColor" style={{ marginLeft: '4px' }}/>}
             </motion.button>
-            <button onClick={skip} title="Geç"
-              style={{ width: '50px', height: '50px', borderRadius: '50%',
-                       background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
-                       color: '#9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-              <SkipForward size={20}/>
-            </button>
+            {mode === 'pomodoro' ? (
+              <button onClick={finishSession} title="Oturumu Bitir & Ders/Konu Kaydet"
+                style={{ width: '50px', height: '50px', borderRadius: '50%',
+                         background: 'rgba(16, 185, 129, 0.12)', border: '1.5px solid rgba(16, 185, 129, 0.45)',
+                         color: '#34d399', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                         transition: 'all 0.2s', boxShadow: '0 4px 14px rgba(16,185,129,0.2)' }}>
+                <CheckCircle2 size={22}/>
+              </button>
+            ) : (
+              <button onClick={skip} title="Geç"
+                style={{ width: '50px', height: '50px', borderRadius: '50%',
+                         background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
+                         color: '#9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                <SkipForward size={20}/>
+              </button>
+            )}
           </div>
+
+          {/* Dedicated Finish Button */}
+          {mode === 'pomodoro' && (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={finishSession}
+              style={{
+                marginTop: '16px',
+                width: '100%',
+                maxWidth: '320px',
+                padding: '12px 18px',
+                borderRadius: '16px',
+                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(5, 150, 105, 0.28))',
+                border: '1.5px solid rgba(16, 185, 129, 0.5)',
+                color: '#34d399',
+                fontSize: '13px',
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                cursor: 'pointer',
+                boxShadow: '0 4px 18px rgba(16, 185, 129, 0.2)',
+                transition: 'all 0.2s'
+              }}
+            >
+              <CheckCircle2 size={18} />
+              Oturumu Bitir & Ders/Konu Kaydet
+            </motion.button>
+          )}
 
           {/* ── Inline Duration Controls ── */}
           <div style={{ width: '100%', marginTop: '24px' }}>

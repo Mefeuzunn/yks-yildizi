@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, X, BookOpen, Search, Trophy, Clock, Sparkles, Check } from 'lucide-react';
+import { CheckCircle, X, BookOpen, Search, Trophy, Clock, Sparkles, Check, ChevronRight, RotateCcw } from 'lucide-react';
 import { useTimer } from '@/context/TimerContext';
 import { subjectsData } from '@/lib/subjectData';
 
@@ -81,7 +81,7 @@ export default function SessionLogModal() {
   const netQ = Math.max(0, correctQ - (wrongQ * 0.25));
   const paceSec = totalQ > 0 ? Math.round(((pendingSession?.durationMin || 25) * 60) / totalQ) : 0;
 
-  // Modal açıldığında state sıfırlama ve otomatik yönlendirme
+  // Modal açıldığında state sıfırlama
   useEffect(() => {
     if (pendingSession) {
       const pref = pendingSession.prefilledSubject;
@@ -92,11 +92,8 @@ export default function SessionLogModal() {
       setQuestionsCount('');
       setCorrectCount('');
       setWrongCount('');
-      if (pref) {
-        setStep('topic');
-      } else {
-        setStep('subject');
-      }
+      // Always start on 'subject' so the user directly sees the lesson picker!
+      setStep('subject');
     }
   }, [pendingSession]);
 
@@ -146,8 +143,8 @@ export default function SessionLogModal() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           style={{
-            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)',
-            zIndex: 9998, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.88)',
+            zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center',
             backdropFilter: 'blur(12px)', padding: '20px',
           }}
         >
@@ -160,28 +157,28 @@ export default function SessionLogModal() {
               background: '#0f172a',
               border: '1px solid rgba(139,92,246,0.4)',
               borderRadius: '24px',
-              padding: '32px',
+              padding: '28px',
               width: '100%',
-              maxWidth: '540px',
-              maxHeight: '90vh',
+              maxWidth: '560px',
+              maxHeight: '92vh',
               overflowY: 'auto',
-              boxShadow: '0 25px 70px rgba(0,0,0,0.6), 0 0 40px rgba(139,92,246,0.2)',
+              boxShadow: '0 25px 70px rgba(0,0,0,0.7), 0 0 50px rgba(139,92,246,0.25)',
             }}
           >
             {/* Header */}
-            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
               <div style={{
-                width: '68px', height: '68px', borderRadius: '50%',
+                width: '64px', height: '64px', borderRadius: '50%',
                 background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                margin: '0 auto 14px',
+                margin: '0 auto 12px',
                 boxShadow: '0 8px 24px rgba(139,92,246,0.4)',
               }}>
-                <Trophy size={32} color="#fff" />
+                <Trophy size={30} color="#fff" />
               </div>
 
               <h2 style={{ color: '#fff', fontSize: '22px', fontWeight: 800, margin: 0 }}>
-                🎉 Odak Tamamlandı!
+                🎉 Odak Oturumu Tamamlandı!
               </h2>
 
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '6px' }}>
@@ -191,28 +188,75 @@ export default function SessionLogModal() {
                 </span>
               </div>
 
-              <p style={{ color: '#64748b', fontSize: '13px', marginTop: '6px' }}>
-                Oturumu ders ve konuya bağlayarak gelişimini takip et.
+              <p style={{ color: '#94a3b8', fontSize: '13px', marginTop: '6px', marginBottom: 0 }}>
+                Çalışmanı ders ve konuya bağlayarak analiz ve öğretmen paneline kaydet.
               </p>
             </div>
 
-            {/* Step indicator */}
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
-              <div style={{ flex: 1, height: '4px', borderRadius: '100px', background: '#8b5cf6', transition: 'all 0.3s' }} />
-              <div style={{ flex: 1, height: '4px', borderRadius: '100px', background: step === 'topic' ? '#8b5cf6' : 'rgba(255,255,255,0.1)', transition: 'all 0.3s' }} />
+            {/* Clickable Step Tabs */}
+            <div style={{
+              display: 'flex', gap: '8px', background: 'rgba(255,255,255,0.04)',
+              padding: '6px', borderRadius: '14px', marginBottom: '20px'
+            }}>
+              <button
+                type="button"
+                onClick={() => setStep('subject')}
+                style={{
+                  flex: 1, padding: '10px 12px', borderRadius: '10px', fontSize: '13px', fontWeight: 700,
+                  border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+                  background: step === 'subject' ? 'linear-gradient(135deg, #8b5cf6, #7c3aed)' : 'transparent',
+                  color: step === 'subject' ? '#fff' : '#94a3b8',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                  boxShadow: step === 'subject' ? '0 4px 12px rgba(139,92,246,0.3)' : 'none'
+                }}
+              >
+                <span>1. 📚 Ders Seçimi</span>
+                {selectedSubject && <Check size={14} color={step === 'subject' ? '#fff' : '#10b981'} />}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (selectedSubject) setStep('topic');
+                }}
+                disabled={!selectedSubject}
+                style={{
+                  flex: 1, padding: '10px 12px', borderRadius: '10px', fontSize: '13px', fontWeight: 700,
+                  border: 'none', cursor: selectedSubject ? 'pointer' : 'not-allowed', transition: 'all 0.2s',
+                  background: step === 'topic' ? 'linear-gradient(135deg, #8b5cf6, #7c3aed)' : 'transparent',
+                  color: step === 'topic' ? '#fff' : selectedSubject ? '#cbd5e1' : '#475569',
+                  opacity: selectedSubject ? 1 : 0.6,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                  boxShadow: step === 'topic' ? '0 4px 12px rgba(139,92,246,0.3)' : 'none'
+                }}
+              >
+                <span>2. 📝 Konu & Test</span>
+                {selectedTopic && <Check size={14} color="#10b981" />}
+              </button>
             </div>
 
             {/* ─── ADIM 1: DERS SEÇİMİ ─── */}
             <AnimatePresence mode="wait">
               {step === 'subject' && (
-                <motion.div key="subject" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                  <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 700, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Hangi dersi çalıştın?
+                <motion.div key="subject" initial={{ opacity: 0, x: -15 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 15 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                    <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      Çalıştığın Dersi Seç
+                    </span>
+                    {selectedSubject && (
+                      <span style={{ fontSize: '12px', color: '#a78bfa', fontWeight: 600 }}>
+                        Seçili: <strong>{selectedSubject}</strong>
+                      </span>
+                    )}
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', maxHeight: '320px', overflowY: 'auto', paddingRight: '4px' }}>
-                    {/* Serbest Çalışma */}
+                  <div style={{
+                    display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px',
+                    maxHeight: '300px', overflowY: 'auto', paddingRight: '4px'
+                  }}>
+                    {/* Serbest Çalışma Seçeneği */}
                     <button
+                      type="button"
                       onClick={() => handleSave(null, null)}
                       disabled={isSaving}
                       style={{
@@ -235,76 +279,116 @@ export default function SessionLogModal() {
                       return (
                         <button
                           key={s.label}
+                          type="button"
                           onClick={() => {
                             setSelectedSubject(s.label);
                             setStep('topic');
                           }}
                           style={{
                             padding: '12px 14px', borderRadius: '14px', cursor: 'pointer', textAlign: 'left',
-                            border: `1.5px solid ${isSelected ? s.color : 'rgba(255,255,255,0.06)'}`,
-                            background: isSelected ? `${s.color}15` : 'rgba(255,255,255,0.02)',
-                            display: 'flex', alignItems: 'center', gap: '10px',
-                            transition: 'all 0.15s'
+                            border: `2px solid ${isSelected ? s.color : 'rgba(255,255,255,0.06)'}`,
+                            background: isSelected ? `${s.color}22` : 'rgba(255,255,255,0.02)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            transition: 'all 0.15s',
+                            boxShadow: isSelected ? `0 0 16px ${s.color}33` : 'none'
                           }}
                         >
-                          <span style={{ fontSize: '20px' }}>{s.emoji}</span>
-                          <div>
-                            <div style={{ fontSize: '13px', fontWeight: 700, color: '#fff' }}>{s.label}</div>
-                            <div style={{ fontSize: '10px', color: s.color, fontWeight: 600 }}>{s.desc}</div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <span style={{ fontSize: '22px' }}>{s.emoji}</span>
+                            <div>
+                              <div style={{ fontSize: '13px', fontWeight: 700, color: isSelected ? '#fff' : '#f1f5f9' }}>
+                                {s.label}
+                              </div>
+                              <div style={{ fontSize: '10px', color: s.color, fontWeight: 600 }}>{s.desc}</div>
+                            </div>
                           </div>
+                          {isSelected && <Check size={18} color={s.color} />}
                         </button>
                       );
                     })}
                   </div>
 
-                  <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                  {/* Devam et veya kapat butonları */}
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '18px' }}>
                     <button
+                      type="button"
                       onClick={dismissSession}
                       style={{
-                        flex: 1, padding: '12px', borderRadius: '12px',
+                        padding: '12px 16px', borderRadius: '12px',
                         background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
                         color: '#94a3b8', cursor: 'pointer', fontSize: '13px', fontWeight: 600
                       }}
                     >
                       Kayıt Etmeden Kapat
                     </button>
+
+                    {selectedSubject && (
+                      <button
+                        type="button"
+                        onClick={() => setStep('topic')}
+                        style={{
+                          flex: 1, padding: '12px', borderRadius: '12px',
+                          background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
+                          border: 'none', color: '#fff', cursor: 'pointer',
+                          fontSize: '13px', fontWeight: 700,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                          boxShadow: '0 4px 14px rgba(139,92,246,0.3)'
+                        }}
+                      >
+                        <span>{selectedSubject} Konusunu Seç</span>
+                        <ChevronRight size={16} />
+                      </button>
+                    )}
                   </div>
                 </motion.div>
               )}
 
-              {/* ─── ADIM 2: KONU SEÇİMİ ─── */}
+              {/* ─── ADIM 2: KONU & TEST SEÇİMİ ─── */}
               {step === 'topic' && (
-                <motion.div key="topic" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                <motion.div key="topic" initial={{ opacity: 0, x: 15 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -15 }}>
+                  {/* Dersi Değiştir Çubuğu */}
+                  <div style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    padding: '10px 14px', borderRadius: '12px',
+                    background: currentSubjectObj ? `${currentSubjectObj.color}15` : 'rgba(139,92,246,0.1)',
+                    border: `1px solid ${currentSubjectObj ? `${currentSubjectObj.color}35` : 'rgba(139,92,246,0.2)'}`,
+                    marginBottom: '14px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '18px' }}>{currentSubjectObj?.emoji ?? '📚'}</span>
+                      <span style={{ fontSize: '14px', fontWeight: 700, color: '#fff' }}>
+                        {selectedSubject}
+                      </span>
+                    </div>
+
                     <button
+                      type="button"
                       onClick={() => setStep('subject')}
                       style={{
-                        background: 'none', border: 'none', color: '#8b5cf6', cursor: 'pointer',
-                        fontSize: '13px', fontWeight: 700, padding: 0, display: 'flex', alignItems: 'center', gap: '4px'
+                        background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)',
+                        borderRadius: '8px', color: '#c4b5fd', cursor: 'pointer',
+                        fontSize: '12px', fontWeight: 700, padding: '5px 12px',
+                        display: 'flex', alignItems: 'center', gap: '5px'
                       }}
                     >
-                      ← Dersi Değiştir ({selectedSubject})
+                      <RotateCcw size={13} />
+                      Dersi Değiştir
                     </button>
-                    {currentSubjectObj && (
-                      <span style={{ fontSize: '12px', color: currentSubjectObj.color, fontWeight: 700 }}>
-                        {currentSubjectObj.emoji} {currentSubjectObj.label}
-                      </span>
-                    )}
                   </div>
 
-                  <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 700, marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 700, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                     Hangi konuyu çalıştın?
                   </div>
 
                   {/* Arama Kutusu */}
-                  <div style={{ position: 'relative', marginBottom: '12px' }}>
+                  <div style={{ position: 'relative', marginBottom: '10px' }}>
                     <Search size={15} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
                     <input
                       value={topicSearch}
                       onChange={e => setTopicSearch(e.target.value)}
                       placeholder={`${selectedSubject} konularında ara...`}
                       style={{
-                        width: '100%', padding: '10px 14px 10px 36px', borderRadius: '12px',
+                        width: '100%', padding: '9px 14px 9px 36px', borderRadius: '10px',
                         background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
                         color: '#fff', fontSize: '13px', outline: 'none', boxSizing: 'border-box'
                       }}
@@ -313,27 +397,32 @@ export default function SessionLogModal() {
                   </div>
 
                   {/* Konu Listesi */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '260px', overflowY: 'auto', paddingRight: '4px', marginBottom: '16px' }}>
+                  <div style={{
+                    display: 'flex', flexDirection: 'column', gap: '6px',
+                    maxHeight: '220px', overflowY: 'auto', paddingRight: '4px', marginBottom: '14px'
+                  }}>
                     {/* Genel Çalışma Seçeneği */}
                     <button
+                      type="button"
                       onClick={() => setSelectedTopic(null)}
                       style={{
                         padding: '10px 14px', borderRadius: '10px', textAlign: 'left',
                         border: `1px solid ${selectedTopic === null ? '#8b5cf6' : 'rgba(255,255,255,0.05)'}`,
-                        background: selectedTopic === null ? 'rgba(139,92,246,0.15)' : 'rgba(255,255,255,0.02)',
+                        background: selectedTopic === null ? 'rgba(139,92,246,0.18)' : 'rgba(255,255,255,0.02)',
                         color: selectedTopic === null ? '#c4b5fd' : '#94a3b8',
                         cursor: 'pointer', fontSize: '13px', fontWeight: selectedTopic === null ? 700 : 500,
                         display: 'flex', justifyContent: 'space-between', alignItems: 'center'
                       }}
                     >
-                      <span>🎯 Genel {selectedSubject} Çalışması (Konu Yok)</span>
+                      <span>🎯 Genel {selectedSubject} Çalışması (Konu Belirtme)</span>
                       {selectedTopic === null && <Check size={16} color="#8b5cf6" />}
                     </button>
 
                     {filteredTopics.length === 0 ? (
-                      <div style={{ padding: '24px', textAlign: 'center', color: '#64748b', fontSize: '13px' }}>
+                      <div style={{ padding: '20px', textAlign: 'center', color: '#64748b', fontSize: '13px' }}>
                         "{topicSearch}" ile eşleşen konu bulunamadı.
                         <button
+                          type="button"
                           onClick={() => setSelectedTopic(topicSearch.trim())}
                           style={{
                             display: 'block', margin: '8px auto 0', background: 'rgba(139,92,246,0.15)',
@@ -350,11 +439,12 @@ export default function SessionLogModal() {
                         return (
                           <button
                             key={t.name}
+                            type="button"
                             onClick={() => setSelectedTopic(t.name)}
                             style={{
-                              padding: '10px 14px', borderRadius: '10px', textAlign: 'left',
+                              padding: '9px 12px', borderRadius: '10px', textAlign: 'left',
                               border: `1px solid ${isChosen ? '#8b5cf6' : 'rgba(255,255,255,0.05)'}`,
-                              background: isChosen ? 'rgba(139,92,246,0.15)' : 'rgba(255,255,255,0.02)',
+                              background: isChosen ? 'rgba(139,92,246,0.18)' : 'rgba(255,255,255,0.02)',
                               color: isChosen ? '#c4b5fd' : '#e2e8f0',
                               cursor: 'pointer', fontSize: '13px', fontWeight: isChosen ? 700 : 500,
                               display: 'flex', justifyContent: 'space-between', alignItems: 'center'
@@ -496,6 +586,7 @@ export default function SessionLogModal() {
                   {/* Kaydet Butonu */}
                   <div style={{ display: 'flex', gap: '10px' }}>
                     <button
+                      type="button"
                       onClick={dismissSession}
                       style={{
                         padding: '12px 16px', borderRadius: '12px',
@@ -506,6 +597,7 @@ export default function SessionLogModal() {
                       Atla
                     </button>
                     <button
+                      type="button"
                       onClick={() => handleSave()}
                       disabled={isSaving}
                       style={{

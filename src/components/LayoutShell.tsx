@@ -8,6 +8,7 @@ import GlobalTimerWidget from '@/components/GlobalTimerWidget';
 import AppSidebar from '@/components/AppSidebar';
 import MobileNav from '@/components/MobileNav';
 import { PWAInstallBanner } from '@/components/PWAComponents';
+import SessionLogModal from '@/components/dashboard/SessionLogModal';
 
 function ServiceWorkerRegistrar() {
   useEffect(() => {
@@ -37,6 +38,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
           <React.Suspense fallback={null}>
             <GlobalTimerWidget />
           </React.Suspense>
+          <SessionLogModal />
         </TimerProvider>
       </AuthProvider>
     );
@@ -69,6 +71,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
         <React.Suspense fallback={null}>
           <GlobalTimerWidget />
         </React.Suspense>
+        <SessionLogModal />
         <ServiceWorkerRegistrar />
         <PWAInstallBanner />
       </div>

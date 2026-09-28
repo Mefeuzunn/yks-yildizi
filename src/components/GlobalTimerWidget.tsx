@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, X, Zap } from 'lucide-react';
+import { Play, Pause, X, Zap, CheckCircle2 } from 'lucide-react';
 import { useTimer } from '@/context/TimerContext';
 import { usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -84,6 +84,19 @@ export default function GlobalTimerWidget() {
           >
             {timer.isRunning ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" style={{ marginLeft: '2px' }} />}
           </button>
+
+          {timer.mode === 'pomodoro' && (
+            <button
+              onClick={timer.finishSession}
+              title="Oturumu Bitir & Ders/Konu Kaydet"
+              style={{
+                width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.25)',
+                color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'
+              }}
+            >
+              <CheckCircle2 size={16} />
+            </button>
+          )}
 
           <button
             onClick={timer.reset}
