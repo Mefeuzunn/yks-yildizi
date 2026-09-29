@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import db from '@/lib/yks-db-async';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-    if (!sessionId) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
+    const userId = await getAuthenticatedUserId(request);
+    if (!userId) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
 
-    const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(sessionId) as any;
+    const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(userId) as any;
     if (!user || user.role !== 'ogrenci') return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
 
     const { invite_code } = await request.json();

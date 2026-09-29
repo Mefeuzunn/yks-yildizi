@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Users, BookOpen, Activity, CheckCircle, XCircle, MoreVertical, LayoutDashboard } from 'lucide-react';
+import { Shield, Users, BookOpen, Activity, CheckCircle, XCircle, MoreVertical, LayoutDashboard, Loader2 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 const mockTeachers = [
   { id: 1, name: 'Ahmet Yılmaz', subject: 'Matematik', school: 'Atatürk Anadolu Lisesi', date: '21 Haziran 2026', status: 'pending' },
@@ -30,7 +32,25 @@ const mockActivity = [
 ];
 
 export default function AdminPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
   const [teachers, setTeachers] = useState(mockTeachers);
+
+  useEffect(() => {
+    if (!loading) {
+      if (!user || user.role !== 'admin') {
+        router.replace(user?.role === 'ogretmen' ? '/ogretmen/dashboard' : '/dashboard');
+      }
+    }
+  }, [user, loading, router]);
+
+  if (loading || !user || user.role !== 'admin') {
+    return (
+      <div style={{ display: 'flex', minHeight: '80vh', alignItems: 'center', justifyContent: 'center' }}>
+        <Loader2 className="animate-spin" size={36} color="#ef4444" />
+      </div>
+    );
+  }
 
   const handleApprove = (id: number) => {
     setTeachers(prev => prev.map(t => t.id === id ? { ...t, status: 'approved' } : t));

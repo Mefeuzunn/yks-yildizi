@@ -1,16 +1,36 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, Database, CheckCircle, AlertTriangle, Cloud, FileJson, Loader2 } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 export default function YokAtlasAdminPage() {
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [year, setYear] = useState('2026');
   const [loading, setLoading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error' | null, message: string }>({ type: null, message: '' });
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!authLoading) {
+      if (!user || user.role !== 'admin') {
+        router.replace(user?.role === 'ogretmen' ? '/ogretmen/dashboard' : '/dashboard');
+      }
+    }
+  }, [user, authLoading, router]);
+
+  if (authLoading || !user || user.role !== 'admin') {
+    return (
+      <div style={{ display: 'flex', minHeight: '80vh', alignItems: 'center', justifyContent: 'center' }}>
+        <Loader2 className="animate-spin" size={36} color="#ef4444" />
+      </div>
+    );
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {

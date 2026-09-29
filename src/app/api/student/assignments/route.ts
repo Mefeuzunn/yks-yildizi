@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import db from '@/lib/yks-db-async';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
 
-export async function GET() {
-  const cookieStore = await cookies();
-    const userId = cookieStore.get('yks_session')?.value;
+export const dynamic = 'force-dynamic';
+
+export async function GET(req: Request) {
+  const userId = await getAuthenticatedUserId(req);
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {

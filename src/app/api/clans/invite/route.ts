@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import db from '@/lib/yks-db-async';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
 import { v4 as uuidv4 } from 'uuid';
 
+export const dynamic = 'force-dynamic';
+
 // GET - Gelen davetlerimi getir
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get('yks_session')?.value;
+    const userId = await getAuthenticatedUserId(req);
     if (!userId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
 
     // Bu kullanıcıya gelen bekleyen davetler
@@ -32,8 +33,7 @@ export async function GET() {
 // POST - Davet gönder (action: 'send') veya davete yanıt ver (action: 'accept'/'reject')
 export async function POST(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get('yks_session')?.value;
+    const userId = await getAuthenticatedUserId(req);
     if (!userId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
 
     const body = await req.json();

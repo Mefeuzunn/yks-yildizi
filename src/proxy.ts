@@ -44,6 +44,17 @@ export async function proxy(request: NextRequest) {
         requestHeaders.set('authorization', `Bearer ${payload.userId}`);
       }
 
+      // Admin Rotaları Koruması: Öğretmen ve öğrenciler KESİNLİKLE admin paneline erişemez!
+      if (pathname.startsWith('/admin')) {
+        const userRole = payload.role || role;
+        if (userRole !== 'admin') {
+          if (userRole === 'ogretmen') {
+            return NextResponse.redirect(new URL('/ogretmen/dashboard', request.nextUrl.origin));
+          }
+          return NextResponse.redirect(new URL('/dashboard', request.nextUrl.origin));
+        }
+      }
+
       if (isPublicPath && pathname !== '/' && pathname !== '/veli') {
         const redirectRole = payload.role || role;
         if (redirectRole === 'ogretmen') {

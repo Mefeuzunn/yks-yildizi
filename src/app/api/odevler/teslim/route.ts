@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
-import { cookies } from 'next/headers';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-    if (!sessionId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
 
     const { assignment_id, score } = await req.json();
 
@@ -14,7 +15,7 @@ export async function POST(req: Request) {
       UPDATE assignment_submissions 
       SET status = 'submitted', score = ?, submitted_at = CURRENT_TIMESTAMP
       WHERE assignment_id = ? AND student_id = ?
-    `).run(score, assignment_id, sessionId);
+    `).run(score, assignment_id, userId);
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {

@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
-import { cookies } from 'next/headers';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
 
-export async function GET() {
+export const dynamic = 'force-dynamic';
+
+export async function GET(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-    if (!sessionId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
 
-    const inventory = await db.prepare('SELECT item_id FROM user_inventory WHERE user_id = ?').all(sessionId) as { item_id: string }[];
+    const inventory = await db.prepare('SELECT item_id FROM user_inventory WHERE user_id = ?').all(userId) as { item_id: string }[];
     const purchasedIds = inventory.map(item => item.item_id);
 
     return NextResponse.json({ purchased: purchasedIds });

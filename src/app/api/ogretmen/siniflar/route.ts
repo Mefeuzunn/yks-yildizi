@@ -79,11 +79,10 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-    if (!sessionId) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
+    const teacherId = await getTeacherId();
+    if (!teacherId) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
 
-    const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(sessionId) as any;
+    const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(teacherId) as any;
     if (!user || user.role !== 'ogretmen') return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
 
     const { searchParams } = new URL(request.url);

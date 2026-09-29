@@ -1,21 +1,22 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import db from '@/lib/yks-db-async';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-    if (!sessionId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const user = await db.prepare('SELECT alan FROM users WHERE id = ?').get(sessionId) as any;
+    const user = await db.prepare('SELECT alan FROM users WHERE id = ?').get(userId) as any;
     
-    await db.prepare('DELETE FROM study_plans WHERE user_id = ?').run(sessionId);
+    await db.prepare('DELETE FROM study_plans WHERE user_id = ?').run(userId);
 
     const generateSchedule = async (day: number, time: number, duration: number, title: string, color: string) => {
       await db.prepare(
         'INSERT INTO study_plans (user_id, day_of_week, start_time, duration, title, color, completed) VALUES (?, ?, ?, ?, ?, ?, 0)'
-      ).run(sessionId, day, time, duration, title, color);
+      ).run(userId, day, time, duration, title, color);
     };
     
     const isSayisal = user.alan === 'Sayisal';

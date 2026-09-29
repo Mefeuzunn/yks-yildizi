@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
-import { cookies } from 'next/headers';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
 import { v4 as uuidv4 } from 'uuid';
+
+export const dynamic = 'force-dynamic';
 
 const QUEST_TEMPLATES = [
   { id: 'q1', type: 'focus', target: 60, xp: 50, desc: 'Bugün 60 dakika odaklan' },
@@ -11,16 +13,15 @@ const QUEST_TEMPLATES = [
   { id: 'q5', type: 'login', target: 1, xp: 20, desc: 'Sisteme giriş yap' },
 ];
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-    if (!sessionId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
 
     const todayStr = new Date().toISOString().split('T')[0];
 
     // Check if user has quests for today
-    let quests = await db.prepare('SELECT * FROM daily_quests WHERE user_id = ? AND date = ?').all(sessionId, todayStr) as any[];
+    let quests = await db.prepare('SELECT * FROM daily_quests WHERE user_id = ? AND date = ?').all(userId, todayStr) as any[];
 
     if (quests.length === 0) {
       // Generate 3 random quests for today
@@ -31,11 +32,11 @@ export async function GET() {
           await db.prepare(`
             INSERT INTO daily_quests (id, user_id, date, quest_type, target_value, current_value, xp_reward, is_completed, description)
             VALUES (?, ?, ?, ?, ?, 0, ?, 0, ?)
-          `).run(uuidv4(), sessionId, todayStr, q.type, q.target, q.xp, q.desc);
+          `).run(uuidv4(), userId, todayStr, q.type, q.target, q.xp, q.desc);
         }
       })();
       
-      quests = await db.prepare('SELECT * FROM daily_quests WHERE user_id = ? AND date = ?').all(sessionId, todayStr) as any[];
+      quests = await db.prepare('SELECT * FROM daily_quests WHERE user_id = ? AND date = ?').all(userId, todayStr) as any[];
     }
 
     return NextResponse.json({ quests });
@@ -47,13 +48,12 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get('yks_session')?.value;
-    if (!sessionId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
 
     const { questId } = await req.json();
 
-    const quest = await db.prepare('SELECT * FROM daily_quests WHERE id = ? AND user_id = ?').get(questId, sessionId) as any;
+    const quest = await db.prepare('SELECT * FROM daily_quests WHERE id = ? AND user_id = ?').get(questId, userId) as any;
     if (!quest) return NextResponse.json({ error: 'Görev bulunamadı' }, { status: 404 });
     
     if (quest.is_completed) {
@@ -67,7 +67,7 @@ export async function POST(req: Request) {
     // Mark completed and give XP
     await db.transaction(async () => {
       await db.prepare('UPDATE daily_quests SET is_completed = 1 WHERE id = ?').run(questId);
-      await db.prepare('UPDATE user_stats SET league_points = league_points + ? WHERE user_id = ?').run(quest.xp_reward, sessionId);
+      await db.prepare('UPDATE user_stats SET league_points = league_points + ? WHERE user_id = ?').run(quest.xp_reward, userId);
     })();
 
     return NextResponse.json({ success: true, xpEarned: quest.xp_reward });
