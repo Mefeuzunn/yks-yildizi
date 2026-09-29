@@ -1,14 +1,16 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, Sparkles, Loader2, BrainCircuit, Mic, MicOff, Square, ExternalLink } from 'lucide-react';
+import { Send, Bot, User, Sparkles, Loader2, BrainCircuit, Mic, MicOff, Square, ExternalLink, Camera, X, CheckCircle2 } from 'lucide-react';
 
 interface Message {
   id: string;
   role: 'user' | 'ai';
   content: string;
   timestamp: Date;
+  image?: string;
   actions?: { label: string; url: string }[];
+  questionData?: any;
 }
 
 export default function AstraTutorTab() {
@@ -25,8 +27,50 @@ export default function AstraTutorTab() {
   const [isListening, setIsListening] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(false);
   const [studentMemory, setStudentMemory] = useState<any>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [imageMime, setImageMime] = useState<string>('image/jpeg');
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImageMime(file.type || 'image/jpeg');
+    const reader = new FileReader();
+    reader.onload = () => {
+      setSelectedImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleSaveToErrors = async (data: any) => {
+    try {
+      const res = await fetch('/api/user/errors', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subject: data?.subject || 'Matematik (TYT-AYT)',
+          topic: data?.topic || 'Soru Çözümü',
+          icerik: 'AstraTutor Fotoğraflı Soru Çözümü',
+          secenekler_json: JSON.stringify(['A', 'B', 'C', 'D', 'E']),
+          dogru_cevap: 'C',
+          secilen_cevap: 'Boş',
+          cozum: data?.content || data?.reply || '',
+          image_data: data?.image || null
+        })
+      });
+      if (res.ok) {
+        setToastMessage('Soru Hata Defterine eklendi! Yanlışlarım sekmesinden tekrar çözebilirsin.');
+        setTimeout(() => setToastMessage(null), 5000);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   // Fetch student memory profile on mount
   useEffect(() => {
@@ -90,13 +134,19 @@ export default function AstraTutorTab() {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  const handleSendPrompt = async (promptText: string) => {
-    if (!promptText.trim() || isTyping) return;
+  const handleSendPrompt = async (promptText: string, imageAttachment?: string | null) => {
+    const textToSend = promptText.trim();
+    const imgToSend = imageAttachment !== undefined ? imageAttachment : selectedImage;
+    if (!textToSend && !imgToSend) return;
+    if (isTyping) return;
+
+    setSelectedImage(null);
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
-      content: promptText,
+      content: textToSend || 'Bu sorunun çözümünü adım adım açıklar mısın?',
+      image: imgToSend || undefined,
       timestamp: new Date()
     };
 
@@ -105,11 +155,25 @@ export default function AstraTutorTab() {
     setIsTyping(true);
 
     try {
-      const res = await fetch('/api/astratutor/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMessage.content })
-      });
+      let res;
+      if (imgToSend) {
+        res = await fetch('/api/ai/solve-photo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            image: imgToSend,
+            mimeType: imageMime,
+            studentNote: textToSend
+          })
+        });
+      } else {
+        res = await fetch('/api/astratutor/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: userMessage.content })
+        });
+      }
+
       const data = await res.json();
 
       const aiMessage: Message = {
@@ -117,7 +181,13 @@ export default function AstraTutorTab() {
         role: 'ai',
         content: data.reply || 'Şu an meşgulüm, lütfen daha sonra tekrar dene.',
         timestamp: new Date(),
-        actions: data.actions
+        actions: data.actions,
+        questionData: {
+          subject: data.subject || 'Matematik (TYT-AYT)',
+          topic: data.topic || 'Soru Çözümü',
+          reply: data.reply,
+          image: imgToSend
+        }
       };
       
       setMessages(prev => [...prev, aiMessage]);
@@ -134,7 +204,7 @@ export default function AstraTutorTab() {
     }
   };
 
-  const handleSend = () => handleSendPrompt(input);
+  const handleSend = () => handleSendPrompt(input, selectedImage);
 
   return (
     <motion.div 
@@ -206,18 +276,34 @@ export default function AstraTutorTab() {
                     ? 'bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-[0_0_30px_rgba(14,165,233,0.15)] rounded-tr-sm'
                     : 'bg-white/[0.05] border border-white/10 text-gray-200 shadow-xl backdrop-blur-md rounded-tl-sm'
                 }`}>
+                  {msg.image && (
+                    <div className="mb-3 overflow-hidden rounded-2xl border border-white/20 bg-black/40 max-w-sm">
+                      <img src={msg.image} alt="Soru Görseli" className="w-full max-h-72 object-contain" />
+                    </div>
+                  )}
                   <p className="whitespace-pre-wrap leading-relaxed text-[15px]">{msg.content}</p>
                   {msg.actions && msg.actions.length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-3 pt-2.5 border-t border-white/10">
                       {msg.actions.map((act, idx) => (
-                        <Link
-                          key={idx}
-                          href={act.url}
-                          className="px-3 py-1.5 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 text-xs font-semibold border border-indigo-500/30 transition-all flex items-center gap-1.5 no-underline hover:scale-[1.02] active:scale-[0.98]"
-                        >
-                          <span>{act.label}</span>
-                          <ExternalLink className="w-3 h-3 opacity-70" />
-                        </Link>
+                        act.url === '#add-to-errors' ? (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => handleSaveToErrors(msg.questionData)}
+                            className="px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs font-semibold border border-rose-500/30 transition-all flex items-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+                          >
+                            <span>{act.label}</span>
+                          </button>
+                        ) : (
+                          <Link
+                            key={idx}
+                            href={act.url}
+                            className="px-3 py-1.5 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 text-xs font-semibold border border-indigo-500/30 transition-all flex items-center gap-1.5 no-underline hover:scale-[1.02] active:scale-[0.98]"
+                          >
+                            <span>{act.label}</span>
+                            <ExternalLink className="w-3 h-3 opacity-70" />
+                          </Link>
+                        )
                       ))}
                     </div>
                   )}
@@ -274,8 +360,46 @@ export default function AstraTutorTab() {
           ))}
         </div>
 
+        {/* Selected Image Preview */}
+        {selectedImage && (
+          <div className="relative inline-flex items-center gap-3 p-2 bg-white/[0.06] border border-indigo-500/40 rounded-2xl mb-1 max-w-xs backdrop-blur-md">
+            <img src={selectedImage} alt="Seçilen Soru" className="w-12 h-12 object-cover rounded-xl border border-white/10" />
+            <div className="flex-1 min-w-0 pr-6">
+              <p className="text-xs font-semibold text-indigo-300 truncate">Soru Fotoğrafı Eklendi</p>
+              <p className="text-[10px] text-gray-400">Çözüm için hazır</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSelectedImage(null)}
+              className="absolute top-2 right-2 p-1 rounded-full bg-black/50 text-gray-300 hover:text-white hover:bg-black/80 transition-colors"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
+
         <div className="bg-white/[0.03] border border-white/10 p-2 rounded-[2rem] flex items-end gap-2 backdrop-blur-xl shadow-2xl relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-purple-500/5 pointer-events-none" />
+          
+          {/* Hidden File Input for Question Photos */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleImageSelect}
+            accept="image/*"
+            className="hidden"
+          />
+
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isTyping}
+            className="p-4 rounded-full flex-shrink-0 relative z-10 transition-all duration-300 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-indigo-300 active:scale-95 cursor-pointer"
+            title="Soru Fotoğrafı Çek veya Yükle"
+          >
+            <Camera className="w-6 h-6" />
+          </button>
+
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -285,7 +409,7 @@ export default function AstraTutorTab() {
                 handleSend();
               }
             }}
-            placeholder="AstraTutor'a bir soru sor... (Örn: Bana bir haftalık fizik programı yapar mısın?)"
+            placeholder={selectedImage ? "Soruyla ilgili sormak istediğin bir not var mı? (İsteğe bağlı)" : "AstraTutor'a bir soru sor veya fotoğrafını yükle..."}
             className="flex-1 bg-transparent border-none text-white p-4 max-h-32 outline-none resize-none placeholder:text-gray-600 custom-scrollbar relative z-10"
             rows={1}
             style={{ minHeight: '60px' }}
@@ -305,9 +429,9 @@ export default function AstraTutorTab() {
           )}
           <button
             onClick={handleSend}
-            disabled={!input.trim() || isTyping}
+            disabled={(!input.trim() && !selectedImage) || isTyping}
             className={`p-4 rounded-full flex-shrink-0 relative z-10 transition-all duration-300 ${
-              !input.trim() || isTyping
+              (!input.trim() && !selectedImage) || isTyping
                 ? 'bg-white/5 text-gray-500 cursor-not-allowed'
                 : 'bg-indigo-500 hover:bg-indigo-400 text-white shadow-[0_0_20px_rgba(99,102,241,0.4)] hover:shadow-[0_0_30px_rgba(99,102,241,0.6)] hover:-translate-y-1'
             }`}
@@ -316,9 +440,24 @@ export default function AstraTutorTab() {
           </button>
         </div>
         <p className="text-center text-[11px] text-gray-600 mt-3 font-medium">
-          AstraTutor yapay zeka tabanlıdır. Kritik kararlar öncesi (örn. tercih listesi) lütfen bilgileri teyit ediniz.
+          AstraTutor yapay zeka tabanlıdır. Fotoğraf çekerek çözemediğin soruları anında sorabilirsin.
         </p>
       </div>
+
+      {/* Floating Toast Notification */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.9 }}
+            className="fixed bottom-24 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl bg-emerald-600/90 text-white shadow-2xl backdrop-blur-md border border-emerald-400/40 text-sm font-medium"
+          >
+            <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-200" />
+            <span>{toastMessage}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Global CSS for scrollbar inside this component */}
       <style dangerouslySetInnerHTML={{__html: `

@@ -117,7 +117,8 @@ export default function AstraTutorChat({ questionContext, onClose }: Props) {
     if (!input.trim()) return;
     
     const userMsg = input.trim();
-    setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
+    const updatedMessages = [...messages, { role: 'user' as const, content: userMsg }];
+    setMessages(updatedMessages);
     setInput('');
     setLoading(true);
 
@@ -125,7 +126,7 @@ export default function AstraTutorChat({ questionContext, onClose }: Props) {
       const res = await fetch('/api/ai/astratutor', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ questionContext, messages: newMessages })
+        body: JSON.stringify({ questionContext, messages: updatedMessages })
       });
       
       if (res.ok) {
@@ -159,7 +160,25 @@ export default function AstraTutorChat({ questionContext, onClose }: Props) {
       }
     } catch (err) {
       console.error('OCR Error:', err);
-      alert('Görsel okunamadı, lütfen daha net bir fotoğraf yükleyin.');
+      // Fallback: solve directly via /api/ai/solve-photo
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const res = await fetch('/api/ai/solve-photo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: reader.result, mimeType: file.type || 'image/jpeg' })
+          });
+          const d = await res.json();
+          if (d.reply) {
+            setMessages(prev => [...prev, { role: 'astratutor', content: d.reply }]);
+            speakText(d.reply);
+          }
+        } catch (photoErr) {
+          console.error(photoErr);
+        }
+      };
+      reader.readAsDataURL(file);
     } finally {
       setOcrLoading(false);
       if (fileInputRef.current) {
