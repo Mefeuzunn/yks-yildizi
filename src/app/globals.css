@@ -66,6 +66,29 @@ button, a, input, select, textarea, [role="button"] {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Mobile native 60fps haptic feel optimizations */
+@media (max-width: 768px) {
+  html, body {
+    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  button, .btn-interactive, [role="button"] {
+    transition: transform 0.12s cubic-bezier(0.2, 0.8, 0.4, 1), opacity 0.12s ease !important;
+  }
+  
+  button:active, .btn-interactive:active, [role="button"]:active {
+    transform: scale(0.96) !important;
+    opacity: 0.92;
+  }
+
+  .premium-card, .interactive-card {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+}
+
 .dark-theme {
   background-color: var(--bg-color);
   color: var(--text-primary);

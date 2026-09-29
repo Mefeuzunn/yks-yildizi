@@ -3,7 +3,7 @@
 import React from 'react';
 import { Filter, BookOpen, Layers, Star, Search } from 'lucide-react';
 
-export type Subject = 'Tümü' | 'Fizik' | 'Kimya' | 'Biyoloji' | 'Genel';
+export type Subject = 'Tümü' | 'Fizik' | 'Kimya' | 'Biyoloji' | 'Matematik' | 'Genel';
 export type Category = 'Tümü' | 'TYT' | 'AYT';
 export type Difficulty = 0 | 1 | 2 | 3 | 4 | 5;
 
@@ -75,7 +75,7 @@ export default function SimulationFilter({
         <Search size={18} style={{ ...iconStyle, color: '#3b82f6' }} />
         <input 
           type="text"
-          placeholder="İvme, Türev, pH gibi bir konu, etiket veya simülasyon adı ara..."
+          placeholder="İvme, Türev, pH, Sığaç gibi bir konu, etiket veya deney adı ara..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           style={{
@@ -104,7 +104,7 @@ export default function SimulationFilter({
           <div style={wrapperStyle}>
             <Layers size={16} style={iconStyle} />
             <select value={category} onChange={(e) => setCategory(e.target.value as Category)} style={selectStyle}>
-              <option value="Tümü">Sınav: Tümü</option>
+              <option value="Tümü">Sınav: Tümü (TYT / AYT)</option>
               <option value="TYT">TYT</option>
               <option value="AYT">AYT</option>
             </select>
@@ -114,10 +114,10 @@ export default function SimulationFilter({
             <BookOpen size={16} style={iconStyle} />
             <select value={subject} onChange={(e) => setSubject(e.target.value as Subject)} style={selectStyle}>
               <option value="Tümü">Ders: Tümü</option>
-              <option value="Fizik">Fizik</option>
-              <option value="Kimya">Kimya</option>
-              <option value="Biyoloji">Biyoloji</option>
-              <option value="Genel">Matematik / Genel</option>
+              <option value="Fizik">Fizik (24 Deney)</option>
+              <option value="Kimya">Kimya (8 Deney)</option>
+              <option value="Biyoloji">Biyoloji (7 Deney)</option>
+              <option value="Matematik">Matematik (8 Deney)</option>
             </select>
           </div>
 
@@ -125,11 +125,11 @@ export default function SimulationFilter({
             <Star size={16} style={iconStyle} />
             <select value={difficulty} onChange={(e) => setDifficulty(Number(e.target.value) as Difficulty)} style={selectStyle}>
               <option value={0}>Zorluk: Tümü</option>
-              <option value={1}>Seviye 1 (En Kolay)</option>
+              <option value={1}>Seviye 1 (Temel)</option>
               <option value={2}>Seviye 2 (Kolay)</option>
               <option value={3}>Seviye 3 (Orta)</option>
-              <option value={4}>Seviye 4 (Zor)</option>
-              <option value={5}>Seviye 5 (Uzman)</option>
+              <option value={4}>Seviye 4 (İleri)</option>
+              <option value={5}>Seviye 5 (Zirve)</option>
             </select>
           </div>
         </div>
