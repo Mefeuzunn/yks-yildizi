@@ -9,6 +9,7 @@ import { FileText, BarChart3, BookOpen, Flame, Check, Heart, Sparkles, TrendingU
 import dynamic from 'next/dynamic';
 import confetti from 'canvas-confetti';
 import { haptics } from '@/lib/haptics';
+import MobileLiveActivityWidget from '@/components/MobileLiveActivityWidget';
 
 // ─── Pofuduk Evolution System ──────────────────────────────────────────────
 const POFUDUK_STAGES = [
@@ -110,7 +111,6 @@ interface Achievement {
 function DashboardContent() {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('home');
-  const [timeLeft, setTimeLeft] = useState({ days: 359, hours: 7, minutes: 21, seconds: 49 });
   const [stats, setStats] = useState<GamificationStats | null>(null);
   const [quests, setQuests] = useState<Quest[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
@@ -195,23 +195,6 @@ function DashboardContent() {
     }
   }, [tabParam]);
 
-  // Update timer (Target: 2027)
-  useEffect(() => {
-    const targetDate = new Date('2027-06-19T10:15:00').getTime();
-    const interval = setInterval(() => {
-      const now = new Date().getTime();
-      const distance = targetDate - now;
-      if (distance < 0) return;
-      setTimeLeft({
-        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-        seconds: Math.floor((distance % (1000 * 60)) / 1000)
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
   const renderHome = () => {
     const formattedDate = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
 
@@ -233,34 +216,12 @@ function DashboardContent() {
             </div>
           </div>
 
-          {/* YKS Countdown */}
-          <div style={{ marginBottom: '24px' }}>
-            <div style={{ fontSize: '13px', color: '#9ca3af', marginBottom: '12px', fontWeight: 500 }}>
-              YKS 2027'ye Kalan Süre
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))', gap: '10px' }}>
-              {/* Gün */}
-              <div style={{ backgroundColor: '#0f172a', borderTop: '2px solid #a855f7', borderRadius: '12px', padding: '16px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: '0 4px 20px rgba(168, 85, 247, 0.1)' }}>
-                <span style={{ fontSize: 'clamp(24px, 5vw, 36px)', fontWeight: 800, color: '#a855f7', textShadow: '0 0 10px rgba(168,85,247,0.3)' }}>{timeLeft.days}</span>
-                <span style={{ fontSize: '10px', color: '#9ca3af', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '6px' }}>GÜN</span>
-              </div>
-              {/* Saat */}
-              <div style={{ backgroundColor: '#0f172a', borderTop: '2px solid #22c55e', borderRadius: '12px', padding: '16px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: '0 4px 20px rgba(34, 197, 94, 0.1)' }}>
-                <span style={{ fontSize: 'clamp(24px, 5vw, 36px)', fontWeight: 800, color: '#22c55e', textShadow: '0 0 10px rgba(34,197,94,0.3)' }}>{timeLeft.hours.toString().padStart(2, '0')}</span>
-                <span style={{ fontSize: '10px', color: '#9ca3af', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '6px' }}>SAAT</span>
-              </div>
-              {/* Dakika */}
-              <div style={{ backgroundColor: '#0f172a', borderTop: '2px solid #eab308', borderRadius: '12px', padding: '16px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: '0 4px 20px rgba(234, 179, 8, 0.1)' }}>
-                <span style={{ fontSize: 'clamp(24px, 5vw, 36px)', fontWeight: 800, color: '#eab308', textShadow: '0 0 10px rgba(234,179,8,0.3)' }}>{timeLeft.minutes.toString().padStart(2, '0')}</span>
-                <span style={{ fontSize: '10px', color: '#9ca3af', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '6px' }}>DAKİKA</span>
-              </div>
-              {/* Saniye */}
-              <div style={{ backgroundColor: '#0f172a', borderTop: '2px solid #ef4444', borderRadius: '12px', padding: '16px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: '0 4px 20px rgba(239, 68, 68, 0.1)' }}>
-                <span style={{ fontSize: 'clamp(24px, 5vw, 36px)', fontWeight: 800, color: '#ef4444', textShadow: '0 0 10px rgba(239,68,68,0.3)' }}>{timeLeft.seconds.toString().padStart(2, '0')}</span>
-                <span style={{ fontSize: '10px', color: '#9ca3af', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '6px' }}>SANİYE</span>
-              </div>
-            </div>
-          </div>
+          {/* Live Activity & YKS Countdown Widget */}
+          <MobileLiveActivityWidget
+            streak={stats?.streak_days || 1}
+            solvedQuestions={stats?.solved_questions || 0}
+            dailyGoal={40}
+          />
 
           {/* Odak Dostun (Pofuduk) & Stats Row container */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>

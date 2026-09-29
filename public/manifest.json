@@ -1,23 +1,93 @@
 {
-  "name": "YKS Yıldızı",
+  "name": "YKS Yıldızı — YKS Hazırlık & Simülasyon",
   "short_name": "YKS Yıldızı",
-  "description": "Yeni Nesil Gamified YKS Hazırlık Platformu",
+  "description": "Yapay Zeka Destekli YKS Hazırlık Platformu: 49+ İnteraktif Simülasyon, Canlı Çalışma Odaları, Bilgi Arenası ve Sokratik Ders Koçu",
   "start_url": "/dashboard",
+  "scope": "/",
+  "id": "/dashboard",
   "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
   "background_color": "#0b0f19",
   "theme_color": "#0b0f19",
   "orientation": "portrait",
+  "lang": "tr-TR",
+  "dir": "ltr",
+  "categories": [
+    "education",
+    "productivity"
+  ],
   "icons": [
     {
       "src": "/icons/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Soru Çöz & Koç",
+      "short_name": "Soru Çöz",
+      "description": "Yapay zeka koçu ile soru çözmeye başla",
+      "url": "/soru-coz",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Çalışma Odaları",
+      "short_name": "Odalar",
+      "description": "Lofi müzik ve canlı öğrencilerle odaklan",
+      "url": "/calisma-odalari",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "İnteraktif Deneyler",
+      "short_name": "Deneyler",
+      "description": "49+ Fizik, Kimya, Biyoloji ve Matematik simülasyonu",
+      "url": "/simulasyonlar",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Bilgi Arenası",
+      "short_name": "Düello",
+      "description": "Canlı YKS sorularıyla rakiplerle yarış",
+      "url": "/duello",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }
