@@ -1,10 +1,15 @@
 "use client";
 
-import React, { useEffect, useState, useRef, use } from 'react';
-import { ArrowLeft, Users, MessageSquare, Send, Timer, Pause, Play, RotateCcw, X } from 'lucide-react';
+import React, { useEffect, useState, useRef, use, useCallback } from 'react';
+import { 
+  ArrowLeft, Users, MessageSquare, Send, Timer, Pause, Play, 
+  RotateCcw, X, Volume2, VolumeX, CloudRain, Headphones, Waves, 
+  Sparkles, Radio, Shield, Coffee, CheckCircle2 
+} from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { haptics } from '@/lib/haptics';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -14,6 +19,8 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [showMobileDrawer, setShowMobileDrawer] = useState(false);
+  const [activeSideTab, setActiveSideTab] = useState<'chat' | 'users'>('chat');
+  
   const chatRef = useRef<HTMLDivElement>(null);
   const mobileChatRef = useRef<HTMLDivElement>(null);
 
@@ -22,13 +29,166 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [timerActive, setTimerActive] = useState(false);
 
-  // Initialize Serverless Realtime SSE Connection & Load Initial State
+  // Web Audio Synthesized Ambience Player (0 token, 0 network overhead)
+  const [ambientSound, setAmbientSound] = useState<'none' | 'rain' | 'lofi' | 'waves'>('none');
+  const [ambientVolume, setAmbientVolume] = useState<number>(0.35);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const gainNodeRef = useRef<GainNode | null>(null);
+  const soundNodesRef = useRef<any[]>([]);
+
+  // Room metadata based on id
+  const getRoomMeta = (roomId: string) => {
+    switch (roomId) {
+      case 'room-1':
+        return { name: 'Sessiz Kütüphane', theme: 'library', color: '#10b981', gradient: 'from-emerald-500/20 via-emerald-500/5 to-transparent' };
+      case 'room-2':
+        return { name: 'Lofi Chill Cafe', theme: 'lofi', color: '#8b5cf6', gradient: 'from-purple-500/20 via-purple-500/5 to-transparent' };
+      case 'room-3':
+        return { name: 'Gece & Yağmur', theme: 'rain', color: '#0ea5e9', gradient: 'from-sky-500/20 via-sky-500/5 to-transparent' };
+      case 'room-4':
+        return { name: 'Sayısalcılar Zirvesi', theme: 'tech', color: '#f59e0b', gradient: 'from-amber-500/20 via-amber-500/5 to-transparent' };
+      default:
+        return { name: 'Çalışma Odası', theme: 'general', color: '#6366f1', gradient: 'from-indigo-500/20 via-indigo-500/5 to-transparent' };
+    }
+  };
+
+  const roomMeta = getRoomMeta(id);
+
+  // Web Audio Ambience Engine
+  const stopAmbientSound = useCallback(() => {
+    soundNodesRef.current.forEach(node => {
+      try {
+        if (node.stop) node.stop();
+        if (node.disconnect) node.disconnect();
+      } catch (_) {}
+    });
+    soundNodesRef.current = [];
+  }, []);
+
+  const playAmbientSound = useCallback((type: 'none' | 'rain' | 'lofi' | 'waves') => {
+    stopAmbientSound();
+    if (type === 'none') {
+      setAmbientSound('none');
+      return;
+    }
+
+    try {
+      if (!audioCtxRef.current || audioCtxRef.current.state === 'closed') {
+        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+        audioCtxRef.current = new AudioCtx();
+      }
+      const ctx = audioCtxRef.current;
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+
+      const masterGain = ctx.createGain();
+      masterGain.gain.setValueAtTime(ambientVolume, ctx.currentTime);
+      masterGain.connect(ctx.destination);
+      gainNodeRef.current = masterGain;
+
+      // Pink / Brown Noise Buffer generator
+      const bufferSize = ctx.sampleRate * 2;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        b0 = 0.99886 * b0 + white * 0.0555179;
+        b1 = 0.99332 * b1 + white * 0.0750759;
+        b2 = 0.96900 * b2 + white * 0.1538520;
+        b3 = 0.86650 * b3 + white * 0.3104856;
+        b4 = 0.55000 * b4 + white * 0.5329522;
+        b5 = -0.7616 * b5 - white * 0.0168980;
+        data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
+        b6 = white * 0.115926;
+      }
+
+      const noiseSource = ctx.createBufferSource();
+      noiseSource.buffer = buffer;
+      noiseSource.loop = true;
+
+      if (type === 'rain') {
+        // Rain: gentle lowpass filtered noise
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(950, ctx.currentTime);
+
+        noiseSource.connect(filter);
+        filter.connect(masterGain);
+        noiseSource.start();
+        soundNodesRef.current = [noiseSource, filter, masterGain];
+      } else if (type === 'lofi') {
+        // Lofi Cafe vinyl warmth: warm bandpass noise + low hum
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(600, ctx.currentTime);
+        filter.Q.setValueAtTime(1.2, ctx.currentTime);
+
+        const subOsc = ctx.createOscillator();
+        subOsc.type = 'sine';
+        subOsc.frequency.setValueAtTime(55, ctx.currentTime);
+        const subGain = ctx.createGain();
+        subGain.gain.setValueAtTime(0.04, ctx.currentTime);
+        subOsc.connect(subGain);
+        subGain.connect(masterGain);
+
+        noiseSource.connect(filter);
+        filter.connect(masterGain);
+        noiseSource.start();
+        subOsc.start();
+        soundNodesRef.current = [noiseSource, filter, subOsc, subGain, masterGain];
+      } else if (type === 'waves') {
+        // Ocean Waves: modulated lowpass
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(450, ctx.currentTime);
+
+        const lfo = ctx.createOscillator();
+        lfo.frequency.setValueAtTime(0.12, ctx.currentTime); // 8-second wave period
+        const lfoGain = ctx.createGain();
+        lfoGain.gain.setValueAtTime(250, ctx.currentTime);
+        lfo.connect(lfoGain);
+        lfoGain.connect(filter.frequency);
+
+        noiseSource.connect(filter);
+        filter.connect(masterGain);
+        noiseSource.start();
+        lfo.start();
+        soundNodesRef.current = [noiseSource, filter, lfo, lfoGain, masterGain];
+      }
+
+      setAmbientSound(type);
+    } catch (e) {
+      console.warn('Web Audio ambience failed:', e);
+      setAmbientSound('none');
+    }
+  }, [ambientVolume, stopAmbientSound]);
+
+  // Adjust volume
+  useEffect(() => {
+    if (gainNodeRef.current && audioCtxRef.current) {
+      gainNodeRef.current.gain.setValueAtTime(ambientVolume, audioCtxRef.current.currentTime);
+    }
+  }, [ambientVolume]);
+
+  // Cleanup audio on unmount
+  useEffect(() => {
+    return () => {
+      stopAmbientSound();
+      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+        audioCtxRef.current.close().catch(() => {});
+      }
+    };
+  }, [stopAmbientSound]);
+
+  // Initialize Realtime SSE & Room Presence
   useEffect(() => {
     if (!user) return;
 
     let isMounted = true;
 
-    // 1. Join room and load initial participants
+    // 1. Join room
     fetch(`/api/rooms/${id}/join`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -52,7 +212,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
       })
       .catch(() => {});
 
-    // 3. Connect to native Server-Sent Events (SSE) stream
+    // 3. Connect to Server-Sent Events (SSE)
     const eventSource = new EventSource(`/api/rooms/${id}/events`);
 
     eventSource.onmessage = (event) => {
@@ -80,7 +240,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
       } catch (_) {}
     };
 
-    // 4. Heartbeat: ping room every 25 seconds to maintain active presence
+    // 4. Presence Heartbeat
     const pingInterval = setInterval(() => {
       fetch(`/api/rooms/${id}/join`, {
         method: 'POST',
@@ -96,13 +256,11 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
         .catch(() => {});
     }, 25000);
 
-    // 5. Cleanup on unmount
     return () => {
       isMounted = false;
       clearInterval(pingInterval);
       eventSource.close();
 
-      // Gracefully leave room
       fetch(`/api/rooms/${id}/join`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -120,9 +278,9 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
     if (mobileChatRef.current) {
       mobileChatRef.current.scrollTop = mobileChatRef.current.scrollHeight;
     }
-  }, [messages, showMobileDrawer]);
+  }, [messages, showMobileDrawer, activeSideTab]);
 
-  // Timer tick logic
+  // Timer Tick
   useEffect(() => {
     let interval: any = null;
     if (timerActive && timeLeft > 0) {
@@ -158,14 +316,16 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
     }).catch(() => {});
   };
 
-  const resetTimer = () => {
+  const resetTimer = (newDuration?: number) => {
     haptics.selection();
+    const duration = newDuration || initialTime;
+    setInitialTime(duration);
     setTimerActive(false);
-    setTimeLeft(initialTime);
+    setTimeLeft(duration);
     fetch(`/api/rooms/${id}/timer`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ timerState: 'paused', timeLeft: initialTime }),
+      body: JSON.stringify({ timerState: 'paused', timeLeft: duration }),
     }).catch(() => {});
   };
 
@@ -177,7 +337,6 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
     const textToSend = newMessage.trim();
     setNewMessage('');
 
-    // Optimistic message update
     const tempId = Date.now().toString();
     const optimisticMsg = {
       id: tempId,
@@ -207,137 +366,383 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  if (!user) return <div className="p-8 text-center text-gray-400">Giriş yapılıyor...</div>;
+  const timerProgress = Math.min(100, Math.max(0, Math.round(((initialTime - timeLeft) / initialTime) * 100)));
+
+  if (!user) {
+    return (
+      <div className="min-h-[calc(100vh-140px)] flex flex-col items-center justify-center gap-3">
+        <Sparkles className="w-8 h-8 text-indigo-400 animate-spin" />
+        <p className="text-sm text-gray-400 font-medium">Oda bağlantısı kuruluyor...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex h-[calc(100vh-80px)] bg-gray-50 overflow-hidden relative">
-      {/* Left Panel: Timer & Video (Full width on mobile, flex-1 on desktop) */}
-      <div className="flex-1 flex flex-col p-4 md:p-6 overflow-y-auto pb-28 md:pb-6">
-        <Link href="/calisma-odalari" className="flex items-center gap-2 text-gray-500 hover:text-gray-900 mb-4 md:mb-6 w-fit">
-          <ArrowLeft size={20} />
-          <span>Odalara Dön</span>
-        </Link>
-        
-        {/* Visual Header / Study Atmosphere */}
-        <div className="w-full aspect-video bg-gray-900 rounded-2xl mb-6 md:mb-8 flex items-center justify-center relative overflow-hidden shadow-xl">
-           <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent z-10" />
-           <div className="absolute bottom-4 left-4 md:bottom-6 md:left-6 z-20">
-             <div className="flex items-center gap-2 mb-1">
-               <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
-               <span className="text-xs uppercase tracking-wider font-bold text-green-400">Canlı Odak Odası</span>
-             </div>
-             <h1 className="text-white text-xl md:text-3xl font-bold">Lofi Kütüphane</h1>
-           </div>
+    <div className="flex h-[calc(100vh-80px)] overflow-hidden relative bg-[#080c14]">
+      {/* ── Left Stage: Atmospheric Screen & Pomodoro Timer ── */}
+      <div className="flex-1 flex flex-col p-4 sm:p-6 lg:p-8 overflow-y-auto pb-32 lg:pb-8 custom-scrollbar relative z-10">
+        {/* Top Navigation & Status Bar */}
+        <div className="flex items-center justify-between gap-4 mb-6">
+          <Link 
+            href="/calisma-odalari" 
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 text-xs sm:text-sm font-semibold transition-all no-underline"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Odalara Dön</span>
+          </Link>
+
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>{participants.length} Öğrenci Odakta</span>
+            </div>
+          </div>
         </div>
 
-        {/* Timer UI */}
-        <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center max-w-md mx-auto w-full">
-          <div className="text-5xl md:text-6xl font-black text-gray-800 tracking-tighter mb-6 md:mb-8 font-mono">
-            {formatTime(timeLeft)}
+        {/* ── Atmosphere Visual Hero Card ── */}
+        <div className="relative w-full aspect-[21/9] min-h-[180px] max-h-[280px] rounded-3xl mb-8 overflow-hidden border border-white/10 shadow-2xl flex flex-col justify-between p-6 sm:p-8 bg-[#0b0f19]">
+          {/* Subtle Ambient Background Gradient */}
+          <div className={`absolute inset-0 bg-gradient-to-br ${roomMeta.gradient} pointer-events-none`} />
+          <div className="absolute top-0 right-0 w-80 h-80 bg-white/[0.02] rounded-full blur-3xl pointer-events-none" />
+
+          {/* Top Stage Badges */}
+          <div className="relative z-10 flex items-center justify-between gap-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/60 border border-white/15 backdrop-blur-md text-xs font-bold text-gray-200">
+              <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+              <span>CANLI ÇALIŞMA AMBİYANSI</span>
+            </div>
+
+            {ambientSound !== 'none' && (
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-semibold backdrop-blur-md">
+                <Volume2 className="w-3.5 h-3.5 animate-pulse" />
+                <span className="capitalize">{ambientSound} Çalıyor</span>
+              </div>
+            )}
           </div>
+
+          {/* Bottom Stage Title */}
+          <div className="relative z-10">
+            <h1 className="text-xl sm:text-3xl font-black text-white tracking-tight drop-shadow-md">
+              {roomMeta.name}
+            </h1>
+            <p className="text-gray-400 text-xs sm:text-sm mt-1 max-w-xl">
+              Senin gibi hedefine kilitlenmiş öğrencilerle aynı anda masadasın. Dikkat dağıtıcıları kapat, odaklan.
+            </p>
+          </div>
+        </div>
+
+        {/* ── Ambient Sound Bar ── */}
+        <div className="mb-8 p-4 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Volume2 className="w-4 h-4 text-indigo-400" />
+            <span className="text-xs sm:text-sm font-bold text-white">Ambiyans Sesi:</span>
+          </div>
+
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {[
+              { id: 'none', label: 'Sessiz', icon: VolumeX },
+              { id: 'rain', label: 'Yağmur', icon: CloudRain },
+              { id: 'lofi', label: 'Lofi Cafe', icon: Coffee },
+              { id: 'waves', label: 'Dalgalar', icon: Waves },
+            ].map(snd => {
+              const Icon = snd.icon;
+              const isCurrent = ambientSound === snd.id;
+              return (
+                <button
+                  key={snd.id}
+                  onClick={() => playAmbientSound(snd.id as any)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    isCurrent
+                      ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-[0_0_15px_rgba(99,102,241,0.4)]'
+                      : 'bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5'
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  <span>{snd.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Volume Slider */}
+          {ambientSound !== 'none' && (
+            <div className="flex items-center gap-2 min-w-[120px]">
+              <input
+                type="range"
+                min="0.05"
+                max="1"
+                step="0.05"
+                value={ambientVolume}
+                onChange={e => setAmbientVolume(parseFloat(e.target.value))}
+                className="w-20 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                title="Ses Düzeyi"
+              />
+              <span className="text-[11px] text-gray-400 font-mono">%{Math.round(ambientVolume * 100)}</span>
+            </div>
+          )}
+        </div>
+
+        {/* ── Pomodoro Focus Clock ── */}
+        <div className="relative p-6 sm:p-8 rounded-3xl bg-white/[0.035] border border-white/10 shadow-2xl backdrop-blur-xl flex flex-col items-center justify-center max-w-lg mx-auto w-full overflow-hidden">
+          {/* Preset Buttons */}
+          <div className="flex items-center gap-2 mb-6 flex-wrap justify-center">
+            {[
+              { label: '25 dk (Klasik)', sec: 25 * 60 },
+              { label: '45 dk (Derin)', sec: 45 * 60 },
+              { label: '50 dk (Blok)', sec: 50 * 60 },
+              { label: '5 dk (Mola)', sec: 5 * 60 },
+            ].map((preset, idx) => (
+              <button
+                key={idx}
+                onClick={() => resetTimer(preset.sec)}
+                className={`px-3 py-1 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                  initialTime === preset.sec && !timerActive
+                    ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40 shadow-sm'
+                    : 'bg-white/5 text-gray-400 hover:text-white border-white/5 hover:border-white/10'
+                }`}
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Glowing Digital Digits */}
+          <div className="relative mb-6">
+            <div className="text-6xl sm:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400 font-mono tracking-tighter drop-shadow-[0_0_35px_rgba(255,255,255,0.15)]">
+              {formatTime(timeLeft)}
+            </div>
+            <div className="text-center mt-2">
+              <span className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full border ${
+                timerActive 
+                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 animate-pulse' 
+                  : 'bg-white/5 text-gray-400 border-white/10'
+              }`}>
+                {timerActive ? '⚡ Odak Seansı Sürüyor' : '⏸️ Duraklatıldı'}
+              </span>
+            </div>
+          </div>
+
+          {/* Linear Progress Bar */}
+          <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden mb-8">
+            <div 
+              className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-300"
+              style={{ width: `${timerProgress}%` }}
+            />
+          </div>
+
+          {/* Play/Pause & Reset Controls */}
           <div className="flex items-center gap-4">
-            <button 
+            <button
               onClick={toggleTimer}
-              className={`w-16 h-16 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-105 active:scale-95 ${timerActive ? 'bg-amber-100 text-amber-600' : 'bg-blue-600 text-white'}`}
+              className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-200 cursor-pointer shadow-lg active:scale-95 ${
+                timerActive
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 shadow-[0_0_25px_rgba(245,158,11,0.25)]'
+                  : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-[0_0_30px_rgba(99,102,241,0.4)] hover:brightness-110'
+              }`}
+              title={timerActive ? 'Durdur' : 'Başlat'}
             >
-              {timerActive ? <Pause size={28} className="fill-current" /> : <Play size={28} className="fill-current ml-1" />}
+              {timerActive ? <Pause className="w-7 h-7 fill-current" /> : <Play className="w-7 h-7 fill-current ml-1" />}
             </button>
-            <button 
-              onClick={resetTimer}
-              className="w-12 h-12 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center hover:bg-gray-200 transition-colors active:scale-95"
+
+            <button
+              onClick={() => resetTimer()}
+              className="w-12 h-12 rounded-2xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/10 flex items-center justify-center transition-all cursor-pointer active:scale-95"
+              title="Sıfırla"
             >
-              <RotateCcw size={20} />
+              <RotateCcw className="w-5 h-5" />
             </button>
           </div>
         </div>
       </div>
 
-      {/* Floating Action Button for Mobile Chat & Participants */}
+      {/* ── Right Panel: Chat & Participants (Desktop Sidebar) ── */}
+      <div className="hidden lg:flex w-84 bg-[#0b0f19] border-l border-white/10 flex-col h-full relative z-20">
+        {/* Tab Headers */}
+        <div className="p-3 border-b border-white/10 bg-white/[0.015] flex gap-2">
+          <button
+            onClick={() => setActiveSideTab('chat')}
+            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              activeSideTab === 'chat'
+                ? 'bg-indigo-600 text-white shadow-sm'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <MessageSquare className="w-3.5 h-3.5" />
+            <span>Sohbet</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSideTab('users')}
+            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              activeSideTab === 'users'
+                ? 'bg-indigo-600 text-white shadow-sm'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <Users className="w-3.5 h-3.5" />
+            <span>Kişiler ({participants.length})</span>
+          </button>
+        </div>
+
+        {/* Content Body */}
+        {activeSideTab === 'chat' ? (
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Messages Scroll Area */}
+            <div ref={chatRef} className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 custom-scrollbar">
+              {messages.length === 0 ? (
+                <div className="text-center py-10 text-gray-500 text-xs">
+                  Henüz mesaj yok. İlk motivasyon mesajını sen yaz!
+                </div>
+              ) : (
+                messages.map((msg, i) => (
+                  <div 
+                    key={msg.id || i} 
+                    className={`flex flex-col max-w-[88%] ${
+                      msg.isSystem 
+                        ? 'mx-auto items-center' 
+                        : (msg.sender === user?.username ? 'self-end items-end' : 'self-start items-start')
+                    }`}
+                  >
+                    {msg.isSystem ? (
+                      <span className="text-[10px] text-gray-400 bg-white/5 px-2.5 py-0.5 rounded-full border border-white/5">
+                        {msg.text}
+                      </span>
+                    ) : (
+                      <>
+                        {msg.sender !== user?.username && (
+                          <span className="text-[10px] text-gray-400 mb-1 ml-1 font-semibold">{msg.sender}</span>
+                        )}
+                        <div className={`px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm leading-relaxed ${
+                          msg.sender === user?.username 
+                            ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-br-xs shadow-md' 
+                            : 'bg-white/[0.06] text-gray-200 border border-white/10 rounded-bl-xs'
+                        }`}>
+                          {msg.text}
+                        </div>
+                        <span className="text-[9px] text-gray-500 mt-0.5 px-1 font-mono">
+                          {msg.time || ''}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Chat Input */}
+            <form onSubmit={sendMessage} className="p-3 bg-black/40 border-t border-white/10 flex gap-2">
+              <input 
+                type="text" 
+                value={newMessage}
+                onChange={e => setNewMessage(e.target.value)}
+                placeholder="Bir şeyler yaz..."
+                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors"
+              />
+              <button 
+                type="submit" 
+                disabled={!newMessage.trim()}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white w-9 h-9 flex items-center justify-center rounded-xl disabled:opacity-40 transition-colors shrink-0 cursor-pointer"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </form>
+          </div>
+        ) : (
+          /* Participants List */
+          <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2 custom-scrollbar">
+            {participants.map(p => (
+              <div 
+                key={p.id || p.username} 
+                className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] border border-white/5"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">
+                    {p.username?.[0]?.toUpperCase() || 'Ö'}
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-white">{p.username}</div>
+                    <div className="text-[10px] text-gray-400">Canlı Odakta</div>
+                  </div>
+                </div>
+
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/25">
+                  {p.league || 'Öğrenci'}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ── Mobile Floating Chat Button ── */}
       <button
         onClick={() => {
           haptics.selection();
           setShowMobileDrawer(true);
         }}
-        className="mobile-only"
-        style={{
-          position: 'fixed',
-          bottom: 'calc(76px + env(safe-area-inset-bottom, 20px))',
-          right: '16px',
-          zIndex: 40,
-          backgroundColor: '#2563eb',
-          color: '#ffffff',
-          padding: '10px 16px',
-          borderRadius: '9999px',
-          boxShadow: '0 8px 24px rgba(37, 99, 235, 0.45)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          fontWeight: 600,
-          fontSize: '13px',
-          border: 'none',
-          cursor: 'pointer',
-        }}
+        className="lg:hidden fixed bottom-[calc(76px+env(safe-area-inset-bottom,20px))] right-4 z-40 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-2.5 rounded-full shadow-[0_8px_25px_rgba(99,102,241,0.5)] flex items-center gap-2 font-bold text-xs border border-white/20 cursor-pointer"
       >
-        <MessageSquare size={17} />
-        <span>Sohbet</span>
-        <span style={{ backgroundColor: 'rgba(255,255,255,0.25)', padding: '2px 7px', borderRadius: '10px', fontSize: '11px', fontWeight: 700 }}>
-          {participants.length} 👤
+        <MessageSquare className="w-4 h-4" />
+        <span>Sohbet & Kişiler</span>
+        <span className="bg-black/30 px-1.5 py-0.5 rounded-full text-[10px]">
+          {participants.length}
         </span>
       </button>
 
-      {/* Mobile Drawer Backdrop & Bottom Sheet */}
+      {/* ── Mobile Bottom Sheet Drawer ── */}
       {showMobileDrawer && (
         <div 
-          className="mobile-only fixed inset-0 bg-black/60 z-50 flex flex-col justify-end transition-opacity"
+          className="lg:hidden fixed inset-0 bg-black/70 z-50 flex flex-col justify-end backdrop-blur-sm"
           onClick={() => setShowMobileDrawer(false)}
         >
           <div 
-            className="bg-white rounded-t-3xl max-h-[82vh] h-[540px] flex flex-col shadow-2xl relative overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
+            className="bg-[#0b0f19] rounded-t-3xl max-h-[82vh] h-[540px] flex flex-col shadow-2xl relative border-t border-white/10"
+            onClick={e => e.stopPropagation()}
           >
-            {/* Drag Handle & Header */}
-            <div className="pt-3 pb-2 px-4 border-b border-gray-100 flex flex-col items-center">
-              <div className="w-10 h-1 bg-gray-300 rounded-full mb-3" />
-              <div className="w-full flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <MessageSquare size={18} className="text-blue-600" />
-                  <span className="font-bold text-gray-900 text-sm">Oda Sohbeti & Katılımcılar</span>
-                </div>
-                <button 
-                  onClick={() => setShowMobileDrawer(false)}
-                  className="p-1 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-                >
-                  <X size={20} />
-                </button>
+            {/* Drag Handle & Close */}
+            <div className="pt-3 pb-2 px-4 border-b border-white/10 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <MessageSquare className="w-4 h-4 text-indigo-400" />
+                <span className="font-bold text-white text-sm">Oda Sohbeti & Katılımcılar</span>
               </div>
+              <button 
+                onClick={() => setShowMobileDrawer(false)}
+                className="p-1.5 rounded-full text-gray-400 hover:text-white bg-white/5"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
-            {/* Participants Bar (Horizontal scroll on mobile drawer) */}
-            <div className="px-4 py-2 bg-gray-50 border-b border-gray-100 flex items-center gap-2 overflow-x-auto">
-              <span className="text-xs font-semibold text-gray-500 whitespace-nowrap">
+            {/* Participants Horizontal Strip */}
+            <div className="px-4 py-2 bg-white/[0.02] border-b border-white/5 flex items-center gap-2 overflow-x-auto custom-scrollbar">
+              <span className="text-[11px] font-semibold text-gray-400 whitespace-nowrap">
                 {participants.length} Odakta:
               </span>
-              <div className="flex items-center gap-2">
-                {participants.map(p => (
-                  <span key={p.id || p.username} className="inline-flex items-center gap-1 bg-white px-2.5 py-1 rounded-full border border-gray-200 text-xs text-gray-700 whitespace-nowrap shadow-xs">
-                    <span className="font-medium">{p.username}</span>
-                    <span className="text-[10px] text-amber-600 bg-amber-50 px-1 rounded font-semibold">{p.league || 'Öğrenci'}</span>
-                  </span>
-                ))}
-                {participants.length === 0 && <span className="text-xs text-gray-400">Kimse yok</span>}
-              </div>
+              {participants.map(p => (
+                <span key={p.id || p.username} className="inline-flex items-center gap-1.5 bg-white/5 px-2.5 py-0.5 rounded-full border border-white/10 text-xs text-gray-300 whitespace-nowrap">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <span>{p.username}</span>
+                </span>
+              ))}
             </div>
 
-            {/* Chat Messages */}
-            <div ref={mobileChatRef} className="flex-1 overflow-y-auto p-4 flex flex-col gap-2.5 bg-gray-50/40">
+            {/* Mobile Messages */}
+            <div ref={mobileChatRef} className="flex-1 overflow-y-auto p-4 flex flex-col gap-2.5 custom-scrollbar">
               {messages.map((msg, i) => (
-                <div key={msg.id || i} className={`flex flex-col max-w-[85%] ${msg.isSystem ? 'mx-auto items-center' : (msg.sender === user?.username ? 'self-end items-end' : 'self-start items-start')}`}>
+                <div 
+                  key={msg.id || i} 
+                  className={`flex flex-col max-w-[85%] ${
+                    msg.isSystem ? 'mx-auto items-center' : (msg.sender === user?.username ? 'self-end items-end' : 'self-start items-start')
+                  }`}
+                >
                   {msg.isSystem ? (
-                    <span className="text-[11px] text-gray-400 bg-gray-200/60 px-3 py-0.5 rounded-full">{msg.text}</span>
+                    <span className="text-[10px] text-gray-400 bg-white/5 px-2.5 py-0.5 rounded-full">{msg.text}</span>
                   ) : (
                     <>
                       {msg.sender !== user?.username && <span className="text-[10px] text-gray-400 mb-0.5 ml-1">{msg.sender}</span>}
-                      <div className={`px-3 py-2 rounded-2xl text-xs md:text-sm shadow-xs ${msg.sender === user?.username ? 'bg-blue-600 text-white rounded-br-xs' : 'bg-white text-gray-800 border border-gray-200 rounded-bl-xs'}`}>
+                      <div className={`px-3 py-2 rounded-2xl text-xs ${
+                        msg.sender === user?.username ? 'bg-indigo-600 text-white rounded-br-xs' : 'bg-white/10 text-gray-200 rounded-bl-xs'
+                      }`}>
                         {msg.text}
                       </div>
                     </>
@@ -346,97 +751,26 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
               ))}
             </div>
 
-            {/* Chat Input */}
-            <form onSubmit={sendMessage} className="p-3 bg-white border-t border-gray-100 flex gap-2 pb-[calc(12px+env(safe-area-inset-bottom,0px))]">
+            {/* Mobile Chat Input */}
+            <form onSubmit={sendMessage} className="p-3 bg-black/60 border-t border-white/10 flex gap-2 pb-[calc(12px+env(safe-area-inset-bottom,0px))]">
               <input 
                 type="text" 
                 value={newMessage}
                 onChange={e => setNewMessage(e.target.value)}
                 placeholder="Mesaj yaz..."
-                className="flex-1 bg-gray-100 border border-gray-200 rounded-full px-4 py-2 text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                className="flex-1 bg-white/10 border border-white/10 rounded-full px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
               />
               <button 
                 type="submit" 
                 disabled={!newMessage.trim()}
-                className="bg-blue-600 text-white w-10 h-10 flex items-center justify-center rounded-full disabled:opacity-50 hover:bg-blue-700 transition-colors shrink-0"
+                className="bg-indigo-600 text-white w-9 h-9 flex items-center justify-center rounded-full disabled:opacity-50 shrink-0"
               >
-                <Send size={16} className="ml-0.5" />
+                <Send className="w-4 h-4" />
               </button>
             </form>
           </div>
         </div>
       )}
-
-      {/* Right Panel: Chat & Participants (Desktop Only - untouched layout & styling) */}
-      <div className="w-80 bg-white border-l border-gray-200 flex-col desktop-only" style={{ display: undefined }}>
-        {/* Participants Header */}
-        <div className="p-4 border-b border-gray-100 bg-gray-50/50">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-800 flex items-center gap-2">
-              <Users size={18} className="text-blue-600" />
-              Odaktakiler
-            </h3>
-            <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded-full">
-              {participants.length} Kişi
-            </span>
-          </div>
-          
-          <div className="flex flex-col gap-2 max-h-32 overflow-y-auto pr-2 custom-scrollbar">
-            {participants.map(p => (
-              <div key={p.id || p.username} className="flex items-center justify-between bg-white p-2 rounded-lg border border-gray-100 text-sm shadow-sm">
-                <span className="font-medium text-gray-700">{p.username}</span>
-                <span className="text-[10px] text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded font-semibold">
-                  {p.league || 'Öğrenci'}
-                </span>
-              </div>
-            ))}
-            {participants.length === 0 && <div className="text-xs text-gray-400">Kimse yok</div>}
-          </div>
-        </div>
-
-        {/* Chat Area */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="p-3 border-b border-gray-100 bg-white shadow-sm z-10 flex items-center gap-2">
-            <MessageSquare size={16} className="text-gray-400" />
-            <span className="text-sm font-medium text-gray-600">Canlı Sohbet</span>
-          </div>
-          
-          <div ref={chatRef} className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 custom-scrollbar bg-gray-50/30">
-            {messages.map((msg, i) => (
-              <div key={msg.id || i} className={`flex flex-col max-w-[90%] ${msg.isSystem ? 'mx-auto items-center' : (msg.sender === user?.username ? 'self-end items-end' : 'self-start items-start')}`}>
-                {msg.isSystem ? (
-                  <span className="text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-full">{msg.text}</span>
-                ) : (
-                  <>
-                    {msg.sender !== user?.username && <span className="text-[10px] text-gray-400 mb-1 ml-1">{msg.sender}</span>}
-                    <div className={`px-3 py-2 rounded-2xl text-sm shadow-sm ${msg.sender === user?.username ? 'bg-blue-600 text-white rounded-br-sm' : 'bg-white text-gray-700 border border-gray-100 rounded-bl-sm'}`}>
-                      {msg.text}
-                    </div>
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Chat Input */}
-          <form onSubmit={sendMessage} className="p-3 bg-white border-t border-gray-100 flex gap-2">
-            <input 
-              type="text" 
-              value={newMessage}
-              onChange={e => setNewMessage(e.target.value)}
-              placeholder="Mesaj yaz..."
-              className="flex-1 bg-gray-50 border border-gray-200 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-            />
-            <button 
-              type="submit" 
-              disabled={!newMessage.trim()}
-              className="bg-blue-600 text-white w-10 h-10 flex items-center justify-center rounded-full disabled:opacity-50 hover:bg-blue-700 transition-colors shrink-0"
-            >
-              <Send size={16} className="ml-1" />
-            </button>
-          </form>
-        </div>
-      </div>
     </div>
   );
 }

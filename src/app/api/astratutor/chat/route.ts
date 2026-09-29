@@ -75,8 +75,16 @@ export async function POST(req: Request) {
 
     const lower = rawMessage.toLowerCase();
     // 1. Fetch authenticated student profile memory
-    const userId = await getAuthenticatedUserId(req);
-    const memory = userId ? await getStudentMemory(userId) : null;
+    let userId: string | null = null;
+    let memory: any = null;
+    try {
+      userId = await getAuthenticatedUserId(req);
+      if (userId) {
+        memory = await getStudentMemory(userId);
+      }
+    } catch (authErr) {
+      console.warn('Non-fatal auth/memory error in AstraTutor chat:', authErr);
+    }
     const userIdentifier = userId || req.headers.get('x-forwarded-for') || 'guest';
 
     // ── KOTA TASARRUF KATMANI 1: Yerel Karar Kapısı (0 Token Harcama) ──
@@ -147,8 +155,8 @@ GÖREVLERİN:
 Gerektiğinde matematik veya fen formüllerini KaTeX ($ veya $$) formatında yaz.
 Öğrenciyi motive eden, anlaşılır ve eğitici bir dille kısa ve öz yanıt ver.`;
 
-        // Start with lighter model (gemini-3.5-flash-lite) for maximum quota savings
-        const models = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash'];
+        // Start with lighter model (gemini-3.5-flash-lite) for maximum quota savings, then 3.5-flash, 3.8-flash, flash-latest
+        const models = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash', 'gemini-flash-latest'];
         for (const model of models) {
           try {
             const apiRes = await fetch(
@@ -166,6 +174,10 @@ Gerektiğinde matematik veya fen formüllerini KaTeX ($ veya $$) formatında yaz
               }
             );
 
+            if (!apiRes.ok) {
+              const errBody = await apiRes.text().catch(() => '');
+              console.warn(`AstraTutor Gemini model ${model} HTTP ${apiRes.status}:`, errBody.slice(0, 300));
+            }
             if (apiRes.ok) {
               const resJson = await apiRes.json();
               const candidate = resJson.candidates?.[0]?.content?.parts?.[0]?.text;

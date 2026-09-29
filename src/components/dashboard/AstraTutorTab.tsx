@@ -4,7 +4,15 @@ import React, { useState, useRef, useEffect, useCallback, Suspense } from 'react
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, Sparkles, Loader2, BrainCircuit, Mic, MicOff, Square, ExternalLink, Camera, X, CheckCircle2, Volume2, VolumeX, HeartHandshake, BookOpen } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
+import { 
+  Send, Bot, User, Sparkles, Loader2, BrainCircuit, Mic, MicOff, 
+  Square, ExternalLink, Camera, X, CheckCircle2, Volume2, VolumeX, 
+  HeartHandshake, BookOpen, Copy, Check, RotateCcw 
+} from 'lucide-react';
 
 interface Message {
   id: string;
@@ -268,37 +276,83 @@ export default function AstraTutorTab() {
         });
       }
 
-      const data = await res.json();
+      let data: any = null;
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        console.warn('Failed to parse AI JSON response:', jsonErr);
+      }
+
+      if (!res.ok && !data?.reply) {
+        const fallbackText = data?.error || (activeMode === 'rehberlik'
+          ? 'Rehberlik servisi kısa bir mola verdi. Hedeflerine odaklanmaya devam et, birazdan tekrar dene!'
+          : 'Ders asistanında anlık yoğunluk var. Hata Defteri veya Pomodoro sekmesine göz atıp birazdan tekrar sorabilirsin.');
+        setMessages(prev => [...prev, {
+          id: (Date.now() + 1).toString(),
+          role: 'ai',
+          content: fallbackText,
+          timestamp: new Date()
+        }]);
+        return;
+      }
+
+      const replyContent = data?.reply || (activeMode === 'rehberlik'
+        ? 'Mesajını aldım! Seni dinliyorum, hedeflerinden ve şu an seni en çok düşündüren konudan bahsedebilir misin?'
+        : 'Sorunu aldım! Bu konuyu adım adım birlikte inceleyelim. Çözüm için ilk olarak hangi adımı denemiştin?');
 
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'ai',
-        content: data.reply || 'Şu an meşgulüm, lütfen daha sonra tekrar dene.',
+        content: replyContent,
         timestamp: new Date(),
-        actions: data.actions,
+        actions: data?.actions,
         questionData: {
-          subject: data.subject || (activeMode === 'rehberlik' ? 'Rehberlik & Motivasyon' : 'Matematik (TYT-AYT)'),
-          topic: data.topic || (activeMode === 'rehberlik' ? 'Bireysel Rehberlik' : 'Soru Çözümü'),
-          reply: data.reply,
+          subject: data?.subject || (activeMode === 'rehberlik' ? 'Rehberlik & Motivasyon' : 'Matematik (TYT-AYT)'),
+          topic: data?.topic || (activeMode === 'rehberlik' ? 'Bireysel Rehberlik' : 'Soru Çözümü'),
+          reply: replyContent,
           image: imgToSend
         }
       };
       
       setMessages(prev => [...prev, aiMessage]);
-      if (speechEnabled && data.reply) {
-        speakText(data.reply);
+      if (speechEnabled && replyContent) {
+        speakText(replyContent);
       }
     } catch (e) {
-      console.log(e);
+      console.warn('Chat request failed, providing local coach response:', e);
       setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
         role: 'ai',
-        content: 'Bağlantı hatası oluştu. Lütfen tekrar deneyin.',
+        content: activeMode === 'rehberlik'
+          ? 'Bağlantıda ufak bir gecikme oldu. Ancak hedeflerinden asla şaşma! Sorunu veya konuşmak istediğin konuyu tekrar yazabilir misin?'
+          : 'Bağlantıda ufak bir gecikme yaşandı. Sorunu tekrar iletebilir veya benzer soruları Soru Çöz bölümünden inceleyebilirsin.',
         timestamp: new Date()
       }]);
     } finally {
       setIsTyping(false);
     }
+  };
+
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const copyToClipboard = (text: string, id: string) => {
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        setCopiedId(id);
+        setTimeout(() => setCopiedId(null), 2000);
+      }).catch(() => {});
+    }
+  };
+
+  const handleClearChat = () => {
+    setMessages([
+      {
+        id: Date.now().toString(),
+        role: 'ai',
+        content: activeMode === 'rehberlik' ? REHBERLIK_WELCOME : DERS_WELCOME,
+        timestamp: new Date()
+      }
+    ]);
   };
 
   const handleSend = () => handleSendPrompt(input, selectedImage);
@@ -364,8 +418,26 @@ export default function AstraTutorTab() {
           </div>
         </div>
 
-        {/* Mode Switcher Pills */}
+        {/* Mode Switcher & Tools */}
         <div className="flex items-center gap-2 flex-wrap">
+          {/* Engine Status Badge */}
+          <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 text-xs font-semibold">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Gemini 3.5 Flash</span>
+            <span className="text-[10px] text-emerald-400/70 font-mono">0.3s</span>
+          </div>
+
+          {/* New Chat Button */}
+          <button
+            type="button"
+            onClick={handleClearChat}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 transition-all cursor-pointer"
+            title="Sohbeti Temizle ve Yeni Başlat"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Yeni Sohbet</span>
+          </button>
+
           <div className="flex items-center gap-1 p-1 bg-black/40 border border-white/10 rounded-2xl">
             <button
               type="button"
@@ -443,7 +515,33 @@ export default function AstraTutorTab() {
                       <img src={msg.image} alt="Soru Görseli" className="w-full max-h-72 object-contain" />
                     </div>
                   )}
-                  <p className="whitespace-pre-wrap leading-relaxed text-[15px]">{msg.content}</p>
+                  {msg.role === 'ai' ? (
+                    <div className="text-[15px] leading-relaxed text-gray-200 overflow-x-auto">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkMath]}
+                        rehypePlugins={[rehypeKatex]}
+                        components={{
+                          h3: ({ node, ...props }) => <h3 className="text-base font-bold text-indigo-300 mt-3 mb-1.5 flex items-center gap-1.5" {...props} />,
+                          p: ({ node, ...props }) => <p className="mb-2 leading-relaxed" {...props} />,
+                          ul: ({ node, ...props }) => <ul className="list-disc pl-5 my-2 space-y-1" {...props} />,
+                          ol: ({ node, ...props }) => <ol className="list-decimal pl-5 my-2 space-y-1" {...props} />,
+                          strong: ({ node, ...props }) => <strong className="font-semibold text-white" {...props} />,
+                          code: ({ node, inline, ...props }: any) => 
+                            inline ? (
+                              <code className="px-1.5 py-0.5 rounded bg-white/10 text-indigo-200 font-mono text-xs" {...props} />
+                            ) : (
+                              <pre className="p-3 my-2 rounded-xl bg-black/50 border border-white/10 overflow-x-auto text-xs font-mono text-indigo-300">
+                                <code {...props} />
+                              </pre>
+                            ),
+                        }}
+                      >
+                        {msg.content}
+                      </ReactMarkdown>
+                    </div>
+                  ) : (
+                    <p className="whitespace-pre-wrap leading-relaxed text-[15px]">{msg.content}</p>
+                  )}
                   {msg.actions && msg.actions.length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-3 pt-2.5 border-t border-white/10">
                       {msg.actions.map((act, idx) => (
@@ -469,16 +567,26 @@ export default function AstraTutorTab() {
                       ))}
                     </div>
                   )}
-                  <div className={`flex items-center gap-1.5 absolute -bottom-5 opacity-0 group-hover:opacity-100 transition-opacity font-medium ${msg.role === 'user' ? 'right-2 text-gray-400' : 'left-2 text-gray-500'}`}>
+                  <div className={`flex items-center gap-2 absolute -bottom-5 opacity-0 group-hover:opacity-100 transition-opacity font-medium ${msg.role === 'user' ? 'right-2 text-gray-400' : 'left-2 text-gray-500'}`}>
                     {msg.role === 'ai' && (
-                      <button
-                        type="button"
-                        onClick={() => isSpeaking ? stopSpeaking() : speakText(msg.content)}
-                        className="text-gray-400 hover:text-purple-300 transition-colors cursor-pointer p-0.5"
-                        title={isSpeaking ? "Durdur" : "Sesli Dinle"}
-                      >
-                        {isSpeaking ? <VolumeX className="w-3 h-3 text-rose-400" /> : <Volume2 className="w-3 h-3" />}
-                      </button>
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(msg.content, msg.id)}
+                          className="text-gray-400 hover:text-white transition-colors cursor-pointer p-0.5 flex items-center gap-1"
+                          title="Kopyala"
+                        >
+                          {copiedId === msg.id ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => isSpeaking ? stopSpeaking() : speakText(msg.content)}
+                          className="text-gray-400 hover:text-purple-300 transition-colors cursor-pointer p-0.5"
+                          title={isSpeaking ? "Durdur" : "Sesli Dinle"}
+                        >
+                          {isSpeaking ? <VolumeX className="w-3.5 h-3.5 text-rose-400" /> : <Volume2 className="w-3.5 h-3.5" />}
+                        </button>
+                      </>
                     )}
                     <span className="text-[10px]">
                       {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

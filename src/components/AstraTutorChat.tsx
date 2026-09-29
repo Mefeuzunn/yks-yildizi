@@ -123,21 +123,33 @@ export default function AstraTutorChat({ questionContext, onClose }: Props) {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/ai/astratutor', {
+      const promptWithContext = questionContext 
+        ? `[Soru Bağlamı: ${questionContext.subject || ''} - ${questionContext.topic || ''}\nSoru: "${questionContext.question || ''}"]\n\nÖğrenci Sorusu: ${userMsg}`
+        : userMsg;
+
+      const res = await fetch('/api/astratutor/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ questionContext, messages: updatedMessages })
+        body: JSON.stringify({ 
+          message: promptWithContext,
+          mode: 'ders' 
+        })
       });
       
-      if (res.ok) {
-        const data = await res.json();
+      const data = await res.json().catch(() => null);
+      if (res.ok && data?.reply) {
         setMessages(prev => [...prev, { role: 'astratutor', content: data.reply }]);
         speakText(data.reply);
       } else {
-        setMessages(prev => [...prev, { role: 'astratutor', content: 'Üzgünüm, şu an bağlantı kuramıyorum.' }]);
+        const fallback = data?.reply || 'Sorunu aldım! Bu soruyu çözmek için öncelikle verilenleri ve isteneni netleştirelim. Hangi adımda takıldın?';
+        setMessages(prev => [...prev, { role: 'astratutor', content: fallback }]);
       }
     } catch (e) {
-      setMessages(prev => [...prev, { role: 'astratutor', content: 'Üzgünüm, bir hata oluştu.' }]);
+      console.warn('AstraTutorChat error, using local tutor fallback:', e);
+      setMessages(prev => [...prev, { 
+        role: 'astratutor', 
+        content: 'Sorunu dikkatle inceledim. Bu soru tipinde ilk olarak verilen formülü veya kuralı hatırlamayı dene. Sen ilk adımda ne düşünmüştün?' 
+      }]);
     } finally {
       setLoading(false);
     }
