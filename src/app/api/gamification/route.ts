@@ -24,13 +24,17 @@ export async function GET() {
 
     // 1. Fetch Stats
     let stats = await db.prepare(`
-      SELECT xp, coins, pofuduk_level, pofuduk_energy, pofuduk_happiness 
+      SELECT xp, coins, pofuduk_level, pofuduk_energy, pofuduk_happiness,
+             solved_questions, success_rate, streak_days, league, league_points
       FROM user_stats 
       WHERE user_id = ?
     `).get(userId) as any;
 
     if (!stats) {
-      stats = { xp: 0, coins: 0, pofuduk_level: 1, pofuduk_energy: 100, pofuduk_happiness: 100 };
+      stats = { 
+        xp: 0, coins: 0, pofuduk_level: 1, pofuduk_energy: 100, pofuduk_happiness: 100,
+        solved_questions: 0, success_rate: 0, streak_days: 0, league: 'Bronz', league_points: 0
+      };
     }
 
     // 2. Fetch Quests
