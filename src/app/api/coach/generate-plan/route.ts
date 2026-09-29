@@ -74,29 +74,37 @@ Renk Kuralları:
 - Sosyal/Tarih/Coğrafya/Felsefe için "#f59e0b"
 - Deneme/Tekrar/Genel için "#8b5cf6"`;
 
-        const apiRes = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: prompt }] }],
-              generationConfig: {
-                temperature: 0.3,
-                response_mime_type: "application/json"
+        const models = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.8-flash', 'gemini-flash-latest'];
+        for (const model of models) {
+          try {
+            const apiRes = await fetch(
+              `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  contents: [{ parts: [{ text: prompt }] }],
+                  generationConfig: {
+                    temperature: 0.3,
+                    response_mime_type: "application/json"
+                  }
+                })
               }
-            })
-          }
-        );
+            );
 
-        if (apiRes.ok) {
-          const resJson = await apiRes.json();
-          const rawText = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (rawText) {
-            const parsed = JSON.parse(rawText);
-            if (Array.isArray(parsed) && parsed.length >= 7) {
-              generatedTasks = parsed;
+            if (apiRes.ok) {
+              const resJson = await apiRes.json();
+              const rawText = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (rawText) {
+                const parsed = JSON.parse(rawText);
+                if (Array.isArray(parsed) && parsed.length >= 7) {
+                  generatedTasks = parsed;
+                  break;
+                }
+              }
             }
+          } catch (modelErr) {
+            console.warn(`Schedule model ${model} failed:`, modelErr);
           }
         }
       } catch (geminiErr) {

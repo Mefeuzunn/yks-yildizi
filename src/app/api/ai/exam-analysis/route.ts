@@ -119,32 +119,39 @@ Lütfen bu verileri analiz ederek öğrenciye şu JSON formatında yanıt üret 
   "motivationalQuote": "Öğrenciyi harekete geçirecek samimi bir koçluk cümlesi."
 }`;
 
-        const apiRes = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: prompt }] }],
-              generationConfig: {
-                temperature: 0.3,
-                response_mime_type: "application/json"
+        const models = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.8-flash', 'gemini-flash-latest'];
+        for (const model of models) {
+          try {
+            const apiRes = await fetch(
+              `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  contents: [{ parts: [{ text: prompt }] }],
+                  generationConfig: {
+                    temperature: 0.3,
+                    response_mime_type: "application/json"
+                  }
+                })
               }
-            })
-          }
-        );
+            );
 
-        if (apiRes.ok) {
-          const resJson = await apiRes.json();
-          const rawText = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (rawText) {
-            const parsed = JSON.parse(rawText);
-            return NextResponse.json({
-              success: true,
-              provider: 'gemini-2.5-flash',
-              latestExam,
-              analysis: parsed
-            });
+            if (apiRes.ok) {
+              const resJson = await apiRes.json();
+              const rawText = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (rawText) {
+                const parsed = JSON.parse(rawText);
+                return NextResponse.json({
+                  success: true,
+                  provider: model,
+                  latestExam,
+                  analysis: parsed
+                });
+              }
+            }
+          } catch (modelErr) {
+            console.warn(`Exam analysis model ${model} fetch failed:`, modelErr);
           }
         }
       } catch (geminiError) {

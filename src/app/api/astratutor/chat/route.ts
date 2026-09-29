@@ -74,7 +74,86 @@ export async function POST(req: Request) {
     // Natural typing delay (400ms - 800ms)
     await new Promise(r => setTimeout(r, 450 + Math.random() * 300));
 
-    // 2. Check for specific formula/scientific inquiries
+    // 2. Google Gemini 3.5 Flash Conversational Engine
+    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GOOGLE_GENAI_API_KEY;
+    if (apiKey) {
+      try {
+        const studentContext = memory
+          ? `Öğrenci: ${memory.username}, Alan: ${memory.alan}, Hedef Bölüm: ${memory.targetDepartment || 'Yüksek başarı'}, YKS'ye Kalan Gün: ${memory.daysToYKS}, Zayıf Konular: ${memory.topWeakTopics?.map(t => `${t.subject} (${t.topic})`).join(', ') || 'Belirtilmemiş'}, Son Deneme Ortalaması: ${memory.recentMockAverage || 'Henüz veri yok'}`
+          : 'Giriş yapmamış öğrenci';
+
+        const prompt = `Sen Türkiye YKS (TYT ve AYT) sınavına hazırlanan öğrenciler için samimi, cesaretlendirici, pedagojik ve alanında son derece bilgili bir Yapay Zeka Özel Ders Öğretmeni ve Eğitim Koçusun (Adın: AstraTutor).
+
+ÖĞRENCİ BAĞLAMI:
+${studentContext}
+
+ÖĞRENCİNİN MESAJI:
+"${rawMessage}"
+
+GÖREVLERİN:
+1. Öğrencinin sorusuna doğrudan, samimi, anlaşılır ve eğitici bir dille yanıt ver.
+2. Matematik veya fen formülleri varsa bunları mutlaka KaTeX ($ veya $$) formatında yaz.
+3. Asla kuru veya robotik konuşma; öğrenciyi cesaretlendir, çalışma hevesini artır.
+4. Yanıtın sonuna öğrencinin aksiyon alabileceği motive edici 1 cümle ekle.`;
+
+        const models = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.8-flash', 'gemini-flash-latest'];
+        for (const model of models) {
+          try {
+            const apiRes = await fetch(
+              `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  contents: [{ parts: [{ text: prompt }] }],
+                  generationConfig: {
+                    temperature: 0.35,
+                    maxOutputTokens: 1024,
+                  }
+                })
+              }
+            );
+
+            if (apiRes.ok) {
+              const resJson = await apiRes.json();
+              const candidate = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (candidate) {
+                // Determine relevant action chips
+                const actions: Array<{ label: string; url: string }> = [];
+                if (lower.includes('soru') || lower.includes('deneme')) {
+                  actions.push({ label: '📝 Soru Çöz', url: '/soru-coz' });
+                }
+                if (lower.includes('hata') || lower.includes('yanlış')) {
+                  actions.push({ label: '❌ Hata Defterim', url: '/hata-defteri' });
+                }
+                if (lower.includes('odak') || lower.includes('pomodoro') || lower.includes('çalış')) {
+                  actions.push({ label: '🍅 Pomodoro Başlat', url: '/pomodoro' });
+                }
+                if (lower.includes('program') || lower.includes('plan')) {
+                  actions.push({ label: '📅 Çalışma Programım', url: '/program' });
+                }
+                if (actions.length === 0) {
+                  actions.push({ label: '📝 Soru Çöz', url: '/soru-coz' });
+                  actions.push({ label: '🍅 Odaklanma Başlat', url: '/pomodoro' });
+                }
+
+                return NextResponse.json({
+                  reply: candidate,
+                  actions,
+                  provider: model
+                });
+              }
+            }
+          } catch (modelErr) {
+            console.warn(`AstraTutor chat model ${model} failed:`, modelErr);
+          }
+        }
+      } catch (geminiErr) {
+        console.warn('AstraTutor Gemini chat failed, using local template engine:', geminiErr);
+      }
+    }
+
+    // 3. Fallback: Check for specific formula/scientific inquiries
     for (const item of SUBJECT_KNOWLEDGE) {
       if (item.keywords.some(k => lower.includes(k))) {
         return NextResponse.json({
@@ -84,7 +163,7 @@ export async function POST(req: Request) {
       }
     }
 
-    // 3. Generate hyper-personalized response with full database context (Reçete, Durum, Hedef, Netler, vb.)
+    // 4. Fallback: Generate hyper-personalized response with full database context
     const personalized = generateHyperPersonalizedResponse(memory, rawMessage);
 
     return NextResponse.json({
