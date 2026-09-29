@@ -108,11 +108,11 @@ export default function SimulasyonlarPage() {
   };
 
   const SUBJECT_BUTTONS: { key: Subject; label: string; count?: string }[] = [
-    { key: 'Tümü', label: 'Tüm Deneyler' },
-    { key: 'Fizik', label: 'Fizik', count: '24' },
-    { key: 'Kimya', label: 'Kimya', count: '8' },
-    { key: 'Biyoloji', label: 'Biyoloji', count: '7' },
-    { key: 'Matematik', label: 'Matematik', count: '8' },
+    { key: 'Tümü', label: 'Tüm Deneyler', count: '46' },
+    { key: 'Fizik', label: 'Fizik', count: '21' },
+    { key: 'Kimya', label: 'Kimya', count: '9' },
+    { key: 'Biyoloji', label: 'Biyoloji', count: '6' },
+    { key: 'Matematik', label: 'Matematik', count: '10' },
   ];
 
   const handleLaunch = (sim: any) => {
@@ -136,7 +136,7 @@ export default function SimulasyonlarPage() {
             <h1 style={{ fontSize: 'clamp(1.5rem, 3.5vw, 1.85rem)', fontWeight: 800, color: 'white', margin: '0 0 4px 0', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '8px' }}>
               İnteraktif Laboratuvar
               <span style={{ fontSize: '11px', fontWeight: 800, padding: '2px 8px', borderRadius: '20px', background: 'rgba(56,189,248,0.15)', color: '#38bdf8', border: '1px solid rgba(56,189,248,0.3)' }}>
-                47 SİMÜLASYON
+                46 SİMÜLASYON
               </span>
             </h1>
             <p style={{ color: '#94a3b8', margin: 0, fontSize: '14px' }}>
