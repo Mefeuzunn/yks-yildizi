@@ -18,7 +18,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ studentI
 
     // 1. Öğrenci Temel Bilgileri
     const student = await db.prepare(`
-      SELECT u.id, u.username, u.email, u.sinif, u.alan, u.target_university, u.target_department, u.created_at
+      SELECT u.id, u.username, u.email, u.sinif, u.alan, u.target_university, u.target_department, u.parent_code, u.created_at
       FROM users u WHERE u.id = ?
     `).get(studentId) as any;
 
@@ -26,6 +26,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ studentI
 
     // 2. Sınıf Bilgisi
     let classNames = 'Kayıtlı Öğrenci';
+    let primaryClassId: string | null = null;
     try {
       const classAccess = await db.prepare(`
         SELECT tc.id as class_id, tc.class_name
@@ -36,6 +37,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ studentI
 
       if (classAccess && classAccess.length > 0) {
         classNames = classAccess.map(c => c.class_name).filter(Boolean).join(', ');
+        primaryClassId = classAccess[0].class_id;
       }
     } catch (_) {}
 
@@ -217,6 +219,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ studentI
     return NextResponse.json({
       student,
       className: classNames,
+      classId: primaryClassId,
       stats: stats || {},
       liveSession,
       lastActivity,

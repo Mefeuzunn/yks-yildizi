@@ -99,3 +99,31 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });
   }
 }
+
+export async function PUT(request: Request) {
+  try {
+    const teacherId = await getTeacherId();
+    if (!teacherId) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
+
+    const user = await db.prepare('SELECT id, role FROM users WHERE id = ?').get(teacherId) as any;
+    if (!user || user.role !== 'ogretmen') return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
+
+    const body = await request.json();
+    const { id, class_name } = body;
+    if (!id) return NextResponse.json({ error: 'Sınıf ID gerekli' }, { status: 400 });
+    if (!class_name || !class_name.trim()) return NextResponse.json({ error: 'Sınıf adı boş olamaz' }, { status: 400 });
+
+    const cls = await db.prepare('SELECT id FROM teacher_classes WHERE id = ? AND teacher_id = ?').get(id, user.id);
+    if (!cls) return NextResponse.json({ error: 'Sınıf bulunamadı veya düzenleme yetkiniz yok' }, { status: 404 });
+
+    await db.prepare('UPDATE teacher_classes SET class_name = ? WHERE id = ? AND teacher_id = ?')
+      .run(class_name.trim(), id, user.id);
+
+    const updated = await db.prepare('SELECT * FROM teacher_classes WHERE id = ?').get(id);
+    return NextResponse.json({ success: true, class: updated });
+  } catch (error) {
+    console.error('Sınıf güncelleme hatası:', error);
+    return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });
+  }
+}
+

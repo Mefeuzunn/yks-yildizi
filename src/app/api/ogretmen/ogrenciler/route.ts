@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     if (classId && classId !== 'all') {
       // Belirli bir sınıfın öğrencilerini getir (yalnızca bu öğretmenin sınıfı ise)
       students = await db.prepare(`
-        SELECT u.id, u.username, u.email, u.alan, u.sinif,
+        SELECT u.id, u.username, u.email, u.alan, u.sinif, COALESCE(u.parent_code, '') as parent_code,
                COALESCE(us.solved_questions, 0)::int as solved_questions,
                COALESCE(us.success_rate, 0)::float as success_rate,
                COALESCE(us.league, 'Bronz') as league,
@@ -49,7 +49,7 @@ export async function GET(request: Request) {
     } else {
       // Öğretmenin kayıtlı olduğu TÜM sınıflardaki öğrencileri getir
       students = await db.prepare(`
-        SELECT u.id, u.username, u.email, u.alan, u.sinif,
+        SELECT u.id, u.username, u.email, u.alan, u.sinif, COALESCE(u.parent_code, '') as parent_code,
                COALESCE(us.solved_questions, 0)::int as solved_questions,
                COALESCE(us.success_rate, 0)::float as success_rate,
                COALESCE(us.league, 'Bronz') as league,
@@ -73,7 +73,7 @@ export async function GET(request: Request) {
         LEFT JOIN active_focus_sessions afs ON u.id = afs.user_id 
           AND afs.last_heartbeat >= NOW() - INTERVAL '2 minutes'
         WHERE tc.teacher_id = ?
-        GROUP BY u.id, u.username, u.email, u.alan, u.sinif, us.solved_questions, us.success_rate, us.league, us.league_points, us.streak_days
+        GROUP BY u.id, u.username, u.email, u.alan, u.sinif, u.parent_code, us.solved_questions, us.success_rate, us.league, us.league_points, us.streak_days
         ORDER BY is_live_active DESC, u.username ASC
       `).all(teacherId) as any[];
     }

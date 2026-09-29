@@ -1,34 +1,23 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import db from '@/lib/yks-db-async';
-import { verifyToken } from '@/lib/jwt';
+import { getAuthenticatedTeacherId } from '@/lib/auth-utils';
 
 export const dynamic = 'force-dynamic';
 
-async function getTeacherId(): Promise<string | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('yks_session')?.value;
-  if (!token) return null;
+export async function GET(req: Request, { params }: { params: Promise<{ studentId: string }> | { studentId: string } }) {
   try {
-    const payload = await verifyToken(token);
-    if (payload?.userId) return payload.userId as string;
-  } catch (_) {}
-  return token; // fallback for legacy sessions
-}
-
-export async function GET(req: Request, { params }: { params: { studentId: string } }) {
-  try {
-    const teacherId = await getTeacherId();
+    const teacherId = await getAuthenticatedTeacherId(req);
     if (!teacherId) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
 
     const teacher = await db.prepare('SELECT id, role FROM users WHERE id = ?').get(teacherId) as any;
     if (!teacher || teacher.role !== 'ogretmen') return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
 
-    const studentId = params.studentId;
+    const resolvedParams = await Promise.resolve(params);
+    const studentId = resolvedParams.studentId;
 
     // 1. Basic student info + stats
     const student = await db.prepare(`
-      SELECT u.id, u.username, u.alan, u.sinif, u.target_university, u.target_department,
+      SELECT u.id, u.username, u.alan, u.sinif, u.target_university, u.target_department, u.parent_code,
              COALESCE(us.solved_questions, 0) as solved_questions,
              COALESCE(us.success_rate, 0) as success_rate,
              COALESCE(us.xp, 0) as xp,
@@ -234,3 +223,42 @@ export async function GET(req: Request, { params }: { params: { studentId: strin
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: Promise<{ studentId: string }> | { studentId: string } }
+) {
+  try {
+    const teacherId = await getAuthenticatedTeacherId(req);
+    if (!teacherId) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
+
+    const teacher = await db.prepare('SELECT id, role FROM users WHERE id = ?').get(teacherId) as any;
+    if (!teacher || teacher.role !== 'ogretmen') return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
+
+    const resolvedParams = await Promise.resolve(params);
+    const studentId = resolvedParams.studentId;
+    if (!studentId) return NextResponse.json({ error: 'Öğrenci ID gerekli' }, { status: 400 });
+
+    const { searchParams } = new URL(req.url);
+    const classId = searchParams.get('classId');
+
+    if (classId) {
+      const cls = await db.prepare('SELECT id FROM teacher_classes WHERE id = ? AND teacher_id = ?').get(classId, teacherId) as any;
+      if (!cls) return NextResponse.json({ error: 'Bu sınıf size ait değil veya bulunamadı' }, { status: 403 });
+
+      await db.prepare('DELETE FROM class_students WHERE class_id = ? AND student_id = ?').run(classId, studentId);
+    } else {
+      await db.prepare(`
+        DELETE FROM class_students
+        WHERE student_id = ?
+          AND class_id IN (SELECT id FROM teacher_classes WHERE teacher_id = ?)
+      `).run(studentId, teacherId);
+    }
+
+    return NextResponse.json({ success: true, message: 'Öğrenci sınıftan başarıyla çıkarıldı' });
+  } catch (error: any) {
+    console.error('Student remove error:', error);
+    return NextResponse.json({ error: error.message || 'Sunucu hatası' }, { status: 500 });
+  }
+}
+

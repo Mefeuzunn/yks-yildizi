@@ -10,7 +10,8 @@ import {
   Star, Calendar, Award, Eye, BarChart2, Search, Filter,
   ChevronUp, ChevronDown, Trash2, Bell, Zap, Target,
   GraduationCap, BookMarked, PenLine, RefreshCw, ArrowRight,
-  CheckCircle, Clock, AlertCircle, Flame, Trophy, Shield, Sparkles, BrainCircuit, User
+  CheckCircle, Clock, AlertCircle, Flame, Trophy, Shield, Sparkles, BrainCircuit, User,
+  Pencil, UserMinus, MessageSquare, Share2
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -25,6 +26,7 @@ interface StudentItem {
   username: string;
   alan: string;
   sinif: string;
+  parent_code?: string;
   solved_questions: number;
   success_rate: number;
   league: string;
@@ -674,10 +676,25 @@ function TeacherProfileTab() {
   );
 }
 
-function StudentDetailModal({ studentId, onClose }: { studentId: string; onClose: () => void }) {
+function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentId: string; onClose: () => void; onStudentRemoved?: () => void }) {
   const [data, setData] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
-  const [activeSubTab, setActiveSubTab] = React.useState<'overview' | 'sessions' | 'weaknesses' | 'exams' | 'assignments'>('overview');
+  const [activeSubTab, setActiveSubTab] = React.useState<'overview' | 'sessions' | 'weaknesses' | 'exams' | 'assignments' | 'notes'>('overview');
+
+  // Veli Kodu Kopyalama Durumu
+  const [copiedParentCode, setCopiedParentCode] = React.useState(false);
+
+  // Sınıftan Öğrenci Çıkarma Durumları
+  const [confirmRemoveStudent, setConfirmRemoveStudent] = React.useState(false);
+  const [removingStudent, setRemovingStudent] = React.useState(false);
+
+  // Rehberlik / Takip Notları Durumları
+  const [notes, setNotes] = React.useState<any[]>([]);
+  const [loadingNotes, setLoadingNotes] = React.useState(false);
+  const [newNoteText, setNewNoteText] = React.useState('');
+  const [newNoteCategory, setNewNoteCategory] = React.useState('rehberlik');
+  const [savingNote, setSavingNote] = React.useState(false);
+  const [deletingNoteId, setDeletingNoteId] = React.useState<string | null>(null);
 
   const fetchDetail = React.useCallback(async (isInitial = false) => {
     if (!studentId) return;
@@ -699,14 +716,31 @@ function StudentDetailModal({ studentId, onClose }: { studentId: string; onClose
     }
   }, [studentId]);
 
+  const fetchNotes = React.useCallback(async () => {
+    if (!studentId) return;
+    setLoadingNotes(true);
+    try {
+      const res = await fetch(`/api/ogretmen/ogrenciler/${studentId}/notes`);
+      if (res.ok) {
+        const d = await res.json();
+        setNotes(d.notes || []);
+      }
+    } catch (e) {
+      console.error('Fetch notes error:', e);
+    } finally {
+      setLoadingNotes(false);
+    }
+  }, [studentId]);
+
   React.useEffect(() => {
     fetchDetail(true);
+    fetchNotes();
     // Real-time live status polling every 12 seconds while modal is open
     const pollInterval = setInterval(() => {
       fetchDetail(false);
     }, 12000);
     return () => clearInterval(pollInterval);
-  }, [fetchDetail]);
+  }, [fetchDetail, fetchNotes]);
 
   // Close on Escape key
   React.useEffect(() => {
@@ -716,6 +750,85 @@ function StudentDetailModal({ studentId, onClose }: { studentId: string; onClose
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
+
+  const copyParentCode = (code: string) => {
+    navigator.clipboard.writeText(code);
+    setCopiedParentCode(true);
+    setTimeout(() => setCopiedParentCode(false), 2000);
+  };
+
+  const handleRemoveStudent = async () => {
+    setRemovingStudent(true);
+    try {
+      const url = data?.classId
+        ? `/api/ogretmen/ogrenciler/${studentId}?classId=${data.classId}`
+        : `/api/ogretmen/ogrenciler/${studentId}`;
+      const res = await fetch(url, { method: 'DELETE' });
+      const resData = await res.json();
+      if (res.ok) {
+        setConfirmRemoveStudent(false);
+        onClose();
+        onStudentRemoved?.();
+      } else {
+        alert(resData.error || 'Öğrenci sınıftan çıkarılamadı.');
+      }
+    } catch (err: any) {
+      console.error('Error removing student:', err);
+      alert('Bir hata oluştu.');
+    } finally {
+      setRemovingStudent(false);
+    }
+  };
+
+  const handleAddNote = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!newNoteText.trim()) return;
+    setSavingNote(true);
+    try {
+      const res = await fetch(`/api/ogretmen/ogrenciler/${studentId}/notes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ note: newNoteText.trim(), category: newNoteCategory }),
+      });
+      if (res.ok) {
+        const d = await res.json();
+        if (d.note) {
+          setNotes(prev => [d.note, ...prev]);
+        } else {
+          fetchNotes();
+        }
+        setNewNoteText('');
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert(err.error || 'Not kaydedilemedi.');
+      }
+    } catch (e) {
+      console.error('Add note error:', e);
+      alert('Bir hata oluştu.');
+    } finally {
+      setSavingNote(false);
+    }
+  };
+
+  const handleDeleteNote = async (noteId: string) => {
+    if (!confirm('Bu notu silmek istediğinize emin misiniz?')) return;
+    setDeletingNoteId(noteId);
+    try {
+      const res = await fetch(`/api/ogretmen/ogrenciler/${studentId}/notes?noteId=${noteId}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        setNotes(prev => prev.filter(n => n.id !== noteId));
+      } else {
+        alert('Not silinemedi.');
+      }
+    } catch (e) {
+      console.error('Delete note error:', e);
+      alert('Bir hata oluştu.');
+    } finally {
+      setDeletingNoteId(null);
+    }
+  };
 
   if (!studentId) return null;
 
@@ -786,25 +899,166 @@ function StudentDetailModal({ studentId, onClose }: { studentId: string; onClose
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               
               {/* ── 1. Öğrenci Kimlik Kartı ── */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', padding: '1.25rem', background: 'rgba(255,255,255,0.02)', borderRadius: 14, border: '1px solid rgba(255,255,255,0.06)' }}>
-                <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'linear-gradient(135deg,#38bdf8,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.6rem', fontWeight: 800, flexShrink: 0, boxShadow: '0 4px 15px rgba(56,189,248,0.25)' }}>
-                  {data.student?.username?.charAt(0).toUpperCase()}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.25rem', padding: '1.25rem', background: 'rgba(255,255,255,0.02)', borderRadius: 14, border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flex: 1, minWidth: 260 }}>
+                  <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'linear-gradient(135deg,#38bdf8,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.6rem', fontWeight: 800, flexShrink: 0, boxShadow: '0 4px 15px rgba(56,189,248,0.25)' }}>
+                    {data.student?.username?.charAt(0).toUpperCase()}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <h3 style={{ color: '#fff', fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>{data.student?.username}</h3>
+                      <Badge label={data.stats?.league || 'Bronz'} color={LEAGUE_COLORS[data.stats?.league] || '#cd7f32'} />
+                      {data.student?.alan && <Badge label={data.student.alan} color={ALAN_COLORS[data.student.alan] || '#38bdf8'} />}
+                    </div>
+                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: 5, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                      <span>🏫 <strong>Sınıf:</strong> {data.className || 'Sınıf Yok'}</span>
+                      {data.student?.sinif && <span>• {data.student.sinif}. Sınıf</span>}
+                      {data.student?.target_university && <span style={{ color: '#a78bfa' }}>• 🎯 {data.student.target_university}</span>}
+                    </div>
+                  </div>
                 </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    <h3 style={{ color: '#fff', fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>{data.student?.username}</h3>
-                    <Badge label={data.stats?.league || 'Bronz'} color={LEAGUE_COLORS[data.stats?.league] || '#cd7f32'} />
-                    {data.student?.alan && <Badge label={data.student.alan} color={ALAN_COLORS[data.student.alan] || '#38bdf8'} />}
-                  </div>
-                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: 5, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                    <span>🏫 <strong>Sınıf:</strong> {data.className || 'Sınıf Yok'}</span>
-                    {data.student?.sinif && <span>• {data.student.sinif}. Sınıf</span>}
-                    {data.student?.target_university && <span style={{ color: '#a78bfa' }}>• 🎯 {data.student.target_university}</span>}
-                  </div>
+
+                {/* Sınıftan Çıkar Butonu */}
+                <div>
+                  {!confirmRemoveStudent ? (
+                    <button
+                      onClick={() => setConfirmRemoveStudent(true)}
+                      style={{
+                        background: 'rgba(239,68,68,0.08)',
+                        border: '1px solid rgba(239,68,68,0.25)',
+                        color: '#f87171',
+                        borderRadius: 8,
+                        padding: '6px 12px',
+                        fontSize: '0.8rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        transition: 'all 0.15s'
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.18)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; }}
+                    >
+                      <UserMinus size={14} /> Sınıftan Çıkar
+                    </button>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.35)', borderRadius: 8, padding: '4px 8px' }}>
+                      <span style={{ color: '#fca5a5', fontSize: '0.75rem', fontWeight: 600 }}>Emin misiniz?</span>
+                      <button
+                        onClick={handleRemoveStudent}
+                        disabled={removingStudent}
+                        style={{
+                          background: '#dc2626',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: 6,
+                          padding: '4px 8px',
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          cursor: removingStudent ? 'not-allowed' : 'pointer'
+                        }}
+                      >
+                        {removingStudent ? 'Çıkarılıyor...' : 'Evet, Çıkar'}
+                      </button>
+                      <button
+                        onClick={() => setConfirmRemoveStudent(false)}
+                        disabled={removingStudent}
+                        style={{
+                          background: 'rgba(255,255,255,0.08)',
+                          color: '#cbd5e1',
+                          border: 'none',
+                          borderRadius: 6,
+                          padding: '4px 8px',
+                          fontSize: '0.72rem',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        İptal
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* ── 2. Canlı Odaklanma Bildirimi (Live Presence Banner) ── */}
+              {/* ── 2. Veli Takip Kodu Kartı & Paylaşımı ── */}
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(6,78,59,0.15))',
+                border: '1px solid rgba(16,185,129,0.25)',
+                borderRadius: 14,
+                padding: '1rem 1.25rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: 12
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ width: 38, height: 38, borderRadius: 10, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
+                    👨‍👩‍👧
+                  </div>
+                  <div>
+                    <div style={{ color: '#94a3b8', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      Veli Takip & Gözlem Kodu
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 3 }}>
+                      <code style={{ color: '#34d399', fontWeight: 800, fontSize: '1.15rem', letterSpacing: '0.12em', background: 'rgba(0,0,0,0.3)', padding: '2px 8px', borderRadius: 6 }}>
+                        {data.student?.parent_code || 'Tanımlanmadı'}
+                      </code>
+                      {data.student?.parent_code && (
+                        <button
+                          onClick={() => copyParentCode(data.student.parent_code)}
+                          style={{
+                            background: copiedParentCode ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.06)',
+                            border: `1px solid ${copiedParentCode ? '#10b981' : 'rgba(255,255,255,0.12)'}`,
+                            color: copiedParentCode ? '#10b981' : '#9ca3af',
+                            borderRadius: 6,
+                            padding: '4px 10px',
+                            fontSize: '0.75rem',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 4,
+                            transition: 'all 0.15s'
+                          }}
+                        >
+                          {copiedParentCode ? <><Check size={12} /> Kopyalandı</> : <><Copy size={12} /> Kopyala</>}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {data.student?.parent_code && (
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent(`Sayın Velimiz, öğrencimiz ${data.student?.username}'in YKS Yıldızı platformundaki günlük odaklanma, soru çözümü ve deneme gelişim raporlarını veli panelinden takip edebilirsiniz.\n\nVeli Giriş Kodu: *${data.student?.parent_code}*\nTakip Paneli Linki: https://yks-yildizi.vercel.app/veli`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(37,211,102,0.2), rgba(18,140,126,0.2))',
+                      border: '1px solid rgba(37,211,102,0.4)',
+                      color: '#4ade80',
+                      borderRadius: 10,
+                      padding: '8px 16px',
+                      fontSize: '0.82rem',
+                      fontWeight: 700,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      textDecoration: 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(37,211,102,0.3)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(37,211,102,0.2), rgba(18,140,126,0.2))'; }}
+                  >
+                    <Share2 size={14} />
+                    <span>WhatsApp ile Veliye Gönder</span>
+                  </a>
+                )}
+              </div>
+
+              {/* ── 3. Canlı Odaklanma Bildirimi (Live Presence Banner) ── */}
               {data.liveSession?.isLive ? (() => {
                 const isBreak = data.liveSession.status === 'break' || data.liveSession.status === 'break_paused' || data.liveSession.mode?.includes('Break');
                 const isPaused = data.liveSession.status === 'paused';
@@ -996,6 +1250,7 @@ function StudentDetailModal({ studentId, onClose }: { studentId: string; onClose
                   { key: 'weaknesses', label: `🎯 Zayıf Konular (${data.weaknesses?.length || 0})` },
                   { key: 'exams', label: `📝 Denemeler (${data.mockExams?.length || 0})` },
                   { key: 'assignments', label: `📋 Ödev Durumu (${data.assignments?.length || 0})` },
+                  { key: 'notes', label: `📝 Rehberlik Notları (${notes.length})` },
                 ].map(tab => (
                   <button
                     key={tab.key}
@@ -1351,6 +1606,198 @@ function StudentDetailModal({ studentId, onClose }: { studentId: string; onClose
                 </div>
               )}
 
+              {/* ── 6. TAB 6: Rehberlik & Takip Notları ── */}
+              {activeSubTab === 'notes' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  {/* Bilgi Kutusu */}
+                  <div style={{
+                    padding: '12px 16px',
+                    borderRadius: 12,
+                    background: 'rgba(99,102,241,0.08)',
+                    border: '1px solid rgba(99,102,241,0.2)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    color: '#c7d2fe',
+                    fontSize: '0.82rem'
+                  }}>
+                    <BrainCircuit size={18} color="#818cf8" style={{ flexShrink: 0 }} />
+                    <span>Bu alandaki rehberlik ve takip notları yalnızca sizin tarafınızdan görüntülenebilir. Öğrenci veya veli bu notları göremez.</span>
+                  </div>
+
+                  {/* Yeni Not Ekleme Kartı */}
+                  <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '1.25rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: 10 }}>
+                      <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.92rem' }}>Yeni Rehberlik / Takip Notu</span>
+                      
+                      {/* Kategori Seçici */}
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                        {[
+                          { key: 'rehberlik', label: '🎯 Rehberlik', col: '#a855f7' },
+                          { key: 'akademik', label: '📈 Akademik', col: '#38bdf8' },
+                          { key: 'motivasyon', label: '🔥 Motivasyon', col: '#f59e0b' },
+                          { key: 'genel', label: '📌 Genel', col: '#94a3b8' },
+                        ].map(cat => (
+                          <button
+                            key={cat.key}
+                            type="button"
+                            onClick={() => setNewNoteCategory(cat.key)}
+                            style={{
+                              padding: '4px 10px',
+                              borderRadius: 8,
+                              fontSize: '0.75rem',
+                              fontWeight: newNoteCategory === cat.key ? 700 : 500,
+                              background: newNoteCategory === cat.key ? `${cat.col}25` : 'rgba(255,255,255,0.04)',
+                              border: `1px solid ${newNoteCategory === cat.key ? cat.col : 'rgba(255,255,255,0.08)'}`,
+                              color: newNoteCategory === cat.key ? cat.col : '#94a3b8',
+                              cursor: 'pointer',
+                              transition: 'all 0.15s'
+                            }}
+                          >
+                            {cat.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <textarea
+                      value={newNoteText}
+                      onChange={e => setNewNoteText(e.target.value)}
+                      placeholder="Öğrenciyle yapılan birebir görüşme, deneme analizi, hedef takibi veya çalışma alışkanlıkları hakkında notunuzu buraya yazın..."
+                      rows={3}
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px',
+                        borderRadius: 10,
+                        backgroundColor: 'rgba(255,255,255,0.04)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        color: '#fff',
+                        fontSize: '0.85rem',
+                        outline: 'none',
+                        resize: 'vertical',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
+                      <button
+                        onClick={handleAddNote}
+                        disabled={savingNote || !newNoteText.trim()}
+                        style={{
+                          background: 'linear-gradient(135deg,#6366f1,#8b5cf6)',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: 8,
+                          padding: '8px 18px',
+                          fontSize: '0.82rem',
+                          fontWeight: 700,
+                          cursor: savingNote || !newNoteText.trim() ? 'not-allowed' : 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          opacity: savingNote || !newNoteText.trim() ? 0.5 : 1,
+                          transition: 'all 0.15s'
+                        }}
+                      >
+                        {savingNote ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Plus size={14} />}
+                        Notu Kaydet
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Kayıtlı Notlar Listesi */}
+                  <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, overflow: 'hidden' }}>
+                    <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <BookMarked size={16} color="#a855f7" />
+                        <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Öğrenci Gözlem & Görüşme Geçmişi</span>
+                      </div>
+                      <span style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>Toplam {notes.length} not</span>
+                    </div>
+
+                    {loadingNotes ? (
+                      <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
+                        <Loader2 size={24} color="#818cf8" style={{ animation: 'spin 1s linear infinite' }} />
+                      </div>
+                    ) : notes.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: '3rem 1.5rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                        <div style={{ fontSize: '1.8rem', marginBottom: 8 }}>📝</div>
+                        Bu öğrenci için henüz rehberlik notu eklenmemiş.
+                        <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: '#64748b' }}>Yukarıdaki formu kullanarak ilk gözlem notunuzu kaydedebilirsiniz.</p>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        {notes.map((n: any) => {
+                          const catMeta: Record<string, { label: string; col: string }> = {
+                            rehberlik: { label: '🎯 Rehberlik Görüşmesi', col: '#a855f7' },
+                            akademik: { label: '📈 Akademik Gelişim', col: '#38bdf8' },
+                            motivasyon: { label: '🔥 Motivasyon', col: '#f59e0b' },
+                            genel: { label: '📌 Genel', col: '#94a3b8' }
+                          };
+                          const meta = catMeta[n.category] || catMeta.genel;
+
+                          return (
+                            <div
+                              key={n.id}
+                              style={{
+                                padding: '1.1rem 1.25rem',
+                                borderBottom: '1px solid rgba(255,255,255,0.04)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 8,
+                                transition: 'background 0.15s'
+                              }}
+                            >
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                  <span style={{
+                                    fontSize: '0.72rem',
+                                    fontWeight: 700,
+                                    padding: '2px 8px',
+                                    borderRadius: 6,
+                                    background: `${meta.col}20`,
+                                    color: meta.col,
+                                    border: `1px solid ${meta.col}35`
+                                  }}>
+                                    {meta.label}
+                                  </span>
+                                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                                    {new Date(n.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                  </span>
+                                </div>
+                                <button
+                                  onClick={() => handleDeleteNote(n.id)}
+                                  disabled={deletingNoteId === n.id}
+                                  style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: '#ef4444',
+                                    opacity: 0.6,
+                                    cursor: 'pointer',
+                                    padding: '4px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    transition: 'opacity 0.15s'
+                                  }}
+                                  onMouseEnter={e => { e.currentTarget.style.opacity = '1'; }}
+                                  onMouseLeave={e => { e.currentTarget.style.opacity = '0.6'; }}
+                                  title="Notu Sil"
+                                >
+                                  {deletingNoteId === n.id ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Trash2 size={14} />}
+                                </button>
+                              </div>
+                              <p style={{ color: '#e2e8f0', fontSize: '0.85rem', lineHeight: 1.6, margin: 0, whiteSpace: 'pre-wrap' }}>
+                                {n.note}
+                              </p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
             </div>
           )}
         </motion.div>
@@ -1496,6 +1943,40 @@ function TeacherDashboardContent() {
   const [inviteModal, setInviteModal] = useState<{code: string; url: string; expires: string} | null>(null);
   const [expandedLeaderboard, setExpandedLeaderboard] = useState<string | null>(null);
   const [classLeaderboards, setClassLeaderboards] = useState<Record<string, any[]>>({});
+
+  // Sınıf Düzenleme Durumları
+  const [editingClass, setEditingClass] = useState<ClassItem | null>(null);
+  const [editClassNameInput, setEditClassNameInput] = useState('');
+  const [savingEditClass, setSavingEditClass] = useState(false);
+
+  const handleOpenEditClass = (c: ClassItem) => {
+    setEditingClass(c);
+    setEditClassNameInput(c.class_name);
+  };
+
+  const handleSaveClassEdit = async () => {
+    if (!editingClass || !editClassNameInput.trim()) return;
+    setSavingEditClass(true);
+    try {
+      const res = await fetch('/api/ogretmen/siniflar', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: editingClass.id, class_name: editClassNameInput.trim() }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setClasses(prev => prev.map(c => c.id === editingClass.id ? { ...c, class_name: editClassNameInput.trim() } : c));
+        setEditingClass(null);
+      } else {
+        alert(data.error || 'Sınıf güncellenemedi.');
+      }
+    } catch (e) {
+      console.error('Update class error:', e);
+      alert('Bir hata oluştu.');
+    } finally {
+      setSavingEditClass(false);
+    }
+  };
 
   const generateInvite = async (classId: string) => {
     setSubmitting(true);
@@ -2114,7 +2595,29 @@ function TeacherDashboardContent() {
                       {/* Card header */}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                         <div>
-                          <h3 style={{ color: '#fff', fontSize: '1.2rem', fontWeight: 700, margin: 0 }}>{c.class_name}</h3>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <h3 style={{ color: '#fff', fontSize: '1.2rem', fontWeight: 700, margin: 0 }}>{c.class_name}</h3>
+                            <button
+                              onClick={() => handleOpenEditClass(c)}
+                              title="Sınıf Adını Düzenle"
+                              style={{
+                                background: 'rgba(255,255,255,0.06)',
+                                border: '1px solid rgba(255,255,255,0.1)',
+                                borderRadius: 6,
+                                padding: '3px 7px',
+                                color: '#94a3b8',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                transition: 'all 0.15s'
+                              }}
+                              onMouseEnter={e => { e.currentTarget.style.color = '#38bdf8'; e.currentTarget.style.background = 'rgba(56,189,248,0.12)'; }}
+                              onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
+                            >
+                              <Pencil size={13} />
+                            </button>
+                          </div>
                           <div style={{ color: 'var(--text-secondary)', fontSize: '0.78rem', marginTop: 4 }}>{formatDate(c.created_at)} oluşturuldu</div>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
@@ -2359,6 +2862,11 @@ function TeacherDashboardContent() {
                               <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 2, flexWrap: 'wrap' }}>
                                 {s.sinif && <span style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>{s.sinif}. Sınıf</span>}
                                 {s.class_names && <span style={{ color: '#38bdf8', fontSize: '0.72rem' }}>• {s.class_names}</span>}
+                                {s.parent_code && (
+                                  <span style={{ color: '#34d399', fontSize: '0.7rem', background: 'rgba(16,185,129,0.1)', padding: '1px 6px', borderRadius: 4, border: '1px solid rgba(16,185,129,0.2)' }}>
+                                    👨‍👩‍👧 Veli: {s.parent_code}
+                                  </span>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -2453,6 +2961,11 @@ function TeacherDashboardContent() {
                             <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginTop: '2px', flexWrap: 'wrap' }}>
                               {s.sinif && <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>{s.sinif}. Sınıf</span>}
                               {s.class_names && <span style={{ color: '#38bdf8', fontSize: '0.75rem' }}>• {s.class_names}</span>}
+                              {s.parent_code && (
+                                <span style={{ color: '#34d399', fontSize: '0.72rem', background: 'rgba(16,185,129,0.1)', padding: '1px 6px', borderRadius: 4, border: '1px solid rgba(16,185,129,0.2)' }}>
+                                  👨‍👩‍👧 Veli: {s.parent_code}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -3438,6 +3951,41 @@ function TeacherDashboardContent() {
         </div>
       </Modal>
 
+      {/* Sınıf Düzenle */}
+      <Modal open={!!editingClass} onClose={() => setEditingClass(null)} title="Sınıf Adını Düzenle">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div>
+            <label style={{ display: 'block', color: 'var(--text-secondary)', fontSize: '0.8rem', marginBottom: 6 }}>Yeni Sınıf Adı</label>
+            <input
+              value={editClassNameInput}
+              onChange={e => setEditClassNameInput(e.target.value)}
+              placeholder="Sınıf adı (örn: 12-A Sayısal)"
+              style={inp}
+              onKeyDown={e => e.key === 'Enter' && handleSaveClassEdit()}
+              autoFocus
+            />
+          </div>
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+            <button
+              type="button"
+              onClick={() => setEditingClass(null)}
+              style={{ padding: '0.65rem 1.25rem', borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', cursor: 'pointer', fontSize: '0.85rem' }}
+            >
+              Vazgeç
+            </button>
+            <button
+              type="button"
+              onClick={handleSaveClassEdit}
+              disabled={savingEditClass || !editClassNameInput.trim()}
+              className="btn-interactive"
+              style={{ background: 'linear-gradient(135deg,#38bdf8,#0284c7)', opacity: savingEditClass || !editClassNameInput.trim() ? 0.5 : 1 }}
+            >
+              {savingEditClass ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> Kaydediliyor...</> : 'Güncelle'}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
       {/* Yeni Ödev */}
       <Modal open={activeModal === 'odev'} onClose={() => setActiveModal(null)} title="Yeni Ödev Ata">
         <form onSubmit={handleCreateAssignment} style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
@@ -4169,7 +4717,16 @@ function TeacherDashboardContent() {
         )}
       </Modal>
 
-      {selectedStudentId && <StudentDetailModal studentId={selectedStudentId} onClose={() => setSelectedStudentId(null)} />}
+      {selectedStudentId && (
+        <StudentDetailModal
+          studentId={selectedStudentId}
+          onClose={() => setSelectedStudentId(null)}
+          onStudentRemoved={() => {
+            setSelectedStudentId(null);
+            fetchStudents();
+          }}
+        />
+      )}
 
       <style jsx>{`
         @keyframes spin { to { transform: rotate(360deg); } }
