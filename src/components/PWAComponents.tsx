@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, BellOff, X, Download, Smartphone } from 'lucide-react';
+import { Bell, BellOff, X, Download, Smartphone, Wifi, WifiOff } from 'lucide-react';
 
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '';
 
@@ -297,3 +297,90 @@ export function PushNotificationToggle() {
     </div>
   );
 }
+
+// ──────────────────────────────────────────
+// Offline Status Floating Banner
+// ──────────────────────────────────────────
+export function OfflineStatusBanner() {
+  const [isOffline, setIsOffline] = useState(false);
+  const [showReconnected, setShowReconnected] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    if (!navigator.onLine) {
+      setIsOffline(true);
+    }
+
+    const handleOffline = () => {
+      setIsOffline(true);
+      setShowReconnected(false);
+    };
+
+    const handleOnline = () => {
+      setIsOffline(false);
+      setShowReconnected(true);
+      const timer = setTimeout(() => {
+        setShowReconnected(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    };
+
+    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', handleOnline);
+
+    return () => {
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('online', handleOnline);
+    };
+  }, []);
+
+  return (
+    <AnimatePresence>
+      {(isOffline || showReconnected) && (
+        <motion.div
+          initial={{ y: -60, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: -60, opacity: 0 }}
+          transition={{ type: 'spring', damping: 20, stiffness: 260 }}
+          style={{
+            position: 'fixed',
+            top: '16px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 99999,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            padding: '10px 20px',
+            borderRadius: '30px',
+            background: isOffline
+              ? 'rgba(239, 68, 68, 0.95)'
+              : 'rgba(16, 185, 129, 0.95)',
+            color: '#ffffff',
+            boxShadow: isOffline
+              ? '0 8px 25px rgba(239, 68, 68, 0.4)'
+              : '0 8px 25px rgba(16, 185, 129, 0.4)',
+            backdropFilter: 'blur(10px)',
+            fontSize: '13px',
+            fontWeight: 700,
+            pointerEvents: 'none',
+          }}
+        >
+          {isOffline ? (
+            <>
+              <WifiOff size={16} />
+              <span>İnternet bağlantısı kesildi. Çevrimdışı moddasınız.</span>
+            </>
+          ) : (
+            <>
+              <Wifi size={16} />
+              <span>Yeniden bağlandınız! Veriler eşitleniyor.</span>
+            </>
+          )}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+

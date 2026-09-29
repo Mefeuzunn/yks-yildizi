@@ -7,7 +7,7 @@ import { TimerProvider } from '@/context/TimerContext';
 import GlobalTimerWidget from '@/components/GlobalTimerWidget';
 import AppSidebar from '@/components/AppSidebar';
 import MobileNav from '@/components/MobileNav';
-import { PWAInstallBanner } from '@/components/PWAComponents';
+import { PWAInstallBanner, OfflineStatusBanner } from '@/components/PWAComponents';
 import SessionLogModal from '@/components/dashboard/SessionLogModal';
 
 function ServiceWorkerRegistrar() {
@@ -39,6 +39,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
             <GlobalTimerWidget />
           </React.Suspense>
           <SessionLogModal />
+          <OfflineStatusBanner />
         </TimerProvider>
       </AuthProvider>
     );
@@ -74,6 +75,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
         <SessionLogModal />
         <ServiceWorkerRegistrar />
         <PWAInstallBanner />
+        <OfflineStatusBanner />
       </div>
       </TimerProvider>
     </AuthProvider>
