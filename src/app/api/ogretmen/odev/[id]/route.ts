@@ -32,9 +32,15 @@ export async function GET(
       return NextResponse.json({ error: 'Ödev bulunamadı' }, { status: 404 });
     }
 
-    // Get all submissions with student info
+    try {
+      await db.prepare("ALTER TABLE assignment_submissions ADD COLUMN IF NOT EXISTS feedback TEXT DEFAULT ''").run();
+    } catch (_) {}
+
+    // Get all submissions with student info and feedback
     const submissions = await db.prepare(`
-      SELECT asub.id as submission_id, asub.status, asub.score, asub.submitted_at,
+      SELECT asub.id as submission_id, asub.status, asub.score,
+             COALESCE(asub.feedback, '') as feedback,
+             asub.submitted_at,
              u.id as student_id, u.username
       FROM assignment_submissions asub
       JOIN users u ON asub.student_id = u.id
@@ -104,12 +110,16 @@ export async function PUT(
       return NextResponse.json({ success: true, message: 'Ödev başarıyla güncellendi', assignment: updatedAssignment });
     }
 
-    // 2. Öğrenci Teslim Durumunu Güncelleme (Yaptı / Yapmadı / Not)
-    const { studentId, status, score } = body;
+    // 2. Öğrenci Teslim Durumunu Güncelleme (Yaptı / Yapmadı / Not / Geri Bildirim)
+    const { studentId, status, score, feedback } = body;
 
     if (!studentId) {
       return NextResponse.json({ error: 'Öğrenci ID veya Ödev bilgileri gerekli' }, { status: 400 });
     }
+
+    try {
+      await db.prepare("ALTER TABLE assignment_submissions ADD COLUMN IF NOT EXISTS feedback TEXT DEFAULT ''").run();
+    } catch (_) {}
 
     let newStatus = status;
     let newScore = score !== undefined && score !== null && score !== '' ? Number(score) : null;
@@ -133,27 +143,39 @@ export async function PUT(
 
     const subId = crypto.randomUUID();
 
+    // Mevcut kaydı kontrol et
+    const existingSub = await db.prepare(
+      'SELECT id, status, score, feedback FROM assignment_submissions WHERE assignment_id = ? AND student_id = ?'
+    ).get(id, studentId) as any;
+
+    const finalStatus = newStatus !== undefined ? newStatus : (existingSub?.status || 'completed');
+    const finalScore = newScore !== undefined ? newScore : (existingSub?.score ?? null);
+    const finalFeedback = feedback !== undefined ? feedback : (existingSub?.feedback || '');
+
     await db.prepare(`
-      INSERT INTO assignment_submissions (id, assignment_id, student_id, status, score, submitted_at)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO assignment_submissions (id, assignment_id, student_id, status, score, feedback, submitted_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT (assignment_id, student_id) DO UPDATE SET
         status = EXCLUDED.status,
         score = EXCLUDED.score,
-        submitted_at = EXCLUDED.submitted_at
+        feedback = EXCLUDED.feedback,
+        submitted_at = COALESCE(EXCLUDED.submitted_at, assignment_submissions.submitted_at)
     `).run(
       subId,
       id,
       studentId,
-      newStatus || 'completed',
-      newScore,
-      submittedAt
+      finalStatus,
+      finalScore,
+      finalFeedback,
+      submittedAt || existingSub?.submitted_at || (finalStatus === 'completed' || finalStatus === 'graded' ? new Date().toISOString() : null)
     );
 
     return NextResponse.json({ 
       success: true, 
-      message: 'Ödev durumu güncellendi',
-      status: newStatus,
-      score: newScore
+      message: 'Ödev durumu ve geri bildirimi güncellendi',
+      status: finalStatus,
+      score: finalScore,
+      feedback: finalFeedback
     });
   } catch (error) {
     console.error('Ödev durumu güncelleme hatası:', error);

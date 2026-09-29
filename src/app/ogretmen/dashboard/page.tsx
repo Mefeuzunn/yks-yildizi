@@ -11,7 +11,7 @@ import {
   ChevronUp, ChevronDown, Trash2, Bell, Zap, Target,
   GraduationCap, BookMarked, PenLine, RefreshCw, ArrowRight,
   CheckCircle, Clock, AlertCircle, Flame, Trophy, Shield, Sparkles, BrainCircuit, User,
-  Pencil, UserMinus, MessageSquare, Share2
+  Pencil, UserMinus, MessageSquare, Share2, Download, Printer, Rocket
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -362,6 +362,128 @@ function WeeklyReportWidget({ classId }: { classId: string | null }) {
     </div>
   );
 }
+
+function ClassMockExamAnalyticsWidget({ classId }: { classId: string | null }) {
+  const [data, setData] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    setLoading(true);
+    fetch(`/api/ogretmen/denemeler?classId=${classId || 'all'}`)
+      .then(r => r.json())
+      .then(d => { setData(d); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [classId]);
+
+  return (
+    <div style={{ marginBottom: 24 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+        <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #f59e0b, #d97706)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
+          📝
+        </div>
+        <div>
+          <h3 style={{ color: '#fff', fontWeight: 700, margin: 0, fontSize: 16 }}>Sınıf Deneme & Net Karnesi (TYT / AYT)</h3>
+          <p style={{ color: '#64748b', fontSize: 12, margin: 0 }}>Öğrencilerin çözdüğü kurumsal ve bireysel denemelerin ders bazlı net analizi</p>
+        </div>
+      </div>
+
+      {loading ? (
+        <div style={{ padding: 28, textAlign: 'center', color: '#64748b' }}>Deneme verileri analiz ediliyor...</div>
+      ) : !data || (!data.tytAverages && !data.aytAverages) ? (
+        <div style={{ padding: 24, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, textAlign: 'center', color: '#64748b', fontSize: 13 }}>
+          Bu sınıf için henüz kaydedilmiş deneme sınavı verisi bulunmuyor.
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {/* Net Kartları Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
+            {/* TYT Karnesi */}
+            {data.tytAverages ? (
+              <div style={{ background: 'rgba(56,189,248,0.05)', border: '1px solid rgba(56,189,248,0.2)', borderRadius: 12, padding: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ background: '#38bdf820', color: '#38bdf8', padding: '2px 8px', borderRadius: 6, fontSize: 11, fontWeight: 800 }}>TYT</span>
+                    <span style={{ color: '#fff', fontWeight: 700, fontSize: 14 }}>Sınıf TYT Ortalaması</span>
+                  </div>
+                  <span style={{ color: '#38bdf8', fontSize: 20, fontWeight: 900 }}>{data.tytAverages.totalNet} Net</span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
+                  <div style={{ background: 'rgba(255,255,255,0.03)', padding: '6px 10px', borderRadius: 8 }}>
+                    <span style={{ color: '#94a3b8' }}>🇹🇷 Türkçe: </span>
+                    <strong style={{ color: '#e2e8f0' }}>{data.tytAverages.turkishNet}</strong>
+                  </div>
+                  <div style={{ background: 'rgba(255,255,255,0.03)', padding: '6px 10px', borderRadius: 8 }}>
+                    <span style={{ color: '#94a3b8' }}>📐 Matematik: </span>
+                    <strong style={{ color: '#38bdf8' }}>{data.tytAverages.mathNet}</strong>
+                  </div>
+                  <div style={{ background: 'rgba(255,255,255,0.03)', padding: '6px 10px', borderRadius: 8 }}>
+                    <span style={{ color: '#94a3b8' }}>🔬 Fen: </span>
+                    <strong style={{ color: '#c084fc' }}>{data.tytAverages.scienceNet}</strong>
+                  </div>
+                  <div style={{ background: 'rgba(255,255,255,0.03)', padding: '6px 10px', borderRadius: 8 }}>
+                    <span style={{ color: '#94a3b8' }}>🌍 Sosyal: </span>
+                    <strong style={{ color: '#fcd34d' }}>{data.tytAverages.socialNet}</strong>
+                  </div>
+                </div>
+                <div style={{ color: '#64748b', fontSize: 11, marginTop: 10, textAlign: 'right' }}>
+                  Toplam {data.tytAverages.examCount} deneme sınavı sonucu
+                </div>
+              </div>
+            ) : null}
+
+            {/* AYT Karnesi */}
+            {data.aytAverages ? (
+              <div style={{ background: 'rgba(168,85,247,0.05)', border: '1px solid rgba(168,85,247,0.2)', borderRadius: 12, padding: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ background: '#a855f720', color: '#c084fc', padding: '2px 8px', borderRadius: 6, fontSize: 11, fontWeight: 800 }}>AYT</span>
+                    <span style={{ color: '#fff', fontWeight: 700, fontSize: 14 }}>Sınıf AYT Ortalaması</span>
+                  </div>
+                  <span style={{ color: '#c084fc', fontSize: 20, fontWeight: 900 }}>{data.aytAverages.totalNet} Net</span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
+                  <div style={{ background: 'rgba(255,255,255,0.03)', padding: '6px 10px', borderRadius: 8 }}>
+                    <span style={{ color: '#94a3b8' }}>📐 Matematik: </span>
+                    <strong style={{ color: '#38bdf8' }}>{data.aytAverages.mathNet}</strong>
+                  </div>
+                  <div style={{ background: 'rgba(255,255,255,0.03)', padding: '6px 10px', borderRadius: 8 }}>
+                    <span style={{ color: '#94a3b8' }}>🔬 Fen: </span>
+                    <strong style={{ color: '#c084fc' }}>{data.aytAverages.scienceNet}</strong>
+                  </div>
+                  <div style={{ background: 'rgba(255,255,255,0.03)', padding: '6px 10px', borderRadius: 8 }}>
+                    <span style={{ color: '#94a3b8' }}>📜 Edebiyat/Sos: </span>
+                    <strong style={{ color: '#fcd34d' }}>{data.aytAverages.socialNet}</strong>
+                  </div>
+                </div>
+                <div style={{ color: '#64748b', fontSize: 11, marginTop: 10, textAlign: 'right' }}>
+                  Toplam {data.aytAverages.examCount} deneme sınavı sonucu
+                </div>
+              </div>
+            ) : null}
+          </div>
+
+          {/* Net Bazlı Risk Uyarıları */}
+          {data.netAlerts && data.netAlerts.length > 0 && (
+            <div style={{ background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 12, padding: '12px 16px' }}>
+              <div style={{ color: '#fca5a5', fontWeight: 700, fontSize: 13, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span>⚠️ Net Bazlı Takip & Risk Uyarıları ({data.netAlerts.length} Öğrenci)</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {data.netAlerts.map((alert: any, i: number) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 12, background: 'rgba(255,255,255,0.02)', padding: '6px 10px', borderRadius: 6 }}>
+                    <span style={{ color: '#f1f5f9', fontWeight: 600 }}>{alert.username}</span>
+                    <span style={{ color: alert.severity === 'critical' ? '#ef4444' : '#f59e0b' }}>{alert.message}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 
 function TeacherProfileTab() {
   const [profile, setProfile] = React.useState<any>(null);
@@ -1510,49 +1632,124 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
                 </div>
               )}
 
-              {/* ── 8. TAB 4: Deneme Sınavları ── */}
+              {/* ── 8. TAB 4: Deneme Sınavları & Net Karnesi ── */}
               {activeSubTab === 'exams' && (
-                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, overflow: 'hidden' }}>
-                  <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <FileText size={16} color="#f59e0b" />
-                    <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Öğrencinin Çözdüğü Deneme Sınavları</span>
-                  </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {/* Deneme Özeti KPI */}
+                  {data.mockExams && data.mockExams.length > 0 && (() => {
+                    const totalExams = data.mockExams.length;
+                    const avgNet = Math.round((data.mockExams.reduce((acc: number, e: any) => acc + (Number(e.total_net) || 0), 0) / totalExams) * 10) / 10;
+                    const maxNet = Math.max(...data.mockExams.map((e: any) => Number(e.total_net) || 0));
 
-                  {(!data.mockExams || data.mockExams.length === 0) ? (
-                    <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                      Kayıtlı deneme sınavı sonucu bulunmuyor.
-                    </div>
-                  ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      {data.mockExams.map((exam: any) => (
-                        <div
-                          key={exam.id}
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            padding: '1rem 1.25rem',
-                            borderBottom: '1px solid rgba(255,255,255,0.04)'
-                          }}
-                        >
-                          <div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                              <Badge label={exam.exam_type || 'TYT'} color="#38bdf8" />
-                              <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>{exam.exam_name || 'Deneme Sınavı'}</span>
-                            </div>
-                            <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: 4 }}>
-                              {exam.exam_date ? new Date(exam.exam_date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Tarih yok'}
-                            </div>
-                          </div>
-                          <div style={{ textAlign: 'right' }}>
-                            <div style={{ color: '#10b981', fontWeight: 800, fontSize: '1.1rem' }}>
-                              {exam.total_net != null ? `${exam.total_net} Net` : '—'}
-                            </div>
-                          </div>
+                    return (
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
+                        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '1rem', textAlign: 'center' }}>
+                          <div style={{ color: '#38bdf8', fontSize: '1.3rem', fontWeight: 800 }}>{totalExams}</div>
+                          <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', marginTop: 3 }}>Girdiği Deneme</div>
                         </div>
-                      ))}
+                        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '1rem', textAlign: 'center' }}>
+                          <div style={{ color: '#10b981', fontSize: '1.3rem', fontWeight: 800 }}>{avgNet}</div>
+                          <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', marginTop: 3 }}>Ortalama Net</div>
+                        </div>
+                        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '1rem', textAlign: 'center' }}>
+                          <div style={{ color: '#f59e0b', fontSize: '1.3rem', fontWeight: 800 }}>{maxNet}</div>
+                          <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', marginTop: 3 }}>En Yüksek Net</div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, overflow: 'hidden' }}>
+                    <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <FileText size={16} color="#f59e0b" />
+                        <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Öğrencinin Çözdüğü Deneme Sınavları & Ders Dağılımı</span>
+                      </div>
+                      <span style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>Son {data.mockExams?.length || 0} deneme</span>
                     </div>
-                  )}
+
+                    {(!data.mockExams || data.mockExams.length === 0) ? (
+                      <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                        Kayıtlı deneme sınavı sonucu bulunmuyor.
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        {data.mockExams.map((exam: any, idx: number) => {
+                          const prevExam = data.mockExams[idx + 1];
+                          const netDiff = prevExam && prevExam.total_net != null && exam.total_net != null
+                            ? Math.round((Number(exam.total_net) - Number(prevExam.total_net)) * 10) / 10
+                            : null;
+
+                          return (
+                            <div
+                              key={exam.id || idx}
+                              style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '0.65rem',
+                                padding: '1rem 1.25rem',
+                                borderBottom: '1px solid rgba(255,255,255,0.04)'
+                              }}
+                            >
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8 }}>
+                                <div>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <Badge label={exam.exam_type || 'TYT'} color="#38bdf8" />
+                                    <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.92rem' }}>{exam.exam_name || 'Deneme Sınavı'}</span>
+                                  </div>
+                                  <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: 4 }}>
+                                    {exam.exam_date ? new Date(exam.exam_date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Tarih yok'}
+                                  </div>
+                                </div>
+                                <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: 10 }}>
+                                  {netDiff !== null && (
+                                    <span style={{
+                                      fontSize: '0.75rem',
+                                      fontWeight: 700,
+                                      color: netDiff > 0 ? '#10b981' : netDiff < 0 ? '#ef4444' : '#94a3b8',
+                                      background: netDiff > 0 ? 'rgba(16,185,129,0.1)' : netDiff < 0 ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.05)',
+                                      padding: '2px 8px',
+                                      borderRadius: 6,
+                                      border: `1px solid ${netDiff > 0 ? 'rgba(16,185,129,0.25)' : netDiff < 0 ? 'rgba(239,68,68,0.25)' : 'rgba(255,255,255,0.1)'}`
+                                    }}>
+                                      {netDiff > 0 ? `+${netDiff} ↗` : netDiff < 0 ? `${netDiff} ↘` : '0 ='}
+                                    </span>
+                                  )}
+                                  <div style={{ color: '#10b981', fontWeight: 800, fontSize: '1.2rem' }}>
+                                    {exam.total_net != null ? `${exam.total_net} Net` : '—'}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Ders Bazlı Net Kırılımı */}
+                              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: 2 }}>
+                                {exam.turkish_net != null && (
+                                  <span style={{ fontSize: '0.74rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6, padding: '2px 8px', color: '#e2e8f0' }}>
+                                    🇹🇷 Türkçe: <strong>{exam.turkish_net}</strong>
+                                  </span>
+                                )}
+                                {exam.math_net != null && (
+                                  <span style={{ fontSize: '0.74rem', background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.2)', borderRadius: 6, padding: '2px 8px', color: '#7dd3fc' }}>
+                                    📐 Mat: <strong>{exam.math_net}</strong>
+                                  </span>
+                                )}
+                                {exam.science_net != null && (
+                                  <span style={{ fontSize: '0.74rem', background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.2)', borderRadius: 6, padding: '2px 8px', color: '#c084fc' }}>
+                                    🔬 Fen: <strong>{exam.science_net}</strong>
+                                  </span>
+                                )}
+                                {exam.social_net != null && (
+                                  <span style={{ fontSize: '0.74rem', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 6, padding: '2px 8px', color: '#fcd34d' }}>
+                                    🌍 Sosyal: <strong>{exam.social_net}</strong>
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -1949,6 +2146,15 @@ function TeacherDashboardContent() {
   const [editClassNameInput, setEditClassNameInput] = useState('');
   const [savingEditClass, setSavingEditClass] = useState(false);
 
+  // FAZ 3 & 4 States
+  const [feedbackInput, setFeedbackInput] = useState<Record<string, string>>({});
+  const [savingFeedback, setSavingFeedback] = useState<Record<string, boolean>>({});
+  const [reminding, setReminding] = useState(false);
+  const [etutModal, setEtutModal] = useState<{ classId: string; className: string } | null>(null);
+  const [etutDuration, setEtutDuration] = useState<number>(40);
+  const [etutTitle, setEtutTitle] = useState<string>('');
+  const [startingEtut, setStartingEtut] = useState(false);
+
   const handleOpenEditClass = (c: ClassItem) => {
     setEditingClass(c);
     setEditClassNameInput(c.class_name);
@@ -1999,6 +2205,113 @@ function TeacherDashboardContent() {
       }
     } catch(e) { console.error(e); }
     finally { setSubmitting(false); }
+  };
+
+  const handleSaveFeedback = async (assignmentId: string, studentId: string) => {
+    const feedback = feedbackInput[studentId] ?? '';
+    setSavingFeedback(prev => ({ ...prev, [studentId]: true }));
+    try {
+      const res = await fetch(`/api/ogretmen/odev/${assignmentId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId, feedback })
+      });
+      if (res.ok) {
+        setAssignmentDetail((prev: any) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            submissions: (prev.submissions || []).map((sub: any) =>
+              sub.student_id === studentId ? { ...sub, feedback } : sub
+            )
+          };
+        });
+        alert('Geri bildirim başarıyla kaydedildi!');
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSavingFeedback(prev => ({ ...prev, [studentId]: false }));
+    }
+  };
+
+  const handleRemindPending = async (assignmentId: string) => {
+    setReminding(true);
+    try {
+      const res = await fetch(`/api/ogretmen/odev/${assignmentId}/remind`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message || 'Ödev hatırlatması gönderildi!');
+      } else {
+        alert(data.error || 'Hatırlatma gönderilemedi.');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Bir hata oluştu.');
+    } finally {
+      setReminding(false);
+    }
+  };
+
+  const handleStartEtut = async () => {
+    if (!etutModal) return;
+    setStartingEtut(true);
+    try {
+      const res = await fetch('/api/ogretmen/sinif/etut', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          classId: etutModal.classId,
+          title: etutTitle,
+          durationMin: etutDuration
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message || 'Canlı etüt başarıyla başlatıldı ve sınıfa duyuruldu!');
+        setEtutModal(null);
+        setEtutTitle('');
+        fetchAnnouncements();
+      } else {
+        alert(data.error || 'Etüt başlatılamadı.');
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setStartingEtut(false);
+    }
+  };
+
+  const handleExportCSV = () => {
+    if (!filteredStudents.length) {
+      alert('Dışa aktarılacak öğrenci verisi bulunamadı.');
+      return;
+    }
+    const headers = ['Öğrenci Adı', 'Sınıf', 'Alan', 'Sınıf Seviyesi', 'Çözülen Soru', 'Başarı Oranı (%)', 'Seri (Gün)', 'Lig', 'Lig Puanı', 'Veli Kodu'];
+    const rows = filteredStudents.map(s => [
+      `"${(s.username || '').replace(/"/g, '""')}"`,
+      `"${(classes.find(c => c.id === s.class_id)?.class_name || s.class_name || '').replace(/"/g, '""')}"`,
+      `"${(s.alan || '').replace(/"/g, '""')}"`,
+      `"${s.sinif || ''}"`,
+      s.solved_questions || 0,
+      `%${s.success_rate || 0}`,
+      s.streak_days || 0,
+      `"${s.league || ''}"`,
+      s.league_points || 0,
+      `"${s.parent_code || ''}"`
+    ]);
+    const csvContent = '\uFEFF' + [headers.join(';'), ...rows.map(r => r.join(';'))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `YKS_Yildizi_Ogrenci_Listesi_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const toggleLeaderboard = async (classId: string) => {
@@ -2670,6 +2983,35 @@ function TeacherDashboardContent() {
                         </button>
                       </div>
 
+                      {/* Canlı Etüt Başlat Butonu */}
+                      <button
+                        onClick={() => {
+                          setEtutModal({ classId: c.id, className: c.class_name });
+                          setEtutTitle(`${c.class_name} Canlı Etüdü`);
+                        }}
+                        style={{
+                          width: '100%',
+                          marginTop: '0.5rem',
+                          background: 'linear-gradient(135deg, rgba(16,185,129,0.12), rgba(5,150,105,0.22))',
+                          border: '1px solid rgba(16,185,129,0.3)',
+                          borderRadius: 8,
+                          color: '#34d399',
+                          padding: '0.6rem',
+                          cursor: 'pointer',
+                          fontSize: '0.8rem',
+                          fontWeight: 700,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: 6,
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'linear-gradient(135deg, rgba(16,185,129,0.22), rgba(5,150,105,0.35))'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'linear-gradient(135deg, rgba(16,185,129,0.12), rgba(5,150,105,0.22))'}
+                      >
+                        <Rocket size={14} /> Canlı Etüt Başlat
+                      </button>
+
                       {/* Leaderboard Section */}
                       {expandedLeaderboard === c.id && (
                         <div style={{ marginTop: '1rem', background: 'rgba(0,0,0,0.2)', borderRadius: 10, padding: '1rem', border: '1px solid rgba(255,255,255,0.05)' }}>
@@ -2724,6 +3066,50 @@ function TeacherDashboardContent() {
               <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '0.4rem 0.85rem', color: 'var(--text-secondary)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Filter size={14} /> {filteredStudents.length} öğrenci
               </div>
+              <button
+                onClick={handleExportCSV}
+                title="Öğrenci listesini ve istatistiklerini CSV/Excel formatında indir"
+                style={{
+                  background: 'rgba(16,185,129,0.12)',
+                  border: '1px solid rgba(16,185,129,0.3)',
+                  borderRadius: 10,
+                  padding: '0.4rem 0.85rem',
+                  color: '#34d399',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(16,185,129,0.22)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(16,185,129,0.12)'}
+              >
+                <Download size={14} /> CSV İndir
+              </button>
+              <button
+                onClick={() => window.print()}
+                title="Öğrenci listesini ve raporunu yazdır / PDF olarak kaydet"
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  borderRadius: 10,
+                  padding: '0.4rem 0.85rem',
+                  color: '#e2e8f0',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+              >
+                <Printer size={14} /> Yazdır
+              </button>
               {/* Risk filter badge */}
               {students.filter(s => (s.streak_days ?? 0) === 0 && !s.is_live_focusing).length > 0 && (
                 <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 10, padding: '0.4rem 0.85rem', color: '#ef4444', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700 }}>
@@ -3283,6 +3669,7 @@ function TeacherDashboardContent() {
                 {/* AI Asistan ve Haftalık Rapor Bölümü */}
                 <AIAssistantWidget classId={aiClassId} />
                 <WeeklyReportWidget classId={aiClassId} />
+                <ClassMockExamAnalyticsWidget classId={aiClassId} />
 
                 {/* Dinamik AI Kurumsal Yönetici Özeti */}
                 <div className="premium-card" style={{ padding: '1.5rem', background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(16, 185, 129, 0.08))', border: '1px solid rgba(139, 92, 246, 0.35)', borderRadius: 16 }}>
@@ -4183,6 +4570,90 @@ function TeacherDashboardContent() {
         )}
       </Modal>
 
+      {/* Canlı Etüt Başlatma Modalı */}
+      <Modal open={!!etutModal} onClose={() => setEtutModal(null)} title={`🚀 Canlı Sınıf Etüdü Başlat: ${etutModal?.className || ''}`} maxW={480}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', margin: 0, lineHeight: 1.6 }}>
+            Canlı etüt başlattığınızda sınıftaki tüm öğrencilere anlık bildirim ve öncelikli duyuru iletilir. Sınıfa özel ortak çalışma odası aktif hale getirilir.
+          </p>
+
+          <div>
+            <label style={{ display: 'block', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 600, marginBottom: 6 }}>
+              Etüt / Çalışma Başlığı
+            </label>
+            <input
+              value={etutTitle}
+              onChange={e => setEtutTitle(e.target.value)}
+              placeholder="Örn: TYT Matematik Soru Çözüm Etüdü"
+              style={{ ...inp, width: '100%' }}
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 600, marginBottom: 8 }}>
+              Etüt Süresi
+            </label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+              {[
+                { label: '25 Dk (Pomodoro)', val: 25 },
+                { label: '40 Dk (Ders)', val: 40 },
+                { label: '60 Dk (Blok)', val: 60 }
+              ].map(item => (
+                <button
+                  key={item.val}
+                  type="button"
+                  onClick={() => setEtutDuration(item.val)}
+                  style={{
+                    padding: '0.65rem 0.5rem',
+                    borderRadius: 8,
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    border: etutDuration === item.val ? '1.5px solid #10b981' : '1px solid rgba(255,255,255,0.1)',
+                    background: etutDuration === item.val ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.03)',
+                    color: etutDuration === item.val ? '#34d399' : '#9ca3af',
+                    transition: 'all 0.15s'
+                  }}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+            <button
+              type="button"
+              onClick={() => setEtutModal(null)}
+              style={{ padding: '0.65rem 1.25rem', borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#9ca3af', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}
+            >
+              İptal
+            </button>
+            <button
+              type="button"
+              disabled={startingEtut}
+              onClick={handleStartEtut}
+              style={{
+                padding: '0.65rem 1.5rem',
+                borderRadius: 8,
+                background: 'linear-gradient(135deg, #10b981, #059669)',
+                border: 'none',
+                color: '#fff',
+                cursor: startingEtut ? 'not-allowed' : 'pointer',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                opacity: startingEtut ? 0.7 : 1,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6
+              }}
+            >
+              {startingEtut ? 'Başlatılıyor...' : '🚀 Etüdü Başlat'}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
       {/* Ödev Detayı */}
       <Modal open={activeModal === 'odevDetay' && !!assignmentDetail} onClose={() => { setActiveModal(null); setAssignmentDetail(null); }} title={assignmentDetail?.title ?? 'Ödev Detayı'} maxW={680}>
         {assignmentDetail && (
@@ -4198,7 +4669,15 @@ function TeacherDashboardContent() {
                   </span>
                 )}
               </div>
-              <div style={{ display: 'flex', gap: 6 }}>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                <button
+                  onClick={() => handleRemindPending(assignmentDetail.id)}
+                  disabled={reminding}
+                  style={{ background: 'rgba(234,179,8,0.15)', border: '1px solid rgba(234,179,8,0.3)', color: '#facc15', padding: '0.4rem 0.75rem', borderRadius: 8, cursor: reminding ? 'not-allowed' : 'pointer', fontSize: '0.78rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5, opacity: reminding ? 0.6 : 1 }}
+                  title="Ödevi henüz teslim etmeyen tüm öğrencilere anlık hatırlatma duyurusu gönderir"
+                >
+                  <Bell size={13} /> {reminding ? 'Gönderiliyor...' : '🔔 Teslim Etmeyenlere Hatırlat'}
+                </button>
                 <button
                   onClick={() => {
                     setEditingAssignment({
@@ -4328,6 +4807,38 @@ function TeacherDashboardContent() {
                           </button>
                         </div>
                       )}
+                    </div>
+
+                    {/* Öğretmen Geri Bildirimi Alanı */}
+                    <div style={{ width: '100%', marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px dashed rgba(255,255,255,0.08)', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.75rem', color: '#94a3b8', flexShrink: 0 }}>💬 Geri Bildirim:</span>
+                      <input
+                        type="text"
+                        placeholder="Öğrenciye özel not / geri bildirim yazın..."
+                        value={feedbackInput[sub.student_id] !== undefined ? feedbackInput[sub.student_id] : (sub.feedback || '')}
+                        onChange={e => setFeedbackInput(prev => ({ ...prev, [sub.student_id]: e.target.value }))}
+                        style={{ ...inp, flex: 1, padding: '0.35rem 0.65rem', fontSize: '0.78rem' }}
+                      />
+                      <button
+                        onClick={() => handleSaveFeedback(assignmentDetail.id, sub.student_id)}
+                        disabled={savingFeedback[sub.student_id]}
+                        style={{
+                          background: 'rgba(99,102,241,0.2)',
+                          border: '1px solid rgba(99,102,241,0.35)',
+                          color: '#a5b4fc',
+                          padding: '0.35rem 0.75rem',
+                          borderRadius: 6,
+                          cursor: 'pointer',
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          flexShrink: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 4
+                        }}
+                      >
+                        {savingFeedback[sub.student_id] ? '...' : 'Kaydet'}
+                      </button>
                     </div>
                   </div>
                 );
@@ -4772,6 +5283,35 @@ function TeacherDashboardContent() {
           .ogretmen-dashboard-wrap select,
           .ogretmen-dashboard-wrap textarea {
             font-size: 16px !important;
+          }
+        }
+        @media print {
+          body {
+            background: #ffffff !important;
+            color: #0f172a !important;
+          }
+          nav, header, button, .ogretmen-tab-bar, .desktop-only:not(.table-responsive-container) {
+            display: none !important;
+          }
+          .ogretmen-dashboard-wrap {
+            padding: 0 !important;
+            background: #ffffff !important;
+          }
+          .premium-card {
+            background: #ffffff !important;
+            color: #0f172a !important;
+            border: 1px solid #cbd5e1 !important;
+            box-shadow: none !important;
+          }
+          table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            color: #0f172a !important;
+          }
+          th, td {
+            color: #0f172a !important;
+            border: 1px solid #e2e8f0 !important;
+            padding: 8px 10px !important;
           }
         }
       `}</style>
