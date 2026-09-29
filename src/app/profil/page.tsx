@@ -4,12 +4,15 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { User, Mail, Shield, BookOpen, Star, Loader2, LogOut, Settings } from 'lucide-react';
 import { BADGES } from '@/lib/badges';
+import { SHOP_ITEMS } from '@/lib/shop-items';
 
 export default function ProfilPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [inviteCode, setInviteCode] = useState('');
   const [joining, setJoining] = useState(false);
+  const [equippedAvatar, setEquippedAvatar] = useState<any>(null);
+  const [equippedBadge, setEquippedBadge] = useState<any>(null);
 
   const handleJoinTeacher = async () => {
     if (!inviteCode.trim()) return;
@@ -34,16 +37,22 @@ export default function ProfilPage() {
   };
 
   useEffect(() => {
-    fetch('/api/user/dashboard')
-      .then(res => res.json())
-      .then(json => {
-        if (!json.error) setData(json);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setLoading(false);
-      });
+    Promise.all([
+      fetch('/api/user/dashboard').then(res => res.json()),
+      fetch('/api/shop/inventory').then(res => res.ok ? res.json() : null),
+    ]).then(([json, invData]) => {
+      if (!json.error) setData(json);
+      if (invData && Array.isArray(invData.equipped)) {
+        const avatar = SHOP_ITEMS.find(i => i.category === 'avatars' && invData.equipped.includes(i.id));
+        const badge = SHOP_ITEMS.find(i => i.category === 'badges' && invData.equipped.includes(i.id));
+        setEquippedAvatar(avatar || null);
+        setEquippedBadge(badge || null);
+      }
+      setLoading(false);
+    }).catch(err => {
+      console.error(err);
+      setLoading(false);
+    });
   }, []);
 
   if (loading) {
@@ -76,17 +85,33 @@ export default function ProfilPage() {
         <motion.div className="premium-card" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} style={{ textAlign: 'center', padding: '3rem 2rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div style={{ 
             width: '120px', height: '120px', borderRadius: '50%', 
-            background: isTeacher ? 'linear-gradient(135deg, #0ea5e9, #0369a1)' : 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
+            background: equippedAvatar ? `${equippedAvatar.color}25` : (isTeacher ? 'linear-gradient(135deg, #0ea5e9, #0369a1)' : 'linear-gradient(135deg, #6366f1, #8b5cf6)'),
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '3rem', fontWeight: 700, color: '#fff', marginBottom: '1.5rem',
-            border: `4px solid ${isTeacher ? '#38bdf8' : '#a855f7'}`,
-            boxShadow: `0 0 20px ${isTeacher ? 'rgba(56,189,248,0.3)' : 'rgba(139,92,246,0.3)'}`
+            fontSize: equippedAvatar ? '3.8rem' : '3rem', fontWeight: 700, color: '#fff', marginBottom: '1.25rem',
+            border: equippedAvatar ? `4px solid ${equippedAvatar.color}` : `4px solid ${isTeacher ? '#38bdf8' : '#8b5cf6'}`,
+            boxShadow: equippedAvatar ? `0 0 25px ${equippedAvatar.color}55` : `0 0 20px ${isTeacher ? 'rgba(56,189,248,0.3)' : 'rgba(99,102,241,0.3)'}`,
+            transition: 'all 0.3s ease'
           }}>
-            {user.username.substring(0, 2).toUpperCase()}
+            {equippedAvatar ? equippedAvatar.emoji : user.username.substring(0, 2).toUpperCase()}
           </div>
           
-          <h1 style={{ fontSize: '1.75rem', color: '#fff', marginBottom: '0.5rem' }}>{user.username}</h1>
+          <h1 style={{ fontSize: '1.75rem', color: '#fff', marginBottom: '0.35rem' }}>{user.username}</h1>
           
+          {equippedBadge && (
+            <div style={{ marginBottom: '0.75rem' }}>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: '5px',
+                fontSize: '0.8rem', fontWeight: 700, padding: '3px 12px', borderRadius: '12px',
+                background: `${equippedBadge.color}20`,
+                color: equippedBadge.color,
+                border: `1px solid ${equippedBadge.color}40`,
+              }}>
+                <span>{equippedBadge.emoji}</span>
+                <span>{equippedBadge.name}</span>
+              </span>
+            </div>
+          )}
+
           <div style={{ 
             display: 'inline-flex', alignItems: 'center', gap: '0.5rem', 
             padding: '0.25rem 0.75rem', borderRadius: '1rem', 
