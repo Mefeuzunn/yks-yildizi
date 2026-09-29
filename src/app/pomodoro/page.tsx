@@ -32,9 +32,21 @@ export default function PomodoroPage() {
         setTimeLeft((time) => time - 1);
       }, 1000);
     } else if (timeLeft === 0) {
-      if (mode === 'pomodoro') setSessionCount(c => c + 1);
+      if (mode === 'pomodoro') {
+        setSessionCount(c => c + 1);
+        const mins = Math.max(1, Math.round(customTimes.pomodoro / 60));
+        fetch('/api/user/focus', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mode: 'pomodoro',
+            durationMin: mins,
+            subject: 'Serbest Çalışma'
+          })
+        }).catch(err => console.error('Focus session save error:', err));
+      }
       setIsActive(false);
-      // alert or play sound here
+      triggerHaptic('success');
     }
 
     return () => {

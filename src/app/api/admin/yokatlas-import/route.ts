@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     // SQLite Batch Insert
     await db.transaction(async () => {
       // Prepared statements for speed
-      const insertUni = await db.prepare('INSERT OR IGNORE INTO universities (id, name, type, city) VALUES (?, ?, ?, ?)');
+      const insertUni = await db.prepare('INSERT INTO universities (id, name, type, city) VALUES (?, ?, ?, ?) ON CONFLICT DO NOTHING');
       const checkUni = await db.prepare('SELECT id FROM universities WHERE name = ?');
       const insertDep = await db.prepare('INSERT INTO departments (id, uni_id, name, faculty, score_type, base_score, ranking, quota, year) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
 

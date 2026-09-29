@@ -10,10 +10,10 @@ async function seedTemplates() {
 
   if (count === 0) {
     // Seed subjects (dersler)
-    await db.prepare(`INSERT OR IGNORE INTO dersler (id, isim) VALUES ('d1', 'Matematik'), ('d2', 'Fizik'), ('d3', 'Kimya'), ('d4', 'Türkçe')`).run();
+    await db.prepare(`INSERT INTO dersler (id, isim) VALUES ('d1', 'Matematik'), ('d2', 'Fizik'), ('d3', 'Kimya'), ('d4', 'Türkçe') ON CONFLICT DO NOTHING`).run();
     
     // Seed topics (konular)
-    await db.prepare(`INSERT OR IGNORE INTO konular (id, ders_id, isim) VALUES 
+    await db.prepare(`INSERT INTO konular (id, ders_id, isim) VALUES 
       ('k1', 'd1', 'Türev'), 
       ('k2', 'd1', 'Temel Kavramlar'), 
       ('k3', 'd1', 'Trigonometri'), 
@@ -27,6 +27,7 @@ async function seedTemplates() {
       ('k11', 'd3', 'Titrasyon'),
       ('k12', 'd4', 'Yazım Kuralları'), 
       ('k13', 'd4', 'Noktalama İşaretleri')
+      ON CONFLICT DO NOTHING
     `).run();
 
     const insertStmt = db.prepare(`

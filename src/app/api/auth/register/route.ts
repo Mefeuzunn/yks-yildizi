@@ -61,7 +61,7 @@ export async function POST(req: Request) {
         if (classCode && classCode.trim()) {
           const teacherClass = await db.prepare('SELECT id FROM teacher_classes WHERE class_code = ?').get(classCode.trim().toUpperCase()) as any;
           if (teacherClass) {
-            await db.prepare('INSERT OR IGNORE INTO class_students (class_id, student_id) VALUES (?, ?)')
+            await db.prepare('INSERT INTO class_students (class_id, student_id) VALUES (?, ?) ON CONFLICT DO NOTHING')
               .run(teacherClass.id, id);
           }
         }

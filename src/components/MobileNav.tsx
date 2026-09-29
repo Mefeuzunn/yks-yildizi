@@ -16,7 +16,11 @@ const MAIN_TABS = [
 ];
 
 const MORE_TABS = [
+  { emoji: '📈', label: 'Denemeler', href: '/denemeler' },
   { emoji: '🎯', label: 'Hedeflerim', href: '/dashboard?tab=hedef' },
+  { emoji: '⚔️', label: 'Bilgi Arenası', href: '/duello' },
+  { emoji: '🎧', label: 'Çalışma Odaları', href: '/calisma-odalari' },
+  { emoji: '🧠', label: 'Rehberlik', href: '/rehberlik' },
   { emoji: '🔬', label: 'Simülasyonlar', href: '/simulasyonlar' },
   { emoji: '🤖', label: 'AstraTutor AI', href: '/dashboard?tab=astratutor' },
   { emoji: '🎓', label: 'Tercih Robotu', href: '/dashboard?tab=tercih_robotu' },

@@ -1,12 +1,14 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, Sparkles, Loader2, BrainCircuit, Mic, MicOff, Square } from 'lucide-react';
+import { Send, Bot, User, Sparkles, Loader2, BrainCircuit, Mic, MicOff, Square, ExternalLink } from 'lucide-react';
 
 interface Message {
   id: string;
   role: 'user' | 'ai';
   content: string;
   timestamp: Date;
+  actions?: { label: string; url: string }[];
 }
 
 export default function AstraTutorTab() {
@@ -101,7 +103,8 @@ export default function AstraTutorTab() {
         id: (Date.now() + 1).toString(),
         role: 'ai',
         content: data.reply || 'Şu an meşgulüm, lütfen daha sonra tekrar dene.',
-        timestamp: new Date()
+        timestamp: new Date(),
+        actions: data.actions
       };
       
       setMessages(prev => [...prev, aiMessage]);
@@ -174,6 +177,20 @@ export default function AstraTutorTab() {
                     : 'bg-white/[0.05] border border-white/10 text-gray-200 shadow-xl backdrop-blur-md rounded-tl-sm'
                 }`}>
                   <p className="whitespace-pre-wrap leading-relaxed text-[15px]">{msg.content}</p>
+                  {msg.actions && msg.actions.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-3 pt-2.5 border-t border-white/10">
+                      {msg.actions.map((act, idx) => (
+                        <Link
+                          key={idx}
+                          href={act.url}
+                          className="px-3 py-1.5 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 text-xs font-semibold border border-indigo-500/30 transition-all flex items-center gap-1.5 no-underline hover:scale-[1.02] active:scale-[0.98]"
+                        >
+                          <span>{act.label}</span>
+                          <ExternalLink className="w-3 h-3 opacity-70" />
+                        </Link>
+                      ))}
+                    </div>
+                  )}
                   <span className={`text-[10px] absolute -bottom-5 opacity-0 group-hover:opacity-100 transition-opacity font-medium ${msg.role === 'user' ? 'right-2 text-gray-400' : 'left-2 text-gray-500'}`}>
                     {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>

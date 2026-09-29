@@ -48,7 +48,7 @@ export async function GET(req: Request) {
         const newEndTime = new Date(now.getTime() + 4000);
         
         await db.transaction(async () => {
-          await db.prepare('INSERT OR IGNORE INTO duel_participants (id, duel_id, user_id) VALUES (?, ?, ?)')
+          await db.prepare('INSERT INTO duel_participants (id, duel_id, user_id) VALUES (?, ?, ?) ON CONFLICT DO NOTHING')
             .run(uuidv4(), duelId, 'yks-bot-user');
           
           await db.prepare(`

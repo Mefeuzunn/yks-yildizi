@@ -20,10 +20,12 @@ export async function POST(req: Request) {
         await db.prepare(`
           INSERT INTO users (id, username, password_hash, role, alan, sinif)
           VALUES ('yks-bot-user', 'AstraBot (AI)', 'mock', 'ogrenci', 'Sayisal', 'Mezun')
+          ON CONFLICT (id) DO NOTHING
         `).run();
         await db.prepare(`
-          INSERT OR IGNORE INTO user_stats (user_id, league, league_points, streak_days, solved_questions, success_rate)
+          INSERT INTO user_stats (user_id, league, league_points, streak_days, solved_questions, success_rate)
           VALUES ('yks-bot-user', 'Şampiyon', 4850, 5, 1200, 85)
+          ON CONFLICT (user_id) DO NOTHING
         `).run();
       })();
     }

@@ -21,6 +21,7 @@ const STUDENT_NAV_GROUPS = [
     label: 'Çalışma',
     color: '#3b82f6',  // blue
     items: [
+      { emoji: '📈', label: 'Denemeler',    href: '/denemeler' },
       { emoji: '📚', label: 'Konular',      href: '/dashboard?tab=topics' },
       { emoji: '📝', label: 'Testlerim',    href: '/dashboard?tab=tests' },
       { emoji: '❌', label: 'Yanlışlarım', href: '/dashboard?tab=mistakes' },
@@ -35,6 +36,7 @@ const STUDENT_NAV_GROUPS = [
     color: '#10b981',  // emerald
     items: [
       { emoji: '🤖', label: 'AstraTutor AI',   href: '/dashboard?tab=astratutor' },
+      { emoji: '🧠', label: 'Rehberlik',       href: '/rehberlik' },
       { emoji: '🎓', label: 'Tercih Robotu',   href: '/dashboard?tab=tercih_robotu' },
       { emoji: '🧮', label: 'Puan Hesaplama',  href: '/puan-hesaplama' },
       { emoji: '📋', label: 'Ödevlerim',       href: '/odevlerim' },
@@ -44,6 +46,8 @@ const STUDENT_NAV_GROUPS = [
     label: 'Sosyal',
     color: '#f59e0b',  // amber
     items: [
+      { emoji: '⚔️', label: 'Bilgi Arenası', href: '/duello' },
+      { emoji: '🎧', label: 'Çalışma Odaları', href: '/calisma-odalari' },
       { emoji: '🏫', label: 'Sınıfım',      href: '/dashboard?tab=sinif' },
       { emoji: '💬', label: 'Sınıf Forumu', href: '/dashboard?tab=forum' },
       { emoji: '🏆', label: 'Ligler',        href: '/ligler' },

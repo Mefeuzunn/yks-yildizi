@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText,  Activity, BookOpen, Target, ShieldCheck, ChevronRight, CheckCircle2, TrendingUp, Lock  } from 'lucide-react';
+import { FileText, Activity, BookOpen, Target, ShieldCheck, ChevronRight, CheckCircle2, TrendingUp, Lock, Share2 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 export default function VeliDashboardPage() {
@@ -306,6 +306,37 @@ export default function VeliDashboardPage() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, color: 'var(--text-muted)' }}>
                 Yapay zeka haftalık durum raporu oluşturuluyor...
               </div>
+            )}
+            {aiLetter && (
+              <button
+                onClick={() => {
+                  const studentName = studentData?.student?.username || 'Öğrenci';
+                  const studentAlan = studentData?.student?.alan || 'YKS';
+                  const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
+                  const msg = `*YKS Yıldızı - Veli Bilgilendirme Raporu*\n\n👤 Öğrenci: ${studentName}\n📚 Alan: ${studentAlan}\n\n📝 ${aiLetter}\n\n🔗 Veli Takip Linki: ${currentUrl}`;
+                  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+                }}
+                style={{
+                  marginTop: '1rem',
+                  padding: '10px 16px',
+                  borderRadius: '10px',
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  color: '#fff',
+                  fontWeight: 700,
+                  fontSize: '0.875rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  boxShadow: '0 4px 14px rgba(16, 185, 129, 0.25)',
+                  transition: 'all 0.2s',
+                }}
+              >
+                <Share2 size={16} />
+                <span>Raporu WhatsApp ile Paylaş</span>
+              </button>
             )}
           </div>
 

@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Calculator, Award, ArrowRight, BarChart, Info } from 'lucide-react';
+import { Calculator, Award, ArrowRight, BarChart, Info, BookmarkPlus, Loader2, CheckCircle2 } from 'lucide-react';
 
 // Type definitions
 type SubjectData = { d: number | ''; y: number | ''; n: number };
@@ -53,6 +54,44 @@ export default function PuanHesaplamaPage() {
     sozYerlestirme: 0,
     dilYerlestirme: 0,
   });
+
+  const [saving, setSaving] = useState(false);
+  const [savedSuccess, setSavedSuccess] = useState<string | null>(null);
+
+  const handleSaveCalculation = async () => {
+    setSaving(true);
+    setSavedSuccess(null);
+    try {
+      const res = await fetch('/api/scores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: `Hesaplama (${new Date().toLocaleDateString('tr-TR')})`,
+          obp: Number(obp) || 0,
+          tyt_json: tyt,
+          ayt_json: ayt,
+          tyt_score: results.tytYerlestirme,
+          say_score: results.sayYerlestirme,
+          ea_score: results.eaYerlestirme,
+          soz_score: results.sozYerlestirme,
+          dil_score: results.dilYerlestirme,
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSavedSuccess('Hesaplama profilinize kaydedildi! Tercih Robotunda kullanabilirsiniz.');
+        setTimeout(() => setSavedSuccess(null), 5000);
+      } else {
+        setSavedSuccess(data.error || 'Kaydetmek için giriş yapmalısınız.');
+        setTimeout(() => setSavedSuccess(null), 5000);
+      }
+    } catch (e) {
+      setSavedSuccess('Bağlantı hatası oluştu.');
+      setTimeout(() => setSavedSuccess(null), 5000);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   // Handle Input Changes
   const handleInputChange = (exam: 'tyt' | 'ayt', subject: string, field: 'd' | 'y', value: string, maxQuestions: number) => {
@@ -330,6 +369,70 @@ export default function PuanHesaplamaPage() {
               <ResultCard title="Eşit Ağırlık (EA)" rawScore={results.eaPuan} placedScore={results.eaYerlestirme} rank={getEstimatedRank(results.eaYerlestirme)} color="#f59e0b" />
               <ResultCard title="Sözel (SÖZ)" rawScore={results.sozPuan} placedScore={results.sozYerlestirme} rank={getEstimatedRank(results.sozYerlestirme)} color="#ec4899" />
               <ResultCard title="Yabancı Dil (DİL)" rawScore={results.dilPuan} placedScore={results.dilYerlestirme} rank={getEstimatedRank(results.dilYerlestirme)} color="#8b5cf6" />
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1.25rem' }}>
+              <button
+                onClick={handleSaveCalculation}
+                disabled={saving}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  padding: '12px 18px',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+                  color: '#fff',
+                  fontWeight: 700,
+                  fontSize: '0.95rem',
+                  border: 'none',
+                  cursor: saving ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 4px 16px rgba(139, 92, 246, 0.3)',
+                  transition: 'all 0.2s',
+                }}
+              >
+                {saving ? <Loader2 size={18} className="animate-spin" /> : <BookmarkPlus size={18} />}
+                {saving ? 'Kaydediliyor...' : 'Bu Hesaplamayı Kaydet'}
+              </button>
+
+              <Link
+                href="/dashboard?tab=tercih_robotu"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  padding: '10px 16px',
+                  borderRadius: '12px',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  color: '#e2e8f0',
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  textDecoration: 'none',
+                  transition: 'all 0.2s',
+                }}
+              >
+                <span>Tercih Robotunda Bölümleri İncele</span>
+                <ArrowRight size={16} />
+              </Link>
+
+              {savedSuccess && (
+                <div style={{
+                  padding: '10px 14px',
+                  borderRadius: '10px',
+                  background: savedSuccess.includes('hata') || savedSuccess.includes('giriş') ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+                  border: `1px solid ${savedSuccess.includes('hata') || savedSuccess.includes('giriş') ? 'rgba(239, 68, 68, 0.3)' : 'rgba(16, 185, 129, 0.3)'}`,
+                  color: savedSuccess.includes('hata') || savedSuccess.includes('giriş') ? '#fca5a5' : '#6ee7b7',
+                  fontSize: '0.825rem',
+                  fontWeight: 600,
+                  textAlign: 'center',
+                }}>
+                  {savedSuccess}
+                </div>
+              )}
             </div>
 
             <div style={{ marginTop: '2rem', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
