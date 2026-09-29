@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, Suspense } from 'react';
+import React, { useState, useCallback, Suspense, useRef } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
@@ -35,24 +35,21 @@ const STUDENT_NAV_GROUPS = [
     label: 'Araçlar',
     color: '#10b981',  // emerald
     items: [
-      { emoji: '🤖', label: 'AstraTutor AI',   href: '/dashboard?tab=astratutor' },
-      { emoji: '🧠', label: 'Rehberlik',       href: '/rehberlik' },
-      { emoji: '🎓', label: 'Tercih Robotu',   href: '/dashboard?tab=tercih_robotu' },
-      { emoji: '🧮', label: 'Puan Hesaplama',  href: '/puan-hesaplama' },
-      { emoji: '📋', label: 'Ödevlerim',       href: '/odevlerim' },
+      { emoji: '🤖', label: 'Astra AI & Rehberlik', href: '/dashboard?tab=astratutor' },
+      { emoji: '🎓', label: 'Tercih Robotu',        href: '/dashboard?tab=tercih_robotu' },
+      { emoji: '🧮', label: 'Puan Hesaplama',       href: '/puan-hesaplama' },
+      { emoji: '📋', label: 'Ödevlerim',            href: '/odevlerim' },
     ],
   },
   {
     label: 'Sosyal',
     color: '#f59e0b',  // amber
     items: [
-      { emoji: '⚔️', label: 'Bilgi Arenası', href: '/duello' },
+      { emoji: '⚔️', label: 'Bilgi Arenası',   href: '/duello' },
       { emoji: '🎧', label: 'Çalışma Odaları', href: '/calisma-odalari' },
-      { emoji: '🏫', label: 'Sınıfım',      href: '/dashboard?tab=sinif' },
-      { emoji: '💬', label: 'Sınıf Forumu', href: '/dashboard?tab=forum' },
-      { emoji: '🏆', label: 'Ligler',        href: '/ligler' },
-      { emoji: '🛡️', label: 'Klanlar',      href: '/klanlar' },
-      { emoji: '🛍️', label: 'Mağaza',       href: '/magaza' },
+      { emoji: '🏫', label: 'Sınıfım',        href: '/dashboard?tab=sinif' },
+      { emoji: '🏆', label: 'Ligler',          href: '/ligler' },
+      { emoji: '🛍️', label: 'Mağaza',         href: '/magaza' },
     ],
   },
 ];
@@ -305,6 +302,7 @@ function FooterLink({ icon, label, href, onClick, danger }: any) {
 // ─── AppSidebar ────────────────────────────────────────────────────────
 export default function AppSidebar() {
   const { user, logout } = useAuth();
+  const navScrollRef = useRef<HTMLDivElement>(null);
 
   const initials = user?.username?.charAt(0)?.toUpperCase() || 'U';
   const roleLabel = user?.role === 'ogretmen'
@@ -321,9 +319,17 @@ export default function AppSidebar() {
     ? 'linear-gradient(135deg,#10b981,#059669)'
     : 'linear-gradient(135deg,#8b5cf6,#6366f1)';
 
+  // Mouse wheel anywhere on aside will smoothly scroll the nav container
+  const handleAsideWheel = (e: React.WheelEvent) => {
+    if (navScrollRef.current) {
+      navScrollRef.current.scrollTop += e.deltaY;
+    }
+  };
+
   return (
     <aside
-      className="desktop-only"
+      className="app-sidebar-aside desktop-flex"
+      onWheel={handleAsideWheel}
       style={{
         width: '220px',
         height: '100vh',
@@ -332,7 +338,7 @@ export default function AppSidebar() {
         display: 'flex',
         flexDirection: 'column',
         position: 'fixed',
-        top: 0, left: 0,
+        top: 0, left: 0, bottom: 0,
         zIndex: 50,
         fontFamily: '"Inter", -apple-system, sans-serif',
         overflow: 'hidden',
@@ -399,14 +405,15 @@ export default function AppSidebar() {
 
       {/* ── Scrollable Nav ── */}
       <div
+        ref={navScrollRef}
         style={{
-          flex: 1,
+          flex: '1 1 0%',
           overflowY: 'auto',
           overflowX: 'hidden',
           padding: '6px 8px',
           minHeight: 0,
         }}
-        className="custom-scrollbar"
+        className="sidebar-nav-scroll custom-scrollbar"
       >
         <Suspense fallback={
           <div style={{ padding: '12px', color: '#334155', fontSize: '12px' }}>Yükleniyor…</div>

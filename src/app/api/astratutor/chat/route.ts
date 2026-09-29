@@ -67,13 +67,13 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const rawMessage = (body.message || body.content || '').trim();
+    const mode = body.mode === 'rehberlik' ? 'rehberlik' : 'ders';
 
     if (!rawMessage) {
       return NextResponse.json({ error: 'Mesaj metni zorunludur.' }, { status: 400 });
     }
 
     const lower = rawMessage.toLowerCase();
-
     // 1. Fetch authenticated student profile memory
     const userId = await getAuthenticatedUserId(req);
     const memory = userId ? await getStudentMemory(userId) : null;
@@ -102,7 +102,7 @@ export async function POST(req: Request) {
     }
 
     // ── KOTA TASARRUF KATMANI 2: Akıllı Önbellek (Cache Hit = 0 Token) ──
-    const cacheKey = `chat_${hashString(rawMessage)}`;
+    const cacheKey = `chat_${mode}_${hashString(rawMessage)}`;
     const cachedResponse = await getCachedAiResponse(cacheKey);
     if (cachedResponse) {
       return NextResponse.json({
@@ -131,7 +131,16 @@ export async function POST(req: Request) {
           ? `Öğrenci: ${memory.username}, Alan: ${memory.alan}, Hedef: ${memory.targetDepartment || 'Yüksek başarı'}, Kalan Gün: ${memory.daysToYKS}`
           : 'YKS Öğrencisi';
 
-        const prompt = `Sen Türkiye YKS (TYT ve AYT) sınavına hazırlanan öğrenciler için samimi, cesaretlendirici ve alanında uzman bir Yapay Zeka Özel Ders Öğretmenisin (AstraTutor).
+        const prompt = mode === 'rehberlik'
+          ? `Sen Türkiye YKS (TYT ve AYT) sınavına hazırlanan öğrenciler için son derece anlayışlı, empati kurabilen, pedagojik ve bilimsel yöntemlerle rehberlik eden bir Uzman Psikolojik Danışman ve YKS Rehberlik Koçusun (Astra Rehberlik).
+Öğrenci: ${studentContext}
+Öğrencinin Durumu / Sorusu: "${rawMessage}"
+
+GÖREVLERİN:
+1. Öğrencinin sınav kaygısını, stresini, motivasyon düşüklüğünü veya strateji arayışını içtenlikle anla ve sakinleştirici, motive edici, uygulanabilir adımlar sun.
+2. Somut ve net çalışma taktikleri (zaman yönetimi, mola stratejileri, odaklanma teknikleri) öner.
+3. Yanıtın sonuna öğrenciyi harekete geçirecek ilham verici 1 cümle ekle.`
+          : `Sen Türkiye YKS (TYT ve AYT) sınavına hazırlanan öğrenciler için samimi, cesaretlendirici ve alanında uzman bir Yapay Zeka Özel Ders Öğretmenisin (AstraTutor).
 Öğrenci: ${studentContext}
 Öğrenci Sorusu: "${rawMessage}"
 
@@ -162,18 +171,24 @@ Gerektiğinde matematik veya fen formüllerini KaTeX ($ veya $$) formatında yaz
               const candidate = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
               if (candidate) {
                 const actions: Array<{ label: string; url: string }> = [];
-                if (lower.includes('soru') || lower.includes('deneme')) {
-                  actions.push({ label: '📝 Soru Çöz', url: '/soru-coz' });
-                }
-                if (lower.includes('hata') || lower.includes('yanlış')) {
-                  actions.push({ label: '❌ Hata Defterim', url: '/hata-defteri' });
-                }
-                if (lower.includes('odak') || lower.includes('pomodoro') || lower.includes('çalış')) {
-                  actions.push({ label: '🍅 Pomodoro Başlat', url: '/pomodoro' });
-                }
-                if (actions.length === 0) {
-                  actions.push({ label: '📝 Soru Çöz', url: '/soru-coz' });
-                  actions.push({ label: '🍅 Odaklanma', url: '/pomodoro' });
+                if (mode === 'rehberlik') {
+                  actions.push({ label: '🎯 Hedeflerim', url: '/dashboard?tab=hedef' });
+                  actions.push({ label: '🍅 Pomodoro / Odak', url: '/dashboard?tab=focus' });
+                  actions.push({ label: '📅 Çalışma Programım', url: '/dashboard?tab=schedule' });
+                } else {
+                  if (lower.includes('soru') || lower.includes('deneme')) {
+                    actions.push({ label: '📝 Soru Çöz', url: '/soru-coz' });
+                  }
+                  if (lower.includes('hata') || lower.includes('yanlış')) {
+                    actions.push({ label: '❌ Hata Defterim', url: '/hata-defteri' });
+                  }
+                  if (lower.includes('odak') || lower.includes('pomodoro') || lower.includes('çalış')) {
+                    actions.push({ label: '🍅 Pomodoro Başlat', url: '/pomodoro' });
+                  }
+                  if (actions.length === 0) {
+                    actions.push({ label: '📝 Soru Çöz', url: '/soru-coz' });
+                    actions.push({ label: '🍅 Odaklanma', url: '/pomodoro' });
+                  }
                 }
 
                 const result = {

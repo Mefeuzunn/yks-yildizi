@@ -1,7 +1,10 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+"use client";
+
+import React, { useState, useRef, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, Sparkles, Loader2, BrainCircuit, Mic, MicOff, Square, ExternalLink, Camera, X, CheckCircle2, Volume2, VolumeX } from 'lucide-react';
+import { Send, Bot, User, Sparkles, Loader2, BrainCircuit, Mic, MicOff, Square, ExternalLink, Camera, X, CheckCircle2, Volume2, VolumeX, HeartHandshake, BookOpen } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -13,12 +16,19 @@ interface Message {
   questionData?: any;
 }
 
+const DERS_WELCOME = 'Merhaba! Ben AstraTutor, senin kişisel yapay zeka ders ve soru koçunum. YKS hazırlığında çözemediğin bir sorunun fotoğrafını yükleyebilir veya aklına takılan herhangi bir konuyu ve formülü sorabilirsin!';
+const REHBERLIK_WELCOME = 'Merhaba! Ben Astra Rehberlik & Psikolojik Danışmanın. Sınav kaygısı, motivasyon, odaklanma problemleri, hedef belirleme ve çalışma stratejileri konusunda seni dinlemek ve rehberlik etmek için buradayım. Bugün seni en çok düşündüren veya konuşmak istediğin konu nedir?';
+
 export default function AstraTutorTab() {
+  const searchParams = useSearchParams();
+  const initialMode = searchParams?.get('mode') === 'rehberlik' ? 'rehberlik' : 'ders';
+  const [activeMode, setActiveMode] = useState<'ders' | 'rehberlik'>(initialMode);
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       role: 'ai',
-      content: 'Merhaba! Ben AstraTutor, senin kişisel yapay zeka eğitim koçunum. YKS hazırlığında sana nasıl yardımcı olabilirim? İster çözemediğin bir soruyu sor, ister çalışma programı iste!',
+      content: initialMode === 'rehberlik' ? REHBERLIK_WELCOME : DERS_WELCOME,
       timestamp: new Date()
     }
   ]);
@@ -251,7 +261,10 @@ export default function AstraTutorTab() {
         res = await fetch('/api/astratutor/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: userMessage.content })
+          body: JSON.stringify({ 
+            message: userMessage.content,
+            mode: activeMode 
+          })
         });
       }
 
@@ -264,8 +277,8 @@ export default function AstraTutorTab() {
         timestamp: new Date(),
         actions: data.actions,
         questionData: {
-          subject: data.subject || 'Matematik (TYT-AYT)',
-          topic: data.topic || 'Soru Çözümü',
+          subject: data.subject || (activeMode === 'rehberlik' ? 'Rehberlik & Motivasyon' : 'Matematik (TYT-AYT)'),
+          topic: data.topic || (activeMode === 'rehberlik' ? 'Bireysel Rehberlik' : 'Soru Çözümü'),
           reply: data.reply,
           image: imgToSend
         }
@@ -290,6 +303,22 @@ export default function AstraTutorTab() {
 
   const handleSend = () => handleSendPrompt(input, selectedImage);
 
+  // Switch initial message if only welcome message is present
+  const handleModeChange = (newMode: 'ders' | 'rehberlik') => {
+    setActiveMode(newMode);
+    setMessages(prev => {
+      if (prev.length <= 1) {
+        return [{
+          id: '1',
+          role: 'ai',
+          content: newMode === 'rehberlik' ? REHBERLIK_WELCOME : DERS_WELCOME,
+          timestamp: new Date()
+        }];
+      }
+      return prev;
+    });
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 10 }} 
@@ -299,36 +328,71 @@ export default function AstraTutorTab() {
       className="relative flex flex-col h-[calc(100vh-140px)]"
     >
       {/* Background Glows */}
-      <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-purple-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className={`absolute top-0 right-0 w-[400px] h-[400px] rounded-full blur-[120px] pointer-events-none transition-colors duration-500 ${activeMode === 'rehberlik' ? 'bg-pink-500/10' : 'bg-indigo-500/10'}`} />
+      <div className={`absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full blur-[120px] pointer-events-none transition-colors duration-500 ${activeMode === 'rehberlik' ? 'bg-rose-500/10' : 'bg-purple-500/10'}`} />
 
       {/* Header */}
-      <div className="flex items-center gap-4 mb-6 relative z-10 p-6 bg-white/[0.02] border border-white/10 rounded-3xl backdrop-blur-md shadow-xl">
-        <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-[0_0_30px_rgba(99,102,241,0.4)]">
-          <BrainCircuit className="w-8 h-8 text-white" />
-        </div>
-        <div>
-          <h2 className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 flex items-center gap-2">
-            AstraTutor <Sparkles className="w-5 h-5 text-indigo-400" />
-          </h2>
-          <div className="flex items-center gap-2 flex-wrap mt-0.5">
-            <span className="text-gray-400 font-medium text-sm">YKS Yapay Zeka Koçu</span>
-            {studentMemory && (
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 font-semibold flex items-center gap-1.5">
-                <span>⏳ {studentMemory.daysToYKS} Gün Kaldı</span>
-                <span>•</span>
-                <span>{studentMemory.alan}</span>
-                {studentMemory.targetDepartment && (
-                  <>
-                    <span>•</span>
-                    <span className="text-amber-300">🎯 {studentMemory.targetDepartment}</span>
-                  </>
-                )}
-              </span>
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6 relative z-10 p-5 bg-white/[0.02] border border-white/10 rounded-3xl backdrop-blur-md shadow-xl">
+        <div className="flex items-center gap-4">
+          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 ${
+            activeMode === 'rehberlik'
+              ? 'bg-gradient-to-br from-pink-500 to-rose-600 shadow-[0_0_30px_rgba(244,63,94,0.4)]'
+              : 'bg-gradient-to-br from-indigo-500 to-purple-600 shadow-[0_0_30px_rgba(99,102,241,0.4)]'
+          }`}>
+            {activeMode === 'rehberlik' ? (
+              <HeartHandshake className="w-7 h-7 text-white" />
+            ) : (
+              <BrainCircuit className="w-7 h-7 text-white" />
             )}
           </div>
+          <div>
+            <h2 className="text-xl sm:text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300 flex items-center gap-2">
+              {activeMode === 'rehberlik' ? 'Astra Rehberlik' : 'AstraTutor AI'} <Sparkles className={`w-5 h-5 ${activeMode === 'rehberlik' ? 'text-pink-400' : 'text-indigo-400'}`} />
+            </h2>
+            <div className="flex items-center gap-2 flex-wrap mt-0.5">
+              <span className="text-gray-400 font-medium text-xs sm:text-sm">
+                {activeMode === 'rehberlik' ? 'YKS Psikolojik Danışman & Motivasyon Koçu' : 'YKS Ders & Soru Çözüm Koçu'}
+              </span>
+              {studentMemory && (
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-gray-300 font-semibold flex items-center gap-1.5">
+                  <span>⏳ {studentMemory.daysToYKS} Gün</span>
+                  <span>•</span>
+                  <span>{studentMemory.alan}</span>
+                </span>
+              )}
+            </div>
+          </div>
         </div>
-        <div className="ml-auto flex items-center gap-2">
+
+        {/* Mode Switcher Pills */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-1 p-1 bg-black/40 border border-white/10 rounded-2xl">
+            <button
+              type="button"
+              onClick={() => handleModeChange('ders')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeMode === 'ders'
+                  ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-[0_0_15px_rgba(99,102,241,0.4)]'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Ders & Soru</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleModeChange('rehberlik')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeMode === 'rehberlik'
+                  ? 'bg-gradient-to-r from-pink-500 to-rose-600 text-white shadow-[0_0_15px_rgba(244,63,94,0.4)]'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <HeartHandshake className="w-3.5 h-3.5" />
+              <span>Rehberlik</span>
+            </button>
+          </div>
+
           <button
             type="button"
             onClick={() => {
@@ -343,12 +407,8 @@ export default function AstraTutorTab() {
             title={speechEnabled ? "Sesli Koçluk Açık - Yanıtlar sesli okunur" : "Sesli Koçluk Kapalı - Açmak için tıkla"}
           >
             {speechEnabled ? <Volume2 className="w-3.5 h-3.5 text-purple-400" /> : <VolumeX className="w-3.5 h-3.5" />}
-            <span className="hidden sm:inline">{speechEnabled ? 'Sesli Koç Açık' : 'Sesli Koç'}</span>
+            <span className="hidden sm:inline">{speechEnabled ? 'Sesli Koç' : 'Ses'}</span>
           </button>
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/30 rounded-full text-indigo-400 font-bold text-xs">
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse" />
-            Online
-          </div>
         </div>
       </div>
 
@@ -457,17 +517,28 @@ export default function AstraTutorTab() {
       <div className="relative z-10 flex flex-col gap-2">
         {/* Quick Suggestion Chips */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 px-1 custom-scrollbar">
-          {[
+          {(activeMode === 'rehberlik' ? [
+            { label: '🧠 Sınav kaygısını nasıl yönetirim?', prompt: 'Denemelerde ve sınav anında kaygımı kontrol altına almak için ne yapabilirim?' },
+            { label: '🔥 Motivasyonum düştü, yardım et', prompt: 'Son günlerde çalışma isteğim azaldı, masanın başına oturmakta zorlanıyorum. Ne önerirsin?' },
+            { label: '⏱️ Zaman yönetimi taktikleri', prompt: 'TYT ve AYT denemelerinde zamanı yetiştiremiyorum, bana taktik verir misin?' },
+            { label: '📈 Netlerim duraksadı (plato)', prompt: 'Netlerim belli bir seviyede tıkandı ve artmıyor. Bu platoyu kırmak için ne yapmalıyım?' },
+            { label: '🎯 Tercih ve hedef stratejisi', prompt: 'Hedeflediğim üniversite ve bölüme şu anki durumumla nasıl emin adımlarla ulaşabilirim?' },
+          ] : [
             { label: '⚡ Bugünkü reçetem ne?', prompt: 'Bugün için kişisel reçetemi ve çalışma planımı hazırlar mısın?' },
             { label: '📊 Durumum nasıl?', prompt: 'Son denemelerime ve soru çözüm geçmişime göre genel durumumu analiz eder misin?' },
             { label: '🎯 Hedefime ne kadar var?', prompt: 'Hedeflediğim üniversite ve bölüme şu anki netlerimle ne kadar yakınım?' },
             { label: '💡 Netlerimi nasıl artırırım?', prompt: 'Netlerimi artırmak ve zayıf konularımı kapatmak için bana strateji verir misin?' },
-          ].map((item, idx) => (
+            { label: '📐 Temel Formül & İpuçları', prompt: 'YKS için en kritik formül ve pratik soru çözüm taktiklerini özetler misin?' },
+          ]).map((item, idx) => (
             <button
               key={idx}
               onClick={() => handleSendPrompt(item.prompt)}
               disabled={isTyping}
-              className="flex-shrink-0 px-3 py-1.5 rounded-full bg-white/[0.04] hover:bg-indigo-500/20 text-gray-300 hover:text-indigo-200 text-xs font-medium border border-white/10 hover:border-indigo-500/40 transition-all cursor-pointer whitespace-nowrap active:scale-95 disabled:opacity-50"
+              className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-all cursor-pointer whitespace-nowrap active:scale-95 disabled:opacity-50 ${
+                activeMode === 'rehberlik'
+                  ? 'bg-rose-500/10 hover:bg-rose-500/20 text-rose-200 border-rose-500/30 hover:border-rose-400/50'
+                  : 'bg-white/[0.04] hover:bg-indigo-500/20 text-gray-300 hover:text-indigo-200 border-white/10 hover:border-indigo-500/40'
+              }`}
             >
               {item.label}
             </button>
@@ -523,7 +594,13 @@ export default function AstraTutorTab() {
                 handleSend();
               }
             }}
-            placeholder={selectedImage ? "Soruyla ilgili sormak istediğin bir not var mı? (İsteğe bağlı)" : "AstraTutor'a bir soru sor veya fotoğrafını yükle..."}
+            placeholder={
+              selectedImage
+                ? "Soruyla ilgili sormak istediğin bir not var mı? (İsteğe bağlı)"
+                : activeMode === 'rehberlik'
+                ? "Sınav kaygısı, motivasyon, odaklanma veya çalışma stratejisi hakkında sor..."
+                : "AstraTutor'a bir soru sor veya fotoğrafını yükle..."
+            }
             className="flex-1 bg-transparent border-none text-white p-4 max-h-32 outline-none resize-none placeholder:text-gray-600 custom-scrollbar relative z-10"
             rows={1}
             style={{ minHeight: '60px' }}

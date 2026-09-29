@@ -18,14 +18,12 @@ const MAIN_TABS = [
 const MORE_TABS = [
   { emoji: '📈', label: 'Denemeler', href: '/denemeler' },
   { emoji: '🎯', label: 'Hedeflerim', href: '/dashboard?tab=hedef' },
+  { emoji: '🤖', label: 'Astra AI & Rehberlik', href: '/dashboard?tab=astratutor' },
   { emoji: '⚔️', label: 'Bilgi Arenası', href: '/duello' },
   { emoji: '🎧', label: 'Çalışma Odaları', href: '/calisma-odalari' },
-  { emoji: '🧠', label: 'Rehberlik', href: '/rehberlik' },
   { emoji: '🔬', label: 'Simülasyonlar', href: '/simulasyonlar' },
-  { emoji: '🤖', label: 'AstraTutor AI', href: '/dashboard?tab=astratutor' },
   { emoji: '🎓', label: 'Tercih Robotu', href: '/dashboard?tab=tercih_robotu' },
   { emoji: '🧮', label: 'Puan Hesaplama', href: '/puan-hesaplama' },
-  { emoji: '🛡️', label: 'Klanlar', href: '/klanlar' },
   { emoji: '📋', label: 'Ödevlerim', href: '/odevlerim' },
   { emoji: '❌', label: 'Yanlışlarım', href: '/dashboard?tab=mistakes' },
   { emoji: '📚', label: 'Konular', href: '/dashboard?tab=topics' },
@@ -34,7 +32,6 @@ const MORE_TABS = [
   { emoji: '🛍️', label: 'Mağaza', href: '/magaza' },
   { emoji: '🎴', label: 'Kartlar', href: '/dashboard?tab=cards' },
   { emoji: '🏫', label: 'Sınıfım', href: '/dashboard?tab=sinif' },
-  { emoji: '💬', label: 'Sınıf Forumu', href: '/dashboard?tab=forum' },
   { emoji: '👤', label: 'Profilim', href: '/dashboard?tab=profile' },
 ];
 
