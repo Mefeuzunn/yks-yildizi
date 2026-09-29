@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, Star, Zap, Image as ImageIcon, Shield, CheckCircle2, Lock, Loader2 } from 'lucide-react';
+import { ShoppingBag, Star, Zap, Image as ImageIcon, Shield, CheckCircle2, Lock, Loader2, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { haptics } from '@/lib/haptics';
+import { SHOP_ITEMS } from '@/lib/shop-items';
 
 const CATEGORIES = [
   { id: 'avatars', label: 'Profillik Avatarlar', icon: <ImageIcon size={18} /> },
@@ -13,28 +14,14 @@ const CATEGORIES = [
   { id: 'badges', label: 'Özel Rozetler', icon: <Shield size={18} /> },
 ];
 
-const INITIAL_SHOP_ITEMS = [
-  { id: 'a1', category: 'avatars', name: 'Kozmik Baykuş', price: 500, emoji: '🦉', color: '#8b5cf6', purchased: false },
-  { id: 'a2', category: 'avatars', name: 'Siber Kaplan', price: 1200, emoji: '🐯', color: '#f97316', purchased: false },
-  { id: 'a3', category: 'avatars', name: 'Astro-Kedi', price: 2500, emoji: '🐱‍🚀', color: '#06b6d4', purchased: false },
-  
-  { id: 'p1', category: 'pets', name: 'Odaklanan Pofuduk', price: 800, emoji: '🐰', color: '#ec4899', purchased: false },
-  { id: 'p2', category: 'pets', name: 'Bilge Kaplumbağa', price: 1500, emoji: '🐢', color: '#10b981', purchased: false },
-  { id: 'p3', category: 'pets', name: 'Ateş Ejderhası', price: 5000, emoji: '🐉', color: '#ef4444', purchased: false },
-
-  { id: 't1', category: 'themes', name: 'Neon Cyberpunk', price: 3000, emoji: '🌆', color: '#d946ef', purchased: false },
-  { id: 't2', category: 'themes', name: 'Karanlık Orman', price: 3000, emoji: '🌲', color: '#059669', purchased: false },
-  
-  { id: 'b1', category: 'badges', name: 'Soru Canavarı', price: 1000, emoji: '👾', color: '#6366f1', purchased: false },
-  { id: 'b2', category: 'badges', name: 'Gece Kuşu', price: 1500, emoji: '🌙', color: '#3b82f6', purchased: false },
-];
-
 export default function StorePage() {
   const [activeTab, setActiveTab] = useState('avatars');
   const [userXP, setUserXP] = useState(0);
-  const [shopItems, setShopItems] = useState(INITIAL_SHOP_ITEMS);
+  const [shopItems, setShopItems] = useState(SHOP_ITEMS.map(i => ({ ...i, purchased: false })));
+  const [equippedIds, setEquippedIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [buyingId, setBuyingId] = useState<string | null>(null);
+  const [equippingId, setEquippingId] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -52,7 +39,9 @@ export default function StorePage() {
         }
         
         if (invData?.success) {
-          const ownedIds = invData.inventory;
+          const ownedIds = invData.inventory || invData.purchased || [];
+          const equipped = invData.equipped || [];
+          setEquippedIds(equipped);
           setShopItems(prev => prev.map(item => 
             ownedIds.includes(item.id) ? { ...item, purchased: true } : item
           ));
@@ -68,7 +57,7 @@ export default function StorePage() {
 
   const filteredItems = shopItems.filter(item => item.category === activeTab);
 
-  const handleBuy = async (item: typeof INITIAL_SHOP_ITEMS[0]) => {
+  const handleBuy = async (item: typeof shopItems[0]) => {
     if (userXP >= item.price && !item.purchased) {
       haptics.selection();
       setBuyingId(item.id);
@@ -108,6 +97,42 @@ export default function StorePage() {
     }
   };
 
+  const handleEquip = async (item: typeof shopItems[0]) => {
+    haptics.selection();
+    setEquippingId(item.id);
+    const isCurrentlyEquipped = equippedIds.includes(item.id);
+    const action = isCurrentlyEquipped ? 'unequip' : 'equip';
+
+    try {
+      const res = await fetch('/api/shop/equip', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ itemId: item.id, action })
+      });
+      const data = await res.json();
+      if (data.success) {
+        haptics.notification('success');
+        if (action === 'equip') {
+          // Remove other items in same category, add this one
+          const categoryItemIds = shopItems.filter(i => i.category === item.category).map(i => i.id);
+          setEquippedIds(prev => [...prev.filter(id => !categoryItemIds.includes(id)), item.id]);
+          confetti({
+            particleCount: 80,
+            spread: 60,
+            origin: { y: 0.7 },
+            colors: [item.color, '#6366f1', '#10b981']
+          });
+        } else {
+          setEquippedIds(prev => prev.filter(id => id !== item.id));
+        }
+      }
+    } catch (e) {
+      console.error('Kuşanma hatası', e);
+    } finally {
+      setEquippingId(null);
+    }
+  };
+
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#FAFAFA' }}>
@@ -129,7 +154,7 @@ export default function StorePage() {
               Yıldız Mağazası
             </h1>
             <p style={{ fontSize: '14px', color: '#9ca3af', margin: 0 }}>
-              Kazandığın XP'leri harca, profilini ve uygulamanı kişiselleştir.
+              Kazandığın XP'leri harca, profilini ve unvanlarını özelleştir.
             </p>
           </div>
         </div>
@@ -168,53 +193,114 @@ export default function StorePage() {
 
       {/* Grid */}
       <div className="shop-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' }}>
-        {filteredItems.map(item => (
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }} 
-            animate={{ opacity: 1, scale: 1 }} 
-            key={item.id}
-            className="shop-card"
-            style={{ 
-              backgroundColor: '#131827', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '20px', 
-              padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center',
-              position: 'relative', overflow: 'hidden'
-            }}
-          >
-            {/* Background Glow */}
-            <div style={{ position: 'absolute', top: '-30px', left: '50%', transform: 'translateX(-50%)', width: '100px', height: '100px', background: item.color, opacity: 0.1, filter: 'blur(40px)', borderRadius: '50%' }} />
-            
-            <div className="shop-emoji" style={{ fontSize: '64px', marginBottom: '16px', filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.5))' }}>
-              {item.emoji}
-            </div>
-            
-            <h3 className="shop-item-name" style={{ fontSize: '18px', fontWeight: 700, color: '#fff', marginBottom: '8px', textAlign: 'center' }}>{item.name}</h3>
-            
-            <div className="shop-price-row" style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '24px' }}>
-              <Star size={16} color={item.purchased ? '#9ca3af' : "#facc15"} fill={item.purchased ? 'transparent' : "#facc15"} />
-              <span className="shop-price-text" style={{ fontSize: '16px', fontWeight: 600, color: item.purchased ? '#9ca3af' : '#facc15' }}>
-                {item.purchased ? 'Satın Alındı' : item.price.toLocaleString('tr-TR')}
-              </span>
-            </div>
+        {filteredItems.map(item => {
+          const isEquipped = equippedIds.includes(item.id);
 
-            <button 
-              onClick={() => handleBuy(item)}
-              disabled={item.purchased || userXP < item.price || buyingId === item.id}
-              className="shop-buy-btn"
-              style={{
-                width: '100%', padding: '12px', borderRadius: '12px',
-                backgroundColor: item.purchased ? 'rgba(255,255,255,0.05)' : (userXP >= item.price ? item.color : 'rgba(255,255,255,0.02)'),
-                color: item.purchased ? '#6b7280' : (userXP >= item.price ? '#fff' : '#4b5563'),
-                border: 'none', fontWeight: 700, fontSize: '14px',
-                cursor: (item.purchased || userXP < item.price || buyingId === item.id) ? 'not-allowed' : 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                transition: 'all 0.2s', marginTop: 'auto'
+          return (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }} 
+              animate={{ opacity: 1, scale: 1 }} 
+              key={item.id}
+              className="shop-card"
+              style={{ 
+                backgroundColor: '#131827', 
+                border: isEquipped ? '2px solid #10b981' : '1px solid rgba(255,255,255,0.05)', 
+                boxShadow: isEquipped ? '0 0 25px rgba(16, 185, 129, 0.2)' : 'none',
+                borderRadius: '20px', 
+                padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center',
+                position: 'relative', overflow: 'hidden',
+                transition: 'all 0.3s ease'
               }}
             >
-              {buyingId === item.id ? <Loader2 className="animate-spin" size={18} /> : (item.purchased ? <CheckCircle2 size={18} /> : (userXP < item.price ? <Lock size={18} /> : null))}
-              {buyingId === item.id ? 'İşleniyor...' : (item.purchased ? 'Kullanılıyor' : (userXP >= item.price ? 'Satın Al' : 'Yetersiz XP'))}
-            </button>
-          </motion.div>
-        ))}
+              {/* Active Equipped Badge */}
+              {isEquipped && (
+                <div style={{
+                  position: 'absolute', top: '12px', right: '12px',
+                  background: 'rgba(16, 185, 129, 0.2)', border: '1px solid rgba(16, 185, 129, 0.5)',
+                  color: '#34d399', fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '12px',
+                  display: 'flex', alignItems: 'center', gap: '4px'
+                }}>
+                  <CheckCircle2 size={12} /> Kuşanıldı
+                </div>
+              )}
+
+              {/* Background Glow */}
+              <div style={{ position: 'absolute', top: '-30px', left: '50%', transform: 'translateX(-50%)', width: '100px', height: '100px', background: item.color, opacity: 0.12, filter: 'blur(40px)', borderRadius: '50%' }} />
+              
+              <div className="shop-emoji" style={{ fontSize: '64px', marginBottom: '16px', filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.5))' }}>
+                {item.emoji}
+              </div>
+              
+              <h3 className="shop-item-name" style={{ fontSize: '18px', fontWeight: 700, color: '#fff', marginBottom: '8px', textAlign: 'center' }}>{item.name}</h3>
+              
+              <div className="shop-price-row" style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '24px' }}>
+                <Star size={16} color={item.purchased ? '#9ca3af' : "#facc15"} fill={item.purchased ? 'transparent' : "#facc15"} />
+                <span className="shop-price-text" style={{ fontSize: '16px', fontWeight: 600, color: item.purchased ? '#9ca3af' : '#facc15' }}>
+                  {item.purchased ? 'Satın Alındı' : item.price.toLocaleString('tr-TR')}
+                </span>
+              </div>
+
+              {/* Action Button: Buy or Equip/Unequip */}
+              {!item.purchased ? (
+                <button 
+                  onClick={() => handleBuy(item)}
+                  disabled={userXP < item.price || buyingId === item.id}
+                  className="shop-buy-btn"
+                  style={{
+                    width: '100%', padding: '12px', borderRadius: '12px',
+                    backgroundColor: userXP >= item.price ? item.color : 'rgba(255,255,255,0.02)',
+                    color: userXP >= item.price ? '#fff' : '#4b5563',
+                    border: 'none', fontWeight: 700, fontSize: '14px',
+                    cursor: (userXP < item.price || buyingId === item.id) ? 'not-allowed' : 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                    transition: 'all 0.2s', marginTop: 'auto'
+                  }}
+                >
+                  {buyingId === item.id ? <Loader2 className="animate-spin" size={18} /> : (userXP < item.price ? <Lock size={18} /> : null)}
+                  {buyingId === item.id ? 'İşleniyor...' : (userXP >= item.price ? 'Satın Al' : 'Yetersiz XP')}
+                </button>
+              ) : isEquipped ? (
+                <button
+                  onClick={() => handleEquip(item)}
+                  disabled={equippingId === item.id}
+                  className="shop-buy-btn"
+                  style={{
+                    width: '100%', padding: '12px', borderRadius: '12px',
+                    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                    color: '#34d399',
+                    border: '1px solid rgba(16, 185, 129, 0.4)',
+                    fontWeight: 700, fontSize: '14px',
+                    cursor: equippingId === item.id ? 'not-allowed' : 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                    transition: 'all 0.2s', marginTop: 'auto'
+                  }}
+                >
+                  {equippingId === item.id ? <Loader2 className="animate-spin" size={18} /> : <CheckCircle2 size={18} />}
+                  {equippingId === item.id ? 'İşleniyor...' : 'Kuşanıldı (Çıkar)'}
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleEquip(item)}
+                  disabled={equippingId === item.id}
+                  className="shop-buy-btn"
+                  style={{
+                    width: '100%', padding: '12px', borderRadius: '12px',
+                    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                    color: '#fff',
+                    border: 'none', fontWeight: 700, fontSize: '14px',
+                    cursor: equippingId === item.id ? 'not-allowed' : 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                    transition: 'all 0.2s', marginTop: 'auto',
+                    boxShadow: '0 4px 14px rgba(99, 102, 241, 0.35)'
+                  }}
+                >
+                  {equippingId === item.id ? <Loader2 className="animate-spin" size={18} /> : <Sparkles size={18} />}
+                  {equippingId === item.id ? 'İşleniyor...' : 'Kuşan'}
+                </button>
+              )}
+            </motion.div>
+          );
+        })}
       </div>
 
       <style jsx>{`

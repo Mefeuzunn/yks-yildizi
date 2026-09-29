@@ -9,6 +9,7 @@ import {
   Trophy, Flame, BookOpen, Copy, Check
 } from 'lucide-react';
 import { PushNotificationToggle } from '@/components/PWAComponents';
+import { SHOP_ITEMS } from '@/lib/shop-items';
 
 interface ProfileData {
   username: string;
@@ -47,6 +48,8 @@ export default function ProfileTab() {
     solved_questions: 0, success_rate: 0, streak_days: 0,
     league: 'Bronz', league_points: 0, xp: 0, total_focus_minutes: 0,
   });
+  const [equippedAvatar, setEquippedAvatar] = useState<any>(null);
+  const [equippedBadge, setEquippedBadge] = useState<any>(null);
 
   // Password change
   const [oldPassword, setOldPassword] = useState('');
@@ -57,7 +60,8 @@ export default function ProfileTab() {
     Promise.all([
       fetch('/api/user/dashboard').then(r => r.ok ? r.json() : null),
       fetch('/api/user/target').then(r => r.ok ? r.json() : null),
-    ]).then(([dashData, targetData]) => {
+      fetch('/api/shop/inventory').then(r => r.ok ? r.json() : null),
+    ]).then(([dashData, targetData, invData]) => {
       if (dashData) {
         setStats({
           solved_questions: dashData.stats?.solved_questions || 0,
@@ -68,6 +72,12 @@ export default function ProfileTab() {
           xp: dashData.stats?.xp || 0,
           total_focus_minutes: dashData.stats?.total_focus_min || 0,
         });
+      }
+      if (invData && Array.isArray(invData.equipped)) {
+        const avatar = SHOP_ITEMS.find(i => i.category === 'avatars' && invData.equipped.includes(i.id));
+        const badge = SHOP_ITEMS.find(i => i.category === 'badges' && invData.equipped.includes(i.id));
+        setEquippedAvatar(avatar || null);
+        setEquippedBadge(badge || null);
       }
       setProfile(p => ({
         ...p,
@@ -205,17 +215,33 @@ export default function ProfileTab() {
           }}>
             <div style={{
               width: '72px', height: '72px', borderRadius: '50%',
-              background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+              background: equippedAvatar ? `${equippedAvatar.color}25` : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#fff', fontWeight: 800, fontSize: '1.5rem',
+              color: '#fff', fontWeight: 800, fontSize: equippedAvatar ? '2.2rem' : '1.5rem',
               margin: '0 auto 0.75rem',
-              boxShadow: '0 0 20px rgba(99,102,241,0.35)',
+              boxShadow: equippedAvatar ? `0 0 25px ${equippedAvatar.color}55` : '0 0 20px rgba(99,102,241,0.35)',
+              border: equippedAvatar ? `2.5px solid ${equippedAvatar.color}` : 'none',
+              transition: 'all 0.3s ease'
             }}>
-              {profile.username ? profile.username.substring(0, 2).toUpperCase() : 'KL'}
+              {equippedAvatar ? equippedAvatar.emoji : (profile.username ? profile.username.substring(0, 2).toUpperCase() : 'KL')}
             </div>
             <h3 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>
               {profile.username || 'Kullanıcı'}
             </h3>
+            {equippedBadge && (
+              <div style={{ marginTop: '0.4rem' }}>
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '5px',
+                  fontSize: '0.75rem', fontWeight: 700, padding: '3px 10px', borderRadius: '12px',
+                  background: `${equippedBadge.color}20`,
+                  color: equippedBadge.color,
+                  border: `1px solid ${equippedBadge.color}40`,
+                }}>
+                  <span>{equippedBadge.emoji}</span>
+                  <span>{equippedBadge.name}</span>
+                </span>
+              </div>
+            )}
             <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'center', marginTop: '0.5rem', flexWrap: 'wrap' }}>
               <span style={{
                 fontSize: '0.7rem', padding: '2px 8px', borderRadius: '20px',

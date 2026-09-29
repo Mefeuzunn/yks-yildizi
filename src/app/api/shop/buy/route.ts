@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
 import { getAuthenticatedUserId } from '@/lib/auth-utils';
+import { getShopItem } from '@/lib/shop-items';
+import { v4 as uuidv4 } from 'uuid';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,13 +31,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Bu eşyaya zaten sahipsiniz' }, { status: 400 });
     }
 
-    // Transaction to deduct points and add item
+    const itemDef = getShopItem(itemId);
+    const itemType = itemDef?.category || 'avatars';
+    const invId = uuidv4();
+
+    // Transaction to deduct points and add item (is_equipped defaults to 0)
     await db.transaction(async () => {
       await db.prepare('UPDATE user_stats SET league_points = league_points - ? WHERE user_id = ?').run(price, userId);
-      await db.prepare('INSERT INTO user_inventory (user_id, item_id) VALUES (?, ?)').run(userId, itemId);
+      await db.prepare('INSERT INTO user_inventory (id, user_id, item_id, item_type, is_equipped) VALUES (?, ?, ?, ?, 0)')
+        .run(invId, userId, itemId, itemType);
     })();
 
-    return NextResponse.json({ success: true, newPoints: stats.league_points - price });
+    return NextResponse.json({ success: true, newPoints: stats.league_points - price, itemId });
   } catch (error) {
     console.error('Buy Item POST Error:', error);
     return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });

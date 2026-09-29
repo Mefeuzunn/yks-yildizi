@@ -175,10 +175,30 @@ export default function LeaderboardPage() {
                         {rankDisplay}
                       </td>
                       <td style={{ padding: '16px 24px', fontSize: '15px', fontWeight: isCurrentUser ? 700 : 500, color: isCurrentUser ? '#fff' : '#d1d5db', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #374151, #1f2937)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: '#fff', border: isCurrentUser ? '2px solid #6366f1' : 'none' }}>
-                          {(userRow.name || 'U').substring(0,2).toUpperCase()}
+                        <div style={{
+                          width: '32px', height: '32px', borderRadius: '50%',
+                          background: userRow.avatarEmoji ? `${userRow.avatarColor || '#6366f1'}25` : 'linear-gradient(135deg, #374151, #1f2937)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: userRow.avatarEmoji ? '16px' : '12px', fontWeight: 700, color: '#fff',
+                          border: userRow.avatarEmoji ? `1.5px solid ${userRow.avatarColor || '#6366f1'}` : (isCurrentUser ? '2px solid #6366f1' : 'none'),
+                          boxShadow: userRow.avatarEmoji ? `0 0 10px ${userRow.avatarColor || '#6366f1'}40` : 'none',
+                          flexShrink: 0
+                        }}>
+                          {userRow.avatarEmoji || (userRow.name || 'U').substring(0,2).toUpperCase()}
                         </div>
-                        {userRow.name}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span>{userRow.name}</span>
+                          {userRow.badgeName && (
+                            <span style={{
+                              fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '8px',
+                              background: 'rgba(99,102,241,0.15)', color: '#a5b4fc', border: '1px solid rgba(99,102,241,0.25)',
+                              display: 'inline-flex', alignItems: 'center', gap: '4px'
+                            }}>
+                              <span>{userRow.badgeEmoji}</span>
+                              <span>{userRow.badgeName}</span>
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td style={{ padding: '16px 24px' }}>
                         <div style={{ 
@@ -224,8 +244,15 @@ export default function LeaderboardPage() {
                   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: '8px', marginBottom: '24px', paddingTop: '16px' }}>
                     {/* 2nd Place */}
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'linear-gradient(135deg, #9ca3af, #4b5563)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '14px', border: '2px solid #9ca3af', boxShadow: '0 4px 12px rgba(156, 163, 175, 0.3)', position: 'relative' }}>
-                        {(leaderboard[1].name || 'U').substring(0,2).toUpperCase()}
+                      <div style={{
+                        width: '44px', height: '44px', borderRadius: '50%',
+                        background: leaderboard[1].avatarEmoji ? `${leaderboard[1].avatarColor || '#9ca3af'}25` : 'linear-gradient(135deg, #9ca3af, #4b5563)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: '#fff', fontWeight: 800, fontSize: leaderboard[1].avatarEmoji ? '20px' : '14px',
+                        border: `2px solid ${leaderboard[1].avatarColor || '#9ca3af'}`,
+                        boxShadow: '0 4px 12px rgba(156, 163, 175, 0.3)', position: 'relative'
+                      }}>
+                        {leaderboard[1].avatarEmoji || (leaderboard[1].name || 'U').substring(0,2).toUpperCase()}
                         <span style={{ position: 'absolute', top: -10, fontSize: '16px' }}>🥈</span>
                       </div>
                       <div style={{ fontSize: '12px', fontWeight: 700, color: '#e5e7eb', marginTop: '6px', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '85px' }}>
@@ -241,8 +268,15 @@ export default function LeaderboardPage() {
 
                     {/* 1st Place (Center, Elevated) */}
                     <div style={{ flex: 1.15, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      <div style={{ width: '54px', height: '54px', borderRadius: '50%', background: 'linear-gradient(135deg, #facc15, #ca8a04)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', fontWeight: 900, fontSize: '16px', border: '3px solid #facc15', boxShadow: '0 0 20px rgba(250, 204, 21, 0.5)', position: 'relative' }}>
-                        {(leaderboard[0].name || 'U').substring(0,2).toUpperCase()}
+                      <div style={{
+                        width: '54px', height: '54px', borderRadius: '50%',
+                        background: leaderboard[0].avatarEmoji ? `${leaderboard[0].avatarColor || '#facc15'}30` : 'linear-gradient(135deg, #facc15, #ca8a04)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: '#000', fontWeight: 900, fontSize: leaderboard[0].avatarEmoji ? '24px' : '16px',
+                        border: `3px solid ${leaderboard[0].avatarColor || '#facc15'}`,
+                        boxShadow: '0 0 20px rgba(250, 204, 21, 0.5)', position: 'relative'
+                      }}>
+                        {leaderboard[0].avatarEmoji || (leaderboard[0].name || 'U').substring(0,2).toUpperCase()}
                         <span style={{ position: 'absolute', top: -14, fontSize: '20px' }}>👑</span>
                       </div>
                       <div style={{ fontSize: '13px', fontWeight: 800, color: '#facc15', marginTop: '6px', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100px' }}>
@@ -258,8 +292,15 @@ export default function LeaderboardPage() {
 
                     {/* 3rd Place */}
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'linear-gradient(135deg, #d97706, #78350f)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '14px', border: '2px solid #d97706', boxShadow: '0 4px 12px rgba(217, 119, 6, 0.3)', position: 'relative' }}>
-                        {(leaderboard[2].name || 'U').substring(0,2).toUpperCase()}
+                      <div style={{
+                        width: '44px', height: '44px', borderRadius: '50%',
+                        background: leaderboard[2].avatarEmoji ? `${leaderboard[2].avatarColor || '#d97706'}25` : 'linear-gradient(135deg, #d97706, #78350f)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: '#fff', fontWeight: 800, fontSize: leaderboard[2].avatarEmoji ? '20px' : '14px',
+                        border: `2px solid ${leaderboard[2].avatarColor || '#d97706'}`,
+                        boxShadow: '0 4px 12px rgba(217, 119, 6, 0.3)', position: 'relative'
+                      }}>
+                        {leaderboard[2].avatarEmoji || (leaderboard[2].name || 'U').substring(0,2).toUpperCase()}
                         <span style={{ position: 'absolute', top: -10, fontSize: '16px' }}>🥉</span>
                       </div>
                       <div style={{ fontSize: '12px', fontWeight: 700, color: '#e5e7eb', marginTop: '6px', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '85px' }}>
@@ -301,14 +342,34 @@ export default function LeaderboardPage() {
                         </div>
 
                         {/* Avatar */}
-                        <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: 'linear-gradient(135deg, #374151, #1f2937)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: '#fff', border: isCurrentUser ? '2px solid #6366f1' : '1px solid rgba(255,255,255,0.1)', flexShrink: 0 }}>
-                          {(userRow.name || 'U').substring(0,2).toUpperCase()}
+                        <div style={{
+                          width: '34px', height: '34px', borderRadius: '50%',
+                          background: userRow.avatarEmoji ? `${userRow.avatarColor || '#6366f1'}25` : 'linear-gradient(135deg, #374151, #1f2937)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: userRow.avatarEmoji ? '17px' : '12px', fontWeight: 700, color: '#fff',
+                          border: userRow.avatarEmoji ? `1.5px solid ${userRow.avatarColor || '#6366f1'}` : (isCurrentUser ? '2px solid #6366f1' : '1px solid rgba(255,255,255,0.1)'),
+                          boxShadow: userRow.avatarEmoji ? `0 0 10px ${userRow.avatarColor || '#6366f1'}40` : 'none',
+                          flexShrink: 0
+                        }}>
+                          {userRow.avatarEmoji || (userRow.name || 'U').substring(0,2).toUpperCase()}
                         </div>
 
                         {/* Name & Tier */}
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: '14px', fontWeight: isCurrentUser ? 700 : 600, color: isCurrentUser ? '#fff' : '#e5e7eb', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {userRow.name} {isCurrentUser && <span style={{ fontSize: '11px', color: '#a5b4fc', fontWeight: 500 }}>(Sen)</span>}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden' }}>
+                            <span style={{ fontSize: '14px', fontWeight: isCurrentUser ? 700 : 600, color: isCurrentUser ? '#fff' : '#e5e7eb', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {userRow.name}
+                            </span>
+                            {isCurrentUser && <span style={{ fontSize: '11px', color: '#a5b4fc', fontWeight: 500, flexShrink: 0 }}>(Sen)</span>}
+                            {userRow.badgeName && (
+                              <span style={{
+                                fontSize: '10px', fontWeight: 600, padding: '1px 6px', borderRadius: '6px',
+                                background: 'rgba(99,102,241,0.15)', color: '#a5b4fc', border: '1px solid rgba(99,102,241,0.25)',
+                                display: 'inline-flex', alignItems: 'center', gap: '2px', flexShrink: 0
+                              }}>
+                                <span>{userRow.badgeEmoji}</span>
+                              </span>
+                            )}
                           </div>
                           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '10px', fontWeight: 700, padding: '1px 6px', borderRadius: '6px', backgroundColor: tierInfo.bg, color: tierInfo.color, marginTop: '2px' }}>
                             {userRow.tier}
