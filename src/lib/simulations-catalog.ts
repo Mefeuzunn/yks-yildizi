@@ -616,5 +616,44 @@ export const MASTER_SIMULATIONS: SimulationItem[] = [
     related_yks_topics: ['Alan ve Çevre', 'Çokgenler', 'Birim Kareler'],
     badge: 'TYT Geometri',
     is_active: true
+  },
+  {
+    id: 'sim_graham',
+    title: 'Graham Gaz Difüzyon Yasası',
+    description: 'Cam boru içinde farklı sıcaklık ve mol kütleli iki gazın difüzyon hızı ve karşılaşma noktası.',
+    source_url: '/simulasyonlar/graham-difuzyon',
+    category: 'AYT',
+    subject: 'Kimya',
+    topic: 'Gazlar',
+    difficulty_level: 3,
+    related_yks_topics: ['Gazlarda Difüzyon', 'Graham Yasası', 'Kinetik Teori'],
+    badge: 'AYT Klasik Soru',
+    is_active: true
+  },
+  {
+    id: 'sim_basit_makineler',
+    title: 'Basit Makineler: Makara & Palangalar',
+    description: 'Sabit makara, hareketli makara ve palangalarda kuvvet kazancı, yoldan kayıp ve sistem verimi.',
+    source_url: '/simulasyonlar/basit-makineler',
+    category: 'TYT',
+    subject: 'Fizik',
+    topic: 'Basit Makineler',
+    difficulty_level: 3,
+    related_yks_topics: ['Sabit Makara', 'Hareketli Makara', 'Palangalar', 'Verim'],
+    badge: 'TYT/AYT',
+    is_active: true
+  },
+  {
+    id: 'sim_mayoz',
+    title: 'Mayoz Bölünme & Krossing-over',
+    description: 'Tetrat, sinapsis, krossing-over varyasyonu, homolog ve kardeş kromatit ayrılması, DNA-kromozom grafikleri.',
+    source_url: '/simulasyonlar/mayoz-bolunme',
+    category: 'TYT',
+    subject: 'Biyoloji',
+    topic: 'Hücre Bölünmeleri',
+    difficulty_level: 3,
+    related_yks_topics: ['Mayoz Bölünme', 'Krossing-over', 'Gamet Oluşumu'],
+    badge: 'TYT Banko Soru',
+    is_active: true
   }
 ];
