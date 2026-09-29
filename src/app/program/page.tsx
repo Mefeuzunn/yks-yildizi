@@ -27,6 +27,7 @@ export default function ProgramPage() {
   // Drag and Drop state
   const [draggedTask, setDraggedTask] = useState<{ dateStr: string, taskId: string } | null>(null);
   const [isAIGenerating, setIsAIGenerating] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/user/tasks')
@@ -109,9 +110,12 @@ export default function ProgramPage() {
       
       const data = await res.json();
       if (!res.ok) {
-        alert(data.error || 'Hata oluştu');
+        setToastMessage(data.error || 'Plan oluşturulurken bir hata oluştu');
+        setTimeout(() => setToastMessage(null), 4000);
       } else {
         haptics.notification('success');
+        setToastMessage(data.message || 'Yapay zeka haftalık çalışma programını eksiklerine göre hazırladı!');
+        setTimeout(() => setToastMessage(null), 5000);
         // Refetch tasks from DB to get the new AI generated plan
         const taskRes = await fetch('/api/user/tasks');
         const tasksData = await taskRes.json();
@@ -119,7 +123,8 @@ export default function ProgramPage() {
       }
     } catch (e) {
       console.error(e);
-      alert('Plan oluşturulamadı.');
+      setToastMessage('Sunucu bağlantısı kurulamadı.');
+      setTimeout(() => setToastMessage(null), 4000);
     } finally {
       setIsAIGenerating(false);
     }
@@ -663,6 +668,38 @@ export default function ProgramPage() {
               </form>
             </motion.div>
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* Floating Toast Notification */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            style={{
+              position: 'fixed',
+              bottom: '24px',
+              right: '24px',
+              zIndex: 999,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              padding: '12px 20px',
+              borderRadius: '16px',
+              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(5, 150, 105, 0.95))',
+              color: '#fff',
+              boxShadow: '0 10px 25px rgba(0,0,0,0.4)',
+              border: '1px solid rgba(255,255,255,0.2)',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              backdropFilter: 'blur(8px)'
+            }}
+          >
+            <CheckCircle2 size={18} />
+            <span>{toastMessage}</span>
+          </motion.div>
         )}
       </AnimatePresence>
 
