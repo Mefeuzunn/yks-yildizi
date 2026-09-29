@@ -4,14 +4,12 @@ import React, { useEffect, useState, useRef, use } from 'react';
 import { ArrowLeft, Users, MessageSquare, Send, Timer, Pause, Play, RotateCcw, X } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { io, Socket } from 'socket.io-client';
 import { haptics } from '@/lib/haptics';
 
 export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { user } = useAuth();
   
-  const [socket, setSocket] = useState<Socket | null>(null);
   const [participants, setParticipants] = useState<any[]>([]);
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -24,31 +22,93 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [timerActive, setTimerActive] = useState(false);
 
-  // Initialize Socket Connection
+  // Initialize Serverless Realtime SSE Connection & Load Initial State
   useEffect(() => {
     if (!user) return;
 
-    // Connect to the local Socket.IO server on port 3001
-    const newSocket = io('http://localhost:3001');
-    setSocket(newSocket);
+    let isMounted = true;
 
-    newSocket.on('connect', () => {
-      newSocket.emit('join-room', { 
-        roomId: id, 
-        user: { id: user.id, username: user.username, league: user.league } 
-      });
-    });
+    // 1. Join room and load initial participants
+    fetch(`/api/rooms/${id}/join`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'join' }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (isMounted && data.participants) {
+          setParticipants(data.participants);
+        }
+      })
+      .catch(() => {});
 
-    newSocket.on('room-users', (users) => {
-      setParticipants(users);
-    });
+    // 2. Fetch initial messages
+    fetch(`/api/rooms/${id}/chat`)
+      .then(res => res.json())
+      .then(data => {
+        if (isMounted && data.messages) {
+          setMessages(data.messages);
+        }
+      })
+      .catch(() => {});
 
-    newSocket.on('new-message', (msg) => {
-      setMessages(prev => [...prev, msg]);
-    });
+    // 3. Connect to native Server-Sent Events (SSE) stream
+    const eventSource = new EventSource(`/api/rooms/${id}/events`);
 
+    eventSource.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data);
+        if (payload.type === 'new-message' && payload.data) {
+          setMessages(prev => {
+            if (prev.some(m => m.id === payload.data.id)) return prev;
+            return [...prev, payload.data];
+          });
+        } else if (payload.type === 'room-users' && Array.isArray(payload.data)) {
+          setParticipants(payload.data);
+        } else if (payload.type === 'update-timer' && payload.data) {
+          if (payload.data.timerState === 'active') {
+            setTimerActive(true);
+            setTimeLeft(payload.data.timeLeft);
+          } else if (payload.data.timerState === 'paused') {
+            setTimerActive(false);
+            setTimeLeft(payload.data.timeLeft);
+          } else if (payload.data.timerState === 'finished') {
+            setTimerActive(false);
+            setTimeLeft(0);
+          }
+        }
+      } catch (_) {}
+    };
+
+    // 4. Heartbeat: ping room every 25 seconds to maintain active presence
+    const pingInterval = setInterval(() => {
+      fetch(`/api/rooms/${id}/join`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'ping' }),
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (isMounted && data.participants) {
+            setParticipants(data.participants);
+          }
+        })
+        .catch(() => {});
+    }, 25000);
+
+    // 5. Cleanup on unmount
     return () => {
-      newSocket.disconnect();
+      isMounted = false;
+      clearInterval(pingInterval);
+      eventSource.close();
+
+      // Gracefully leave room
+      fetch(`/api/rooms/${id}/join`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'leave' }),
+        keepalive: true,
+      }).catch(() => {});
     };
   }, [user, id]);
 
@@ -62,7 +122,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
     }
   }, [messages, showMobileDrawer]);
 
-  // Timer logic
+  // Timer tick logic
   useEffect(() => {
     let interval: any = null;
     if (timerActive && timeLeft > 0) {
@@ -71,7 +131,11 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
           if (prev <= 1) {
             setTimerActive(false);
             haptics.notification('success');
-            if (socket) socket.emit('update-timer', { roomId: id, timerState: 'finished', timeLeft: 0 });
+            fetch(`/api/rooms/${id}/timer`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ timerState: 'finished', timeLeft: 0 }),
+            }).catch(() => {});
             return 0;
           }
           return prev - 1;
@@ -81,50 +145,60 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
       clearInterval(interval);
     }
     return () => clearInterval(interval);
-  }, [timerActive, timeLeft, socket, id]);
-
-  // Sync timer state with others occasionally (every 10 seconds)
-  useEffect(() => {
-    if (!socket || !timerActive) return;
-    const interval = setInterval(() => {
-      socket.emit('update-timer', { roomId: id, timerState: 'active', timeLeft });
-    }, 10000);
-    return () => clearInterval(interval);
-  }, [socket, timerActive, timeLeft, id]);
+  }, [timerActive, timeLeft, id]);
 
   const toggleTimer = () => {
     haptics.impact('light');
     const newState = !timerActive;
     setTimerActive(newState);
-    if (socket) {
-      socket.emit('update-timer', { roomId: id, timerState: newState ? 'active' : 'paused', timeLeft });
-    }
+    fetch(`/api/rooms/${id}/timer`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ timerState: newState ? 'active' : 'paused', timeLeft }),
+    }).catch(() => {});
   };
 
   const resetTimer = () => {
     haptics.selection();
     setTimerActive(false);
     setTimeLeft(initialTime);
-    if (socket) {
-      socket.emit('update-timer', { roomId: id, timerState: 'paused', timeLeft: initialTime });
-    }
+    fetch(`/api/rooms/${id}/timer`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ timerState: 'paused', timeLeft: initialTime }),
+    }).catch(() => {});
   };
 
-  const sendMessage = (e: React.FormEvent) => {
+  const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !socket || !user) return;
+    if (!newMessage.trim() || !user) return;
 
     haptics.impact('light');
-    const msg = {
-      id: Date.now().toString(),
-      sender: user.username,
-      text: newMessage,
-      time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
-      isSystem: false
-    };
-
-    socket.emit('send-message', { roomId: id, message: msg });
+    const textToSend = newMessage.trim();
     setNewMessage('');
+
+    // Optimistic message update
+    const tempId = Date.now().toString();
+    const optimisticMsg = {
+      id: tempId,
+      sender: user.username,
+      text: textToSend,
+      time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
+      isSystem: false,
+    };
+    setMessages(prev => [...prev, optimisticMsg]);
+
+    try {
+      const res = await fetch(`/api/rooms/${id}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: textToSend }),
+      });
+      const data = await res.json();
+      if (data.message) {
+        setMessages(prev => prev.map(m => m.id === tempId ? data.message : m));
+      }
+    } catch (_) {}
   };
 
   const formatTime = (seconds: number) => {
@@ -133,7 +207,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  if (!user) return <div className="p-8 text-center">Giriş yapılıyor...</div>;
+  if (!user) return <div className="p-8 text-center text-gray-400">Giriş yapılıyor...</div>;
 
   return (
     <div className="flex h-[calc(100vh-80px)] bg-gray-50 overflow-hidden relative">
@@ -144,10 +218,16 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
           <span>Odalara Dön</span>
         </Link>
         
-        {/* Placeholder for video / visual background */}
+        {/* Visual Header / Study Atmosphere */}
         <div className="w-full aspect-video bg-gray-900 rounded-2xl mb-6 md:mb-8 flex items-center justify-center relative overflow-hidden shadow-xl">
            <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent z-10" />
-           <h1 className="absolute bottom-4 left-4 md:bottom-6 md:left-6 text-white text-xl md:text-3xl font-bold z-20">Lofi Kütüphane</h1>
+           <div className="absolute bottom-4 left-4 md:bottom-6 md:left-6 z-20">
+             <div className="flex items-center gap-2 mb-1">
+               <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
+               <span className="text-xs uppercase tracking-wider font-bold text-green-400">Canlı Odak Odası</span>
+             </div>
+             <h1 className="text-white text-xl md:text-3xl font-bold">Lofi Kütüphane</h1>
+           </div>
         </div>
 
         {/* Timer UI */}
@@ -239,11 +319,9 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
               </span>
               <div className="flex items-center gap-2">
                 {participants.map(p => (
-                  <span key={p.socketId} className="inline-flex items-center gap-1 bg-white px-2.5 py-1 rounded-full border border-gray-200 text-xs text-gray-700 whitespace-nowrap shadow-xs">
+                  <span key={p.id || p.username} className="inline-flex items-center gap-1 bg-white px-2.5 py-1 rounded-full border border-gray-200 text-xs text-gray-700 whitespace-nowrap shadow-xs">
                     <span className="font-medium">{p.username}</span>
-                    <span className={`font-mono text-[10px] font-bold ${p.timerState === 'active' ? 'text-green-600' : 'text-gray-400'}`}>
-                      {formatTime(p.timeLeft)}
-                    </span>
+                    <span className="text-[10px] text-amber-600 bg-amber-50 px-1 rounded font-semibold">{p.league || 'Öğrenci'}</span>
                   </span>
                 ))}
                 {participants.length === 0 && <span className="text-xs text-gray-400">Kimse yok</span>}
@@ -253,7 +331,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
             {/* Chat Messages */}
             <div ref={mobileChatRef} className="flex-1 overflow-y-auto p-4 flex flex-col gap-2.5 bg-gray-50/40">
               {messages.map((msg, i) => (
-                <div key={i} className={`flex flex-col max-w-[85%] ${msg.isSystem ? 'mx-auto items-center' : (msg.sender === user?.username ? 'self-end items-end' : 'self-start items-start')}`}>
+                <div key={msg.id || i} className={`flex flex-col max-w-[85%] ${msg.isSystem ? 'mx-auto items-center' : (msg.sender === user?.username ? 'self-end items-end' : 'self-start items-start')}`}>
                   {msg.isSystem ? (
                     <span className="text-[11px] text-gray-400 bg-gray-200/60 px-3 py-0.5 rounded-full">{msg.text}</span>
                   ) : (
@@ -305,10 +383,10 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
           
           <div className="flex flex-col gap-2 max-h-32 overflow-y-auto pr-2 custom-scrollbar">
             {participants.map(p => (
-              <div key={p.socketId} className="flex items-center justify-between bg-white p-2 rounded-lg border border-gray-100 text-sm shadow-sm">
+              <div key={p.id || p.username} className="flex items-center justify-between bg-white p-2 rounded-lg border border-gray-100 text-sm shadow-sm">
                 <span className="font-medium text-gray-700">{p.username}</span>
-                <span className={`text-xs font-mono font-bold ${p.timerState === 'active' ? 'text-green-600' : 'text-gray-400'}`}>
-                  {formatTime(p.timeLeft)}
+                <span className="text-[10px] text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded font-semibold">
+                  {p.league || 'Öğrenci'}
                 </span>
               </div>
             ))}
@@ -325,7 +403,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
           
           <div ref={chatRef} className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 custom-scrollbar bg-gray-50/30">
             {messages.map((msg, i) => (
-              <div key={i} className={`flex flex-col max-w-[90%] ${msg.isSystem ? 'mx-auto items-center' : (msg.sender === user?.username ? 'self-end items-end' : 'self-start items-start')}`}>
+              <div key={msg.id || i} className={`flex flex-col max-w-[90%] ${msg.isSystem ? 'mx-auto items-center' : (msg.sender === user?.username ? 'self-end items-end' : 'self-start items-start')}`}>
                 {msg.isSystem ? (
                   <span className="text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-full">{msg.text}</span>
                 ) : (
