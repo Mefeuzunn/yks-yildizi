@@ -132,6 +132,33 @@ export default function DenemelerPage() {
   const [userAlan, setUserAlan] = useState<'Sayisal'|'Esit Agirlik'|'Sozel'|'Dil'>('Sayisal');
   const [activeTab, setActiveTab] = useState<'TYT' | 'AYT'>('TYT');
   const [modalTab, setModalTab] = useState<'TYT' | 'AYT'>('TYT');
+  const [aiAnalysisModalOpen, setAiAnalysisModalOpen] = useState(false);
+  const [aiAnalysisData, setAiAnalysisData] = useState<any>(null);
+  const [isAiAnalyzing, setIsAiAnalyzing] = useState(false);
+  const [aiAnalysisError, setAiAnalysisError] = useState<string | null>(null);
+
+  const handleOpenAiAnalysis = async (type: 'TYT' | 'AYT') => {
+    setIsAiAnalyzing(true);
+    setAiAnalysisError(null);
+    setAiAnalysisModalOpen(true);
+    try {
+      const res = await fetch('/api/ai/exam-analysis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setAiAnalysisData(data.analysis);
+      } else {
+        setAiAnalysisError(data.error || 'Analiz oluşturulurken bir hata oluştu.');
+      }
+    } catch (e: any) {
+      setAiAnalysisError('Sunucu bağlantısı sağlanamadı.');
+    } finally {
+      setIsAiAnalyzing(false);
+    }
+  };
 
   const handleSimulateScan = () => {
     setIsScanning(true);
@@ -572,6 +599,45 @@ export default function DenemelerPage() {
                     )
                   })}
                 </div>
+
+                {/* AI Analiz ve Reçete Butonu */}
+                <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                  <button
+                    type="button"
+                    onClick={() => handleOpenAiAnalysis(activeTab)}
+                    disabled={isAiAnalyzing}
+                    className="ai-analysis-btn"
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: '12px',
+                      background: 'linear-gradient(135deg, rgba(99,102,241,0.25), rgba(168,85,247,0.25))',
+                      border: '1px solid rgba(139,92,246,0.4)',
+                      color: '#c4b5fd',
+                      fontSize: '0.875rem',
+                      fontWeight: 700,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                      cursor: isAiAnalyzing ? 'not-allowed' : 'pointer',
+                      boxShadow: '0 4px 15px rgba(139,92,246,0.15)',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    {isAiAnalyzing ? (
+                      <>
+                        <Loader2 size={16} className="spin" />
+                        <span>Analiz Ediliyor...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles size={16} color="#c084fc" />
+                        <span>✨ AI Koç Analizi & Reçete</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </>
             ) : (
               <div style={{ color: 'var(--text-muted)' }}>Veri bulunamadı.</div>
@@ -722,6 +788,217 @@ export default function DenemelerPage() {
                   {modalTab} Denemesini Kaydet
                 </button>
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* AI Koç Analiz & Reçete Modalı */}
+      <AnimatePresence>
+        {aiAnalysisModalOpen && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, backdropFilter: 'blur(8px)', padding: '1rem' }}>
+            <motion.div
+              className="denemeler-modal-inner"
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              style={{
+                background: '#131827',
+                border: '1px solid rgba(139, 92, 246, 0.3)',
+                borderRadius: '24px',
+                padding: '2rem',
+                width: '100%',
+                maxWidth: '680px',
+                maxHeight: '85vh',
+                overflowY: 'auto',
+                boxShadow: '0 25px 50px -12px rgba(139, 92, 246, 0.25)',
+                position: 'relative'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'linear-gradient(135deg, #8b5cf6, #d946ef)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 20px rgba(139, 92, 246, 0.4)' }}>
+                    <Sparkles size={22} color="#fff" />
+                  </div>
+                  <div>
+                    <h3 style={{ color: '#fff', fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>
+                      AI Koç {activeTab} Deneme Teşhisi
+                    </h3>
+                    <p style={{ color: '#c4b5fd', fontSize: '0.8rem', margin: '2px 0 0' }}>
+                      Net analizi, kaçan fırsatlar ve kişisel çalışma reçetesi
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAiAnalysisModalOpen(false)}
+                  style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {isAiAnalyzing ? (
+                <div style={{ padding: '3rem 1rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                  <Loader2 size={36} color="#8b5cf6" className="animate-spin" />
+                  <p style={{ color: '#c4b5fd', fontSize: '0.95rem', fontWeight: 600, maxWidth: '400px' }}>
+                    Yapay zeka son {activeTab} denemeni, hata defterindeki eksiklerini ve sıralama hedefini harmanlıyor...
+                  </p>
+                </div>
+              ) : aiAnalysisError ? (
+                <div style={{ padding: '2rem', textAlign: 'center', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)', borderRadius: '16px' }}>
+                  <p style={{ color: '#fca5a5', fontSize: '0.9rem', marginBottom: '1rem' }}>{aiAnalysisError}</p>
+                  <button
+                    type="button"
+                    onClick={() => handleOpenAiAnalysis(activeTab)}
+                    style={{ padding: '8px 16px', borderRadius: '8px', background: 'rgba(239,68,68,0.2)', border: 'none', color: '#fca5a5', cursor: 'pointer', fontWeight: 600 }}
+                  >
+                    Tekrar Dene
+                  </button>
+                </div>
+              ) : aiAnalysisData ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  {/* Genel Değerlendirme */}
+                  <div style={{ padding: '1.25rem', background: 'rgba(139, 92, 246, 0.08)', border: '1px solid rgba(139, 92, 246, 0.25)', borderRadius: '16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                      <span style={{ fontSize: '1rem' }}>💡</span>
+                      <h4 style={{ color: '#e2e8f0', fontSize: '0.95rem', fontWeight: 700, margin: 0 }}>Koçun Genel Değerlendirmesi</h4>
+                    </div>
+                    <p style={{ color: '#c4b5fd', fontSize: '0.875rem', lineHeight: 1.6, margin: 0 }}>
+                      {aiAnalysisData.overallEvaluation}
+                    </p>
+                  </div>
+
+                  {/* Kaçan Netler ve Sıralama Fırsatları */}
+                  {aiAnalysisData.criticalGaps?.length > 0 && (
+                    <div>
+                      <h4 style={{ color: '#fff', fontSize: '0.95rem', fontWeight: 700, marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span>🎯</span> En Kritik Kaçan Net Fırsatları
+                      </h4>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '0.75rem' }}>
+                        {aiAnalysisData.criticalGaps.map((gap: any, idx: number) => (
+                          <div
+                            key={idx}
+                            style={{
+                              padding: '1rem',
+                              background: 'rgba(255, 255, 255, 0.03)',
+                              border: '1px solid rgba(244, 63, 94, 0.3)',
+                              borderRadius: '14px'
+                            }}
+                          >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                              <div>
+                                <span style={{ color: '#f43f5e', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>{gap.subject}</span>
+                                <h5 style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 700, margin: '2px 0 0' }}>{gap.topic}</h5>
+                              </div>
+                              <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '12px', background: 'rgba(244, 63, 94, 0.15)', color: '#fda4af', fontWeight: 700 }}>
+                                {gap.netLoss}
+                              </span>
+                            </div>
+                            <div style={{ fontSize: '0.75rem', color: '#38bdf8', fontWeight: 600, marginBottom: '0.5rem' }}>
+                              ⚡ Potansiyel Sıçrama: {gap.potentialRankGain}
+                            </div>
+                            <p style={{ color: '#94a3b8', fontSize: '0.8rem', lineHeight: 1.5, margin: 0 }}>
+                              {gap.advice}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 3 Günlük Telafi Reçetesi */}
+                  {aiAnalysisData.studyPrescription?.length > 0 && (
+                    <div>
+                      <h4 style={{ color: '#fff', fontSize: '0.95rem', fontWeight: 700, marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span>📋</span> 3 Günlük Hızlı Telafi Reçetesi
+                      </h4>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                        {aiAnalysisData.studyPrescription.map((item: any, idx: number) => (
+                          <div
+                            key={idx}
+                            style={{
+                              padding: '0.875rem 1rem',
+                              background: 'rgba(255, 255, 255, 0.02)',
+                              border: '1px solid rgba(255, 255, 255, 0.08)',
+                              borderRadius: '12px',
+                              display: 'flex',
+                              alignItems: 'flex-start',
+                              gap: '0.75rem'
+                            }}
+                          >
+                            <span style={{ fontSize: '0.75rem', fontWeight: 800, padding: '4px 8px', borderRadius: '8px', background: 'rgba(16, 185, 129, 0.15)', color: '#6ee7b7', whiteSpace: 'nowrap' }}>
+                              {item.day}
+                            </span>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ color: '#e2e8f0', fontSize: '0.85rem', fontWeight: 700 }}>
+                                  {item.focusSubject} • {item.topic}
+                                </span>
+                                <span style={{ color: '#a78bfa', fontSize: '0.75rem', fontWeight: 600 }}>
+                                  🎯 {item.targetQuestions} Soru
+                                </span>
+                              </div>
+                              <p style={{ color: '#94a3b8', fontSize: '0.75rem', margin: '4px 0 0', lineHeight: 1.4 }}>
+                                {item.strategy}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Motivasyon */}
+                  {aiAnalysisData.motivationalQuote && (
+                    <div style={{ padding: '0.75rem 1rem', background: 'linear-gradient(135deg, rgba(99,102,241,0.1), rgba(168,85,247,0.05))', borderRadius: '12px', borderLeft: '3px solid #8b5cf6' }}>
+                      <p style={{ color: '#e2e8f0', fontSize: '0.8rem', fontStyle: 'italic', margin: 0 }}>
+                        "{aiAnalysisData.motivationalQuote}"
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Aksiyon Butonları */}
+                  <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+                    <a
+                      href="/dashboard?tab=astratutor"
+                      style={{
+                        flex: 1,
+                        padding: '10px 16px',
+                        borderRadius: '12px',
+                        background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+                        color: '#fff',
+                        fontSize: '0.875rem',
+                        fontWeight: 700,
+                        textAlign: 'center',
+                        textDecoration: 'none',
+                        boxShadow: '0 4px 15px rgba(99,102,241,0.3)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      🤖 AstraTutor ile Bu Sonucu Konuş
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => setAiAnalysisModalOpen(false)}
+                      style={{
+                        padding: '10px 20px',
+                        borderRadius: '12px',
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        color: '#94a3b8',
+                        fontSize: '0.875rem',
+                        fontWeight: 600,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Kapat
+                    </button>
+                  </div>
+                </div>
+              ) : null}
             </motion.div>
           </div>
         )}
