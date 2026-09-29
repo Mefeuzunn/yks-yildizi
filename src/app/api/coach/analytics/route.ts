@@ -31,7 +31,7 @@ export async function GET(req: Request) {
     }
 
     // Fetch actual data
-    const exams = await db.prepare('SELECT * FROM mock_exams WHERE user_id = ? AND exam_type = "TYT" ORDER BY id ASC').all(userId) as any[];
+    const exams = await db.prepare("SELECT * FROM mock_exams WHERE user_id = ? AND exam_type = 'TYT' ORDER BY id ASC").all(userId) as any[];
 
     // Transform for line chart
     const trendData = exams.map(e => ({

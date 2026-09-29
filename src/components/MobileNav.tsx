@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+import { X, LogOut } from 'lucide-react';
 import { triggerHaptic } from '@/lib/haptics';
 
 const MAIN_TABS = [
@@ -38,7 +38,7 @@ function MobileNavContent() {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   const TEACHER_MAIN_TABS = [
     { emoji: '🏠', label: 'Genel Bakış', href: '/ogretmen/dashboard' },
@@ -273,6 +273,36 @@ function MobileNavContent() {
                   );
                 })}
               </div>
+
+              {/* Logout Button in Mobile Drawer */}
+              <button
+                type="button"
+                onClick={() => {
+                  triggerHaptic('medium');
+                  setIsMoreOpen(false);
+                  logout();
+                }}
+                style={{
+                  marginTop: '16px',
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '10px',
+                  padding: '14px',
+                  backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  borderRadius: '14px',
+                  color: '#f87171',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'background 0.2s',
+                }}
+              >
+                <LogOut size={18} />
+                <span>Çıkış Yap</span>
+              </button>
             </motion.div>
           </>
         )}

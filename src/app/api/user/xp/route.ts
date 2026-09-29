@@ -31,7 +31,7 @@ export async function POST(req: Request) {
     
     // 2. If stats don't exist for some reason, create them
     if (!stats) {
-      await db.prepare('INSERT INTO user_stats (user_id, solved_questions, success_rate, league, league_points, streak_days) VALUES (?, 0, 0, "Bronz", 0, 0)').run(userId);
+      await db.prepare("INSERT INTO user_stats (user_id, solved_questions, success_rate, league, league_points, streak_days) VALUES (?, 0, 0, 'Bronz', 0, 0)").run(userId);
       stats = { league_points: 0, solved_questions: 0 };
     }
 

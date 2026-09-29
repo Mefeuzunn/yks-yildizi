@@ -11,7 +11,7 @@ import {
   ChevronUp, ChevronDown, Trash2, Bell, Zap, Target,
   GraduationCap, BookMarked, PenLine, RefreshCw, ArrowRight,
   CheckCircle, Clock, AlertCircle, Flame, Trophy, Shield, Sparkles, BrainCircuit, User,
-  Pencil, UserMinus, MessageSquare, Share2, Download, Printer, Rocket
+  Pencil, UserMinus, MessageSquare, Share2, Download, Printer, Rocket, LogOut
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -486,6 +486,7 @@ function ClassMockExamAnalyticsWidget({ classId }: { classId: string | null }) {
 
 
 function TeacherProfileTab() {
+  const { logout } = useAuth();
   const [profile, setProfile] = React.useState<any>(null);
   const [stats, setStats] = React.useState<any>({});
   const [loading, setLoading] = React.useState(true);
@@ -715,6 +716,26 @@ function TeacherProfileTab() {
         >
           {saving ? <Loader2 size={18} className="animate-spin" /> : saved ? <CheckCircle size={18} /> : <Star size={18} />}
           {saving ? 'Kaydediliyor...' : saved ? 'Kaydedildi!' : 'Profili Güncelle'}
+        </button>
+
+        {/* Logout Button */}
+        <button
+          type="button"
+          onClick={logout}
+          style={{
+            padding: '0.75rem 1.5rem', borderRadius: '12px',
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            color: '#f87171', fontWeight: 700, fontSize: '0.9rem',
+            cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: '0.5rem',
+            justifyContent: 'center',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
+        >
+          <LogOut size={18} /> Oturumu Kapat (Çıkış Yap)
         </button>
       </div>
 
@@ -2017,7 +2038,7 @@ export default function TeacherDashboard() {
 }
 
 function TeacherDashboardContent() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
   const tabParam = searchParams?.get('tab') as Tab | null;
@@ -2745,12 +2766,32 @@ function TeacherDashboardContent() {
             </p>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button onClick={() => { fetchDashboard(); fetchClasses(); }} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, color: '#9ca3af', padding: '0.6rem 1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
-            <RefreshCw size={16} /> Yenile
+        <div style={{ display: 'flex', gap: '0.65rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          <button onClick={() => { fetchDashboard(); fetchClasses(); }} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, color: '#9ca3af', padding: '0.6rem 0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.85rem' }}>
+            <RefreshCw size={15} /> Yenile
           </button>
-          <button onClick={() => setActiveModal('sinif')} className="btn-interactive" style={{ background: 'linear-gradient(135deg,#10b981,#059669)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
+          <button onClick={() => setActiveModal('sinif')} className="btn-interactive" style={{ background: 'linear-gradient(135deg,#10b981,#059669)', display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.85rem' }}>
             <Plus size={16} /> Yeni Sınıf
+          </button>
+          <button
+            onClick={logout}
+            style={{
+              background: 'rgba(239, 68, 68, 0.12)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              borderRadius: 10,
+              color: '#f87171',
+              padding: '0.6rem 0.9rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              transition: 'all 0.15s'
+            }}
+            title="Oturumu Kapat"
+          >
+            <LogOut size={16} /> Çıkış
           </button>
         </div>
       </div>
