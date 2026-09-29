@@ -24,8 +24,21 @@ export default function AstraTutorTab() {
   const [isTyping, setIsTyping] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(false);
+  const [studentMemory, setStudentMemory] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
+
+  // Fetch student memory profile on mount
+  useEffect(() => {
+    fetch('/api/astratutor/memory')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.memory) {
+          setStudentMemory(data.memory);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Check for Web Speech API support
   useEffect(() => {
@@ -77,13 +90,13 @@ export default function AstraTutorTab() {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  const handleSend = async () => {
-    if (!input.trim()) return;
+  const handleSendPrompt = async (promptText: string) => {
+    if (!promptText.trim() || isTyping) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
-      content: input,
+      content: promptText,
       timestamp: new Date()
     };
 
@@ -121,6 +134,8 @@ export default function AstraTutorTab() {
     }
   };
 
+  const handleSend = () => handleSendPrompt(input);
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 10 }} 
@@ -142,7 +157,22 @@ export default function AstraTutorTab() {
           <h2 className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 flex items-center gap-2">
             AstraTutor <Sparkles className="w-5 h-5 text-indigo-400" />
           </h2>
-          <p className="text-gray-400 font-medium">YKS Yapay Zeka Koçu</p>
+          <div className="flex items-center gap-2 flex-wrap mt-0.5">
+            <span className="text-gray-400 font-medium text-sm">YKS Yapay Zeka Koçu</span>
+            {studentMemory && (
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 font-semibold flex items-center gap-1.5">
+                <span>⏳ {studentMemory.daysToYKS} Gün Kaldı</span>
+                <span>•</span>
+                <span>{studentMemory.alan}</span>
+                {studentMemory.targetDepartment && (
+                  <>
+                    <span>•</span>
+                    <span className="text-amber-300">🎯 {studentMemory.targetDepartment}</span>
+                  </>
+                )}
+              </span>
+            )}
+          </div>
         </div>
         <div className="ml-auto hidden md:flex items-center gap-2 px-4 py-2 bg-indigo-500/10 border border-indigo-500/30 rounded-full text-indigo-400 font-bold text-sm">
           <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse" />
@@ -224,7 +254,26 @@ export default function AstraTutorTab() {
       </div>
 
       {/* Input Area */}
-      <div className="relative z-10">
+      <div className="relative z-10 flex flex-col gap-2">
+        {/* Quick Suggestion Chips */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 px-1 custom-scrollbar">
+          {[
+            { label: '⚡ Bugünkü reçetem ne?', prompt: 'Bugün için kişisel reçetemi ve çalışma planımı hazırlar mısın?' },
+            { label: '📊 Durumum nasıl?', prompt: 'Son denemelerime ve soru çözüm geçmişime göre genel durumumu analiz eder misin?' },
+            { label: '🎯 Hedefime ne kadar var?', prompt: 'Hedeflediğim üniversite ve bölüme şu anki netlerimle ne kadar yakınım?' },
+            { label: '💡 Netlerimi nasıl artırırım?', prompt: 'Netlerimi artırmak ve zayıf konularımı kapatmak için bana strateji verir misin?' },
+          ].map((item, idx) => (
+            <button
+              key={idx}
+              onClick={() => handleSendPrompt(item.prompt)}
+              disabled={isTyping}
+              className="flex-shrink-0 px-3 py-1.5 rounded-full bg-white/[0.04] hover:bg-indigo-500/20 text-gray-300 hover:text-indigo-200 text-xs font-medium border border-white/10 hover:border-indigo-500/40 transition-all cursor-pointer whitespace-nowrap active:scale-95 disabled:opacity-50"
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+
         <div className="bg-white/[0.03] border border-white/10 p-2 rounded-[2rem] flex items-end gap-2 backdrop-blur-xl shadow-2xl relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-purple-500/5 pointer-events-none" />
           <textarea
