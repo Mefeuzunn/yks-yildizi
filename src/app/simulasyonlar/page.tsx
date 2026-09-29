@@ -95,24 +95,24 @@ export default function SimulasyonlarPage() {
   const getSubjectMeta = (subj: string) => {
     switch (subj) {
       case 'Fizik': 
-        return { icon: <Atom color="#38bdf8" size={32} />, color: '#38bdf8', bg: 'rgba(56,189,248,0.1)' };
+        return { icon: <Atom color="#38bdf8" size={32} />, emoji: '⚡', color: '#38bdf8', bg: 'rgba(56,189,248,0.1)' };
       case 'Kimya': 
-        return { icon: <FlaskConical color="#34d399" size={32} />, color: '#34d399', bg: 'rgba(52,211,153,0.1)' };
+        return { icon: <FlaskConical color="#34d399" size={32} />, emoji: '🧪', color: '#34d399', bg: 'rgba(52,211,153,0.1)' };
       case 'Biyoloji': 
-        return { icon: <Dna color="#4ade80" size={32} />, color: '#4ade80', bg: 'rgba(74,222,128,0.1)' };
+        return { icon: <Dna color="#4ade80" size={32} />, emoji: '🧬', color: '#4ade80', bg: 'rgba(74,222,128,0.1)' };
       case 'Matematik': 
-        return { icon: <Calculator color="#c084fc" size={32} />, color: '#c084fc', bg: 'rgba(192,132,252,0.1)' };
+        return { icon: <Calculator color="#c084fc" size={32} />, emoji: '📐', color: '#c084fc', bg: 'rgba(192,132,252,0.1)' };
       default: 
-        return { icon: <Compass color="#a78bfa" size={32} />, color: '#a78bfa', bg: 'rgba(167,139,250,0.1)' };
+        return { icon: <Compass color="#a78bfa" size={32} />, emoji: '🔬', color: '#a78bfa', bg: 'rgba(167,139,250,0.1)' };
     }
   };
 
-  const SUBJECT_BUTTONS: { key: Subject; label: string; count?: string }[] = [
-    { key: 'Tümü', label: 'Tüm Deneyler', count: '49' },
-    { key: 'Fizik', label: 'Fizik', count: '22' },
-    { key: 'Kimya', label: 'Kimya', count: '10' },
-    { key: 'Biyoloji', label: 'Biyoloji', count: '7' },
-    { key: 'Matematik', label: 'Matematik', count: '10' },
+  const SUBJECT_BUTTONS: { key: Subject; label: string; count?: string; emoji: string }[] = [
+    { key: 'Tümü', label: 'Tüm Deneyler', count: '49', emoji: '🧪' },
+    { key: 'Fizik', label: 'Fizik', count: '22', emoji: '⚡' },
+    { key: 'Kimya', label: 'Kimya', count: '10', emoji: '🧪' },
+    { key: 'Biyoloji', label: 'Biyoloji', count: '7', emoji: '🧬' },
+    { key: 'Matematik', label: 'Matematik', count: '10', emoji: '📐' },
   ];
 
   const handleLaunch = (sim: any) => {
@@ -130,7 +130,7 @@ export default function SimulasyonlarPage() {
       <div style={{ marginBottom: '28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{ width: '56px', height: '56px', borderRadius: '18px', background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 35px rgba(59, 130, 246, 0.35)', border: '1px solid rgba(255,255,255,0.2)' }}>
-            <Beaker color="#fff" size={28} />
+            <span style={{ fontSize: '28px', lineHeight: 1 }}>🔬</span>
           </div>
           <div>
             <h1 style={{ fontSize: 'clamp(1.5rem, 3.5vw, 1.85rem)', fontWeight: 800, color: 'white', margin: '0 0 4px 0', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -170,6 +170,7 @@ export default function SimulasyonlarPage() {
                 gap: '6px'
               }}
             >
+              <span style={{ fontSize: '14px', lineHeight: 1 }}>{btn.emoji}</span>
               <span>{btn.label}</span>
               {btn.count && (
                 <span style={{ fontSize: '10px', background: isActive ? '#3b82f6' : 'rgba(255,255,255,0.08)', color: '#fff', padding: '1px 6px', borderRadius: '8px', fontWeight: 800 }}>
@@ -262,8 +263,9 @@ export default function SimulasyonlarPage() {
                   <div style={{ width: '64px', height: '64px', borderRadius: '18px', background: meta.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${meta.color}40`, boxShadow: `0 0 20px ${meta.color}20` }}>
                     {meta.icon}
                   </div>
-                  <span style={{ position: 'absolute', bottom: '10px', right: '14px', fontSize: '11px', fontWeight: 700, color: meta.color }}>
-                    {sim.subject}
+                  <span style={{ position: 'absolute', bottom: '10px', right: '14px', fontSize: '11px', fontWeight: 700, color: meta.color, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <span>{meta.emoji}</span>
+                    <span>{sim.subject}</span>
                   </span>
                 </div>
 

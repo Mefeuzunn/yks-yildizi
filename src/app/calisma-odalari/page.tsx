@@ -38,6 +38,7 @@ export default function CalismaOdalariLobby() {
       case 'library':
         return {
           icon: <BookOpen className="w-6 h-6 text-emerald-400" />,
+          emoji: '📚',
           accent: '#10b981',
           glow: 'rgba(16, 185, 129, 0.25)',
           gradient: 'from-emerald-500/15 via-emerald-500/5 to-transparent',
@@ -50,6 +51,7 @@ export default function CalismaOdalariLobby() {
       case 'lofi':
         return {
           icon: <Headphones className="w-6 h-6 text-purple-400" />,
+          emoji: '☕',
           accent: '#8b5cf6',
           glow: 'rgba(139, 92, 246, 0.25)',
           gradient: 'from-purple-500/15 via-purple-500/5 to-transparent',
@@ -62,6 +64,7 @@ export default function CalismaOdalariLobby() {
       case 'rain':
         return {
           icon: <CloudRain className="w-6 h-6 text-sky-400" />,
+          emoji: '🌧️',
           accent: '#0ea5e9',
           glow: 'rgba(14, 165, 233, 0.25)',
           gradient: 'from-sky-500/15 via-sky-500/5 to-transparent',
@@ -74,6 +77,7 @@ export default function CalismaOdalariLobby() {
       case 'tech':
         return {
           icon: <Code className="w-6 h-6 text-amber-400" />,
+          emoji: '⚡',
           accent: '#f59e0b',
           glow: 'rgba(245, 158, 11, 0.25)',
           gradient: 'from-amber-500/15 via-amber-500/5 to-transparent',
@@ -86,6 +90,7 @@ export default function CalismaOdalariLobby() {
       default:
         return {
           icon: <Users className="w-6 h-6 text-indigo-400" />,
+          emoji: '👥',
           accent: '#6366f1',
           glow: 'rgba(99, 102, 241, 0.25)',
           gradient: 'from-indigo-500/15 via-indigo-500/5 to-transparent',
@@ -158,13 +163,12 @@ export default function CalismaOdalariLobby() {
       {/* Filter Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-8 custom-scrollbar">
         {[
-          { id: 'all', label: 'Tüm Odalar', icon: Sparkles },
-          { id: 'library', label: 'Sessiz Kütüphane', icon: BookOpen },
-          { id: 'lofi', label: 'Lofi Chill Cafe', icon: Headphones },
-          { id: 'rain', label: 'Gece & Yağmur', icon: CloudRain },
-          { id: 'tech', label: 'Sayısal & Maraton', icon: Code },
+          { id: 'all', label: 'Tüm Odalar', emoji: '✨' },
+          { id: 'library', label: 'Sessiz Kütüphane', emoji: '📚' },
+          { id: 'lofi', label: 'Lofi Chill Cafe', emoji: '☕' },
+          { id: 'rain', label: 'Gece & Yağmur', emoji: '🌧️' },
+          { id: 'tech', label: 'Sayısal & Maraton', emoji: '⚡' },
         ].map(tab => {
-          const Icon = tab.icon;
           const isActive = filter === tab.id;
           return (
             <button
@@ -176,7 +180,7 @@ export default function CalismaOdalariLobby() {
                   : 'bg-white/[0.03] hover:bg-white/[0.07] text-gray-400 hover:text-white border border-white/5'
               }`}
             >
-              <Icon className="w-4 h-4" />
+              <span className="text-sm">{tab.emoji}</span>
               <span>{tab.label}</span>
             </button>
           );
@@ -230,8 +234,9 @@ export default function CalismaOdalariLobby() {
                   {/* Room Title & Theme */}
                   <div className="mb-3">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md border ${config.badge}`}>
-                        {config.title}
+                      <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md border flex items-center gap-1.5 ${config.badge}`}>
+                        <span>{config.emoji}</span>
+                        <span>{config.title}</span>
                       </span>
                     </div>
                     <h3 className="text-xl font-extrabold text-white group-hover:text-indigo-200 transition-colors">

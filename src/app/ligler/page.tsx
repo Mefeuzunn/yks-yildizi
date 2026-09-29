@@ -13,16 +13,17 @@ interface LeagueInfo {
   bg: string;
   border: string;
   glow: string;
+  emoji: string;
   icon: React.ReactNode;
 }
 
 const LEAGUES: LeagueInfo[] = [
-  { name: 'Bronz', minXp: 0, color: '#d97706', bg: 'rgba(180, 83, 9, 0.15)', border: 'rgba(217, 119, 6, 0.3)', glow: 'rgba(217, 119, 6, 0.25)', icon: <Medal size={16} /> },
-  { name: 'Gümüş', minXp: 100, color: '#9ca3af', bg: 'rgba(156, 163, 175, 0.15)', border: 'rgba(156, 163, 175, 0.3)', glow: 'rgba(156, 163, 175, 0.25)', icon: <Medal size={16} /> },
-  { name: 'Altın', minXp: 500, color: '#facc15', bg: 'rgba(250, 204, 21, 0.15)', border: 'rgba(250, 204, 21, 0.35)', glow: 'rgba(250, 204, 21, 0.35)', icon: <Trophy size={16} /> },
-  { name: 'Platin', minXp: 1000, color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.15)', border: 'rgba(56, 189, 248, 0.35)', glow: 'rgba(56, 189, 248, 0.35)', icon: <Trophy size={16} /> },
-  { name: 'Elmas', minXp: 2000, color: '#818cf8', bg: 'rgba(99, 102, 241, 0.15)', border: 'rgba(99, 102, 241, 0.4)', glow: 'rgba(99, 102, 241, 0.35)', icon: <Crown size={16} /> },
-  { name: 'Şampiyon', minXp: 3000, color: '#c084fc', bg: 'rgba(168, 85, 247, 0.2)', border: 'rgba(168, 85, 247, 0.5)', glow: 'rgba(168, 85, 247, 0.45)', icon: <Crown size={16} /> },
+  { name: 'Bronz', minXp: 0, color: '#d97706', bg: 'rgba(180, 83, 9, 0.15)', border: 'rgba(217, 119, 6, 0.3)', glow: 'rgba(217, 119, 6, 0.25)', emoji: '🥉', icon: <Medal size={16} /> },
+  { name: 'Gümüş', minXp: 100, color: '#9ca3af', bg: 'rgba(156, 163, 175, 0.15)', border: 'rgba(156, 163, 175, 0.3)', glow: 'rgba(156, 163, 175, 0.25)', emoji: '🥈', icon: <Medal size={16} /> },
+  { name: 'Altın', minXp: 500, color: '#facc15', bg: 'rgba(250, 204, 21, 0.15)', border: 'rgba(250, 204, 21, 0.35)', glow: 'rgba(250, 204, 21, 0.35)', emoji: '🥇', icon: <Trophy size={16} /> },
+  { name: 'Platin', minXp: 1000, color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.15)', border: 'rgba(56, 189, 248, 0.35)', glow: 'rgba(56, 189, 248, 0.35)', emoji: '💠', icon: <Trophy size={16} /> },
+  { name: 'Elmas', minXp: 2000, color: '#818cf8', bg: 'rgba(99, 102, 241, 0.15)', border: 'rgba(99, 102, 241, 0.4)', glow: 'rgba(99, 102, 241, 0.35)', emoji: '💎', icon: <Crown size={16} /> },
+  { name: 'Şampiyon', minXp: 3000, color: '#c084fc', bg: 'rgba(168, 85, 247, 0.2)', border: 'rgba(168, 85, 247, 0.5)', glow: 'rgba(168, 85, 247, 0.45)', emoji: '👑', icon: <Crown size={16} /> },
 ];
 
 const LEAGUE_MAP: Record<string, LeagueInfo> = LEAGUES.reduce((acc, l) => ({ ...acc, [l.name]: l }), {});
@@ -165,7 +166,7 @@ export default function LeaderboardPage() {
                   transition: 'all 0.15s ease'
                 }}
               >
-                {l.icon}
+                <span style={{ fontSize: '15px' }}>{l.emoji}</span>
                 <span>{l.name}</span>
                 {isCurrent && <span style={{ fontSize: '9px', background: l.color, color: '#000', padding: '1px 5px', borderRadius: '6px', fontWeight: 800 }}>SEN</span>}
               </button>
@@ -204,9 +205,11 @@ export default function LeaderboardPage() {
                 background: currentLeagueInfo.bg,
                 border: `1.5px solid ${currentLeagueInfo.border}`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: `0 0 20px ${currentLeagueInfo.glow}`
+                boxShadow: `0 0 20px ${currentLeagueInfo.glow}`,
+                fontSize: '34px',
+                lineHeight: 1
               }}>
-                <Crown size={34} color={currentLeagueInfo.color} />
+                {currentLeagueInfo.emoji}
               </div>
               <div>
                 <div style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '2px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Mevcut Ligin</div>

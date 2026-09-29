@@ -372,7 +372,13 @@ export default function DuelloPage() {
   const timeProgress = (timeLeft / 15000) * 100;
   const progressColor = timeProgress > 50 ? '#10b981' : timeProgress > 20 ? '#f59e0b' : '#ef4444';
 
-  const subjects = ['Karisik', 'Matematik', 'Fen', 'Tarih', 'Turkce'];
+  const subjects = [
+    { id: 'Karisik', label: '🎲 Karışık' },
+    { id: 'Matematik', label: '📐 Matematik' },
+    { id: 'Fen', label: '⚡ Fen Bilimleri' },
+    { id: 'Tarih', label: '🏛️ Tarih' },
+    { id: 'Turkce', label: '📖 Türkçe' }
+  ];
 
   return (
     <div className="duel-container" style={{ background: '#080c14', minHeight: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column', color: '#fff', padding: '2rem' }}>
@@ -463,22 +469,22 @@ export default function DuelloPage() {
               <div style={{ display: 'flex', gap: '0.6rem', justifyContent: 'center', marginBottom: '2.5rem', flexWrap: 'wrap' }}>
                 {subjects.map(sub => (
                   <button
-                    key={sub}
-                    onClick={() => setSelectedSubject(sub)}
+                    key={sub.id}
+                    onClick={() => setSelectedSubject(sub.id)}
                     style={{
-                      background: selectedSubject === sub ? 'linear-gradient(135deg, rgba(239,68,68,0.25), rgba(185,28,28,0.15))' : 'rgba(255,255,255,0.03)',
-                      border: selectedSubject === sub ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.08)',
-                      color: selectedSubject === sub ? '#fca5a5' : '#94a3b8',
+                      background: selectedSubject === sub.id ? 'linear-gradient(135deg, rgba(239,68,68,0.25), rgba(185,28,28,0.15))' : 'rgba(255,255,255,0.03)',
+                      border: selectedSubject === sub.id ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.08)',
+                      color: selectedSubject === sub.id ? '#fca5a5' : '#94a3b8',
                       padding: '0.6rem 1.4rem',
                       borderRadius: '999px',
                       fontWeight: 700,
                       fontSize: '0.9rem',
                       cursor: 'pointer',
                       transition: 'all 0.2s',
-                      boxShadow: selectedSubject === sub ? '0 0 15px rgba(239,68,68,0.2)' : 'none'
+                      boxShadow: selectedSubject === sub.id ? '0 0 15px rgba(239,68,68,0.2)' : 'none'
                     }}
                   >
-                    {sub}
+                    {sub.label}
                   </button>
                 ))}
               </div>
