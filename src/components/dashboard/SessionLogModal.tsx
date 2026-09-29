@@ -81,6 +81,23 @@ export default function SessionLogModal() {
   const emptyQ = Math.max(0, totalQ - (correctQ + wrongQ));
   const netQ = Math.max(0, correctQ - (wrongQ * 0.25));
   const paceSec = totalQ > 0 ? Math.round(((durationMinutes || 25) * 60) / totalQ) : 0;
+  const [isOffline, setIsOffline] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    setIsOffline(!navigator.onLine);
+
+    const onOnline = () => setIsOffline(false);
+    const onOffline = () => setIsOffline(true);
+
+    window.addEventListener('online', onOnline);
+    window.addEventListener('offline', onOffline);
+
+    return () => {
+      window.removeEventListener('online', onOnline);
+      window.removeEventListener('offline', onOffline);
+    };
+  }, []);
 
   // Modal açıldığında state sıfırlama
   useEffect(() => {
@@ -200,6 +217,18 @@ export default function SessionLogModal() {
               <p style={{ color: '#94a3b8', fontSize: '13px', marginTop: '6px', marginBottom: 0 }}>
                 Çalışmanı ders ve konuya bağlayarak analiz ve öğretmen paneline kaydet.
               </p>
+
+              {isOffline && (
+                <div style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  marginTop: '10px', padding: '5px 14px', borderRadius: '12px',
+                  background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.35)',
+                  color: '#fcd34d', fontSize: '11px', fontWeight: 700
+                }}>
+                  <span>📡 Çevrimdışı Mod</span>
+                  <span style={{ fontWeight: 500, color: '#fef08a' }}>· Cihaza güvenle saklanacak, internet gelince aktarılacak</span>
+                </div>
+              )}
             </div>
 
             {/* ── SÜRE DÜZENLEME (Öğrenci Kendi Girebilir) ── */}
@@ -693,7 +722,13 @@ export default function SessionLogModal() {
                         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
                       }}
                     >
-                      {isSaving ? 'Kaydediliyor...' : <><Sparkles size={16} /> Oturumu Kaydet</>}
+                      {isSaving ? (
+                        'Kaydediliyor...'
+                      ) : isOffline ? (
+                        <><Sparkles size={16} /> Çevrimdışı Kaydet</>
+                      ) : (
+                        <><Sparkles size={16} /> Oturumu Kaydet</>
+                      )}
                     </button>
                   </div>
                 </motion.div>

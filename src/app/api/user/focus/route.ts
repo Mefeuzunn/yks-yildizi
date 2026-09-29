@@ -165,20 +165,28 @@ export async function POST(req: NextRequest) {
     const eCount = Math.max(0, Number(emptyCount) || 0);
     const calculatedNet = Math.max(0, cCount - (wCount * 0.25));
     const nScore = netScore !== undefined && netScore !== null ? Number(netScore) : calculatedNet;
-    const id = uuidv4();
+    const id = body.id || uuidv4();
+    const sessionTime = body.completedAt ? new Date(body.completedAt) : new Date();
 
-    // 1. Gerçek odak oturumunu soru sayıları ile kaydet
-    await db.prepare(`
+    // 1. Gerçek odak oturumunu soru sayıları ve idempotent ID ile kaydet
+    const insertResult = await db.prepare(`
       INSERT INTO focus_sessions (
         id, user_id, subject, topic, task_name, mode, 
         duration_minutes, duration_min, questions_solved, correct_count, 
         wrong_count, empty_count, net_score, created_at, started_at
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT (id) DO NOTHING
     `).run(
       id, userId, subject || null, topic || null, taskName || null, mode, 
-      dur, dur, qSolved, cCount, wCount, eCount, nScore
+      dur, dur, qSolved, cCount, wCount, eCount, nScore,
+      sessionTime, sessionTime
     );
+
+    // Oturum zaten kaydedilmişse (çift senkronizasyon), mükerrer puan verme
+    if (insertResult && insertResult.changes === 0) {
+      return NextResponse.json({ success: true, id, alreadyProcessed: true });
+    }
 
     // 2. XP, Lig Puanı ve Çözülen Soru Sayısı Güncelle (user_stats UPSERT)
     if (mode === 'pomodoro') {

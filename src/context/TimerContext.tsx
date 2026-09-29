@@ -1,6 +1,12 @@
-"use client";
+'use client';
 
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
+import {
+  generateUUID,
+  enqueueOfflineFocusSession,
+  setupOfflineFocusSync,
+  OfflineFocusSession,
+} from '@/lib/offline-focus';
 
 export type Mode = 'pomodoro' | 'shortBreak' | 'longBreak';
 
@@ -101,6 +107,12 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
       console.error("Timer hydration error", e);
     }
     setIsHydrated(true);
+  }, []);
+
+  // Auto-sync offline focus queue when device reconnects or timer mounts
+  useEffect(() => {
+    const cleanup = setupOfflineFocusSync();
+    return cleanup;
   }, []);
 
   // Save to LocalStorage whenever state changes
@@ -341,34 +353,54 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     customDurationMin?: number
   ) => {
     if (!pendingSession) return;
-    try {
-      const finalDuration = (customDurationMin !== undefined && customDurationMin > 0)
-        ? Math.round(customDurationMin)
-        : (pendingSession.durationMin || 25);
+    
+    const finalDuration = (customDurationMin !== undefined && customDurationMin > 0)
+      ? Math.round(customDurationMin)
+      : (pendingSession.durationMin || 25);
 
+    const sessionId = generateUUID();
+    const completedAt = new Date().toISOString();
+
+    const sessionPayload: OfflineFocusSession = {
+      id: sessionId,
+      subject,
+      topic,
+      taskName,
+      mode: pendingSession.mode,
+      durationMin: finalDuration,
+      questionsSolved: testStats?.questionsSolved || 0,
+      correctCount: testStats?.correctCount || 0,
+      wrongCount: testStats?.wrongCount || 0,
+      emptyCount: testStats?.emptyCount || 0,
+      netScore: testStats?.netScore || 0,
+      completedAt,
+      createdAt: completedAt,
+    };
+
+    // If browser is offline, directly enqueue without waiting for network timeout
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      enqueueOfflineFocusSession(sessionPayload);
+      setPendingSession(null);
+      return;
+    }
+
+    try {
       const res = await fetch('/api/user/focus', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          subject,
-          topic,
-          taskName,
-          mode: pendingSession.mode,
-          durationMin: finalDuration,
-          questionsSolved: testStats?.questionsSolved || 0,
-          correctCount: testStats?.correctCount || 0,
-          wrongCount: testStats?.wrongCount || 0,
-          emptyCount: testStats?.emptyCount || 0,
-          netScore: testStats?.netScore || 0,
-        }),
+        body: JSON.stringify(sessionPayload),
       });
-      const data = await res.json().catch(() => ({}));
+
       if (!res.ok) {
-        console.warn('Focus session save warning:', data.error);
+        // Server or auth issue during shaky network -> safely queue offline
+        enqueueOfflineFocusSession(sessionPayload);
       }
     } catch (e: any) {
-      console.error('Kayıt edilemedi:', e);
+      // Network drop during fetch -> queue offline
+      console.warn('Network drop during focus save, enqueued offline:', e);
+      enqueueOfflineFocusSession(sessionPayload);
     }
+
     setPendingSession(null);
   }, [pendingSession]);
 

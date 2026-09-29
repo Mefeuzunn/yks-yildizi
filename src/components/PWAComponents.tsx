@@ -384,3 +384,89 @@ export function OfflineStatusBanner() {
   );
 }
 
+// ──────────────────────────────────────────
+// Offline Focus Session Sync Toast
+// ──────────────────────────────────────────
+export function OfflineFocusNotification() {
+  const [notification, setNotification] = useState<{
+    type: 'saved' | 'synced';
+    title: string;
+    message: string;
+  } | null>(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleSaved = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      setNotification({
+        type: 'saved',
+        title: '💾 Çevrimdışı Kaydedildi',
+        message: `${detail.session.durationMin} dk odaklanma oturumu cihazınıza güvenle kaydedildi. İnternete bağlandığınızda otomatik olarak eşitlenecek.`,
+      });
+      setTimeout(() => setNotification(null), 5000);
+    };
+
+    const handleSynced = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      setNotification({
+        type: 'synced',
+        title: '⚡ Odaklanma Verileri Eşitlendi!',
+        message: `${detail.syncedCount} adet çevrimdışı oturum (${detail.totalMinutes} dk) veritabanına aktarıldı. Tebrikler! 🎉`,
+      });
+      setTimeout(() => setNotification(null), 5500);
+    };
+
+    window.addEventListener('yks-focus-offline-saved', handleSaved);
+    window.addEventListener('yks-focus-synced', handleSynced);
+
+    return () => {
+      window.removeEventListener('yks-focus-offline-saved', handleSaved);
+      window.removeEventListener('yks-focus-synced', handleSynced);
+    };
+  }, []);
+
+  return (
+    <AnimatePresence>
+      {notification && (
+        <motion.div
+          initial={{ y: 40, opacity: 0, scale: 0.95 }}
+          animate={{ y: 0, opacity: 1, scale: 1 }}
+          exit={{ y: 40, opacity: 0, scale: 0.95 }}
+          transition={{ type: 'spring', damping: 22, stiffness: 280 }}
+          style={{
+            position: 'fixed',
+            bottom: 'calc(75px + env(safe-area-inset-bottom, 16px))',
+            right: '20px',
+            maxWidth: '380px',
+            width: 'calc(100% - 40px)',
+            zIndex: 999999,
+            padding: '14px 18px',
+            borderRadius: '16px',
+            background: notification.type === 'saved'
+              ? 'linear-gradient(135deg, rgba(30, 27, 75, 0.97), rgba(15, 23, 42, 0.97))'
+              : 'linear-gradient(135deg, rgba(6, 78, 59, 0.97), rgba(15, 23, 42, 0.97))',
+            border: notification.type === 'saved'
+              ? '1px solid rgba(139, 92, 246, 0.45)'
+              : '1px solid rgba(16, 185, 129, 0.45)',
+            boxShadow: '0 12px 35px rgba(0, 0, 0, 0.55)',
+            backdropFilter: 'blur(16px)',
+            color: '#fff',
+          }}
+        >
+          <div style={{
+            fontWeight: 800, fontSize: '14px', marginBottom: '4px',
+            color: notification.type === 'saved' ? '#c4b5fd' : '#6ee7b7'
+          }}>
+            {notification.title}
+          </div>
+          <div style={{ fontSize: '12px', color: '#cbd5e1', lineHeight: 1.45 }}>
+            {notification.message}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+
