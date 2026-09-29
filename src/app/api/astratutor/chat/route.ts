@@ -1,6 +1,13 @@
 import { NextResponse } from 'next/server';
 import { getAuthenticatedUserId } from '@/lib/auth-utils';
 import { getStudentMemory, generateHyperPersonalizedResponse } from '@/lib/ai/studentMemoryEngine';
+import { 
+  getCachedAiResponse, 
+  setCachedAiResponse, 
+  isLocalHandledPrompt, 
+  checkAiRateLimit, 
+  hashString 
+} from '@/lib/ai/aiQuotaOptimizer';
 
 export const dynamic = 'force-dynamic';
 
@@ -70,33 +77,69 @@ export async function POST(req: Request) {
     // 1. Fetch authenticated student profile memory
     const userId = await getAuthenticatedUserId(req);
     const memory = userId ? await getStudentMemory(userId) : null;
+    const userIdentifier = userId || req.headers.get('x-forwarded-for') || 'guest';
 
-    // Natural typing delay (400ms - 800ms)
-    await new Promise(r => setTimeout(r, 450 + Math.random() * 300));
+    // ── KOTA TASARRUF KATMANI 1: Yerel Karar Kapısı (0 Token Harcama) ──
+    // Selamlaşma, teşekkür, hızlı öneri çipleri veya sabit formülleri Gemini'ye göndermeden yerel çöz
+    if (isLocalHandledPrompt(rawMessage)) {
+      const localResponse = generateHyperPersonalizedResponse(memory, rawMessage);
+      return NextResponse.json({
+        reply: localResponse.reply,
+        actions: localResponse.actions,
+        provider: 'local-gatekeeper'
+      });
+    }
 
-    // 2. Google Gemini 3.5 Flash Conversational Engine
+    // Doğrudan formül / kural sorguları (0 Token Harcama)
+    for (const item of SUBJECT_KNOWLEDGE) {
+      if (item.keywords.some(k => lower.includes(k))) {
+        return NextResponse.json({
+          reply: item.reply,
+          actions: item.action ? [item.action, { label: '📝 Soru Çöz', url: '/soru-coz' }] : undefined,
+          provider: 'local-knowledge-base'
+        });
+      }
+    }
+
+    // ── KOTA TASARRUF KATMANI 2: Akıllı Önbellek (Cache Hit = 0 Token) ──
+    const cacheKey = `chat_${hashString(rawMessage)}`;
+    const cachedResponse = await getCachedAiResponse(cacheKey);
+    if (cachedResponse) {
+      return NextResponse.json({
+        ...cachedResponse,
+        provider: 'ai-cache'
+      });
+    }
+
+    // ── KOTA TASARRUF KATMANI 3: Kullanıcı Başına Adil Limit Kontrolü ──
+    const rateLimitCheck = checkAiRateLimit(userIdentifier, 'chat');
+    if (!rateLimitCheck.allowed) {
+      // Kotayı aşmışsa veya cooldown'daysa bile sistemi kilitleme, yerel motorla cevapla
+      const fallback = generateHyperPersonalizedResponse(memory, rawMessage);
+      return NextResponse.json({
+        reply: `${fallback.reply}\n\n*(Not: ${rateLimitCheck.reason || 'Hızlı istek sınırına ulaşıldı, yanıt yerel koçluk motoruyla üretildi.'})*`,
+        actions: fallback.actions,
+        provider: 'local-rate-fallback'
+      });
+    }
+
+    // ── KOTA TASARRUF KATMANI 4: Optimize Edilmiş Gemini 3.5 Flash Çağrısı ──
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GOOGLE_GENAI_API_KEY;
     if (apiKey) {
       try {
         const studentContext = memory
-          ? `Öğrenci: ${memory.username}, Alan: ${memory.alan}, Hedef Bölüm: ${memory.targetDepartment || 'Yüksek başarı'}, YKS'ye Kalan Gün: ${memory.daysToYKS}, Zayıf Konular: ${memory.topWeakTopics?.map(t => `${t.subject} (${t.topic})`).join(', ') || 'Belirtilmemiş'}, Son Deneme Ortalaması: ${memory.recentMockAverage || 'Henüz veri yok'}`
-          : 'Giriş yapmamış öğrenci';
+          ? `Öğrenci: ${memory.username}, Alan: ${memory.alan}, Hedef: ${memory.targetDepartment || 'Yüksek başarı'}, Kalan Gün: ${memory.daysToYKS}`
+          : 'YKS Öğrencisi';
 
-        const prompt = `Sen Türkiye YKS (TYT ve AYT) sınavına hazırlanan öğrenciler için samimi, cesaretlendirici, pedagojik ve alanında son derece bilgili bir Yapay Zeka Özel Ders Öğretmeni ve Eğitim Koçusun (Adın: AstraTutor).
+        const prompt = `Sen Türkiye YKS (TYT ve AYT) sınavına hazırlanan öğrenciler için samimi, cesaretlendirici ve alanında uzman bir Yapay Zeka Özel Ders Öğretmenisin (AstraTutor).
+Öğrenci: ${studentContext}
+Öğrenci Sorusu: "${rawMessage}"
 
-ÖĞRENCİ BAĞLAMI:
-${studentContext}
+Gerektiğinde matematik veya fen formüllerini KaTeX ($ veya $$) formatında yaz.
+Öğrenciyi motive eden, anlaşılır ve eğitici bir dille kısa ve öz yanıt ver.`;
 
-ÖĞRENCİNİN MESAJI:
-"${rawMessage}"
-
-GÖREVLERİN:
-1. Öğrencinin sorusuna doğrudan, samimi, anlaşılır ve eğitici bir dille yanıt ver.
-2. Matematik veya fen formülleri varsa bunları mutlaka KaTeX ($ veya $$) formatında yaz.
-3. Asla kuru veya robotik konuşma; öğrenciyi cesaretlendir, çalışma hevesini artır.
-4. Yanıtın sonuna öğrencinin aksiyon alabileceği motive edici 1 cümle ekle.`;
-
-        const models = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.8-flash', 'gemini-flash-latest'];
+        // Start with lighter model (gemini-3.5-flash-lite) for maximum quota savings
+        const models = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash'];
         for (const model of models) {
           try {
             const apiRes = await fetch(
@@ -107,8 +150,8 @@ GÖREVLERİN:
                 body: JSON.stringify({
                   contents: [{ parts: [{ text: prompt }] }],
                   generationConfig: {
-                    temperature: 0.35,
-                    maxOutputTokens: 1024,
+                    temperature: 0.3,
+                    maxOutputTokens: 550, // Sıkı tavan: gereksiz uzun token tüketimini engeller
                   }
                 })
               }
@@ -118,7 +161,6 @@ GÖREVLERİN:
               const resJson = await apiRes.json();
               const candidate = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
               if (candidate) {
-                // Determine relevant action chips
                 const actions: Array<{ label: string; url: string }> = [];
                 if (lower.includes('soru') || lower.includes('deneme')) {
                   actions.push({ label: '📝 Soru Çöz', url: '/soru-coz' });
@@ -129,19 +171,21 @@ GÖREVLERİN:
                 if (lower.includes('odak') || lower.includes('pomodoro') || lower.includes('çalış')) {
                   actions.push({ label: '🍅 Pomodoro Başlat', url: '/pomodoro' });
                 }
-                if (lower.includes('program') || lower.includes('plan')) {
-                  actions.push({ label: '📅 Çalışma Programım', url: '/program' });
-                }
                 if (actions.length === 0) {
                   actions.push({ label: '📝 Soru Çöz', url: '/soru-coz' });
-                  actions.push({ label: '🍅 Odaklanma Başlat', url: '/pomodoro' });
+                  actions.push({ label: '🍅 Odaklanma', url: '/pomodoro' });
                 }
 
-                return NextResponse.json({
+                const result = {
                   reply: candidate,
                   actions,
                   provider: model
-                });
+                };
+
+                // Save to cache for future identical/similar questions (14 days TTL)
+                setCachedAiResponse(cacheKey, 'chat', result, 14).catch(() => {});
+
+                return NextResponse.json(result);
               }
             }
           } catch (modelErr) {
@@ -153,22 +197,12 @@ GÖREVLERİN:
       }
     }
 
-    // 3. Fallback: Check for specific formula/scientific inquiries
-    for (const item of SUBJECT_KNOWLEDGE) {
-      if (item.keywords.some(k => lower.includes(k))) {
-        return NextResponse.json({
-          reply: item.reply,
-          actions: item.action ? [item.action, { label: '📝 Soru Çöz', url: '/soru-coz' }] : undefined
-        });
-      }
-    }
-
-    // 4. Fallback: Generate hyper-personalized response with full database context
+    // ── KOTA TASARRUF KATMANI 5: Kesintisiz Yerel Yedek ──
     const personalized = generateHyperPersonalizedResponse(memory, rawMessage);
-
     return NextResponse.json({
       reply: personalized.reply,
-      actions: personalized.actions
+      actions: personalized.actions,
+      provider: 'local-fallback'
     });
 
   } catch (error: any) {

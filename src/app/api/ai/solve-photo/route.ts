@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
 import { getAuthenticatedUserId } from '@/lib/auth-utils';
 import { getStudentMemory } from '@/lib/ai/studentMemoryEngine';
+import { 
+  getCachedAiResponse, 
+  setCachedAiResponse, 
+  checkAiRateLimit, 
+  hashString 
+} from '@/lib/ai/aiQuotaOptimizer';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,6 +29,26 @@ export async function POST(req: Request) {
         cleanMime = match[1];
         cleanBase64 = match[2];
       }
+    }
+
+    // ── KOTA TASARRUF KATMANI 1: Akıllı Çözüm Önbelleği (Cache Hit = 0 Token) ──
+    const cacheKey = `photo_${hashString(cleanBase64.slice(0, 400) + cleanBase64.slice(-400) + cleanBase64.length + studentNote + ocrText)}`;
+    const cachedSolution = await getCachedAiResponse(cacheKey);
+    if (cachedSolution) {
+      return NextResponse.json({
+        ...cachedSolution,
+        provider: 'ai-cache'
+      });
+    }
+
+    // ── KOTA TASARRUF KATMANI 2: Günlük Adil Kullanım Limiti ──
+    const userIdentifier = userId || req.headers.get('x-forwarded-for') || 'guest';
+    const rateCheck = checkAiRateLimit(userIdentifier, 'photo');
+    if (!rateCheck.allowed) {
+      return NextResponse.json({
+        error: rateCheck.reason || 'Günlük soru çözme sınırına ulaşıldı.',
+        reply: `⚠️ ${rateCheck.reason || 'Günlük soru çözüm kotanıza ulaştınız. Yarın sıfırlanacaktır.'} Bu süreçte Hata Defteri sekmesindeki soruları tekrar çözebilir veya çalışma odalarında etüt yapabilirsiniz.`
+      }, { status: 429 });
     }
 
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GOOGLE_GENAI_API_KEY;
@@ -93,7 +119,7 @@ Samimi, anlaşılır ve motive edici bir Türkçe kullan.`;
                   ],
                   generationConfig: {
                     temperature: 0.2,
-                    maxOutputTokens: 2048,
+                    maxOutputTokens: 950, // Sıkı tavan: görsel token israfını engeller
                   }
                 })
               }
@@ -128,7 +154,7 @@ Samimi, anlaşılır ve motive edici bir Türkçe kullan.`;
             if (parts[1]) extractedTopic = parts[1].trim();
           }
 
-          return NextResponse.json({
+          const responsePayload = {
             success: true,
             provider: usedModel,
             reply: geminiResponseText,
@@ -139,7 +165,12 @@ Samimi, anlaşılır ve motive edici bir Türkçe kullan.`;
               { label: '📝 Benzer Soru Çöz', url: '/soru-coz' },
               { label: '🍅 Odaklanma Başlat', url: '/dashboard?tab=focus' }
             ]
-          });
+          };
+
+          // Save to persistent cache (30 days TTL) so repeated asks consume 0 tokens
+          setCachedAiResponse(cacheKey, 'solve_photo', responsePayload, 30).catch(() => {});
+
+          return NextResponse.json(responsePayload);
         }
       } catch (geminiError) {
         console.error('Gemini API Error, switching to local fallback:', geminiError);

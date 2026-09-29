@@ -4,6 +4,12 @@ import { getAuthenticatedUserId } from '@/lib/auth-utils';
 import { getStudentMemory } from '@/lib/ai/studentMemoryEngine';
 import { format, addDays, startOfWeek } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
+import { 
+  getCachedAiResponse, 
+  setCachedAiResponse, 
+  checkAiRateLimit, 
+  hashString 
+} from '@/lib/ai/aiQuotaOptimizer';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,6 +21,8 @@ export async function POST(req: Request) {
     const body = await req.json().catch(() => ({}));
     const refDate = body.dateStr ? new Date(body.dateStr) : new Date();
     const startDate = startOfWeek(refDate, { weekStartsOn: 1 }); // Monday
+    const startOfWeekStr = format(startDate, 'yyyy-MM-dd');
+    const endOfWeekStr = format(addDays(startDate, 6), 'yyyy-MM-dd');
 
     // 1. Fetch Student Profile and Memory
     const user = await db.prepare('SELECT alan, username FROM users WHERE id = ?').get(userId) as any;
@@ -35,6 +43,28 @@ export async function POST(req: Request) {
       ? weaknesses.map(w => `${w.subject}: ${w.topic} (${w.errorCount} hata)`).join(', ')
       : 'Henüz yeterli hata kaydı yok';
 
+    // ── KOTA TASARRUF KATMANI 1: Akıllı Program Önbelleği (0 Token Harcama) ──
+    const cacheKey = `plan_${userId}_${startOfWeekStr}_${hashString(weakTopicsText)}`;
+    const cachedPlan = await getCachedAiResponse(cacheKey);
+    if (cachedPlan && Array.isArray(cachedPlan) && cachedPlan.length >= 7) {
+      // Önbellekteki planı veritabanına uygula (0 Gemini API çağrısı)
+      await db.prepare('DELETE FROM tasks WHERE user_id = ? AND date_str BETWEEN ? AND ?').run(userId, startOfWeekStr, endOfWeekStr);
+      const insertTask = db.prepare('INSERT INTO tasks (id, user_id, title, subject, color, date_str) VALUES (?, ?, ?, ?, ?, ?)');
+      for (const task of cachedPlan) {
+        const targetDate = format(addDays(startDate, task.dayOffset), 'yyyy-MM-dd');
+        await insertTask.run(uuidv4(), userId, task.title, task.subject, task.color, targetDate);
+      }
+      return NextResponse.json({
+        success: true,
+        message: 'Haftalık çalışma programınız önbellekten anında yüklendi (0 Token)!',
+        taskCount: cachedPlan.length,
+        provider: 'ai-cache'
+      });
+    }
+
+    // ── KOTA TASARRUF KATMANI 2: Adil Limit Kontrolü ──
+    const rateCheck = checkAiRateLimit(userId, 'plan');
+
     let generatedTasks: Array<{
       dayOffset: number;
       subject: string;
@@ -42,10 +72,10 @@ export async function POST(req: Request) {
       color: string;
     }> = [];
 
-    // 3. Try Gemini 2.5 Flash Free Tier
+    // 3. Try Gemini 3.5 Flash Free Tier (if quota available)
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GOOGLE_GENAI_API_KEY;
 
-    if (apiKey) {
+    if (apiKey && rateCheck.allowed) {
       try {
         const prompt = `Sen Türkiye YKS sınavı için kişiselleştirilmiş ders programı hazırlayan uzman bir Eğitim Koçusun.
 Öğrenci: ${user?.username || 'Öğrenci'}, Alan: ${userAlan}
@@ -74,7 +104,7 @@ Renk Kuralları:
 - Sosyal/Tarih/Coğrafya/Felsefe için "#f59e0b"
 - Deneme/Tekrar/Genel için "#8b5cf6"`;
 
-        const models = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.8-flash', 'gemini-flash-latest'];
+        const models = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash'];
         for (const model of models) {
           try {
             const apiRes = await fetch(
@@ -86,6 +116,7 @@ Renk Kuralları:
                   contents: [{ parts: [{ text: prompt }] }],
                   generationConfig: {
                     temperature: 0.3,
+                    maxOutputTokens: 800,
                     response_mime_type: "application/json"
                   }
                 })
@@ -99,6 +130,8 @@ Renk Kuralları:
                 const parsed = JSON.parse(rawText);
                 if (Array.isArray(parsed) && parsed.length >= 7) {
                   generatedTasks = parsed;
+                  // Save to cache for 7 days
+                  setCachedAiResponse(cacheKey, 'study_plan', generatedTasks, 7).catch(() => {});
                   break;
                 }
               }
@@ -159,9 +192,6 @@ Renk Kuralları:
     }
 
     // 5. Database Transaction with proper await
-    const startOfWeekStr = format(startDate, 'yyyy-MM-dd');
-    const endOfWeekStr = format(addDays(startDate, 6), 'yyyy-MM-dd');
-
     // Remove older AI generated tasks for this week to avoid duplicates
     await db.prepare('DELETE FROM tasks WHERE user_id = ? AND date_str BETWEEN ? AND ?').run(userId, startOfWeekStr, endOfWeekStr);
 

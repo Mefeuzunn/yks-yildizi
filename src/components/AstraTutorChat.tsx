@@ -143,6 +143,42 @@ export default function AstraTutorChat({ questionContext, onClose }: Props) {
     }
   };
 
+  const compressImageFile = (file: File, maxDim = 1024, quality = 0.75): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            resolve(e.target?.result as string);
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = () => resolve(e.target?.result as string);
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = () => resolve('');
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -160,25 +196,24 @@ export default function AstraTutorChat({ questionContext, onClose }: Props) {
       }
     } catch (err) {
       console.error('OCR Error:', err);
-      // Fallback: solve directly via /api/ai/solve-photo
-      const reader = new FileReader();
-      reader.onload = async () => {
-        try {
+      // Fallback: solve directly via /api/ai/solve-photo with compressed image
+      try {
+        const compressedBase64 = await compressImageFile(file, 1024, 0.75);
+        if (compressedBase64) {
           const res = await fetch('/api/ai/solve-photo', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: reader.result, mimeType: file.type || 'image/jpeg' })
+            body: JSON.stringify({ image: compressedBase64, mimeType: 'image/jpeg' })
           });
           const d = await res.json();
           if (d.reply) {
             setMessages(prev => [...prev, { role: 'astratutor', content: d.reply }]);
             speakText(d.reply);
           }
-        } catch (photoErr) {
-          console.error(photoErr);
         }
-      };
-      reader.readAsDataURL(file);
+      } catch (photoErr) {
+        console.error(photoErr);
+      }
     } finally {
       setOcrLoading(false);
       if (fileInputRef.current) {

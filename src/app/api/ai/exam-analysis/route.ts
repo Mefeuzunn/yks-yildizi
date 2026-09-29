@@ -2,6 +2,12 @@ import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
 import { getAuthenticatedUserId } from '@/lib/auth-utils';
 import { getStudentMemory } from '@/lib/ai/studentMemoryEngine';
+import { 
+  getCachedAiResponse, 
+  setCachedAiResponse, 
+  checkAiRateLimit, 
+  hashString 
+} from '@/lib/ai/aiQuotaOptimizer';
 
 export const dynamic = 'force-dynamic';
 
@@ -56,10 +62,24 @@ export async function POST(req: Request) {
 
     const weakTopicsList = memory?.topWeakTopics?.map(t => `${t.subject} (${t.topic})`).join(', ') || 'Belirtilmemiş';
 
-    // 3. Try Gemini 2.5 Flash Free Tier
+    // ── KOTA TASARRUF KATMANI 1: Akıllı Sınav Analizi Önbelleği (0 Token Harcama) ──
+    const cacheKey = `exam_${latestExam.id}_${latestExam.total_net}_${hashString(weakTopicsList)}`;
+    const cachedAnalysis = await getCachedAiResponse(cacheKey);
+    if (cachedAnalysis) {
+      return NextResponse.json({
+        ...cachedAnalysis,
+        provider: 'ai-cache'
+      });
+    }
+
+    // ── KOTA TASARRUF KATMANI 2: Adil Kullanım ve Cooldown Kontrolü ──
+    const userIdentifier = userId || 'guest';
+    const rateCheck = checkAiRateLimit(userIdentifier, 'exam');
+
+    // 3. Try Gemini 3.5 Flash Free Tier (if quota available)
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GOOGLE_GENAI_API_KEY;
 
-    if (apiKey) {
+    if (apiKey && rateCheck.allowed) {
       try {
         const prompt = `Sen Türkiye YKS (TYT-AYT) sınavında binlerce derece öğrencisi yetiştirmiş kıdemli bir YKS Başdanışmanı ve Pedagojik AI Koçusun.
 Aşağıda bir öğrencinin son ${examType} deneme sınavı sonuçları ve çalışma geçmişi yer alıyor:
@@ -119,7 +139,8 @@ Lütfen bu verileri analiz ederek öğrenciye şu JSON formatında yanıt üret 
   "motivationalQuote": "Öğrenciyi harekete geçirecek samimi bir koçluk cümlesi."
 }`;
 
-        const models = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.8-flash', 'gemini-flash-latest'];
+        // Prioritize lightweight model for minimum quota usage
+        const models = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash'];
         for (const model of models) {
           try {
             const apiRes = await fetch(
@@ -131,6 +152,7 @@ Lütfen bu verileri analiz ederek öğrenciye şu JSON formatında yanıt üret 
                   contents: [{ parts: [{ text: prompt }] }],
                   generationConfig: {
                     temperature: 0.3,
+                    maxOutputTokens: 700, // Sıkı tavan: token israfını önler
                     response_mime_type: "application/json"
                   }
                 })
@@ -142,12 +164,17 @@ Lütfen bu verileri analiz ederek öğrenciye şu JSON formatında yanıt üret 
               const rawText = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
               if (rawText) {
                 const parsed = JSON.parse(rawText);
-                return NextResponse.json({
+                const responsePayload = {
                   success: true,
                   provider: model,
                   latestExam,
                   analysis: parsed
-                });
+                };
+
+                // Save to persistent cache (60 days TTL) so repeated clicks cost 0 tokens
+                setCachedAiResponse(cacheKey, 'exam_analysis', responsePayload, 60).catch(() => {});
+
+                return NextResponse.json(responsePayload);
               }
             }
           } catch (modelErr) {
