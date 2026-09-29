@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, Sparkles, Loader2, BrainCircuit, Mic, MicOff, Square, ExternalLink, Camera, X, CheckCircle2 } from 'lucide-react';
+import { Send, Bot, User, Sparkles, Loader2, BrainCircuit, Mic, MicOff, Square, ExternalLink, Camera, X, CheckCircle2, Volume2, VolumeX } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -26,6 +26,8 @@ export default function AstraTutorTab() {
   const [isTyping, setIsTyping] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(false);
+  const [speechEnabled, setSpeechEnabled] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [studentMemory, setStudentMemory] = useState<any>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [imageMime, setImageMime] = useState<string>('image/jpeg');
@@ -126,6 +128,42 @@ export default function AstraTutorTab() {
     }
   }, [isListening]);
 
+  const speakText = (text: string) => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    
+    // Clean markdown and latex for pleasant voice reading
+    const cleanText = text
+      .replace(/###\s*[^\n]+/g, '')
+      .replace(/[$]{1,2}[^$]+[$]{1,2}/g, 'formül')
+      .replace(/[*_#`]/g, '')
+      .trim();
+
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = 'tr-TR';
+    utterance.rate = 1.05;
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const stopSpeaking = () => {
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -191,6 +229,9 @@ export default function AstraTutorTab() {
       };
       
       setMessages(prev => [...prev, aiMessage]);
+      if (speechEnabled && data.reply) {
+        speakText(data.reply);
+      }
     } catch (e) {
       console.log(e);
       setMessages(prev => [...prev, {
@@ -244,9 +285,27 @@ export default function AstraTutorTab() {
             )}
           </div>
         </div>
-        <div className="ml-auto hidden md:flex items-center gap-2 px-4 py-2 bg-indigo-500/10 border border-indigo-500/30 rounded-full text-indigo-400 font-bold text-sm">
-          <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse" />
-          Online
+        <div className="ml-auto flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              if (isSpeaking) stopSpeaking();
+              setSpeechEnabled(prev => !prev);
+            }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
+              speechEnabled
+                ? 'bg-purple-500/20 text-purple-300 border-purple-500/40 shadow-[0_0_15px_rgba(168,85,247,0.3)]'
+                : 'bg-white/5 text-gray-400 border-white/10 hover:text-white'
+            }`}
+            title={speechEnabled ? "Sesli Koçluk Açık - Yanıtlar sesli okunur" : "Sesli Koçluk Kapalı - Açmak için tıkla"}
+          >
+            {speechEnabled ? <Volume2 className="w-3.5 h-3.5 text-purple-400" /> : <VolumeX className="w-3.5 h-3.5" />}
+            <span className="hidden sm:inline">{speechEnabled ? 'Sesli Koç Açık' : 'Sesli Koç'}</span>
+          </button>
+          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/30 rounded-full text-indigo-400 font-bold text-xs">
+            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse" />
+            Online
+          </div>
         </div>
       </div>
 
@@ -307,9 +366,21 @@ export default function AstraTutorTab() {
                       ))}
                     </div>
                   )}
-                  <span className={`text-[10px] absolute -bottom-5 opacity-0 group-hover:opacity-100 transition-opacity font-medium ${msg.role === 'user' ? 'right-2 text-gray-400' : 'left-2 text-gray-500'}`}>
-                    {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </span>
+                  <div className={`flex items-center gap-1.5 absolute -bottom-5 opacity-0 group-hover:opacity-100 transition-opacity font-medium ${msg.role === 'user' ? 'right-2 text-gray-400' : 'left-2 text-gray-500'}`}>
+                    {msg.role === 'ai' && (
+                      <button
+                        type="button"
+                        onClick={() => isSpeaking ? stopSpeaking() : speakText(msg.content)}
+                        className="text-gray-400 hover:text-purple-300 transition-colors cursor-pointer p-0.5"
+                        title={isSpeaking ? "Durdur" : "Sesli Dinle"}
+                      >
+                        {isSpeaking ? <VolumeX className="w-3 h-3 text-rose-400" /> : <Volume2 className="w-3 h-3" />}
+                      </button>
+                    )}
+                    <span className="text-[10px]">
+                      {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
                 </div>
               </motion.div>
             ))}
