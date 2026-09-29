@@ -135,7 +135,7 @@ export default function StorePage() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#FAFAFA' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#080c14' }}>
         <Loader2 className="animate-spin" size={48} color="#ec4899" />
       </div>
     );

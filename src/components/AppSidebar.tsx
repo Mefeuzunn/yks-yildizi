@@ -4,71 +4,81 @@ import React, { useState, useCallback, Suspense, useRef } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { LogOut, Settings, User } from 'lucide-react';
+import { 
+  LogOut, Settings, User, LucideIcon,
+  Home, Target, BarChart3, TrendingUp, BookOpen, FileText, 
+  AlertCircle, Layers, Timer, Calendar, FlaskConical, Sparkles, 
+  GraduationCap, Calculator, ClipboardList, Swords, Headphones, 
+  Users, Trophy, ShoppingBag, Megaphone
+} from 'lucide-react';
 
 // ─── Nav Data ────────────────────────────────────────────────────────
-const STUDENT_NAV_GROUPS = [
+const STUDENT_NAV_GROUPS: {
+  label: string;
+  color: string;
+  items: { icon: LucideIcon; label: string; href: string; emoji?: string }[];
+}[] = [
   {
     label: 'Ana',
     color: '#8b5cf6',  // purple
     items: [
-      { emoji: '🏠', label: 'Ana Sayfa', href: '/dashboard' },
-      { emoji: '🎯', label: 'Hedeflerim', href: '/dashboard?tab=hedef' },
-      { emoji: '📊', label: 'Analizim',   href: '/dashboard?tab=analysis' },
+      { icon: Home, label: 'Ana Sayfa', href: '/dashboard' },
+      { icon: Target, label: 'Hedeflerim', href: '/dashboard?tab=hedef' },
+      { icon: BarChart3, label: 'Analizim', href: '/dashboard?tab=analysis' },
     ],
   },
   {
     label: 'Çalışma',
     color: '#3b82f6',  // blue
     items: [
-      { emoji: '📈', label: 'Denemeler',    href: '/denemeler' },
-      { emoji: '📚', label: 'Konular',      href: '/dashboard?tab=topics' },
-      { emoji: '📝', label: 'Testlerim',    href: '/dashboard?tab=tests' },
-      { emoji: '❌', label: 'Yanlışlarım', href: '/dashboard?tab=mistakes' },
-      { emoji: '🎴', label: 'Kartlar',      href: '/dashboard?tab=cards' },
-      { emoji: '🍅', label: 'Odak',         href: '/dashboard?tab=focus' },
-      { emoji: '📅', label: 'Program',      href: '/dashboard?tab=schedule' },
-      { emoji: '🔬', label: 'Simülasyonlar',href: '/simulasyonlar' },
+      { icon: TrendingUp, label: 'Denemeler', href: '/denemeler' },
+      { icon: BookOpen, label: 'Konular', href: '/dashboard?tab=topics' },
+      { icon: FileText, label: 'Testlerim', href: '/dashboard?tab=tests' },
+      { icon: AlertCircle, label: 'Yanlışlarım', href: '/dashboard?tab=mistakes' },
+      { icon: Layers, label: 'Kartlar', href: '/dashboard?tab=cards' },
+      { icon: Timer, label: 'Odak', href: '/dashboard?tab=focus' },
+      { icon: Calendar, label: 'Program', href: '/dashboard?tab=schedule' },
+      { icon: FlaskConical, label: 'Simülasyonlar', href: '/simulasyonlar' },
     ],
   },
   {
     label: 'Araçlar',
     color: '#10b981',  // emerald
     items: [
-      { emoji: '🤖', label: 'Astra AI & Rehberlik', href: '/dashboard?tab=astratutor' },
-      { emoji: '🎓', label: 'Tercih Robotu',        href: '/dashboard?tab=tercih_robotu' },
-      { emoji: '🧮', label: 'Puan Hesaplama',       href: '/puan-hesaplama' },
-      { emoji: '📋', label: 'Ödevlerim',            href: '/odevlerim' },
+      { icon: Sparkles, label: 'Astra AI & Rehberlik', href: '/dashboard?tab=astratutor' },
+      { icon: GraduationCap, label: 'Tercih Robotu', href: '/dashboard?tab=tercih_robotu' },
+      { icon: Calculator, label: 'Puan Hesaplama', href: '/puan-hesaplama' },
+      { icon: ClipboardList, label: 'Ödevlerim', href: '/odevlerim' },
     ],
   },
   {
     label: 'Sosyal',
     color: '#f59e0b',  // amber
     items: [
-      { emoji: '⚔️', label: 'Bilgi Arenası',   href: '/duello' },
-      { emoji: '🎧', label: 'Çalışma Odaları', href: '/calisma-odalari' },
-      { emoji: '🏫', label: 'Sınıfım',        href: '/dashboard?tab=sinif' },
-      { emoji: '🏆', label: 'Ligler',          href: '/ligler' },
-      { emoji: '🛍️', label: 'Mağaza',         href: '/magaza' },
+      { icon: Swords, label: 'Bilgi Arenası', href: '/duello' },
+      { icon: Headphones, label: 'Çalışma Odaları', href: '/calisma-odalari' },
+      { icon: Users, label: 'Sınıfım', href: '/dashboard?tab=sinif' },
+      { icon: Trophy, label: 'Ligler', href: '/ligler' },
+      { icon: ShoppingBag, label: 'Mağaza', href: '/magaza' },
     ],
   },
 ];
 
-const TEACHER_NAV_ITEMS = [
-  { emoji: '🏠', label: 'Genel Bakış',  href: '/ogretmen/dashboard' },
-  { emoji: '🏫', label: 'Sınıflarım',   href: '/ogretmen/dashboard?tab=siniflar' },
-  { emoji: '👥', label: 'Öğrenciler',   href: '/ogretmen/dashboard?tab=ogrenciler' },
-  { emoji: '📋', label: 'Ödevler',      href: '/ogretmen/dashboard?tab=odevler' },
-  { emoji: '📊', label: 'Sınıf Analizi',href: '/ogretmen/dashboard?tab=analiz' },
-  { emoji: '📚', label: 'Kaynaklar',    href: '/ogretmen/dashboard?tab=kaynaklar' },
-  { emoji: '📢', label: 'Duyurular',    href: '/ogretmen/dashboard?tab=duyurular' },
+const TEACHER_NAV_ITEMS: { icon: LucideIcon; label: string; href: string; emoji?: string }[] = [
+  { icon: Home, label: 'Genel Bakış', href: '/ogretmen/dashboard' },
+  { icon: Layers, label: 'Sınıflarım', href: '/ogretmen/dashboard?tab=siniflar' },
+  { icon: Users, label: 'Öğrenciler', href: '/ogretmen/dashboard?tab=ogrenciler' },
+  { icon: ClipboardList, label: 'Ödevler', href: '/ogretmen/dashboard?tab=odevler' },
+  { icon: BarChart3, label: 'Sınıf Analizi', href: '/ogretmen/dashboard?tab=analiz' },
+  { icon: BookOpen, label: 'Kaynaklar', href: '/ogretmen/dashboard?tab=kaynaklar' },
+  { icon: Megaphone, label: 'Duyurular', href: '/ogretmen/dashboard?tab=duyurular' },
 ];
 
 // ─── NavItem ─────────────────────────────────────────────────────────
 function NavItem({
-  emoji, label, href, active, accentColor,
+  icon: Icon, emoji, label, href, active, accentColor,
 }: {
-  emoji: string; label: string; href: string; active: boolean; accentColor?: string;
+  icon?: LucideIcon; emoji?: string; label: string; href: string; active: boolean; accentColor?: string;
 }) {
   const [hovered, setHovered] = useState(false);
   const accent = accentColor || '#8b5cf6';
@@ -82,26 +92,43 @@ function NavItem({
       style={{
         display: 'flex',
         alignItems: 'center',
-        gap: '10px',
-        padding: '7px 10px 7px 12px',
-        borderRadius: '8px',
+        gap: '9px',
+        padding: '6px 10px 6px 10px',
+        borderRadius: '9px',
         textDecoration: 'none',
         fontSize: '13px',
-        fontWeight: active ? 600 : 400,
-        color: active ? '#fff' : hovered ? '#e2e8f0' : '#94a3b8',
+        fontWeight: active ? 600 : 500,
+        color: active ? '#fff' : hovered ? '#f1f5f9' : '#94a3b8',
         background: active
-          ? `linear-gradient(90deg, ${accent}22, ${accent}10)`
+          ? `linear-gradient(90deg, ${accent}25, ${accent}08)`
           : hovered
           ? 'rgba(255,255,255,0.04)'
           : 'transparent',
         borderLeft: active
-          ? `2px solid ${accent}`
-          : '2px solid transparent',
+          ? `2.5px solid ${accent}`
+          : '2.5px solid transparent',
         transition: 'all 0.15s ease',
         position: 'relative',
       }}
     >
-      <span style={{ fontSize: '15px', lineHeight: 1, flexShrink: 0 }}>{emoji}</span>
+      {Icon ? (
+        <span style={{ 
+          width: '22px', 
+          height: '22px', 
+          borderRadius: '6px', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          flexShrink: 0,
+          backgroundColor: active ? `${accent}30` : hovered ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.02)',
+          color: active ? accent : hovered ? '#f1f5f9' : '#94a3b8',
+          transition: 'all 0.15s ease'
+        }}>
+          <Icon size={14} strokeWidth={active ? 2.5 : 2} />
+        </span>
+      ) : (
+        <span style={{ fontSize: '15px', lineHeight: 1, flexShrink: 0 }}>{emoji}</span>
+      )}
       <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
         {label}
       </span>
@@ -187,6 +214,7 @@ function NavGroup({
           {items.map((item: any) => (
             <NavItem
               key={item.href}
+              icon={item.icon}
               emoji={item.emoji}
               label={item.label}
               href={item.href}

@@ -5,34 +5,40 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, LogOut } from 'lucide-react';
+import { 
+  X, LogOut, LucideIcon,
+  Home, Calendar, Timer, BarChart3, TrendingUp, Target, 
+  Sparkles, Swords, Headphones, FlaskConical, GraduationCap, 
+  Calculator, ClipboardList, AlertCircle, BookOpen, FileText, 
+  Trophy, ShoppingBag, Layers, Users, User, Megaphone
+} from 'lucide-react';
 import { triggerHaptic } from '@/lib/haptics';
 
 const MAIN_TABS = [
-  { emoji: '🏠', label: 'Ana Sayfa', href: '/dashboard?tab=home' },
-  { emoji: '📅', label: 'Program', href: '/dashboard?tab=schedule' },
-  { emoji: '🍅', label: 'Odak', href: '/dashboard?tab=focus' },
-  { emoji: '📊', label: 'Analiz', href: '/dashboard?tab=analysis' },
+  { icon: Home, label: 'Ana Sayfa', href: '/dashboard?tab=home', emoji: '🏠' },
+  { icon: Calendar, label: 'Program', href: '/dashboard?tab=schedule', emoji: '📅' },
+  { icon: Timer, label: 'Odak', href: '/dashboard?tab=focus', emoji: '🍅' },
+  { icon: BarChart3, label: 'Analiz', href: '/dashboard?tab=analysis', emoji: '📊' },
 ];
 
 const MORE_TABS = [
-  { emoji: '📈', label: 'Denemeler', href: '/denemeler' },
-  { emoji: '🎯', label: 'Hedeflerim', href: '/dashboard?tab=hedef' },
-  { emoji: '🤖', label: 'Astra AI & Rehberlik', href: '/dashboard?tab=astratutor' },
-  { emoji: '⚔️', label: 'Bilgi Arenası', href: '/duello' },
-  { emoji: '🎧', label: 'Çalışma Odaları', href: '/calisma-odalari' },
-  { emoji: '🔬', label: 'Simülasyonlar', href: '/simulasyonlar' },
-  { emoji: '🎓', label: 'Tercih Robotu', href: '/dashboard?tab=tercih_robotu' },
-  { emoji: '🧮', label: 'Puan Hesaplama', href: '/puan-hesaplama' },
-  { emoji: '📋', label: 'Ödevlerim', href: '/odevlerim' },
-  { emoji: '❌', label: 'Yanlışlarım', href: '/dashboard?tab=mistakes' },
-  { emoji: '📚', label: 'Konular', href: '/dashboard?tab=topics' },
-  { emoji: '📝', label: 'Testlerim', href: '/dashboard?tab=tests' },
-  { emoji: '🏆', label: 'Ligler', href: '/ligler' },
-  { emoji: '🛍️', label: 'Mağaza', href: '/magaza' },
-  { emoji: '🎴', label: 'Kartlar', href: '/dashboard?tab=cards' },
-  { emoji: '🏫', label: 'Sınıfım', href: '/dashboard?tab=sinif' },
-  { emoji: '👤', label: 'Profilim', href: '/dashboard?tab=profile' },
+  { icon: TrendingUp, label: 'Denemeler', href: '/denemeler', emoji: '📈' },
+  { icon: Target, label: 'Hedeflerim', href: '/dashboard?tab=hedef', emoji: '🎯' },
+  { icon: Sparkles, label: 'Astra AI & Rehberlik', href: '/dashboard?tab=astratutor', emoji: '🤖' },
+  { icon: Swords, label: 'Bilgi Arenası', href: '/duello', emoji: '⚔️' },
+  { icon: Headphones, label: 'Çalışma Odaları', href: '/calisma-odalari', emoji: '🎧' },
+  { icon: FlaskConical, label: 'Simülasyonlar', href: '/simulasyonlar', emoji: '🔬' },
+  { icon: GraduationCap, label: 'Tercih Robotu', href: '/dashboard?tab=tercih_robotu', emoji: '🎓' },
+  { icon: Calculator, label: 'Puan Hesaplama', href: '/puan-hesaplama', emoji: '🧮' },
+  { icon: ClipboardList, label: 'Ödevlerim', href: '/odevlerim', emoji: '📋' },
+  { icon: AlertCircle, label: 'Yanlışlarım', href: '/dashboard?tab=mistakes', emoji: '❌' },
+  { icon: BookOpen, label: 'Konular', href: '/dashboard?tab=topics', emoji: '📚' },
+  { icon: FileText, label: 'Testlerim', href: '/dashboard?tab=tests', emoji: '📝' },
+  { icon: Trophy, label: 'Ligler', href: '/ligler', emoji: '🏆' },
+  { icon: ShoppingBag, label: 'Mağaza', href: '/magaza', emoji: '🛍️' },
+  { icon: Layers, label: 'Kartlar', href: '/dashboard?tab=cards', emoji: '🎴' },
+  { icon: Users, label: 'Sınıfım', href: '/dashboard?tab=sinif', emoji: '🏫' },
+  { icon: User, label: 'Profilim', href: '/dashboard?tab=profile', emoji: '👤' },
 ];
 
 function MobileNavContent() {
@@ -42,17 +48,17 @@ function MobileNavContent() {
   const { user, logout } = useAuth();
 
   const TEACHER_MAIN_TABS = [
-    { emoji: '🏠', label: 'Genel Bakış', href: '/ogretmen/dashboard' },
-    { emoji: '🏫', label: 'Sınıflarım', href: '/ogretmen/dashboard?tab=siniflar' },
-    { emoji: '👥', label: 'Öğrenciler', href: '/ogretmen/dashboard?tab=ogrenciler' },
-    { emoji: '📋', label: 'Ödevler', href: '/ogretmen/dashboard?tab=odevler' },
+    { icon: Home, label: 'Genel Bakış', href: '/ogretmen/dashboard', emoji: '🏠' },
+    { icon: Layers, label: 'Sınıflarım', href: '/ogretmen/dashboard?tab=siniflar', emoji: '🏫' },
+    { icon: Users, label: 'Öğrenciler', href: '/ogretmen/dashboard?tab=ogrenciler', emoji: '👥' },
+    { icon: ClipboardList, label: 'Ödevler', href: '/ogretmen/dashboard?tab=odevler', emoji: '📋' },
   ];
   
   const TEACHER_MORE_TABS = [
-    { emoji: '📊', label: 'Sınıf Analizi', href: '/ogretmen/dashboard?tab=analiz' },
-    { emoji: '📚', label: 'Kaynaklar', href: '/ogretmen/dashboard?tab=kaynaklar' },
-    { emoji: '📢', label: 'Duyurular', href: '/ogretmen/dashboard?tab=duyurular' },
-    { emoji: '👤', label: 'Profilim', href: '/ogretmen/dashboard?tab=profile' },
+    { icon: BarChart3, label: 'Sınıf Analizi', href: '/ogretmen/dashboard?tab=analiz', emoji: '📊' },
+    { icon: BookOpen, label: 'Kaynaklar', href: '/ogretmen/dashboard?tab=kaynaklar', emoji: '📚' },
+    { icon: Megaphone, label: 'Duyurular', href: '/ogretmen/dashboard?tab=duyurular', emoji: '📢' },
+    { icon: User, label: 'Profilim', href: '/ogretmen/dashboard?tab=profile', emoji: '👤' },
   ];
   
   const currentMainTabs = user?.role === 'ogretmen' ? TEACHER_MAIN_TABS : MAIN_TABS;
@@ -118,16 +124,28 @@ function MobileNavContent() {
                 textDecoration: 'none',
               }}
             >
-              <span
-                style={{
-                  fontSize: '20px',
-                  filter: active ? 'drop-shadow(0 0 8px rgba(167,139,250,0.5))' : 'none',
-                  opacity: active ? 1 : 0.7,
-                  transition: 'all 0.2s',
-                }}
-              >
-                {tab.emoji}
-              </span>
+              {tab.icon ? (
+                <tab.icon
+                  size={20}
+                  strokeWidth={active ? 2.5 : 2}
+                  style={{
+                    color: active ? '#a78bfa' : '#94a3b8',
+                    filter: active ? 'drop-shadow(0 0 8px rgba(167,139,250,0.6))' : 'none',
+                    transition: 'all 0.2s',
+                  }}
+                />
+              ) : (
+                <span
+                  style={{
+                    fontSize: '20px',
+                    filter: active ? 'drop-shadow(0 0 8px rgba(167,139,250,0.5))' : 'none',
+                    opacity: active ? 1 : 0.7,
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  {tab.emoji}
+                </span>
+              )}
               <span
                 style={{
                   fontSize: '10px',
@@ -268,7 +286,23 @@ function MobileNavContent() {
                         border: active ? '1px solid rgba(168, 85, 247, 0.2)' : '1px solid transparent',
                       }}
                     >
-                      <span style={{ fontSize: '20px' }}>{tab.emoji}</span>
+                      {tab.icon ? (
+                        <span style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '8px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          backgroundColor: active ? 'rgba(168, 85, 247, 0.25)' : 'rgba(255, 255, 255, 0.05)',
+                          color: active ? '#c4b5fd' : '#94a3b8',
+                          flexShrink: 0
+                        }}>
+                          <tab.icon size={17} strokeWidth={active ? 2.5 : 2} />
+                        </span>
+                      ) : (
+                        <span style={{ fontSize: '20px' }}>{tab.emoji}</span>
+                      )}
                       <span style={{ fontSize: '14px' }}>{tab.label}</span>
                     </Link>
                   );

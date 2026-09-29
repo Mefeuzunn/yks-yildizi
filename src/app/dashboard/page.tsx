@@ -60,8 +60,9 @@ function _renderSkeleton() {
         }
         .skeleton {
           animation: customPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-          background-color: #E5E7EB;
-          border-radius: 12px;
+          background-color: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 16px;
         }
       `}} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
