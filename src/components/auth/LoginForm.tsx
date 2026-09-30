@@ -1,54 +1,89 @@
 'use client';
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/utils/supabase/client';
 import { RoleSelector, Role } from './RoleSelector';
 
 export const LoginForm = () => {
+  const router = useRouter();
+  const supabase = createClient();
+
   const [role, setRole] = useState<Role>('student');
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [socialNotice, setSocialNotice] = useState('');
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  // E-posta & Şifre ile Giriş
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
-    setSocialNotice('');
+    setErrorMsg(null);
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: identifier.trim(),
-          password,
-        }),
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: identifier.trim(),
+        password: password,
       });
 
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || 'Giriş yapılamadı. Bilgilerinizi kontrol ediniz.');
-      }
+      if (error) {
+        // Fallback: Yerel API üzerinden de dene (geriye dönük uyumluluk)
+        const localRes = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: identifier.trim(),
+            password: password,
+          }),
+        });
 
-      // Role check and redirect
-      if (data.user?.role === 'ogretmen' || role === 'teacher') {
-        window.location.href = '/ogretmen/dashboard';
-      } else if (data.user?.role === 'admin') {
-        window.location.href = '/admin';
+        if (localRes.ok) {
+          const localData = await localRes.json();
+          if (localData.user?.role === 'ogretmen' || role === 'teacher') {
+            window.location.href = '/ogretmen/dashboard';
+          } else if (localData.user?.role === 'admin') {
+            window.location.href = '/admin';
+          } else {
+            window.location.href = '/dashboard';
+          }
+          return;
+        }
+
+        setErrorMsg('Giriş başarısız: ' + (error.message || 'Kullanıcı adı/e-posta veya şifre hatalı.'));
+        setLoading(false);
       } else {
-        window.location.href = '/dashboard';
+        const userRole = (data.user?.user_metadata?.role as Role) || role;
+        if (userRole === 'teacher') {
+          router.push('/ogretmen/dashboard');
+        } else if (userRole === 'parent') {
+          router.push('/veli');
+        } else {
+          router.push('/dashboard');
+        }
+        router.refresh();
       }
     } catch (err: any) {
-      setError(err.message || 'Giriş yapılırken bir hata oluştu.');
-    } finally {
+      setErrorMsg('Giriş yapılırken bir hata oluştu: ' + (err.message || ''));
       setLoading(false);
     }
   };
 
-  const handleGoogleLogin = () => {
-    setSocialNotice('Google ile giriş entegrasyonu yakında aktif olacaktır.');
+  // Google ile Giriş
+  const handleGoogleLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${typeof window !== 'undefined' ? window.location.origin : ''}/auth/callback`,
+        },
+      });
+      if (error) {
+        setErrorMsg('Google ile giriş başlatılamadı: ' + error.message);
+      }
+    } catch (err: any) {
+      setErrorMsg('Google giriş hatası: ' + (err.message || ''));
+    }
   };
 
   return (
@@ -57,27 +92,20 @@ export const LoginForm = () => {
       <RoleSelector selectedRole={role} onChange={setRole} />
 
       {/* Hata Bildirimi */}
-      {error && (
+      {errorMsg && (
         <div className="p-3 text-xs rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-center animate-fadeIn">
-          {error}
+          {errorMsg}
         </div>
       )}
 
-      {/* Bilgilendirme */}
-      {socialNotice && (
-        <div className="p-3 text-xs rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-300 text-center animate-fadeIn">
-          {socialNotice}
-        </div>
-      )}
-
-      {/* Kullanıcı Adı / E-posta */}
+      {/* E-posta / Kullanıcı Adı */}
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-slate-300">Kullanıcı Adı veya E-posta</label>
+        <label className="text-xs font-medium text-slate-300">E-posta veya Kullanıcı Adı</label>
         <input
           type="text"
           value={identifier}
           onChange={(e) => setIdentifier(e.target.value)}
-          placeholder={role === 'student' ? 'ogrenci_kullanici veya e-posta' : 'ogretmen_kullanici veya e-posta'}
+          placeholder={role === 'student' ? 'ogrenci@alanadi.com' : 'ogretmen@alanadi.com'}
           className="w-full bg-slate-950/60 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
           required
           autoComplete="username"

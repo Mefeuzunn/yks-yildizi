@@ -1,14 +1,19 @@
 'use client';
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/utils/supabase/client';
 
 type Role = 'student' | 'teacher' | 'parent';
 
 export const RegisterForm = () => {
+  const router = useRouter();
+  const supabase = createClient();
+
   const [step, setStep] = useState<1 | 2>(1);
   const [role, setRole] = useState<Role>('student');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
   // Form Değerleri
@@ -20,7 +25,6 @@ export const RegisterForm = () => {
     field: 'Sayısal',
     classCode: '',
     branch: '',
-    parentCode: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -30,74 +34,83 @@ export const RegisterForm = () => {
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password.length < 6) {
-      setError('Şifre en az 6 karakter olmalıdır.');
+      setErrorMsg('Şifre en az 6 karakter olmalıdır.');
       return;
     }
-    setError('');
+    setErrorMsg(null);
     setStep(2);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
-
-    // Sınıf ve alan eşlemesi
-    const sinifMap: Record<string, string> = {
-      '9. Sınıf': '9',
-      '10. Sınıf': '10',
-      '11. Sınıf': '11',
-      '12. Sınıf': '12',
-      'Mezun': 'Mezun',
-    };
-
-    const alanMap: Record<string, string> = {
-      'Sayısal': 'Sayisal',
-      'Eşit Ağırlık': 'Esit Agirlik',
-      'Sözel': 'Sozel',
-      'Dil': 'Dil',
-    };
-
-    const backendRole = role === 'student' ? 'ogrenci' : role === 'teacher' ? 'ogretmen' : 'veli';
-    const cleanUsername = formData.email.split('@')[0].trim().toLowerCase().replace(/[^a-z0-9_]/g, '') ||
-                          formData.fullName.trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
+    setErrorMsg(null);
 
     try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: cleanUsername,
-          fullName: formData.fullName.trim(),
-          email: formData.email.trim(),
-          password: formData.password,
-          role: backendRole,
-          sinif: sinifMap[formData.grade] || '12',
-          alan: alanMap[formData.field] || 'Sayisal',
-          classCode: formData.classCode?.trim() || undefined,
-          brans: formData.branch?.trim() || undefined,
-          veliCode: formData.parentCode?.trim() || undefined,
-        }),
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email.trim(),
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.fullName.trim(),
+            role: role,
+            grade: role === 'student' ? formData.grade : null,
+            field: role === 'student' ? formData.field : null,
+            class_code: role === 'student' ? formData.classCode?.trim() : null,
+            branch: role === 'teacher' ? formData.branch?.trim() : null,
+          },
+        },
       });
 
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || 'Kayıt işlemi başarısız oldu.');
-      }
+      if (error) {
+        // Fallback: Yerel API üzerinden de dene (geriye dönük uyumluluk)
+        const sinifMap: Record<string, string> = {
+          '9. Sınıf': '9', '10. Sınıf': '10', '11. Sınıf': '11', '12. Sınıf': '12', 'Mezun': 'Mezun'
+        };
+        const alanMap: Record<string, string> = {
+          'Sayısal': 'Sayisal', 'Eşit Ağırlık': 'Esit Agirlik', 'Sözel': 'Sozel', 'Dil': 'Dil'
+        };
+        const backendRole = role === 'student' ? 'ogrenci' : role === 'teacher' ? 'ogretmen' : 'veli';
 
-      setSuccess(true);
-      setTimeout(() => {
-        if (backendRole === 'ogretmen') {
-          window.location.href = '/ogretmen/dashboard';
-        } else if (backendRole === 'veli') {
-          window.location.href = '/veli';
-        } else {
-          window.location.href = '/dashboard';
+        const localRes = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fullName: formData.fullName.trim(),
+            email: formData.email.trim(),
+            password: formData.password,
+            role: backendRole,
+            sinif: sinifMap[formData.grade] || '12',
+            alan: alanMap[formData.field] || 'Sayisal',
+            classCode: formData.classCode?.trim() || undefined,
+            brans: formData.branch?.trim() || undefined,
+          }),
+        });
+
+        if (localRes.ok) {
+          setSuccess(true);
+          setTimeout(() => {
+            if (role === 'teacher') router.push('/ogretmen/dashboard');
+            else if (role === 'parent') router.push('/veli');
+            else router.push('/dashboard');
+            router.refresh();
+          }, 1200);
+          return;
         }
-      }, 1200);
+
+        setErrorMsg('Kayıt başarısız: ' + error.message);
+        setLoading(false);
+      } else {
+        setSuccess(true);
+        setTimeout(() => {
+          if (role === 'teacher') router.push('/ogretmen/dashboard');
+          else if (role === 'parent') router.push('/veli');
+          else router.push('/dashboard');
+          router.refresh();
+        }, 1200);
+      }
     } catch (err: any) {
-      setError(err.message || 'Kayıt olurken bir hata oluştu. Lütfen tekrar deneyin.');
-    } finally {
+      setErrorMsg('Kayıt oluşturulurken bir hata oluştu: ' + (err.message || ''));
       setLoading(false);
     }
   };
@@ -148,9 +161,9 @@ export const RegisterForm = () => {
       </div>
 
       {/* Hata Bildirimi */}
-      {error && (
+      {errorMsg && (
         <div className="mb-4 p-3 text-xs rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-center animate-fadeIn">
-          {error}
+          {errorMsg}
         </div>
       )}
 
@@ -292,8 +305,8 @@ export const RegisterForm = () => {
               </div>
               <input
                 type="text"
-                name="parentCode"
-                value={formData.parentCode}
+                name="classCode"
+                value={formData.classCode}
                 onChange={handleChange}
                 placeholder="Örn: YKS-1234"
                 className="w-full bg-slate-950/60 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
@@ -308,10 +321,10 @@ export const RegisterForm = () => {
             <button
               type="button"
               onClick={() => {
-                setError('');
+                setErrorMsg(null);
                 setStep(1);
               }}
-              className="w-1/3 bg-slate-800/80 hover:bg-slate-800 active:scale-[0.99] text-slate-300 text-sm font-medium py-2.5 rounded-xl transition-colors border-0 cursor-pointer"
+              className="w-1/3 bg-slate-800/80 hover:bg-slate-800 text-slate-300 text-sm font-medium py-2.5 rounded-xl transition-colors border-0 cursor-pointer"
             >
               Geri
             </button>
