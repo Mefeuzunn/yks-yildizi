@@ -24,7 +24,7 @@ export default function UniversityCarousel() {
   const duplicatedUniversities = [...universities, ...universities];
 
   return (
-    <div className="w-full overflow-hidden relative py-8 mt-12 border-t border-gray-200 logo-mask group">
+    <div className="w-full overflow-hidden relative py-8 mt-12 border-t border-white/10 logo-mask group">
       <div className="flex whitespace-nowrap animate-marquee group-hover:[animation-play-state:paused] w-max items-center">
         {duplicatedUniversities.map((uni, index) => (
           <a
@@ -32,13 +32,13 @@ export default function UniversityCarousel() {
             href={`https://yokatlas.yok.gov.tr/lisans-univ.php?u=${uni.yokatlas}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="mx-12 flex items-center justify-center opacity-70 hover:opacity-100 hover:scale-110 transition-all duration-300 cursor-pointer relative z-50"
+            className="mx-8 md:mx-12 flex items-center justify-center opacity-70 hover:opacity-100 hover:scale-110 transition-all duration-300 cursor-pointer relative z-50 filter drop-shadow-[0_2px_8px_rgba(255,255,255,0.1)]"
             title={`${uni.name} - YÖKATLAS'ta Gör`}
           >
             <img 
               src={`https://tr.wikipedia.org/wiki/Special:FilePath/${encodeURIComponent(uni.logo)}`} 
               alt={`${uni.name} Logosu`} 
-              className="h-16 w-16 md:h-20 md:w-20 object-contain drop-shadow-sm"
+              className="h-14 w-14 md:h-16 md:w-16 object-contain"
               loading="lazy"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
