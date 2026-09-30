@@ -655,5 +655,44 @@ export const MASTER_SIMULATIONS: SimulationItem[] = [
     related_yks_topics: ['Mayoz Bölünme', 'Krossing-over', 'Gamet Oluşumu'],
     badge: 'TYT Banko Soru',
     is_active: true
+  },
+  {
+    id: 'sim_transformatorler',
+    title: 'Transformatörler & Alternatif Akım',
+    description: 'Primer/sekonder sarım oranı, gerilim yükseltme/düşürme, güç korumu ve yük lambası parlaklığı deneyi.',
+    source_url: '/simulasyonlar/transformatorler',
+    category: 'AYT',
+    subject: 'Fizik',
+    topic: 'Alternatif Akım & İndüksiyon',
+    difficulty_level: 4,
+    related_yks_topics: ['Transformatörler', 'İndüksiyon Gerilimi', 'Alternatif Akım', 'Verim'],
+    badge: 'AYT Banko Soru',
+    is_active: true
+  },
+  {
+    id: 'sim_elektrokimyasal_pil',
+    title: 'Galvanik Pil & Nernst Eşitliği',
+    description: 'Zn-Cu Daniell pili, anot/katot derişim değişimi, tuz köprüsü iyon göçü ve Nernst potansiyel hesabı.',
+    source_url: '/simulasyonlar/elektrokimyasal-pil',
+    category: 'AYT',
+    subject: 'Kimya',
+    topic: 'Elektrokimya & Piller',
+    difficulty_level: 4,
+    related_yks_topics: ['Galvanik Piller', 'Nernst Eşitliği', 'Anot ve Katot', 'Tuz Köprüsü'],
+    badge: 'Her Yıl 1 Soru',
+    is_active: true
+  },
+  {
+    id: 'sim_izohips',
+    title: 'İzohips Haritası & Kesit Profili',
+    description: 'Eş yükselti eğrileri, tepe, sırt, vadi, falez ve kapalı çukur şekilleri ile dinamik A-B profil kesiti çıkarma.',
+    source_url: '/simulasyonlar/izohips-haritasi',
+    category: 'TYT',
+    subject: 'Matematik',
+    topic: 'Harita Bilgisi & Topoğrafya',
+    difficulty_level: 3,
+    related_yks_topics: ['İzohips Eğrileri', 'Profil Çıkarma', 'Eğim Hesabı', 'Yer Şekilleri'],
+    badge: 'TYT Banko Soru',
+    is_active: true
   }
 ];
