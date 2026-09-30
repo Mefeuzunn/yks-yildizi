@@ -119,7 +119,7 @@ Samimi, anlaşılır ve motive edici bir Türkçe kullan.`;
                   ],
                   generationConfig: {
                     temperature: 0.2,
-                    maxOutputTokens: 950, // Sıkı tavan: görsel token israfını engeller
+                    maxOutputTokens: 2500,
                   }
                 })
               }

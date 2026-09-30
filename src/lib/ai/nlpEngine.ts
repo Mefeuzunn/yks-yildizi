@@ -128,8 +128,9 @@ const RESPONSES: Record<Intent, string[]> = {
 
 // --- YARDIMCI FONKSİYONLAR ---
 
-// Metni temizleme (Basit Tokenization)
-function sanitizeText(text: string): string {
+// Metni temizleme (Basit Tokenization) - 100% güvenli
+function sanitizeText(text: string | undefined | null): string {
+  if (!text || typeof text !== 'string') return '';
   return text.toLowerCase().replace(/[.,!?;:()]/g, ' ').trim();
 }
 
@@ -177,20 +178,24 @@ function detectIntents(text: string): Intent[] {
 
 // --- ANA MOTOR (MAIN ENGINE) ---
 
-export function generateCounselorResponse(userMessages: { text: string; sender: string }[]): CounselorResponse {
-  if (userMessages.length === 0) {
+export function generateCounselorResponse(
+  userMessages: Array<{ text?: string; content?: string; message?: string; sender?: string; role?: string }>
+): CounselorResponse {
+  if (!userMessages || userMessages.length === 0) {
     return { text: RESPONSES.greeting[0] };
   }
 
   // Bağlam (Context) oluştur: Son mesajı ve geçmişteki konuları analiz et
-  const lastUserMsg = userMessages[userMessages.length - 1].text;
+  const lastItem = userMessages[userMessages.length - 1];
+  const lastUserMsg = (lastItem?.text || lastItem?.content || lastItem?.message || '').toString();
+  
+  if (!lastUserMsg.trim()) {
+    return { text: RESPONSES.greeting[0] };
+  }
   
   // KALICI HAFIZA (PERSISTENT MEMORY)
-  // Kullanıcının daha önceki mesajlarında bahsettiği "eski" konuları hatırla.
-  // Geri dönüş (Welcome back) senaryosu:
   if (userMessages.length > 3) {
     // API, frontend'in localStorage'dan yüklediği tüm geçmişi alıyor.
-    // Proaktif olarak geçmiş referanslar yapılabilir.
   }
 
   const sentiment = analyzeSentiment(lastUserMsg);
@@ -200,7 +205,8 @@ export function generateCounselorResponse(userMessages: { text: string; sender: 
   // Hafıza (Memory): Eğer mevcut mesajda konu yoksa, önceki mesajlara bak
   let contextualSubjects = [...currentSubjects];
   if (contextualSubjects.length === 0 && userMessages.length > 2) {
-    const previousUserMsg = userMessages[userMessages.length - 3]?.text || '';
+    const prevItem = userMessages[userMessages.length - 3];
+    const previousUserMsg = (prevItem?.text || prevItem?.content || prevItem?.message || '').toString();
     contextualSubjects = extractSubjects(previousUserMsg);
   }
 

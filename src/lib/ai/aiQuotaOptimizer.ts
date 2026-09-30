@@ -110,31 +110,13 @@ export async function setCachedAiResponse(
  */
 export function isLocalHandledPrompt(rawPrompt: string): boolean {
   const p = rawPrompt.trim().toLowerCase();
-  
-  // Single word or very short greetings
-  const greetings = ['selam', 'merhaba', 'merhabalar', 'selamlar', 'hey', 'günaydın', 'iyi günler', 'iyi akşamlar', 'naber', 'nasılsın', 'kimsin', 'adın ne'];
-  if (greetings.includes(p)) return true;
 
-  // Single word or short gratitude / confirmation
-  const gratitude = ['sağol', 'sağ ol', 'teşekkürler', 'teşekkür ederim', 'eyvallah', 'tamam', 'anladım', 'harika', 'süper', 'peki', 'ok', 'anlaştık'];
-  if (gratitude.includes(p)) return true;
-
-  // Quick suggestion chips which have dedicated local hyper-personalized generators
+  // Only intercept dedicated DB-backed analytics chips (to preserve real student stats & YÖK Atlas calculations)
   if (
     p.includes('bugünkü reçetem ne') ||
     p.includes('durumum nasıl') ||
     p.includes('hedefime ne kadar var') ||
     p.includes('netlerimi nasıl artırırım')
-  ) {
-    return true;
-  }
-
-  // System navigation inquiries (can be served by local knowledge base)
-  if (
-    p.includes('nasıl soru çözerim') ||
-    p.includes('deneme nasıl eklenir') ||
-    p.includes('pomodoro nedir') ||
-    p.includes('hata defteri nerede')
   ) {
     return true;
   }

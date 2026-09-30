@@ -104,7 +104,7 @@ Renk Kuralları:
 - Sosyal/Tarih/Coğrafya/Felsefe için "#f59e0b"
 - Deneme/Tekrar/Genel için "#8b5cf6"`;
 
-        const models = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash'];
+        const models = ['gemini-3.5-flash', 'gemini-3.8-flash', 'gemini-3.5-flash-lite'];
         for (const model of models) {
           try {
             const apiRes = await fetch(
@@ -116,7 +116,7 @@ Renk Kuralları:
                   contents: [{ parts: [{ text: prompt }] }],
                   generationConfig: {
                     temperature: 0.3,
-                    maxOutputTokens: 800,
+                    maxOutputTokens: 2500,
                     response_mime_type: "application/json"
                   }
                 })

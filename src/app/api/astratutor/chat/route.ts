@@ -155,8 +155,8 @@ GÖREVLERİN:
 Gerektiğinde matematik veya fen formüllerini KaTeX ($ veya $$) formatında yaz.
 Öğrenciyi motive eden, anlaşılır ve eğitici bir dille kısa ve öz yanıt ver.`;
 
-        // Start with lighter model (gemini-3.5-flash-lite) for maximum quota savings, then 3.5-flash, 3.8-flash, flash-latest
-        const models = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash', 'gemini-flash-latest'];
+        // Start with stable tested models (gemini-3.5-flash, gemini-3.8-flash), with 2048 token ceiling for thoughts + output
+        const models = ['gemini-3.5-flash', 'gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-flash-latest'];
         for (const model of models) {
           try {
             const apiRes = await fetch(
@@ -167,8 +167,8 @@ Gerektiğinde matematik veya fen formüllerini KaTeX ($ veya $$) formatında yaz
                 body: JSON.stringify({
                   contents: [{ parts: [{ text: prompt }] }],
                   generationConfig: {
-                    temperature: 0.3,
-                    maxOutputTokens: 550, // Sıkı tavan: gereksiz uzun token tüketimini engeller
+                    temperature: 0.7,
+                    maxOutputTokens: 2048,
                   }
                 })
               }
@@ -234,8 +234,17 @@ Gerektiğinde matematik veya fen formüllerini KaTeX ($ veya $$) formatında yaz
 
   } catch (error: any) {
     console.error('AstraTutor API Error:', error);
-    return NextResponse.json({ 
-      reply: "Şu an bağlantıda ufak bir gecikme oldu. Ancak hedeflerinden asla şaşma! Sorunu tekrar iletebilir misin?" 
-    }, { status: 200 });
+    try {
+      const fallback = generateHyperPersonalizedResponse(null, rawMessage || 'selam');
+      return NextResponse.json({
+        reply: fallback.reply,
+        actions: fallback.actions,
+        provider: 'local-resilient-fallback'
+      }, { status: 200 });
+    } catch (_) {
+      return NextResponse.json({ 
+        reply: "Merhaba! Seni dinliyorum. YKS hazırlığında çözemediğin bir soru, konu anlatımı veya sınav taktiği hakkında bana dilediğini sorabilirsin!" 
+      }, { status: 200 });
+    }
   }
 }

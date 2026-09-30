@@ -139,8 +139,8 @@ Lütfen bu verileri analiz ederek öğrenciye şu JSON formatında yanıt üret 
   "motivationalQuote": "Öğrenciyi harekete geçirecek samimi bir koçluk cümlesi."
 }`;
 
-        // Prioritize lightweight model for minimum quota usage
-        const models = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash'];
+        // Prioritize stable tested model with sufficient token ceiling
+        const models = ['gemini-3.5-flash', 'gemini-3.8-flash', 'gemini-3.5-flash-lite'];
         for (const model of models) {
           try {
             const apiRes = await fetch(
@@ -152,7 +152,7 @@ Lütfen bu verileri analiz ederek öğrenciye şu JSON formatında yanıt üret 
                   contents: [{ parts: [{ text: prompt }] }],
                   generationConfig: {
                     temperature: 0.3,
-                    maxOutputTokens: 700, // Sıkı tavan: token israfını önler
+                    maxOutputTokens: 2500,
                     response_mime_type: "application/json"
                   }
                 })

@@ -143,7 +143,7 @@ export function generateHyperPersonalizedResponse(
 
   // Öğrenci verisi yoksa veya anonimse genel koçluk üret
   if (!memory) {
-    const fallbackNlp = generateCounselorResponse([{ role: 'user', content: rawMessage }]);
+    const fallbackNlp = generateCounselorResponse([{ text: rawMessage, content: rawMessage, sender: 'user', role: 'user' }]);
     return { reply: fallbackNlp.text, actions: fallbackNlp.actions };
   }
 
@@ -309,7 +309,7 @@ Kalan **${daysToYKS} gün** boyunca günde ortalama 2-3 saatlik kaliteli odaklan
   }
 
   // 5. Diğer Genel Rehberlik / NLP Fallback
-  const nlpResponse = generateCounselorResponse([{ role: 'user', content: rawMessage }]);
+  const nlpResponse = generateCounselorResponse([{ text: rawMessage, content: rawMessage, sender: 'user', role: 'user' }]);
   let replyText = nlpResponse.text;
 
   if (replyText.startsWith('Merhaba') || replyText.startsWith('Selam')) {
