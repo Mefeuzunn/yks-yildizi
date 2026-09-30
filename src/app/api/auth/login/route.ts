@@ -26,8 +26,8 @@ export async function POST(req: Request) {
 
     username = username.trim();
 
-    // Kullanıcıyı bul (Büyük/küçük harf ve boşluk duyarsız arama)
-    const user = await db.prepare('SELECT * FROM users WHERE LOWER(username) = LOWER(?)').get(username) as any;
+    // Kullanıcıyı bul (Kullanıcı adı veya e-posta ile, büyük/küçük harf duyarsız)
+    const user = await db.prepare('SELECT * FROM users WHERE LOWER(username) = LOWER(?) OR LOWER(email) = LOWER(?)').get(username, username) as any;
     if (!user) {
       return NextResponse.json({ error: 'Kullanıcı bulunamadı veya şifre hatalı.' }, { status: 401 });
     }
