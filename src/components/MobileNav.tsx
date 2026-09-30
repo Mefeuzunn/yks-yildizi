@@ -52,7 +52,7 @@ function MobileNavContent() {
     { emoji: '📊', label: 'Sınıf Analizi', href: '/ogretmen/dashboard?tab=analiz' },
     { emoji: '📚', label: 'Kaynaklar', href: '/ogretmen/dashboard?tab=kaynaklar' },
     { emoji: '📢', label: 'Duyurular', href: '/ogretmen/dashboard?tab=duyurular' },
-    { emoji: '👤', label: 'Profilim', href: '/ogretmen/dashboard?tab=profile' },
+    { emoji: '👤', label: 'Profilim', href: '/ogretmen/dashboard?tab=profil' },
   ];
   
   const currentMainTabs = user?.role === 'ogretmen' ? TEACHER_MAIN_TABS : MAIN_TABS;
@@ -106,7 +106,17 @@ function MobileNavContent() {
             <Link
               key={tab.href}
               href={tab.href}
-              onClick={() => triggerHaptic('light')}
+              onClick={() => {
+                triggerHaptic('light');
+                const targetTab = tab.href.includes('?tab=') ? tab.href.split('?tab=')[1] : null;
+                if (targetTab && typeof window !== 'undefined') {
+                  if (user?.role === 'ogretmen') {
+                    window.dispatchEvent(new CustomEvent('yks:navigate-teacher-tab', { detail: targetTab }));
+                  } else {
+                    window.dispatchEvent(new CustomEvent('yks:navigate-tab', { detail: targetTab }));
+                  }
+                }
+              }}
               style={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -276,6 +286,14 @@ function MobileNavContent() {
                       onClick={() => {
                         triggerHaptic('light');
                         setIsMoreOpen(false);
+                        const targetTab = tab.href.includes('?tab=') ? tab.href.split('?tab=')[1] : null;
+                        if (targetTab && typeof window !== 'undefined') {
+                          if (user?.role === 'ogretmen') {
+                            window.dispatchEvent(new CustomEvent('yks:navigate-teacher-tab', { detail: targetTab }));
+                          } else {
+                            window.dispatchEvent(new CustomEvent('yks:navigate-tab', { detail: targetTab }));
+                          }
+                        }
                       }}
                       style={{
                         display: 'flex',

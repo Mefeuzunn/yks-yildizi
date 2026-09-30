@@ -16,7 +16,7 @@ const STUDENT_NAV_GROUPS: {
     label: 'Ana',
     color: '#8b5cf6',  // purple
     items: [
-      { emoji: '🏠', label: 'Ana Sayfa', href: '/dashboard' },
+      { emoji: '🏠', label: 'Ana Sayfa', href: '/dashboard?tab=home' },
       { emoji: '🎯', label: 'Hedeflerim', href: '/dashboard?tab=hedef' },
       { emoji: '📊', label: 'Analizim', href: '/dashboard?tab=analysis' },
     ],
@@ -40,7 +40,7 @@ const STUDENT_NAV_GROUPS: {
     color: '#10b981',  // emerald
     items: [
       { emoji: '🤖', label: 'Astra AI & Rehberlik', href: '/dashboard?tab=astratutor' },
-      { emoji: '🎓', label: 'Tercih Robotu', href: '/dashboard?tab=tercih_robotu' },
+      { emoji: '🎓', label: 'Tercih Robotu', href: '/dashboard?tab=tercih-robotu' },
       { emoji: '🧮', label: 'Puan Hesaplama', href: '/puan-hesaplama' },
       { emoji: '📋', label: 'Ödevlerim', href: '/odevlerim' },
     ],
@@ -70,9 +70,9 @@ const TEACHER_NAV_ITEMS: { emoji: string; label: string; href: string }[] = [
 
 // ─── NavItem ─────────────────────────────────────────────────────────
 function NavItem({
-  emoji, label, href, active, accentColor,
+  emoji, label, href, active, accentColor, onClick,
 }: {
-  emoji: string; label: string; href: string; active: boolean; accentColor?: string;
+  emoji: string; label: string; href: string; active: boolean; accentColor?: string; onClick?: () => void;
 }) {
   const [hovered, setHovered] = useState(false);
   const accent = accentColor || '#8b5cf6';
@@ -81,6 +81,7 @@ function NavItem({
     <Link
       href={href}
       prefetch={true}
+      onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
@@ -212,6 +213,7 @@ function NavGroup({
               href={item.href}
               active={item.active}
               accentColor={accentColor}
+              onClick={item.onClick}
             />
           ))}
         </div>
@@ -227,12 +229,19 @@ function SidebarNav({ user }: { user: any }) {
   const tab = searchParams?.get('tab');
 
   const isActive = useCallback((href: string) => {
-    if (
-      (href === '/dashboard' || href === '/ogretmen/dashboard') &&
-      !tab &&
-      (pathname === '/dashboard' || pathname === '/ogretmen/dashboard')
-    ) return true;
-    if (href.includes(`?tab=${tab}`) && tab) return true;
+    // Check for Student Home
+    const isStudentHome = (href === '/dashboard' || href === '/dashboard?tab=home');
+    if (isStudentHome) {
+      return pathname === '/dashboard' && (!tab || tab === 'home');
+    }
+
+    // Check for Teacher Home
+    const isTeacherHome = (href === '/ogretmen/dashboard' || href === '/ogretmen/dashboard?tab=genel');
+    if (isTeacherHome) {
+      return pathname === '/ogretmen/dashboard' && (!tab || tab === 'genel');
+    }
+
+    if (tab && href.includes(`?tab=${tab}`)) return true;
     if (href === pathname && !href.includes('?')) return true;
     return false;
   }, [pathname, tab]);
@@ -240,14 +249,22 @@ function SidebarNav({ user }: { user: any }) {
   if (user?.role === 'ogretmen') {
     return (
       <nav style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
-        {TEACHER_NAV_ITEMS.map(item => (
-          <NavItem
-            key={item.href}
-            {...item}
-            active={isActive(item.href)}
-            accentColor="#10b981"
-          />
-        ))}
+        {TEACHER_NAV_ITEMS.map(item => {
+          const tabKey = item.href.includes('?tab=') ? item.href.split('?tab=')[1] : (item.href === '/ogretmen/dashboard' ? 'genel' : null);
+          return (
+            <NavItem
+              key={item.href}
+              {...item}
+              active={isActive(item.href)}
+              accentColor="#10b981"
+              onClick={tabKey ? () => {
+                if (typeof window !== 'undefined') {
+                  window.dispatchEvent(new CustomEvent('yks:navigate-teacher-tab', { detail: tabKey }));
+                }
+              } : undefined}
+            />
+          );
+        })}
       </nav>
     );
   }
@@ -260,7 +277,18 @@ function SidebarNav({ user }: { user: any }) {
           label={group.label}
           color={group.color}
           accentColor={group.color}
-          items={group.items.map(i => ({ ...i, active: isActive(i.href) }))}
+          items={group.items.map(i => {
+            const tabKey = i.href.includes('?tab=') ? i.href.split('?tab=')[1] : null;
+            return {
+              ...i,
+              active: isActive(i.href),
+              onClick: tabKey ? () => {
+                if (typeof window !== 'undefined') {
+                  window.dispatchEvent(new CustomEvent('yks:navigate-tab', { detail: tabKey }));
+                }
+              } : undefined,
+            };
+          })}
         />
       ))}
     </nav>
@@ -332,7 +360,7 @@ export default function AppSidebar() {
     : `${user?.sinif || 12}. Sınıf Öğrenci`;
 
   const profileHref = user?.role === 'ogretmen'
-    ? '/ogretmen/dashboard?tab=profile'
+    ? '/ogretmen/dashboard?tab=profil'
     : '/dashboard?tab=profile';
 
   const avatarColor = user?.role === 'ogretmen'
@@ -365,13 +393,27 @@ export default function AppSidebar() {
       }}
     >
       {/* ── Brand ── */}
-      <div style={{
-        padding: '20px 16px 14px',
-        flexShrink: 0,
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-      }}>
+      <Link
+        href={user?.role === 'ogretmen' ? '/ogretmen/dashboard' : '/dashboard?tab=home'}
+        onClick={() => {
+          if (typeof window !== 'undefined') {
+            if (user?.role === 'ogretmen') {
+              window.dispatchEvent(new CustomEvent('yks:navigate-teacher-tab', { detail: 'genel' }));
+            } else {
+              window.dispatchEvent(new CustomEvent('yks:navigate-tab', { detail: 'home' }));
+            }
+          }
+        }}
+        style={{
+          padding: '20px 16px 14px',
+          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          textDecoration: 'none',
+          cursor: 'pointer',
+        }}
+      >
         <div style={{
           width: '28px', height: '28px', borderRadius: '7px', flexShrink: 0,
           background: 'linear-gradient(135deg,#8b5cf6,#6366f1)',
@@ -382,7 +424,7 @@ export default function AppSidebar() {
         <span style={{ color: '#f8fafc', fontSize: '16px', fontWeight: 800, letterSpacing: '-0.03em' }}>
           YKS<span style={{ color: '#8b5cf6' }}>Yıldızı</span>
         </span>
-      </div>
+      </Link>
 
       {/* ── User Card ── */}
       <div style={{ padding: '0 10px 12px', flexShrink: 0 }}>

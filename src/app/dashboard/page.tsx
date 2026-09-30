@@ -195,6 +195,17 @@ function DashboardContent() {
     }
   }, [tabParam]);
 
+  useEffect(() => {
+    const handleTabNav = (e: Event) => {
+      const customEvent = e as CustomEvent<string>;
+      if (customEvent.detail) {
+        setActiveTab(customEvent.detail);
+      }
+    };
+    window.addEventListener('yks:navigate-tab', handleTabNav);
+    return () => window.removeEventListener('yks:navigate-tab', handleTabNav);
+  }, []);
+
   const renderHome = () => {
     const formattedDate = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
 
@@ -574,7 +585,7 @@ function DashboardContent() {
   return (
     <div style={{ width: '100%', height: '100%', fontFamily: '"Inter", sans-serif' }}>
       <AnimatePresence mode="wait">
-        {activeTab === 'home' && <motion.div key="home" style={{ height: '100%' }}>{renderHome()}</motion.div>}
+        {(activeTab === 'home' || !activeTab) && <motion.div key="home" style={{ height: '100%' }}>{renderHome()}</motion.div>}
         {activeTab === 'hedef' && <HedefTab key="hedef" />}
         {activeTab === 'mistakes' && <MistakesTab key="mistakes" />}
         {activeTab === 'topics' && <TopicsTab key="topics" />}
@@ -584,11 +595,11 @@ function DashboardContent() {
         {activeTab === 'focus' && <FocusTab key="focus" />}
         {activeTab === 'schedule' && <ScheduleTab key="schedule" />}
         {activeTab === 'astratutor' && <AstraTutorTab key="astratutor" />}
-        {activeTab === 'tercih-robotu' && <TercihRobotuTab key="tercih-robotu" />}
-        {activeTab === 'tercih-listem' && <TercihListemTab key="tercih-listem" />}
+        {(activeTab === 'tercih-robotu' || activeTab === 'tercih_robotu') && <TercihRobotuTab key="tercih-robotu" />}
+        {(activeTab === 'tercih-listem' || activeTab === 'tercih_listem') && <TercihListemTab key="tercih-listem" />}
         {(activeTab === 'sinif' || activeTab === 'sinifim') && <SinifimTab key="sinif" />}
         {activeTab === 'forum' && <ForumTab key="forum" />}
-        {activeTab === 'profile' && <ProfileTab key="profile" />}
+        {(activeTab === 'profile' || activeTab === 'profil') && <ProfileTab key="profile" />}
       </AnimatePresence>
     </div>
   );

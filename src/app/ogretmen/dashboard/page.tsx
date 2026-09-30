@@ -2047,11 +2047,27 @@ function TeacherDashboardContent() {
 
   useEffect(() => {
     if (tabParam) {
-      setActiveTab(tabParam);
+      if ((tabParam as string) === 'profile') {
+        setActiveTab('profil');
+      } else {
+        setActiveTab(tabParam);
+      }
     } else {
       setActiveTab('genel');
     }
   }, [tabParam]);
+
+  useEffect(() => {
+    const handleTeacherTab = (e: Event) => {
+      const customEvent = e as CustomEvent<string>;
+      if (customEvent.detail) {
+        const target = customEvent.detail === 'profile' ? 'profil' : (customEvent.detail as Tab);
+        setActiveTab(target);
+      }
+    };
+    window.addEventListener('yks:navigate-teacher-tab', handleTeacherTab);
+    return () => window.removeEventListener('yks:navigate-teacher-tab', handleTeacherTab);
+  }, []);
 
   const handleTabChange = (key: Tab) => {
     setActiveTab(key);
