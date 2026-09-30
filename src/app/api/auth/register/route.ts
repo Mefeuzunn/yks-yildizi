@@ -4,17 +4,45 @@ import db from '@/lib/yks-db-async';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
+import { cookies } from 'next/headers';
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    let { username, password, role = 'ogrenci', alan = 'Yok', sinif = 'Mezun', brans, kurum, classCode } = body;
+    let {
+      username,
+      password,
+      role = 'ogrenci',
+      alan = 'Yok',
+      sinif = 'Mezun',
+      brans,
+      kurum,
+      classCode,
+      email,
+      fullName,
+      veliCode
+    } = body;
+
+    // Email ve fullName desteği ile username otomatik türetme
+    if (!username && email) {
+      username = email.split('@')[0].trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+    } else if (!username && fullName) {
+      username = fullName.trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
+    }
 
     if (!username || !password) {
-      return NextResponse.json({ error: 'Kullanıcı adı ve şifre zorunludur.' }, { status: 400 });
+      return NextResponse.json({ error: 'Kullanıcı adı/e-posta ve şifre zorunludur.' }, { status: 400 });
     }
 
     username = username.trim();
+
+    // E-posta kontrolü
+    if (email) {
+      const existingEmail = await db.prepare('SELECT id FROM users WHERE LOWER(email) = LOWER(?)').get(email.trim());
+      if (existingEmail) {
+        return NextResponse.json({ error: 'Bu e-posta adresiyle zaten kayıtlı bir hesap bulunmaktadır.' }, { status: 400 });
+      }
+    }
 
     // Öğretmen ve veliler için DB kısıtlamalarına uyması adına varsayılan alan/sinif
     if (role !== 'ogrenci') {
@@ -22,24 +50,25 @@ export async function POST(req: Request) {
       sinif = 'Mezun';
     }
 
-    // Kullanıcı adının zaten var olup olmadığını kontrol et (Büyük/küçük harf duyarsız)
-    const existingUser = await db.prepare('SELECT id FROM users WHERE LOWER(username) = LOWER(?)').get(username);
+    // Kullanıcı adının zaten var olup olmadığını kontrol et - çakışma varsa benzersizleştir
+    let finalUsername = username;
+    const existingUser = await db.prepare('SELECT id FROM users WHERE LOWER(username) = LOWER(?)').get(finalUsername);
     if (existingUser) {
-      return NextResponse.json({ error: 'Bu kullanıcı adı zaten alınmış.' }, { status: 400 });
+      finalUsername = `${username}_${Math.floor(100 + Math.random() * 900)}`;
     }
 
     // Şifreyi hash'le
     const salt = bcrypt.genSaltSync(10);
     const password_hash = bcrypt.hashSync(password, salt);
     const id = uuidv4();
-    const parentCode = crypto.randomBytes(4).toString('hex').toUpperCase();
+    const parentCode = role === 'veli' && veliCode ? veliCode.trim().toUpperCase() : crypto.randomBytes(4).toString('hex').toUpperCase();
 
     // Veritabanına kaydet
     await db.transaction(async () => {
       await db.prepare(`
-        INSERT INTO users (id, username, password_hash, role, alan, sinif, brans, kurum, parent_code) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `).run(id, username, password_hash, role, alan, sinif, brans || null, kurum || null, parentCode);
+        INSERT INTO users (id, username, password_hash, role, alan, sinif, brans, kurum, parent_code, email) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(id, finalUsername, password_hash, role, alan, sinif, brans || null, kurum || null, parentCode, email || null);
 
       if (role === 'ogretmen') {
         // Öğretmen için otomatik ilk sınıf oluştur
@@ -93,7 +122,28 @@ export async function POST(req: Request) {
       }
     })();
 
-    return NextResponse.json({ success: true, message: 'Kayıt başarılı!', token: id, user: { id, username, role } }, { status: 201 });
+    // Oturum JWT oluştur ve çerezleri kaydet (anında giriş)
+    const token = await signToken({ userId: id, role });
+    const cookieStore = await cookies();
+    cookieStore.set('yks_session', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 60 * 60 * 24 * 30, // 30 gün
+      path: '/'
+    });
+    cookieStore.set('yks_role', role, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 60 * 60 * 24 * 30, // 30 gün
+      path: '/'
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Kayıt başarılı!',
+      token: id,
+      user: { id, username: finalUsername, role, email: email || null }
+    }, { status: 201 });
 
   } catch (error: any) {
     console.error('Register API Error:', error);
