@@ -7,6 +7,7 @@ import {
   setupOfflineFocusSync,
   OfflineFocusSession,
 } from '@/lib/offline-focus';
+import { showLocalNotification } from '@/lib/client-notifications';
 
 export type Mode = 'pomodoro' | 'shortBreak' | 'longBreak';
 
@@ -260,6 +261,17 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
         import('canvas-confetti').then(m => m.default({ particleCount: 110, spread: 70, origin: { y: 0.6 } })).catch(() => {});
       }
 
+      // 🔔 Sound chime + Push notification + Haptic
+      showLocalNotification('Tebrikler! Odak Süresi Tamamlandı 🎯', {
+        body: `${finalDurationMin} dakikalık odak oturumunu başarıyla bitirdin! Şimdi hak ettiğin dinlendirici molaya geçebilirsin.`,
+        chime: 'focus-complete',
+        url: '/dashboard?tab=focus',
+        tag: 'pomodoro-complete',
+        actions: [
+          { action: 'mola', title: '☕ Molaya Başla' }
+        ]
+      });
+
       // Reset timer back to targetSec for next focus
       setTimeLeft(targetSec);
 
@@ -271,10 +283,16 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
         prefilledTopic: selectedTopicRef.current || null,
       });
     } else {
-      // Molalar ASLA odak süresine eklenmez ve kaydedilmez.
-      if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
-        new Notification('Mola Bitti! ⏰', { body: 'Mola süresi tamamlandı. Yeni bir odak oturumuna başlayabilirsin.' });
-      }
+      // 🔔 Mola bitti bildirimi ve canlı çan sesi
+      showLocalNotification('Mola Bitti! ⏰', {
+        body: 'Mola süresi tamamlandı. Zihnin tazelendi, yeni bir odak oturumuna hazırsın!',
+        chime: 'break-complete',
+        url: '/dashboard?tab=focus',
+        tag: 'break-complete',
+        actions: [
+          { action: 'odak', title: '🚀 Odaklanmaya Başla' }
+        ]
+      });
       switchMode('pomodoro');
     }
   }, [switchMode]);

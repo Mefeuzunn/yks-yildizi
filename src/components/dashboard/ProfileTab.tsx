@@ -428,12 +428,37 @@ export default function ProfileTab() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <div style={cardStyle}>
                   <h3 style={{ color: '#f1f5f9', fontSize: '1rem', fontWeight: 700, marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Bell size={18} color="#f59e0b" /> Anlık Bildirimler
+                    <Bell size={18} color="#f59e0b" /> Anlık Bildirim & Hatırlatıcılar
                   </h3>
                   <PushNotificationToggle />
-                  <p style={{ color: '#475569', fontSize: '0.75rem', marginTop: '0.75rem' }}>
-                    Ödev atamaları, haftalık raporlar ve önemli güncellemeler için telefonunuza anlık bildirim gelir.
-                  </p>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem', flexWrap: 'wrap', gap: 8 }}>
+                    <p style={{ color: '#64748b', fontSize: '0.78rem', margin: 0 }}>
+                      Odaklanma oturumları, mola saatleri, ödev atamaları ve yangın serisi hatırlatıcıları.
+                    </p>
+                    <button
+                      onClick={async () => {
+                        try {
+                          const res = await fetch('/api/notifications/test', { method: 'POST' });
+                          const d = await res.json();
+                          alert(d.message || 'Test bildirimi iletildi!');
+                        } catch (e) {
+                          alert('Test bildirimi gönderilemedi.');
+                        }
+                      }}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '8px',
+                        background: 'rgba(139, 92, 246, 0.15)',
+                        border: '1px solid rgba(139, 92, 246, 0.35)',
+                        color: '#c4b5fd',
+                        fontSize: '11.5px',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      🔔 Test Bildirimi Gönder
+                    </button>
+                  </div>
                 </div>
               </div>
             )}

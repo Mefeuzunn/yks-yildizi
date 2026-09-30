@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, LogOut } from 'lucide-react';
 import { triggerHaptic } from '@/lib/haptics';
+import NotificationCenter from '@/components/NotificationCenter';
 
 const MAIN_TABS = [
   { emoji: '🏠', label: 'Ana Sayfa', href: '/dashboard?tab=home' },
@@ -251,7 +252,10 @@ function MobileNavContent() {
               <div className="modal-drag-handle" style={{ marginBottom: 14 }} />
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#fff', margin: 0 }}>Menü</h2>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#fff', margin: 0 }}>Menü</h2>
+                  <NotificationCenter />
+                </div>
                 <button
                   onClick={() => {
                     triggerHaptic('light');

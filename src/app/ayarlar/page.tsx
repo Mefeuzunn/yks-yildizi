@@ -14,10 +14,13 @@ export default function AyarlarPage() {
   const [accent, setAccent] = useState('#38bdf8');
   
   // Bildirim states
+  const [notifFocus, setNotifFocus] = useState(true);
   const [notifDaily, setNotifDaily] = useState(true);
+  const [notifStreak, setNotifStreak] = useState(true);
+  const [notifHomework, setNotifHomework] = useState(true);
   const [notifDuel, setNotifDuel] = useState(true);
-  const [notifForum, setNotifForum] = useState(true);
-  const [notifWeekly, setNotifWeekly] = useState(true);
+  const [notifSound, setNotifSound] = useState(true);
+  const [isTestingPush, setIsTestingPush] = useState(false);
 
   // Güvenlik states
   const [currentPassword, setCurrentPassword] = useState('');
@@ -45,6 +48,21 @@ export default function AyarlarPage() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
+
+    fetch('/api/notifications/settings')
+      .then(res => res.json())
+      .then(d => {
+        if (d?.settings) {
+          const s = d.settings;
+          setNotifFocus(s.notif_focus ?? true);
+          setNotifDaily(s.notif_daily_reminder ?? true);
+          setNotifStreak(s.notif_streak_warning ?? true);
+          setNotifHomework(s.notif_homework ?? true);
+          setNotifDuel(s.notif_duel ?? true);
+          setNotifSound(s.notif_sound ?? true);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
@@ -62,11 +80,23 @@ export default function AyarlarPage() {
           theme, 
           accent_color: accent, 
           avatar_seed: avatarSeed,
-          // Extra settings can be handled by backend if supported
-          notifications: { daily: notifDaily, duel: notifDuel, forum: notifForum, weekly: notifWeekly }
         })
       });
-      showToast('Ayarlar başarıyla kaydedildi!');
+
+      await fetch('/api/notifications/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          notif_focus: notifFocus,
+          notif_daily_reminder: notifDaily,
+          notif_streak_warning: notifStreak,
+          notif_homework: notifHomework,
+          notif_duel: notifDuel,
+          notif_sound: notifSound,
+        })
+      });
+
+      showToast('Ayarlar ve bildirim tercihleri başarıyla kaydedildi!');
     } catch (err) {
       console.error(err);
       showToast('Ayarlar kaydedilirken bir hata oluştu.', 'error');
@@ -299,29 +329,71 @@ export default function AyarlarPage() {
 
           {activeTab === 'bildirim' && (
             <div>
-              <h2 style={{ fontSize: '1.5rem', color: '#fff', marginBottom: '2rem' }}>Bildirim Ayarları</h2>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+                <div>
+                  <h2 style={{ fontSize: '1.5rem', color: '#fff', margin: 0 }}>Bildirim & Hatırlatıcı Motoru</h2>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: 4 }}>
+                    Odaklanma, ders programı, ödev teslimleri ve yangın serisi hatırlatıcılarını özelleştirin.
+                  </p>
+                </div>
+
+                <button
+                  onClick={async () => {
+                    setIsTestingPush(true);
+                    try {
+                      const res = await fetch('/api/notifications/test', { method: 'POST' });
+                      const d = await res.json();
+                      showToast(d.message || 'Test bildirimi iletildi!');
+                    } catch (e) {
+                      showToast('Test bildirimi gönderilemedi.', 'error');
+                    } finally {
+                      setIsTestingPush(false);
+                    }
+                  }}
+                  disabled={isTestingPush}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '10px',
+                    background: 'linear-gradient(135deg, rgba(139,92,246,0.25), rgba(99,102,241,0.2))',
+                    border: '1px solid rgba(139,92,246,0.45)',
+                    color: '#c4b5fd',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                  }}
+                >
+                  <Bell size={14} />
+                  {isTestingPush ? 'Gönderiliyor...' : 'Cihazıma Test Bildirimi Gönder'}
+                </button>
+              </div>
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 
                 {/* Real Push Notification Toggle Component */}
-                <div style={{ marginBottom: '1rem' }}>
+                <div style={{ marginBottom: '0.5rem' }}>
                   <PushNotificationToggle />
                 </div>
                 
                 {[
-                  { title: 'Günlük Hatırlatıcılar', desc: 'Pomodoro ve tekrar kartları için sabah bildirimi al.', state: notifDaily, setter: setNotifDaily },
-                  { title: 'Düello İstekleri', desc: 'Birisi seni düelloya davet ettiğinde anında uyar.', state: notifDuel, setter: setNotifDuel },
-                  { title: 'Forum Bahsetmeleri', desc: 'Forumda biri seni etiketlediğinde bildirim gönder.', state: notifForum, setter: setNotifForum },
-                  { title: 'Haftalık Rapor', desc: 'Pazar akşamları haftalık performans özetini e-posta at.', state: notifWeekly, setter: setNotifWeekly }
+                  { title: '🍅 Odak & Pomodoro Bildirimleri', desc: 'Oturum tamamlandığında ve mola bittiğinde sesli ve titreşimli uyar.', state: notifFocus, setter: setNotifFocus },
+                  { title: '☀️ Sabah Çalışma & Ders Hatırlatıcısı', desc: 'Her sabah 08:30\'da günlük ders hedeflerini ve programını anımsat.', state: notifDaily, setter: setNotifDaily },
+                  { title: '🔥 Yangın Serisi (Streak) Koruyucu', desc: 'Akşam 20:30\'da serin tehlikedeyse uyar, günün yanmasını engelle.', state: notifStreak, setter: setNotifStreak },
+                  { title: '📋 Ödev & Teslim Hatırlatıcıları', desc: 'Yeni ödev atandığında ve son 24 saat kaldığında doğrudan uyar.', state: notifHomework, setter: setNotifHomework },
+                  { title: '⚔️ Düello & Arena Davetleri', desc: 'Birisi seni Bilgi Arenası\'nda düelloya davet ettiğinde anında bildir.', state: notifDuel, setter: setNotifDuel },
+                  { title: '🔊 Ses Efektleri & Çan Sesleri', desc: 'Oturum bitişlerinde kristal netliğinde sentetik melodi çal.', state: notifSound, setter: setNotifSound },
                 ].map((item, i) => (
-                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                    <div>
-                      <h4 style={{ color: '#fff', marginBottom: '0.25rem', fontSize: '1rem' }}>{item.title}</h4>
-                      <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>{item.desc}</p>
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 1.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div style={{ paddingRight: '1rem' }}>
+                      <h4 style={{ color: '#fff', marginBottom: '0.25rem', fontSize: '0.95rem', fontWeight: 600 }}>{item.title}</h4>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '0.825rem', margin: 0, lineHeight: 1.4 }}>{item.desc}</p>
                     </div>
                     {/* Toggle */}
                     <div 
                       onClick={() => item.setter(!item.state)}
-                      style={{ width: '48px', height: '24px', background: item.state ? accent : 'rgba(255,255,255,0.1)', borderRadius: '12px', position: 'relative', cursor: 'pointer', transition: 'background 0.3s' }}
+                      style={{ width: '48px', height: '24px', background: item.state ? accent : 'rgba(255,255,255,0.1)', borderRadius: '12px', position: 'relative', cursor: 'pointer', transition: 'background 0.3s', flexShrink: 0 }}
                     >
                       <div style={{ width: '20px', height: '20px', background: '#fff', borderRadius: '50%', position: 'absolute', top: '2px', left: item.state ? '26px' : '2px', transition: 'left 0.2s', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }} />
                     </div>

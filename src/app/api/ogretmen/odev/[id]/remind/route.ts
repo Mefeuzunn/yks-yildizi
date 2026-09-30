@@ -53,10 +53,29 @@ export async function POST(
       VALUES (?, ?, ?, ?, ?, 'Ödev Hatırlatma', CURRENT_TIMESTAMP)
     `).run(annId, assignment.class_id, teacherId, annTitle, annContent);
 
+    // 🔔 Öğrencilere doğrudan in-app bildirim ve Web Push ilet
+    const studentIds = pendingStudents.map(s => s.student_id);
+    for (const sid of studentIds) {
+      await db.prepare(`
+        INSERT INTO user_notifications (id, user_id, title, body, type, icon, url)
+        VALUES (?, ?, ?, ?, 'homework', '⚠️', '/odevlerim')
+      `).run(uuidv4(), sid, annTitle, `Son teslim: ${formattedDueDate}. Ödevini tamamlamayı unutma!`).catch(() => {});
+    }
+
+    // Web Push gönder
+    const { sendPushToUsers } = await import('@/lib/push-notifications');
+    sendPushToUsers(studentIds, {
+      title: annTitle,
+      body: `Son teslim: ${formattedDueDate}. Çalışmanı sisteme yüklemeyi unutma!`,
+      url: '/odevlerim',
+      tag: `remind-${assignment.id}`,
+      actions: [{ action: 'open', title: '📋 Ödevi İncele' }]
+    }).catch(() => {});
+
     return NextResponse.json({
       success: true,
       remindedCount: count,
-      message: `${count} öğrenciye ödev hatırlatması gönderildi ve sınıf duyurusu oluşturuldu!`
+      message: `${count} öğrencinin telefonuna anlık hatırlatma bildirimi iletildi!`
     });
   } catch (error: any) {
     console.error('Ödev hatırlatma hatası:', error);

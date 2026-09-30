@@ -5,6 +5,7 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { LogOut, Settings, User } from 'lucide-react';
+import NotificationCenter from '@/components/NotificationCenter';
 
 // ─── Nav Data ────────────────────────────────────────────────────────
 const STUDENT_NAV_GROUPS: {
@@ -392,39 +393,49 @@ export default function AppSidebar() {
         overflow: 'hidden',
       }}
     >
-      {/* ── Brand ── */}
-      <Link
-        href={user?.role === 'ogretmen' ? '/ogretmen/dashboard' : '/dashboard?tab=home'}
-        onClick={() => {
-          if (typeof window !== 'undefined') {
-            if (user?.role === 'ogretmen') {
-              window.dispatchEvent(new CustomEvent('yks:navigate-teacher-tab', { detail: 'genel' }));
-            } else {
-              window.dispatchEvent(new CustomEvent('yks:navigate-tab', { detail: 'home' }));
+      {/* ── Brand & Notification Center ── */}
+      <div style={{
+        padding: '16px 14px 12px',
+        flexShrink: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '6px',
+      }}>
+        <Link
+          href={user?.role === 'ogretmen' ? '/ogretmen/dashboard' : '/dashboard?tab=home'}
+          onClick={() => {
+            if (typeof window !== 'undefined') {
+              if (user?.role === 'ogretmen') {
+                window.dispatchEvent(new CustomEvent('yks:navigate-teacher-tab', { detail: 'genel' }));
+              } else {
+                window.dispatchEvent(new CustomEvent('yks:navigate-tab', { detail: 'home' }));
+              }
             }
-          }
-        }}
-        style={{
-          padding: '20px 16px 14px',
-          flexShrink: 0,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          textDecoration: 'none',
-          cursor: 'pointer',
-        }}
-      >
-        <div style={{
-          width: '28px', height: '28px', borderRadius: '7px', flexShrink: 0,
-          background: 'linear-gradient(135deg,#8b5cf6,#6366f1)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '14px',
-          boxShadow: '0 0 12px rgba(139,92,246,0.4)',
-        }}>✨</div>
-        <span style={{ color: '#f8fafc', fontSize: '16px', fontWeight: 800, letterSpacing: '-0.03em' }}>
-          YKS<span style={{ color: '#8b5cf6' }}>Yıldızı</span>
-        </span>
-      </Link>
+          }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            textDecoration: 'none',
+            cursor: 'pointer',
+            flex: 1,
+            minWidth: 0,
+          }}
+        >
+          <div style={{
+            width: '28px', height: '28px', borderRadius: '7px', flexShrink: 0,
+            background: 'linear-gradient(135deg,#8b5cf6,#6366f1)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '14px',
+            boxShadow: '0 0 12px rgba(139,92,246,0.4)',
+          }}>✨</div>
+          <span style={{ color: '#f8fafc', fontSize: '15.5px', fontWeight: 800, letterSpacing: '-0.03em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            YKS<span style={{ color: '#8b5cf6' }}>Yıldızı</span>
+          </span>
+        </Link>
+        <NotificationCenter />
+      </div>
 
       {/* ── User Card ── */}
       <div style={{ padding: '0 10px 12px', flexShrink: 0 }}>

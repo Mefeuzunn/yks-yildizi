@@ -71,7 +71,29 @@ export async function POST(req: Request) {
         VALUES (?, ?, ?)
         ON CONFLICT (assignment_id, student_id) DO NOTHING
       `).run(uuidv4(), assignmentId, s.student_id);
+
+      await db.prepare(`
+        INSERT INTO user_notifications (id, user_id, title, body, type, icon, url)
+        VALUES (?, ?, ?, ?, 'homework', '⚡', '/odevlerim')
+      `).run(
+        uuidv4(),
+        s.student_id,
+        '⚡ Yeni AI Destekli Ödev!',
+        `${teacherClass.class_name} için "${title}" ödevi atandı. Çözmeye hemen başla!`
+      ).catch(() => {});
     }
+
+    // Web Push
+    try {
+      const { sendPushToClass } = await import('@/lib/push-notifications');
+      sendPushToClass(classId, {
+        title: '⚡ Yeni Ödev Atandı!',
+        body: `${teacherClass.class_name}: "${title}" ödevi tanımlandı.`,
+        url: '/odevlerim',
+        tag: `odev-${assignmentId}`,
+        actions: [{ action: 'open', title: '📋 Hemen Başla' }]
+      }).catch(() => {});
+    } catch (_) {}
 
     return NextResponse.json({
       success: true,
