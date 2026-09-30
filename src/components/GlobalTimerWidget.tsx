@@ -47,8 +47,15 @@ export default function GlobalTimerWidget() {
             textDecoration: 'none'
           }}
         >
-          {/* Progress circle small */}
-          <Link href="/dashboard?tab=focus" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: '#fff' }}>
+          <Link
+            href="/dashboard?tab=focus"
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('yks:navigate-tab', { detail: 'focus' }));
+              }
+            }}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: '#fff' }}
+          >
             <div style={{ position: 'relative', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Zap size={14} style={{ color: modeColor, zIndex: 2 }} />
               <svg viewBox="0 0 100 100" style={{ position: 'absolute', inset: 0, transform: 'rotate(-90deg)' }}>

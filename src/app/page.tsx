@@ -513,7 +513,7 @@ export default function LandingPage() {
                 <li><Link href="/rehberlik" className="hover:text-violet-400 transition-colors">AstraTutor Sınav Koçu</Link></li>
                 <li><Link href="/puan-hesaplama" className="hover:text-violet-400 transition-colors">YKS Puan Hesaplama</Link></li>
                 <li><Link href="/denemeler" className="hover:text-violet-400 transition-colors">Net Sihirbazı & Takip</Link></li>
-                <li><Link href="/pomodoro" className="hover:text-violet-400 transition-colors">Pomodoro Odak Modu</Link></li>
+                <li><Link href="/dashboard?tab=focus" className="hover:text-violet-400 transition-colors">Pomodoro Odak Modu</Link></li>
                 <li><Link href="/veli" className="hover:text-violet-400 transition-colors">Veli Bilgilendirme</Link></li>
               </ul>
             </div>

@@ -353,13 +353,7 @@ export default function FocusTab() {
     prevPendingRef.current = pendingSession;
   }, [pendingSession, refresh, router]);
 
-  // Title update
-  useEffect(() => {
-    if (typeof document !== 'undefined') {
-      document.title = isRunning ? `${fmt(timeLeft)} — ${cfg.label}` : 'YKS Yıldızı — Odak';
-    }
-    return () => { if (typeof document !== 'undefined') document.title = 'YKS Yıldızı'; };
-  }, [isRunning, timeLeft, cfg.label]);
+  // Document title and live lock screen state are centralized in TimerContext
 
   const addTask = (e: React.FormEvent) => {
     e.preventDefault();

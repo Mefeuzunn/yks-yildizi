@@ -46,6 +46,7 @@ interface TimerContextValue {
   setSelectedTopic: (t: string | null) => void;
   playSound: (id: string, url: string) => void;
   stopSound: () => void;
+  setVolume: (v: number) => void;
   finishSession: () => void;
   saveSession: (
     subject: string | null, 
@@ -67,7 +68,7 @@ const TimerContext = createContext<TimerContextValue | null>(null);
 
 export function TimerProvider({ children }: { children: React.ReactNode }) {
   const [mode, setMode] = useState<Mode>('pomodoro');
-  const [durations, setDurations] = useState<Record<Mode,number>>({ pomodoro: 25, shortBreak: 5, longBreak: 15 });
+  const [durations, setDurations] = useState<Record<Mode, number>>({ pomodoro: 25, shortBreak: 5, longBreak: 15 });
   const [totalSec, setTotalSec] = useState(25 * 60);
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isRunning, setIsRunning] = useState(false);
@@ -76,170 +77,145 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [pendingSession, setPendingSession] = useState<PendingSession | null>(null);
 
-
   const [isHydrated, setIsHydrated] = useState(false);
-
-  // Load from LocalStorage
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('yks_timer_state');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed.durations) setDurations(parsed.durations);
-        if (parsed.mode) setMode(parsed.mode);
-        if (parsed.pomodoroCount !== undefined) setPomodoroCount(parsed.pomodoroCount);
-        if (parsed.selectedSubject !== undefined) setSelectedSubject(parsed.selectedSubject);
-        if (parsed.selectedTopic !== undefined) setSelectedTopic(parsed.selectedTopic);
-        if (parsed.pendingSession !== undefined) setPendingSession(parsed.pendingSession);
-        
-        if (parsed.timeLeft !== undefined && parsed.totalSec !== undefined) {
-          // If it was running, adjust time based on how much time passed while away
-          let adjustedTimeLeft = parsed.timeLeft;
-          if (parsed.isRunning && parsed.lastTick) {
-            const elapsed = Math.floor((Date.now() - parsed.lastTick) / 1000);
-            adjustedTimeLeft = Math.max(1, parsed.timeLeft - elapsed);
-          }
-          setTimeLeft(adjustedTimeLeft);
-          setTotalSec(parsed.totalSec);
-          setIsRunning(parsed.isRunning && adjustedTimeLeft > 0);
-        }
-      }
-    } catch (e) {
-      console.error("Timer hydration error", e);
-    }
-    setIsHydrated(true);
-  }, []);
-
-  // Auto-sync offline focus queue when device reconnects or timer mounts
-  useEffect(() => {
-    const cleanup = setupOfflineFocusSync();
-    return cleanup;
-  }, []);
-
-  // Save to LocalStorage whenever state changes
-  useEffect(() => {
-    if (!isHydrated) return;
-    const stateToSave = {
-      durations,
-      mode,
-      pomodoroCount,
-      selectedSubject,
-      selectedTopic,
-      timeLeft,
-      totalSec,
-      isRunning,
-      pendingSession,
-      lastTick: isRunning ? Date.now() : null
-    };
-    localStorage.setItem('yks_timer_state', JSON.stringify(stateToSave));
-  }, [durations, mode, pomodoroCount, selectedSubject, selectedTopic, timeLeft, totalSec, isRunning, pendingSession, isHydrated]);
 
   // Sound State
   const [activeSound, setActiveSound] = useState<string | null>(null);
   const [volume, setVolumeState] = useState(0.3);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const wakeLockRef = useRef<any>(null);
 
-  // Refs to always have current values inside callbacks
+  // Wall-Clock Target End Time (Milliseconds epoch) - guarantees 100% precision across lock screens and browser throttling
+  const targetEndTimeRef = useRef<number | null>(null);
+
+  // Synchronous Refs to always have fresh values inside event handlers
   const modeRef = useRef(mode);
   const durationsRef = useRef(durations);
   const selectedSubjectRef = useRef(selectedSubject);
   const selectedTopicRef = useRef(selectedTopic);
   const timeLeftRef = useRef(timeLeft);
+  const totalSecRef = useRef(totalSec);
+  const isRunningRef = useRef(isRunning);
+
   useEffect(() => { modeRef.current = mode; }, [mode]);
   useEffect(() => { durationsRef.current = durations; }, [durations]);
   useEffect(() => { selectedSubjectRef.current = selectedSubject; }, [selectedSubject]);
   useEffect(() => { selectedTopicRef.current = selectedTopic; }, [selectedTopic]);
   useEffect(() => { timeLeftRef.current = timeLeft; }, [timeLeft]);
+  useEffect(() => { totalSecRef.current = totalSec; }, [totalSec]);
+  useEffect(() => { isRunningRef.current = isRunning; }, [isRunning]);
 
-  // Live Focus Heartbeat to Supabase / Backend for Teachers
-  useEffect(() => {
-    if (!isHydrated) return;
+  // Live Timer Notification Updater (Service Worker notification shade & Native MediaSession lock screen)
+  const updateLiveTimerNotification = useCallback((
+    remainingSec: number,
+    totalSeconds: number,
+    currentMode: Mode,
+    subject: string | null
+  ) => {
+    if (typeof window === 'undefined') return;
 
-    let currentStatus: 'focusing' | 'paused' | 'break' | 'break_paused' | null = null;
-    let currentMode = mode;
-    let currentSubject = selectedSubject || 'Genel Çalışma';
-    let currentTopic = selectedTopic || '';
-    let currentDuration = durations[mode] || 25;
+    const m = Math.floor(remainingSec / 60);
+    const s = remainingSec % 60;
+    const timeStr = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    const modeEmoji = currentMode === 'pomodoro' ? '🍅' : currentMode === 'shortBreak' ? '☕' : '🌴';
+    const modeLabel = currentMode === 'pomodoro' ? 'Odak' : currentMode === 'shortBreak' ? 'Kısa Mola' : 'Uzun Mola';
+    const subj = subject || (currentMode === 'pomodoro' ? 'Genel Çalışma' : 'Dinlenme');
 
-    if (mode === 'pomodoro') {
-      if (isRunning) {
-        currentStatus = 'focusing';
+    // 1. Browser Tab Title
+    document.title = `${modeEmoji} ${timeStr} · ${subj} | YKS Yıldızı`;
+
+    // 2. Media Session API (Native iOS & Android Lock Screen Widget / Dynamic Island)
+    if ('mediaSession' in navigator) {
+      try {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: `${modeEmoji} ${timeStr} · ${subj}`,
+          artist: `YKS Yıldızı ${modeLabel} Modu`,
+          album: `Hedef: ${Math.round(totalSeconds / 60)} Dakika`,
+          artwork: [
+            { src: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+            { src: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+          ],
+        });
+        navigator.mediaSession.playbackState = 'playing';
+        navigator.mediaSession.setPositionState?.({
+          duration: Math.max(1, totalSeconds),
+          playbackRate: 1,
+          position: Math.min(totalSeconds, Math.max(0, totalSeconds - remainingSec)),
+        });
+      } catch (_) {}
+    }
+
+    // 3. Service Worker Live Notification (Sticky in mobile notification panel)
+    if ('serviceWorker' in navigator) {
+      const payload = {
+        type: 'UPDATE_TIMER_NOTIFICATION',
+        title: `${modeEmoji} ${timeStr} · ${modeLabel}`,
+        body: `Ders: ${subj} · Hedef: ${Math.round(totalSeconds / 60)} Dk`,
+        tag: 'yks-live-timer',
+        silent: true,
+      };
+
+      if (navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage(payload);
       } else {
-        // If not running, are we paused during an active session?
-        if (timeLeft < totalSec) {
-          currentStatus = 'paused';
-        } else {
-          // Timer is at the very beginning (not started yet)
-          currentStatus = null;
-        }
+        navigator.serviceWorker.ready.then((reg) => {
+          reg.active?.postMessage(payload);
+        }).catch(() => {});
       }
-    } else if (mode === 'shortBreak' || mode === 'longBreak') {
-      currentStatus = isRunning ? 'break' : 'break_paused';
-      currentSubject = mode === 'shortBreak' ? 'Kısa Mola' : 'Uzun Mola';
-      currentTopic = selectedSubject ? `${selectedSubject} Molası` : (mode === 'shortBreak' ? '5 Dk Dinlenme' : '15 Dk Dinlenme');
+    }
+  }, []);
+
+  const clearLiveTimerNotification = useCallback(() => {
+    if (typeof window === 'undefined') return;
+
+    document.title = 'YKS Yıldızı - Hayallerindeki Üniversiteye Adım Adım';
+
+    if ('mediaSession' in navigator) {
+      try {
+        navigator.mediaSession.playbackState = 'paused';
+      } catch (_) {}
     }
 
-    if (!currentStatus) {
-      fetch('/api/user/focus/live', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'stop' })
-      }).catch(() => {});
-      return;
+    if ('serviceWorker' in navigator) {
+      const payload = {
+        type: 'CLEAR_TIMER_NOTIFICATION',
+        tag: 'yks-live-timer',
+      };
+
+      if (navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage(payload);
+      } else {
+        navigator.serviceWorker.ready.then((reg) => {
+          reg.active?.postMessage(payload);
+        }).catch(() => {});
+      }
     }
-
-    const sendHeartbeat = () => {
-      fetch('/api/user/focus/live', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'heartbeat',
-          status: currentStatus,
-          mode: currentMode,
-          subject: currentSubject,
-          topic: currentTopic,
-          durationMin: currentDuration,
-          timeLeftSec: timeLeftRef.current
-        })
-      }).catch(() => {});
-    };
-
-    sendHeartbeat();
-    const interval = setInterval(sendHeartbeat, isRunning ? 20000 : 35000);
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, [isRunning, mode, selectedSubject, selectedTopic, durations, timeLeft, totalSec, isHydrated]);
-
-  // Before unload cleanup
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      navigator.sendBeacon?.('/api/user/focus/live', JSON.stringify({ action: 'stop' }));
-    };
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, []);
 
   const switchMode = useCallback((m: Mode) => {
     setMode(m);
     setIsRunning(false);
+    targetEndTimeRef.current = null;
     const secs = (durationsRef.current[m] || MODE_CONFIG[m].minutes) * 60;
     setTotalSec(secs);
     setTimeLeft(secs);
-  }, []);
+    clearLiveTimerNotification();
+  }, [clearLiveTimerNotification]);
 
   const finishSession = useCallback(() => {
     const finishedMode = modeRef.current;
     setIsRunning(false);
+    targetEndTimeRef.current = null;
+    clearLiveTimerNotification();
+
     if (intervalRef.current) clearInterval(intervalRef.current);
 
     // Stop live focus heartbeat on backend
     fetch('/api/user/focus/live', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'stop' })
+      body: JSON.stringify({ action: 'stop' }),
     }).catch(() => {});
 
     if (finishedMode === 'pomodoro') {
@@ -248,17 +224,17 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
       const elapsedSec = targetSec - timeLeftRef.current;
 
       // If elapsed is at least 2 minutes and less than target - 30s, use elapsed.
-      // Otherwise default to targetMin (e.g. 25, 45, etc.) so user gets credit for their set goal!
+      // Otherwise default to targetMin so user gets credit for their set goal!
       let finalDurationMin = targetMin;
       if (elapsedSec >= 120 && elapsedSec < targetSec - 30) {
         finalDurationMin = Math.max(1, Math.round(elapsedSec / 60));
       }
 
-      setPomodoroCount(c => c + 1);
+      setPomodoroCount((c) => c + 1);
 
       // Trigger celebration confetti
       if (typeof window !== 'undefined') {
-        import('canvas-confetti').then(m => m.default({ particleCount: 110, spread: 70, origin: { y: 0.6 } })).catch(() => {});
+        import('canvas-confetti').then((m) => m.default({ particleCount: 110, spread: 70, origin: { y: 0.6 } })).catch(() => {});
       }
 
       // 🔔 Sound chime + Push notification + Haptic
@@ -268,8 +244,8 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
         url: '/dashboard?tab=focus',
         tag: 'pomodoro-complete',
         actions: [
-          { action: 'mola', title: '☕ Molaya Başla' }
-        ]
+          { action: 'mola', title: '☕ Molaya Başla' },
+        ],
       });
 
       // Reset timer back to targetSec for next focus
@@ -290,44 +266,319 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
         url: '/dashboard?tab=focus',
         tag: 'break-complete',
         actions: [
-          { action: 'odak', title: '🚀 Odaklanmaya Başla' }
-        ]
+          { action: 'odak', title: '🚀 Odaklanmaya Başla' },
+        ],
       });
       switchMode('pomodoro');
     }
-  }, [switchMode]);
+  }, [clearLiveTimerNotification, switchMode]);
 
-  const handleSessionComplete = useCallback(() => {
-    finishSession();
+  // Load from LocalStorage on mount with wall-clock compensation
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('yks_timer_state');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.durations) setDurations(parsed.durations);
+        if (parsed.mode) setMode(parsed.mode);
+        if (parsed.pomodoroCount !== undefined) setPomodoroCount(parsed.pomodoroCount);
+        if (parsed.selectedSubject !== undefined) setSelectedSubject(parsed.selectedSubject);
+        if (parsed.selectedTopic !== undefined) setSelectedTopic(parsed.selectedTopic);
+        if (parsed.pendingSession !== undefined) setPendingSession(parsed.pendingSession);
+        if (parsed.totalSec !== undefined) setTotalSec(parsed.totalSec);
+
+        // Wall-clock check: If it was running with targetEndTime
+        if (parsed.isRunning && parsed.targetEndTime) {
+          const now = Date.now();
+          const remainingSec = Math.round((parsed.targetEndTime - now) / 1000);
+
+          if (remainingSec <= 0) {
+            // Completed while away / closed!
+            setTimeLeft(0);
+            setIsRunning(false);
+            targetEndTimeRef.current = null;
+            setTimeout(() => {
+              finishSession();
+            }, 300);
+          } else {
+            // Still active - restore remaining exact seconds
+            setTimeLeft(remainingSec);
+            setIsRunning(true);
+            targetEndTimeRef.current = parsed.targetEndTime;
+          }
+        } else if (parsed.timeLeft !== undefined) {
+          setTimeLeft(parsed.timeLeft);
+          setIsRunning(false);
+          targetEndTimeRef.current = null;
+        }
+      }
+    } catch (e) {
+      console.error('Timer hydration error:', e);
+    }
+    setIsHydrated(true);
   }, [finishSession]);
 
+  // Save to LocalStorage whenever state changes
+  useEffect(() => {
+    if (!isHydrated) return;
+    const stateToSave = {
+      durations,
+      mode,
+      pomodoroCount,
+      selectedSubject,
+      selectedTopic,
+      timeLeft,
+      totalSec,
+      isRunning,
+      pendingSession,
+      targetEndTime: isRunning ? targetEndTimeRef.current : null,
+      lastTick: isRunning ? Date.now() : null,
+    };
+    localStorage.setItem('yks_timer_state', JSON.stringify(stateToSave));
+  }, [durations, mode, pomodoroCount, selectedSubject, selectedTopic, timeLeft, totalSec, isRunning, pendingSession, isHydrated]);
+
+  // Screen WakeLock API: keeps screen on while actively focusing on desk
+  useEffect(() => {
+    if (isRunning && typeof navigator !== 'undefined' && 'wakeLock' in navigator) {
+      (navigator as any).wakeLock?.request('screen').then((lock: any) => {
+        wakeLockRef.current = lock;
+      }).catch(() => {});
+    } else {
+      if (wakeLockRef.current) {
+        wakeLockRef.current.release().catch(() => {});
+        wakeLockRef.current = null;
+      }
+    }
+
+    return () => {
+      if (wakeLockRef.current) {
+        wakeLockRef.current.release().catch(() => {});
+        wakeLockRef.current = null;
+      }
+    };
+  }, [isRunning]);
+
+  // MediaSession Action Handlers (controls from native lock screen)
+  useEffect(() => {
+    if (typeof navigator === 'undefined' || !('mediaSession' in navigator)) return;
+
+    try {
+      navigator.mediaSession.setActionHandler('play', () => {
+        setIsRunning(true);
+      });
+      navigator.mediaSession.setActionHandler('pause', () => {
+        setIsRunning(false);
+        targetEndTimeRef.current = null;
+        clearLiveTimerNotification();
+      });
+      navigator.mediaSession.setActionHandler('stop', () => {
+        setIsRunning(false);
+        targetEndTimeRef.current = null;
+        setTimeLeft(totalSecRef.current);
+        clearLiveTimerNotification();
+      });
+    } catch (_) {}
+  }, [clearLiveTimerNotification]);
+
+  // Service Worker message listener for navigation requests
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
+
+    const handleSwMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'NAVIGATE_TAB' && event.data?.tab) {
+        window.dispatchEvent(new CustomEvent('yks:navigate-tab', { detail: event.data.tab }));
+      }
+    };
+
+    navigator.serviceWorker.addEventListener('message', handleSwMessage);
+    return () => navigator.serviceWorker.removeEventListener('message', handleSwMessage);
+  }, []);
+
+  // Wall-Clock Interval Timer Engine: computes difference to targetEndTime so background throttling never loses time
   useEffect(() => {
     if (isRunning) {
+      if (!targetEndTimeRef.current) {
+        targetEndTimeRef.current = Date.now() + timeLeftRef.current * 1000;
+      }
+
+      // Immediate notification update on start
+      updateLiveTimerNotification(
+        timeLeftRef.current,
+        totalSecRef.current,
+        modeRef.current,
+        selectedSubjectRef.current
+      );
+
       intervalRef.current = setInterval(() => {
-        setTimeLeft(t => {
-          if (t <= 1) {
-            clearInterval(intervalRef.current!);
-            setIsRunning(false);
-            handleSessionComplete();
-            return 0;
+        if (!targetEndTimeRef.current) {
+          targetEndTimeRef.current = Date.now() + timeLeftRef.current * 1000;
+        }
+
+        const now = Date.now();
+        const remaining = Math.max(0, Math.round((targetEndTimeRef.current - now) / 1000));
+
+        if (remaining <= 0) {
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          targetEndTimeRef.current = null;
+          setIsRunning(false);
+          setTimeLeft(0);
+          finishSession();
+        } else {
+          setTimeLeft(remaining);
+          // Update live notification shade: throttled every 5 seconds or when <= 15s
+          if (remaining % 5 === 0 || remaining <= 15) {
+            updateLiveTimerNotification(
+              remaining,
+              totalSecRef.current,
+              modeRef.current,
+              selectedSubjectRef.current
+            );
           }
-          return t - 1;
-        });
+        }
       }, 1000);
     } else {
       if (intervalRef.current) clearInterval(intervalRef.current);
     }
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [isRunning, handleSessionComplete]);
 
-  const toggle = () => setIsRunning(r => !r);
-  const reset = () => { 
-    setIsRunning(false); 
-    setTimeLeft(totalSec); 
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [isRunning, finishSession, updateLiveTimerNotification]);
+
+  // VisibilityChange and Window Focus listener: instantly recalculates exact seconds upon unlocking screen
+  useEffect(() => {
+    const handleWakeOrFocus = () => {
+      if (document.visibilityState === 'visible' && isRunningRef.current && targetEndTimeRef.current) {
+        const now = Date.now();
+        const remaining = Math.max(0, Math.round((targetEndTimeRef.current - now) / 1000));
+
+        if (remaining <= 0) {
+          targetEndTimeRef.current = null;
+          setIsRunning(false);
+          setTimeLeft(0);
+          finishSession();
+        } else {
+          setTimeLeft(remaining);
+          updateLiveTimerNotification(
+            remaining,
+            totalSecRef.current,
+            modeRef.current,
+            selectedSubjectRef.current
+          );
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleWakeOrFocus);
+    window.addEventListener('focus', handleWakeOrFocus);
+    return () => {
+      document.removeEventListener('visibilitychange', handleWakeOrFocus);
+      window.removeEventListener('focus', handleWakeOrFocus);
+    };
+  }, [finishSession, updateLiveTimerNotification]);
+
+  // Auto-sync offline focus queue when device reconnects or timer mounts
+  useEffect(() => {
+    const cleanup = setupOfflineFocusSync();
+    return cleanup;
+  }, []);
+
+  // Live Focus Heartbeat to Supabase / Backend for Teachers
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    let currentStatus: 'focusing' | 'paused' | 'break' | 'break_paused' | null = null;
+    const currentMode = mode;
+    let currentSubject = selectedSubject || 'Genel Çalışma';
+    let currentTopic = selectedTopic || '';
+    const currentDuration = durations[mode] || 25;
+
+    if (mode === 'pomodoro') {
+      if (isRunning) {
+        currentStatus = 'focusing';
+      } else {
+        if (timeLeft < totalSec) {
+          currentStatus = 'paused';
+        } else {
+          currentStatus = null;
+        }
+      }
+    } else if (mode === 'shortBreak' || mode === 'longBreak') {
+      currentStatus = isRunning ? 'break' : 'break_paused';
+      currentSubject = mode === 'shortBreak' ? 'Kısa Mola' : 'Uzun Mola';
+      currentTopic = selectedSubject ? `${selectedSubject} Molası` : (mode === 'shortBreak' ? '5 Dk Dinlenme' : '15 Dk Dinlenme');
+    }
+
+    if (!currentStatus) {
+      fetch('/api/user/focus/live', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'stop' }),
+      }).catch(() => {});
+      return;
+    }
+
+    const sendHeartbeat = () => {
+      fetch('/api/user/focus/live', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'heartbeat',
+          status: currentStatus,
+          mode: currentMode,
+          subject: currentSubject,
+          topic: currentTopic,
+          durationMin: currentDuration,
+          timeLeftSec: timeLeftRef.current,
+        }),
+      }).catch(() => {});
+    };
+
+    sendHeartbeat();
+    const interval = setInterval(sendHeartbeat, isRunning ? 20000 : 35000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [isRunning, mode, selectedSubject, selectedTopic, durations, timeLeft, totalSec, isHydrated]);
+
+  // Before unload cleanup
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      navigator.sendBeacon?.('/api/user/focus/live', JSON.stringify({ action: 'stop' }));
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
+
+  const toggle = () => {
+    setIsRunning((prev) => {
+      const next = !prev;
+      if (next) {
+        targetEndTimeRef.current = Date.now() + timeLeftRef.current * 1000;
+        updateLiveTimerNotification(
+          timeLeftRef.current,
+          totalSecRef.current,
+          modeRef.current,
+          selectedSubjectRef.current
+        );
+      } else {
+        targetEndTimeRef.current = null;
+        clearLiveTimerNotification();
+      }
+      return next;
+    });
+  };
+
+  const reset = () => {
+    setIsRunning(false);
+    targetEndTimeRef.current = null;
+    setTimeLeft(totalSec);
+    clearLiveTimerNotification();
     fetch('/api/user/focus/live', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'stop' })
+      body: JSON.stringify({ action: 'stop' }),
     }).catch(() => {});
   };
 
@@ -335,18 +586,19 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     if (modeRef.current === 'pomodoro') {
       const targetSec = (durationsRef.current.pomodoro || 25) * 60;
       const elapsedSec = targetSec - timeLeftRef.current;
-      // If student has focused for at least 60 seconds, treat skipping as finishing & saving!
       if (elapsedSec >= 60) {
         finishSession();
         return;
       }
     }
     setIsRunning(false);
+    targetEndTimeRef.current = null;
+    clearLiveTimerNotification();
     const next: Mode = modeRef.current === 'pomodoro'
       ? ((pomodoroCount + 1) % 4 === 0 ? 'longBreak' : 'shortBreak')
       : 'pomodoro';
     switchMode(next);
-  }, [finishSession, pomodoroCount, switchMode]);
+  }, [finishSession, pomodoroCount, switchMode, clearLiveTimerNotification]);
 
   const saveSettings = (d: Record<Mode, number>) => {
     setDurations(d);
@@ -354,6 +606,8 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     setTotalSec(secs);
     setTimeLeft(secs);
     setIsRunning(false);
+    targetEndTimeRef.current = null;
+    clearLiveTimerNotification();
   };
 
   // Called by FocusTab after user fills in subject+topic in the modal
@@ -410,11 +664,9 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (!res.ok) {
-        // Server or auth issue during shaky network -> safely queue offline
         enqueueOfflineFocusSession(sessionPayload);
       }
     } catch (e: any) {
-      // Network drop during fetch -> queue offline
       console.warn('Network drop during focus save, enqueued offline:', e);
       enqueueOfflineFocusSession(sessionPayload);
     }
@@ -456,7 +708,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
       mode, timeLeft, totalSec, isRunning, pomodoroCount, selectedSubject, selectedTopic, durations,
       activeSound, volume, pendingSession,
       toggle, reset, skip, switchMode, saveSettings, setSelectedSubject, setSelectedTopic,
-      playSound, stopSound, setVolume, finishSession, saveSession, dismissSession
+      playSound, stopSound, setVolume, finishSession, saveSession, dismissSession,
     }}>
       {children}
     </TimerContext.Provider>

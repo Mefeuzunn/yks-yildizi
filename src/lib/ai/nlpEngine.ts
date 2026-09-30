@@ -313,7 +313,7 @@ export function generateCounselorResponse(userMessages: { text: string; sender: 
 
   // Akıllı Aksiyon Yönlendirmeleri (Dynamic Actions Router)
   if (intents.includes('focus_issue')) {
-    actions.push({ label: 'Pomodoro Başlat', url: '/pomodoro', icon: 'Timer' });
+    actions.push({ label: 'Pomodoro Başlat', url: '/dashboard?tab=focus', icon: 'Timer' });
     actions.push({ label: 'Sanal Kütüphaneye Katıl', url: '/calisma-odalari', icon: 'Users' });
   }
   if (intents.includes('score_drop')) {

@@ -195,11 +195,11 @@ Gerektiğinde matematik veya fen formüllerini KaTeX ($ veya $$) formatında yaz
                     actions.push({ label: '❌ Hata Defterim', url: '/hata-defteri' });
                   }
                   if (lower.includes('odak') || lower.includes('pomodoro') || lower.includes('çalış')) {
-                    actions.push({ label: '🍅 Pomodoro Başlat', url: '/pomodoro' });
+                    actions.push({ label: '🍅 Pomodoro Başlat', url: '/dashboard?tab=focus' });
                   }
                   if (actions.length === 0) {
                     actions.push({ label: '📝 Soru Çöz', url: '/soru-coz' });
-                    actions.push({ label: '🍅 Odaklanma', url: '/pomodoro' });
+                    actions.push({ label: '🍅 Odaklanma', url: '/dashboard?tab=focus' });
                   }
                 }
 

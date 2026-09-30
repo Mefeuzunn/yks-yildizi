@@ -131,7 +131,7 @@ export default function OfflinePage() {
         </button>
 
         <Link
-          href="/pomodoro"
+          href="/dashboard?tab=focus"
           style={{
             display: 'inline-flex',
             alignItems: 'center',

@@ -3,9 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, Flame, Zap, Timer, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Bell, Flame, Zap, Timer, Sparkles, CheckCircle2, Play, Pause, RotateCcw, ArrowRight } from 'lucide-react';
 import { triggerHaptic } from '@/lib/haptics';
 import { usePushNotifications } from '@/components/PWAComponents';
+import { useTimer } from '@/context/TimerContext';
 
 interface MobileLiveActivityWidgetProps {
   streak?: number;
@@ -18,6 +19,7 @@ export default function MobileLiveActivityWidget({
   solvedQuestions = 0,
   dailyGoal = 40,
 }: MobileLiveActivityWidgetProps) {
+  const timer = useTimer();
   const [timeLeft, setTimeLeft] = useState<{
     days: number;
     hours: number;
@@ -56,6 +58,23 @@ export default function MobileLiveActivityWidget({
 
   const progressPercent = Math.min(100, Math.round((solvedQuestions / Math.max(1, dailyGoal)) * 100));
 
+  // Focus Timer active status
+  const isFocusActive = timer.isRunning || (timer.timeLeft < timer.totalSec && timer.timeLeft > 0);
+  const focusMinutes = Math.floor(timer.timeLeft / 60);
+  const focusSeconds = timer.timeLeft % 60;
+  const formattedFocusTime = `${focusMinutes.toString().padStart(2, '0')}:${focusSeconds.toString().padStart(2, '0')}`;
+  const focusProgressPercent = Math.min(
+    100,
+    Math.round(((timer.totalSec - timer.timeLeft) / Math.max(1, timer.totalSec)) * 100)
+  );
+
+  const navigateToFocus = () => {
+    triggerHaptic('light');
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('yks:navigate-tab', { detail: 'focus' }));
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -12 }}
@@ -63,12 +82,16 @@ export default function MobileLiveActivityWidget({
       transition={{ duration: 0.35, ease: 'easeOut' }}
       className="mobile-live-activity"
       style={{
-        background: 'linear-gradient(135deg, rgba(17, 24, 39, 0.95), rgba(15, 23, 42, 0.95))',
-        border: '1px solid rgba(139, 92, 246, 0.25)',
+        background: isFocusActive
+          ? 'linear-gradient(135deg, rgba(24, 18, 43, 0.95), rgba(15, 23, 42, 0.95))'
+          : 'linear-gradient(135deg, rgba(17, 24, 39, 0.95), rgba(15, 23, 42, 0.95))',
+        border: isFocusActive ? '1px solid rgba(168, 85, 247, 0.4)' : '1px solid rgba(139, 92, 246, 0.25)',
         borderRadius: 20,
         padding: '16px 18px',
         marginBottom: '20px',
-        boxShadow: '0 8px 30px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(139, 92, 246, 0.1)',
+        boxShadow: isFocusActive
+          ? '0 10px 32px rgba(139, 92, 246, 0.2), 0 0 0 1px rgba(168, 85, 247, 0.15)'
+          : '0 8px 30px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(139, 92, 246, 0.1)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
         position: 'relative',
@@ -84,7 +107,9 @@ export default function MobileLiveActivityWidget({
           width: '120px',
           height: '120px',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.25), transparent 70%)',
+          background: isFocusActive
+            ? 'radial-gradient(circle, rgba(168, 85, 247, 0.35), transparent 70%)'
+            : 'radial-gradient(circle, rgba(139, 92, 246, 0.25), transparent 70%)',
           pointerEvents: 'none',
         }}
       />
@@ -105,9 +130,9 @@ export default function MobileLiveActivityWidget({
               display: 'inline-flex',
               alignItems: 'center',
               gap: 6,
-              background: 'rgba(239, 68, 68, 0.15)',
-              border: '1px solid rgba(239, 68, 68, 0.35)',
-              color: '#f87171',
+              background: isFocusActive ? 'rgba(168, 85, 247, 0.2)' : 'rgba(239, 68, 68, 0.15)',
+              border: isFocusActive ? '1px solid rgba(168, 85, 247, 0.45)' : '1px solid rgba(239, 68, 68, 0.35)',
+              color: isFocusActive ? '#c084fc' : '#f87171',
               padding: '3px 8px',
               borderRadius: 20,
               fontSize: '11px',
@@ -120,12 +145,16 @@ export default function MobileLiveActivityWidget({
                 width: 6,
                 height: 6,
                 borderRadius: '50%',
-                backgroundColor: '#ef4444',
-                boxShadow: '0 0 8px #ef4444',
-                animation: 'pulse 1.8s infinite',
+                backgroundColor: isFocusActive ? (timer.isRunning ? '#a855f7' : '#eab308') : '#ef4444',
+                boxShadow: isFocusActive
+                  ? (timer.isRunning ? '0 0 8px #a855f7' : '0 0 8px #eab308')
+                  : '0 0 8px #ef4444',
+                animation: timer.isRunning ? 'pulse 1.4s infinite' : 'none',
               }}
             />
-            CANLI AKTİVİTE
+            {isFocusActive
+              ? (timer.isRunning ? '🍅 CANLI ODAK AKTİF' : '⏸️ ODAK DURAKLATILDI')
+              : 'CANLI AKTİVİTE'}
           </span>
 
           <span
@@ -175,193 +204,332 @@ export default function MobileLiveActivityWidget({
         )}
       </div>
 
-      {/* Main Countdown Digits Bar */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: 8,
-          marginBottom: 14,
-        }}
-      >
-        {/* Gün */}
-        <div
-          style={{
-            background: 'rgba(255, 255, 255, 0.03)',
-            border: '1px solid rgba(167, 139, 250, 0.25)',
-            borderRadius: 12,
-            padding: '8px 4px',
-            textAlign: 'center',
-          }}
-        >
+      {/* Dynamic Content Area: Focus Session Active vs Exam Countdown */}
+      {isFocusActive ? (
+        <div style={{ marginBottom: 14 }}>
           <div
             style={{
-              fontSize: '22px',
-              fontWeight: 900,
-              color: '#c4b5fd',
-              lineHeight: 1.1,
-              fontVariantNumeric: 'tabular-nums',
+              background: 'rgba(255, 255, 255, 0.04)',
+              border: '1px solid rgba(168, 85, 247, 0.3)',
+              borderRadius: 14,
+              padding: '12px 14px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 10,
             }}
           >
-            {timeLeft.days}
-          </div>
-          <div
-            style={{
-              fontSize: '9.5px',
-              color: '#94a3b8',
-              fontWeight: 700,
-              letterSpacing: '0.05em',
-              marginTop: 2,
-            }}
-          >
-            GÜN
-          </div>
-        </div>
+            <div>
+              <div
+                style={{
+                  fontSize: '28px',
+                  fontWeight: 900,
+                  color: '#e9d5ff',
+                  lineHeight: 1.1,
+                  fontVariantNumeric: 'tabular-nums',
+                  letterSpacing: '0.02em',
+                }}
+              >
+                {formattedFocusTime}
+              </div>
+              <div style={{ fontSize: '11px', color: '#cbd5e1', marginTop: 4, fontWeight: 500 }}>
+                {timer.selectedSubject ? `📚 ${timer.selectedSubject}` : '🎯 Odaklanma Seansı'}
+                {timer.selectedTopic ? ` · ${timer.selectedTopic}` : ''}
+              </div>
+            </div>
 
-        {/* Saat */}
-        <div
-          style={{
-            background: 'rgba(255, 255, 255, 0.03)',
-            border: '1px solid rgba(34, 197, 94, 0.25)',
-            borderRadius: 12,
-            padding: '8px 4px',
-            textAlign: 'center',
-          }}
-        >
-          <div
-            style={{
-              fontSize: '22px',
-              fontWeight: 900,
-              color: '#86efac',
-              lineHeight: 1.1,
-              fontVariantNumeric: 'tabular-nums',
-            }}
-          >
-            {timeLeft.hours.toString().padStart(2, '0')}
-          </div>
-          <div
-            style={{
-              fontSize: '9.5px',
-              color: '#94a3b8',
-              fontWeight: 700,
-              letterSpacing: '0.05em',
-              marginTop: 2,
-            }}
-          >
-            SAAT
-          </div>
-        </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <button
+                onClick={() => {
+                  triggerHaptic('medium');
+                  timer.toggle();
+                }}
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: '50%',
+                  background: timer.isRunning ? 'rgba(234, 179, 8, 0.2)' : 'rgba(16, 185, 129, 0.2)',
+                  border: timer.isRunning ? '1px solid rgba(234, 179, 8, 0.4)' : '1px solid rgba(16, 185, 129, 0.4)',
+                  color: timer.isRunning ? '#fde047' : '#6ee7b7',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                }}
+              >
+                {timer.isRunning ? <Pause size={16} /> : <Play size={16} style={{ marginLeft: 2 }} />}
+              </button>
 
-        {/* Dakika */}
-        <div
-          style={{
-            background: 'rgba(255, 255, 255, 0.03)',
-            border: '1px solid rgba(234, 179, 8, 0.25)',
-            borderRadius: 12,
-            padding: '8px 4px',
-            textAlign: 'center',
-          }}
-        >
-          <div
-            style={{
-              fontSize: '22px',
-              fontWeight: 900,
-              color: '#fde047',
-              lineHeight: 1.1,
-              fontVariantNumeric: 'tabular-nums',
-            }}
-          >
-            {timeLeft.minutes.toString().padStart(2, '0')}
-          </div>
-          <div
-            style={{
-              fontSize: '9.5px',
-              color: '#94a3b8',
-              fontWeight: 700,
-              letterSpacing: '0.05em',
-              marginTop: 2,
-            }}
-          >
-            DAKİKA
-          </div>
-        </div>
+              <button
+                onClick={() => {
+                  triggerHaptic('light');
+                  timer.reset();
+                }}
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: '50%',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  color: '#94a3b8',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                }}
+              >
+                <RotateCcw size={15} />
+              </button>
 
-        {/* Saniye */}
-        <div
-          style={{
-            background: 'rgba(255, 255, 255, 0.03)',
-            border: '1px solid rgba(239, 68, 68, 0.25)',
-            borderRadius: 12,
-            padding: '8px 4px',
-            textAlign: 'center',
-          }}
-        >
-          <div
-            style={{
-              fontSize: '22px',
-              fontWeight: 900,
-              color: '#fca5a5',
-              lineHeight: 1.1,
-              fontVariantNumeric: 'tabular-nums',
-            }}
-          >
-            {timeLeft.seconds.toString().padStart(2, '0')}
+              <Link
+                href="/dashboard?tab=focus"
+                onClick={navigateToFocus}
+                style={{
+                  padding: '6px 10px',
+                  borderRadius: 10,
+                  background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+                  color: '#ffffff',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  boxShadow: '0 2px 8px rgba(99, 102, 241, 0.4)',
+                }}
+              >
+                Aç <ArrowRight size={12} />
+              </Link>
+            </div>
           </div>
-          <div
-            style={{
-              fontSize: '9.5px',
-              color: '#94a3b8',
-              fontWeight: 700,
-              letterSpacing: '0.05em',
-              marginTop: 2,
-            }}
-          >
-            SANİYE
-          </div>
-        </div>
-      </div>
 
-      {/* Daily Target Progress Bar */}
-      <div style={{ marginBottom: 14 }}>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            fontSize: '12px',
-            color: '#94a3b8',
-            marginBottom: 6,
-          }}
-        >
-          <span>🎯 Günlük Soru Hedefi</span>
-          <span style={{ fontWeight: 700, color: '#f1f5f9' }}>
-            {solvedQuestions} / {dailyGoal} Soru ({progressPercent}%)
-          </span>
+          {/* Focus Session Progress Bar */}
+          <div>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: '11px',
+                color: '#a78bfa',
+                marginBottom: 4,
+                fontWeight: 600,
+              }}
+            >
+              <span>Oturum İlerlemesi</span>
+              <span>%{focusProgressPercent}</span>
+            </div>
+            <div
+              style={{
+                width: '100%',
+                height: '6px',
+                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                borderRadius: 3,
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  height: '100%',
+                  width: `${focusProgressPercent}%`,
+                  background: 'linear-gradient(90deg, #8b5cf6, #d946ef)',
+                  borderRadius: 3,
+                  transition: 'width 0.4s ease',
+                }}
+              />
+            </div>
+          </div>
         </div>
-        <div
-          style={{
-            width: '100%',
-            height: '6px',
-            backgroundColor: 'rgba(255, 255, 255, 0.06)',
-            borderRadius: 3,
-            overflow: 'hidden',
-          }}
-        >
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${progressPercent}%` }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
+      ) : (
+        <>
+          {/* Main Countdown Digits Bar */}
+          <div
             style={{
-              height: '100%',
-              background:
-                progressPercent >= 100
-                  ? 'linear-gradient(90deg, #10b981, #059669)'
-                  : 'linear-gradient(90deg, #8b5cf6, #ec4899)',
-              borderRadius: 3,
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: 8,
+              marginBottom: 14,
             }}
-          />
-        </div>
-      </div>
+          >
+            {/* Gün */}
+            <div
+              style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(167, 139, 250, 0.25)',
+                borderRadius: 12,
+                padding: '8px 4px',
+                textAlign: 'center',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '22px',
+                  fontWeight: 900,
+                  color: '#c4b5fd',
+                  lineHeight: 1.1,
+                  fontVariantNumeric: 'tabular-nums',
+                }}
+              >
+                {timeLeft.days}
+              </div>
+              <div
+                style={{
+                  fontSize: '9.5px',
+                  color: '#94a3b8',
+                  fontWeight: 700,
+                  letterSpacing: '0.05em',
+                  marginTop: 2,
+                }}
+              >
+                GÜN
+              </div>
+            </div>
+
+            {/* Saat */}
+            <div
+              style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(34, 197, 94, 0.25)',
+                borderRadius: 12,
+                padding: '8px 4px',
+                textAlign: 'center',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '22px',
+                  fontWeight: 900,
+                  color: '#86efac',
+                  lineHeight: 1.1,
+                  fontVariantNumeric: 'tabular-nums',
+                }}
+              >
+                {timeLeft.hours.toString().padStart(2, '0')}
+              </div>
+              <div
+                style={{
+                  fontSize: '9.5px',
+                  color: '#94a3b8',
+                  fontWeight: 700,
+                  letterSpacing: '0.05em',
+                  marginTop: 2,
+                }}
+              >
+                SAAT
+              </div>
+            </div>
+
+            {/* Dakika */}
+            <div
+              style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(234, 179, 8, 0.25)',
+                borderRadius: 12,
+                padding: '8px 4px',
+                textAlign: 'center',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '22px',
+                  fontWeight: 900,
+                  color: '#fde047',
+                  lineHeight: 1.1,
+                  fontVariantNumeric: 'tabular-nums',
+                }}
+              >
+                {timeLeft.minutes.toString().padStart(2, '0')}
+              </div>
+              <div
+                style={{
+                  fontSize: '9.5px',
+                  color: '#94a3b8',
+                  fontWeight: 700,
+                  letterSpacing: '0.05em',
+                  marginTop: 2,
+                }}
+              >
+                DAKİKA
+              </div>
+            </div>
+
+            {/* Saniye */}
+            <div
+              style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(239, 68, 68, 0.25)',
+                borderRadius: 12,
+                padding: '8px 4px',
+                textAlign: 'center',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '22px',
+                  fontWeight: 900,
+                  color: '#fca5a5',
+                  lineHeight: 1.1,
+                  fontVariantNumeric: 'tabular-nums',
+                }}
+              >
+                {timeLeft.seconds.toString().padStart(2, '0')}
+              </div>
+              <div
+                style={{
+                  fontSize: '9.5px',
+                  color: '#94a3b8',
+                  fontWeight: 700,
+                  letterSpacing: '0.05em',
+                  marginTop: 2,
+                }}
+              >
+                SANİYE
+              </div>
+            </div>
+          </div>
+
+          {/* Daily Target Progress Bar */}
+          <div style={{ marginBottom: 14 }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                fontSize: '12px',
+                color: '#94a3b8',
+                marginBottom: 6,
+              }}
+            >
+              <span>🎯 Günlük Soru Hedefi</span>
+              <span style={{ fontWeight: 700, color: '#f1f5f9' }}>
+                {solvedQuestions} / {dailyGoal} Soru ({progressPercent}%)
+              </span>
+            </div>
+            <div
+              style={{
+                width: '100%',
+                height: '6px',
+                backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                borderRadius: 3,
+                overflow: 'hidden',
+              }}
+            >
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${progressPercent}%` }}
+                transition={{ duration: 0.8, ease: 'easeOut' }}
+                style={{
+                  height: '100%',
+                  background:
+                    progressPercent >= 100
+                      ? 'linear-gradient(90deg, #10b981, #059669)'
+                      : 'linear-gradient(90deg, #8b5cf6, #ec4899)',
+                  borderRadius: 3,
+                }}
+              />
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Quick Action Buttons Row */}
       <div
@@ -395,26 +563,28 @@ export default function MobileLiveActivityWidget({
         </Link>
 
         <Link
-          href="/pomodoro"
-          onClick={() => triggerHaptic('light')}
+          href="/dashboard?tab=focus"
+          onClick={navigateToFocus}
           style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: 5,
             padding: '8px 4px',
-            background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(245, 158, 11, 0.1))',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
+            background: isFocusActive
+              ? 'linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(239, 68, 68, 0.2))'
+              : 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(245, 158, 11, 0.1))',
+            border: isFocusActive ? '1px solid rgba(168, 85, 247, 0.5)' : '1px solid rgba(239, 68, 68, 0.3)',
             borderRadius: 10,
-            color: '#fca5a5',
+            color: isFocusActive ? '#e9d5ff' : '#fca5a5',
             fontSize: '11.5px',
             fontWeight: 700,
             textDecoration: 'none',
             textAlign: 'center',
           }}
         >
-          <Timer size={13} color="#f87171" />
-          Odaklan
+          <Timer size={13} color={isFocusActive ? '#c084fc' : '#f87171'} />
+          {isFocusActive ? 'Sayaca Git' : 'Odaklan'}
         </Link>
 
         <Link
