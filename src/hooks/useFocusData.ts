@@ -175,5 +175,32 @@ export function useFocusData() {
     }
   };
 
-  return { sessions, stats, loading, handleTimerComplete, refresh };
+  const updateSessionQuestions = async (params: {
+    sessionId: string;
+    questionsSolved: number;
+    correctCount: number;
+    wrongCount: number;
+    emptyCount: number;
+    netScore?: number;
+    subject?: string | null;
+    topic?: string | null;
+  }) => {
+    try {
+      const res = await fetch('/api/user/focus', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params),
+      });
+      if (res.ok) {
+        await fetchSessions();
+        return { success: true };
+      }
+      const err = await res.json().catch(() => ({}));
+      return { success: false, error: err.error || 'Güncelleme yapılamadı' };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Ağ hatası oluştu' };
+    }
+  };
+
+  return { sessions, stats, loading, handleTimerComplete, updateSessionQuestions, refresh };
 }

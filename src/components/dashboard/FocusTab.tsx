@@ -23,18 +23,104 @@ const MODE_CONFIG: Record<Mode, { label: string; color: string; glow: string; mi
   longBreak:  { label: 'Uzun Ara',  color: '#10b981', glow: 'rgba(16,185,129,0.35)', minutes: 15 },
 };
 
+export interface FocusPreset {
+  id: string;
+  title: string;
+  emoji: string;
+  defaultMin: number;
+  subject: string;
+  topic: string;
+  desc: string;
+  badge: string;
+  color: string;
+}
+
+export const FOCUS_PRESETS: FocusPreset[] = [
+  {
+    id: 'pomodoro',
+    title: 'Standart Odak',
+    emoji: '🍅',
+    defaultMin: 25,
+    subject: '',
+    topic: '',
+    desc: '25 dk odaklanma & 5 dk mola döngüsü',
+    badge: 'Klasik',
+    color: '#8b5cf6',
+  },
+  {
+    id: 'paragraf',
+    title: 'Paragraf Çözme',
+    emoji: '📖',
+    defaultMin: 25,
+    subject: 'Paragraf',
+    topic: 'Günlük 20 Paragraf Rutini',
+    desc: '20-25 soru paragraf hız testi',
+    badge: '20 Soru',
+    color: '#ef4444',
+  },
+  {
+    id: 'sosyal_deneme',
+    title: 'Sosyal Deneme',
+    emoji: '🏛️',
+    defaultMin: 25,
+    subject: 'Sosyal Bilimler',
+    topic: 'TYT Sosyal Karma Branş Denemesi (20 Soru)',
+    desc: 'Tarih, Coğ, Fel, Din 20 soruluk deneme',
+    badge: '20 Soru',
+    color: '#d97706',
+  },
+  {
+    id: 'fen_deneme',
+    title: 'Fen Denemesi',
+    emoji: '🧪',
+    defaultMin: 35,
+    subject: 'Fen Bilimleri',
+    topic: 'TYT Fen Karma Branş Denemesi (20 Soru)',
+    desc: 'Fizik, Kimya, Biyo 20 soruluk deneme',
+    badge: '20 Soru',
+    color: '#06b6d4',
+  },
+  {
+    id: 'mat_deneme',
+    title: 'Matematik Deneme',
+    emoji: '📐',
+    defaultMin: 50,
+    subject: 'Matematik',
+    topic: 'TYT Matematik Branş Denemesi (40 Soru)',
+    desc: '40 soruluk branş deneme simülasyonu',
+    badge: '40 Soru',
+    color: '#3b82f6',
+  },
+  {
+    id: 'genel_deneme',
+    title: 'Genel TYT Denemesi',
+    emoji: '🏆',
+    defaultMin: 165,
+    subject: 'Genel Deneme',
+    topic: 'TYT Genel Deneme Sınavı (120 Soru / 165 dk)',
+    desc: '120 soru tam sınav simülasyonu',
+    badge: '165 dk',
+    color: '#10b981',
+  },
+];
+
 const SUBJECTS = [
+  { label: 'Paragraf', emoji: '📖', color: '#ef4444' },
+  { label: 'Sosyal Bilimler', emoji: '🏛️', color: '#d97706' },
+  { label: 'Fen Bilimleri', emoji: '🧪', color: '#06b6d4' },
+  { label: 'Genel Deneme', emoji: '🏆', color: '#10b981' },
   { label: 'Matematik', emoji: '📐', color: '#3b82f6' },
-  { label: 'Geometri',  emoji: '📐', color: '#6366f1' },
-  { label: 'Türkçe',    emoji: '📖', color: '#ef4444' },
-  { label: 'Edebiyat',  emoji: '✍️', color: '#ec4899' },
-  { label: 'Fizik',     emoji: '⚡', color: '#06b6d4' },
-  { label: 'Kimya',     emoji: '🧪', color: '#10b981' },
-  { label: 'Biyoloji',  emoji: '🔬', color: '#8b5cf6' },
-  { label: 'Tarih',     emoji: '🏛️', color: '#f59e0b' },
-  { label: 'Coğrafya',  emoji: '🌍', color: '#14b8a6' },
-  { label: 'Felsefe',   emoji: '🤔', color: '#fb923c' },
-  { label: 'Din Kültürü', emoji: '☪️', color: '#84cc16' },
+  { label: 'Geometri', emoji: '📏', color: '#6366f1' },
+  { label: 'Türkçe', emoji: '📚', color: '#f43f5e' },
+  { label: 'Edebiyat', emoji: '✍️', color: '#ec4899' },
+  { label: 'Fizik', emoji: '⚡', color: '#0ea5e9' },
+  { label: 'Kimya', emoji: '🧪', color: '#14b8a6' },
+  { label: 'Biyoloji', emoji: '🔬', color: '#8b5cf6' },
+  { label: 'Tarih', emoji: '🏺', color: '#f59e0b' },
+  { label: 'Coğrafya', emoji: '🌍', color: '#059669' },
+  { label: 'Felsefe', emoji: '🤔', color: '#fb923c' },
+  { label: 'Din Kültürü', emoji: '🕌', color: '#0891b2' },
+  { label: 'İngilizce (YDT)', emoji: '🇬🇧', color: '#a855f7' },
 ];
 
 const AMBIENT_SOUNDS = [
@@ -241,6 +327,372 @@ function SubjectPickerModal({ selected, onSelect, onClose }: {
   );
 }
 
+// ─── Edit Session Questions Modal ──────────────────────────────────────────────
+function EditSessionModal({
+  session,
+  onSave,
+  onClose,
+}: {
+  session: any;
+  onSave: (params: {
+    sessionId: string;
+    questionsSolved: number;
+    correctCount: number;
+    wrongCount: number;
+    emptyCount: number;
+    netScore?: number;
+    subject?: string | null;
+    topic?: string | null;
+  }) => Promise<{ success: boolean; error?: string }>;
+  onClose: () => void;
+}) {
+  const [questionsCount, setQuestionsCount] = useState(
+    session.questions_solved ? session.questions_solved.toString() : ''
+  );
+  const [correctCount, setCorrectCount] = useState(
+    session.correct_count !== undefined && session.correct_count !== null
+      ? session.correct_count.toString()
+      : ''
+  );
+  const [wrongCount, setWrongCount] = useState(
+    session.wrong_count !== undefined && session.wrong_count !== null
+      ? session.wrong_count.toString()
+      : ''
+  );
+  const [subject, setSubject] = useState(session.subject || '');
+  const [topic, setTopic] = useState(session.topic || '');
+  const [isSaving, setIsSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const totalQ = Math.max(0, parseInt(questionsCount) || 0);
+  const correctQ = Math.max(0, parseInt(correctCount) || 0);
+  const wrongQ = Math.max(0, parseInt(wrongCount) || 0);
+  const emptyQ = Math.max(0, totalQ - (correctQ + wrongQ));
+  const netQ = Math.max(0, correctQ - wrongQ * 0.25);
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isSaving) return;
+    setIsSaving(true);
+    setErrorMessage(null);
+
+    const res = await onSave({
+      sessionId: session.id,
+      questionsSolved: totalQ,
+      correctCount: correctQ,
+      wrongCount: wrongQ,
+      emptyCount: emptyQ,
+      netScore: parseFloat(netQ.toFixed(2)),
+      subject: subject.trim() || session.subject || null,
+      topic: topic.trim() || session.topic || null,
+    });
+
+    setIsSaving(false);
+    if (res.success) {
+      triggerHaptic('success');
+      onClose();
+    } else {
+      setErrorMessage(res.error || 'Güncelleme kaydedilemedi');
+      triggerHaptic('error');
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="modal-overlay-mobile"
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(0,0,0,0.85)',
+        zIndex: 10000,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backdropFilter: 'blur(8px)',
+        padding: '16px',
+      }}
+      onClick={onClose}
+    >
+      <motion.div
+        className="modal-content"
+        initial={{ scale: 0.9, y: 25 }}
+        animate={{ scale: 1, y: 0 }}
+        exit={{ scale: 0.9, y: 25 }}
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: '#0f172a',
+          border: '1px solid rgba(139,92,246,0.3)',
+          borderRadius: '24px',
+          padding: 'clamp(20px, 4vw, 32px)',
+          width: '480px',
+          maxWidth: '95vw',
+          maxHeight: '90vh',
+          overflowY: 'auto',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.7)',
+        }}
+      >
+        <div className="modal-drag-handle" />
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <div>
+            <h3 style={{ color: '#fff', fontSize: '18px', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>📝</span> Soru & Net Bilgilerini Düzenle
+            </h3>
+            <p style={{ color: '#94a3b8', fontSize: '12px', margin: '4px 0 0 0' }}>
+              {session.duration_minutes} dk · {session.subject || 'Serbest Çalışma'}
+              {session.topic ? ` - ${session.topic}` : ''}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'rgba(255,255,255,0.05)',
+              border: 'none',
+              borderRadius: '50%',
+              width: '32px',
+              height: '32px',
+              color: '#9ca3af',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* Hızlı Soru Çipleri */}
+        <div style={{ marginBottom: '16px' }}>
+          <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, marginBottom: '6px' }}>HIZLI SEÇİM:</div>
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            {[10, 15, 20, 25, 30, 40, 80, 120].map((cnt) => (
+              <button
+                key={cnt}
+                type="button"
+                onClick={() => {
+                  triggerHaptic('light');
+                  setQuestionsCount(cnt.toString());
+                  if (!correctCount && !wrongCount) {
+                    setCorrectCount(cnt.toString());
+                    setWrongCount('0');
+                  }
+                }}
+                style={{
+                  padding: '4px 10px',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  border: `1px solid ${totalQ === cnt ? '#8b5cf6' : 'rgba(255,255,255,0.08)'}`,
+                  background: totalQ === cnt ? 'rgba(139,92,246,0.3)' : 'rgba(255,255,255,0.03)',
+                  color: totalQ === cnt ? '#c4b5fd' : '#94a3b8',
+                  cursor: 'pointer',
+                }}
+              >
+                {cnt} Soru
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <form onSubmit={handleFormSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', color: '#94a3b8', fontWeight: 700, marginBottom: '4px' }}>TOPLAM SORU</label>
+              <input
+                type="number"
+                min={0}
+                value={questionsCount}
+                onChange={(e) => setQuestionsCount(e.target.value)}
+                placeholder="Örn: 20"
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  borderRadius: '10px',
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  color: '#fff',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', color: '#4ade80', fontWeight: 700, marginBottom: '4px' }}>DOĞRU (D)</label>
+              <input
+                type="number"
+                min={0}
+                value={correctCount}
+                onChange={(e) => setCorrectCount(e.target.value)}
+                placeholder="0"
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  borderRadius: '10px',
+                  background: 'rgba(34,197,94,0.08)',
+                  border: '1px solid rgba(34,197,94,0.3)',
+                  color: '#4ade80',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', color: '#f87171', fontWeight: 700, marginBottom: '4px' }}>YANLIŞ (Y)</label>
+              <input
+                type="number"
+                min={0}
+                value={wrongCount}
+                onChange={(e) => setWrongCount(e.target.value)}
+                placeholder="0"
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  borderRadius: '10px',
+                  background: 'rgba(239,68,68,0.08)',
+                  border: '1px solid rgba(239,68,68,0.3)',
+                  color: '#f87171',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Canlı Net Önizleme Kartı */}
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              background: 'rgba(139,92,246,0.12)',
+              border: '1px solid rgba(139,92,246,0.25)',
+              borderRadius: '12px',
+              padding: '12px 16px',
+            }}
+          >
+            <div>
+              <span style={{ fontSize: '12px', color: '#94a3b8' }}>Hesaplanan Net:</span>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: '#c4b5fd' }}>
+                {netQ.toFixed(2)} Net
+              </div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '12px', color: '#94a3b8' }}>
+                Boş: <strong style={{ color: '#fff' }}>{emptyQ}</strong>
+              </div>
+              <div style={{ fontSize: '12px', color: '#4ade80', fontWeight: 600 }}>
+                Başarı: %{totalQ > 0 ? Math.round((correctQ / totalQ) * 100) : 0}
+              </div>
+            </div>
+          </div>
+
+          {/* Ders & Konu Alanı */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', color: '#94a3b8', fontWeight: 700, marginBottom: '4px' }}>DERS</label>
+              <input
+                type="text"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                placeholder="Örn: Paragraf / Matematik"
+                style={{
+                  width: '100%',
+                  padding: '9px 12px',
+                  borderRadius: '10px',
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  color: '#fff',
+                  fontSize: '13px',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', color: '#94a3b8', fontWeight: 700, marginBottom: '4px' }}>KONU</label>
+              <input
+                type="text"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                placeholder="Örn: 20 Soru Rutini"
+                style={{
+                  width: '100%',
+                  padding: '9px 12px',
+                  borderRadius: '10px',
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  color: '#fff',
+                  fontSize: '13px',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+          </div>
+
+          {errorMessage && (
+            <div style={{ color: '#ef4444', fontSize: '12px', background: 'rgba(239,68,68,0.1)', padding: '8px 12px', borderRadius: '8px' }}>
+              ⚠️ {errorMessage}
+            </div>
+          )}
+
+          <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                flex: 1,
+                padding: '12px',
+                borderRadius: '12px',
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: '#9ca3af',
+                fontWeight: 600,
+                fontSize: '13px',
+                cursor: 'pointer',
+              }}
+            >
+              Vazgeç
+            </button>
+            <button
+              type="submit"
+              disabled={isSaving}
+              style={{
+                flex: 2,
+                padding: '12px',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
+                border: 'none',
+                color: '#fff',
+                fontWeight: 700,
+                fontSize: '14px',
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(139,92,246,0.35)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+              }}
+            >
+              {isSaving ? 'Kaydediliyor...' : '✓ Soru Sayısını Kaydet'}
+            </button>
+          </div>
+        </form>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 // ─── Zen Mode Overlay ──────────────────────────────────────────────────────────
 function ZenModeOverlay({ timeLeft, totalSec, cfg, isRunning, pomodoroCount, onToggle, onFinish, onExit }: {
   timeLeft: number; totalSec: number; cfg: typeof MODE_CONFIG.pomodoro;
@@ -318,18 +770,35 @@ export default function FocusTab() {
   const timer = useTimer();
   const { mode, timeLeft, totalSec, isRunning, pomodoroCount, selectedSubject,
           durations, activeSound, volume, toggle, reset, skip, switchMode,
-          saveSettings, setSelectedSubject, playSound, stopSound, setVolume, finishSession } = timer;
+          saveSettings, setSelectedSubject, playSound, stopSound, setVolume, finishSession,
+          selectedTopic, setSelectedTopic } = timer;
 
   const [showSettings, setShowSettings] = useState(false);
   const [showSubjectPicker, setShowSubjectPicker] = useState(false);
   const [isZenMode, setIsZenMode] = useState(false);
   const [soundsExpanded, setSoundsExpanded] = useState(false);
+  const [selectedPreset, setSelectedPreset] = useState<string>('pomodoro');
+  const [editingSession, setEditingSession] = useState<any | null>(null);
 
   const [tasks, setTasks] = useState<{ id: string; text: string; done: boolean; subject?: string }[]>([]);
   const [newTask, setNewTask] = useState('');
 
   // Use the new Supabase hook for real data
-  const { sessions: recentSessions, stats, loading: loadingSessions, refresh } = useFocusData();
+  const { sessions: recentSessions, stats, loading: loadingSessions, refresh, updateSessionQuestions } = useFocusData();
+
+  const handleSelectPreset = (preset: FocusPreset) => {
+    triggerHaptic('medium');
+    setSelectedPreset(preset.id);
+    if (preset.id === 'pomodoro') {
+      setSelectedSubject(null);
+      setSelectedTopic(null);
+      saveSettings({ ...durations, pomodoro: 25 });
+    } else {
+      setSelectedSubject(preset.subject);
+      setSelectedTopic(preset.topic);
+      saveSettings({ ...durations, pomodoro: preset.defaultMin });
+    }
+  };
 
   const todayMinutes = stats.todayTotalMin;
   const todayCount = stats.todaySessions;
@@ -402,6 +871,15 @@ export default function FocusTab() {
           <SubjectPickerModal selected={selectedSubject} onSelect={setSelectedSubject} onClose={() => setShowSubjectPicker(false)}/>
         )}
       </AnimatePresence>
+      <AnimatePresence>
+        {editingSession && (
+          <EditSessionModal
+            session={editingSession}
+            onSave={updateSessionQuestions}
+            onClose={() => setEditingSession(null)}
+          />
+        )}
+      </AnimatePresence>
 
       {/* ── Header ── */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
@@ -430,6 +908,78 @@ export default function FocusTab() {
               <span style={{ color: '#fff', fontSize: '12px', fontWeight: 700 }}>{s.value}</span>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* ── Hızlı Çalışma & Deneme Modları (Özel Odak Durumları) ── */}
+      <div style={{
+        background: '#0f172a',
+        border: '1px solid rgba(255,255,255,0.06)',
+        borderRadius: '20px',
+        padding: '16px 20px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '16px' }}>⚡</span>
+            <span style={{ fontSize: '13px', fontWeight: 800, color: '#f1f5f9', letterSpacing: '0.04em' }}>
+              HIZLI ÇALIŞMA & DENEME DURUMLARI
+            </span>
+          </div>
+          <span style={{ fontSize: '11px', color: '#94a3b8' }}>
+            Tek tıkla hazır süre ve branş seçimi
+          </span>
+        </div>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 170px), 1fr))',
+          gap: '10px'
+        }}>
+          {FOCUS_PRESETS.map((preset) => {
+            const isSelected = selectedPreset === preset.id;
+            return (
+              <button
+                key={preset.id}
+                type="button"
+                onClick={() => handleSelectPreset(preset)}
+                style={{
+                  padding: '12px 14px',
+                  borderRadius: '14px',
+                  textAlign: 'left',
+                  background: isSelected ? `${preset.color}22` : 'rgba(255,255,255,0.02)',
+                  border: `1.5px solid ${isSelected ? preset.color : 'rgba(255,255,255,0.06)'}`,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  boxShadow: isSelected ? `0 4px 16px ${preset.color}35` : 'none',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '20px' }}>{preset.emoji}</span>
+                  <span style={{
+                    fontSize: '10px',
+                    fontWeight: 800,
+                    padding: '2px 6px',
+                    borderRadius: '6px',
+                    background: isSelected ? preset.color : 'rgba(255,255,255,0.06)',
+                    color: isSelected ? '#fff' : '#9ca3af'
+                  }}>
+                    {preset.badge}
+                  </span>
+                </div>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: isSelected ? '#fff' : '#f1f5f9' }}>
+                  {preset.title}
+                </div>
+                <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
+                  {preset.defaultMin} dakika
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -508,6 +1058,22 @@ export default function FocusTab() {
               </div>
             </div>
           </div>
+
+          {/* Active Preset Indicator */}
+          {selectedPreset !== 'pomodoro' && (
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: '6px',
+              padding: '5px 14px', borderRadius: '12px', marginBottom: '14px',
+              background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)',
+              color: '#c4b5fd', fontSize: '12px', fontWeight: 700
+            }}>
+              <span>⚡ Seçili Mod:</span>
+              <span style={{ color: '#fff' }}>
+                {FOCUS_PRESETS.find(p => p.id === selectedPreset)?.emoji}{' '}
+                {FOCUS_PRESETS.find(p => p.id === selectedPreset)?.title}
+              </span>
+            </div>
+          )}
 
           {/* Selected Subject Badge */}
           <button onClick={() => { triggerHaptic('light'); setShowSubjectPicker(true); }}
@@ -829,13 +1395,70 @@ export default function FocusTab() {
                       </div>
                     )}
                     {session.questions_solved && session.questions_solved > 0 ? (
-                      <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                         <span style={{ color: '#38bdf8', fontWeight: 600 }}>📝 {session.questions_solved} Soru</span>
                         <span>•</span>
                         <span style={{ color: '#4ade80', fontWeight: 600 }}>{session.correct_count}D</span>
                         <span style={{ color: '#f87171', fontWeight: 600 }}>{session.wrong_count}Y</span>
                         <span>•</span>
                         <span style={{ color: '#c4b5fd', fontWeight: 700 }}>{session.net_score} Net</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            triggerHaptic('light');
+                            setEditingSession(session);
+                          }}
+                          style={{
+                            marginLeft: '4px',
+                            padding: '2px 8px',
+                            background: 'rgba(139,92,246,0.15)',
+                            border: '1px solid rgba(139,92,246,0.3)',
+                            borderRadius: '6px',
+                            color: '#c4b5fd',
+                            fontSize: '11px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '3px'
+                          }}
+                        >
+                          ✏️ Düzenle
+                        </button>
+                      </div>
+                    ) : session.mode === 'pomodoro' ? (
+                      <div style={{ marginTop: '6px' }}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            triggerHaptic('light');
+                            setEditingSession(session);
+                          }}
+                          style={{
+                            padding: '3px 10px',
+                            background: 'rgba(139,92,246,0.12)',
+                            border: '1px dashed rgba(139,92,246,0.4)',
+                            borderRadius: '8px',
+                            color: '#c4b5fd',
+                            fontSize: '11px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(139,92,246,0.22)';
+                            e.currentTarget.style.borderColor = 'rgba(139,92,246,0.7)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'rgba(139,92,246,0.12)';
+                            e.currentTarget.style.borderColor = 'rgba(139,92,246,0.4)';
+                          }}
+                        >
+                          <span>➕</span> Soru / Net Ekle
+                        </button>
                       </div>
                     ) : null}
                   </div>

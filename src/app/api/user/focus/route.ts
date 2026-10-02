@@ -218,3 +218,93 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: err.message || 'Kayıt başarısız' }, { status: 500 });
   }
 }
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+
+    const body = await req.json();
+    const {
+      sessionId,
+      questionsSolved,
+      correctCount,
+      wrongCount,
+      emptyCount,
+      netScore,
+      subject,
+      topic,
+    } = body;
+
+    if (!sessionId) {
+      return NextResponse.json({ error: 'sessionId parametresi gereklidir' }, { status: 400 });
+    }
+
+    // 1. Kullanıcının oturumunu kontrol et
+    const existing = await db.prepare(`
+      SELECT id, questions_solved, correct_count, wrong_count, empty_count, net_score, subject, topic
+      FROM focus_sessions
+      WHERE id = ? AND user_id = ?
+    `).get(sessionId, userId) as any;
+
+    if (!existing) {
+      return NextResponse.json({ error: 'Oturum bulunamadı veya yetkiniz yok' }, { status: 404 });
+    }
+
+    const qSolved = Math.max(0, Number(questionsSolved) || 0);
+    const cCount = Math.max(0, Number(correctCount) || 0);
+    const wCount = Math.max(0, Number(wrongCount) || 0);
+    const eCount = Math.max(0, Number(emptyCount) || 0);
+    const calculatedNet = Math.max(0, parseFloat((cCount - (wCount * 0.25)).toFixed(2)));
+    const finalNet = (netScore !== undefined && netScore !== null) ? Number(netScore) : calculatedNet;
+
+    const prevSolved = Number(existing.questions_solved) || 0;
+    const diffSolved = qSolved - prevSolved;
+
+    const newSubject = subject !== undefined ? subject : existing.subject;
+    const newTopic = topic !== undefined ? topic : existing.topic;
+
+    // 2. focus_sessions tablosundaki oturumu güncelle
+    await db.prepare(`
+      UPDATE focus_sessions
+      SET questions_solved = ?,
+          correct_count = ?,
+          wrong_count = ?,
+          empty_count = ?,
+          net_score = ?,
+          subject = ?,
+          topic = ?
+      WHERE id = ? AND user_id = ?
+    `).run(qSolved, cCount, wCount, eCount, finalNet, newSubject, newTopic, sessionId, userId);
+
+    // 3. user_stats tablosundaki çözülen soru sayısını fark kadar güncelle
+    if (diffSolved !== 0) {
+      try {
+        await db.prepare(`
+          UPDATE user_stats
+          SET solved_questions = GREATEST(0, COALESCE(solved_questions, 0) + ?)
+          WHERE user_id = ?
+        `).run(diffSolved, userId);
+      } catch (statsErr) {
+        console.warn('user_stats solved_questions update warning:', statsErr);
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      updated: {
+        id: sessionId,
+        questions_solved: qSolved,
+        correct_count: cCount,
+        wrong_count: wCount,
+        empty_count: eCount,
+        net_score: finalNet,
+        subject: newSubject,
+        topic: newTopic,
+      },
+    });
+  } catch (err: any) {
+    console.error('Focus PATCH API Error:', err);
+    return NextResponse.json({ error: err.message || 'Güncelleme yapılamadı' }, { status: 500 });
+  }
+}

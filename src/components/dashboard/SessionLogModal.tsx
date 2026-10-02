@@ -7,23 +7,114 @@ import { useTimer } from '@/context/TimerContext';
 import { subjectsData } from '@/lib/subjectData';
 
 export const FOCUS_SUBJECTS = [
-  { label: 'Matematik', emoji: '📐', color: '#3b82f6', desc: 'TYT & AYT' },
-  { label: 'Geometri',  emoji: '📐', color: '#6366f1', desc: 'TYT & AYT' },
-  { label: 'Türkçe',    emoji: '📖', color: '#ef4444', desc: 'TYT' },
-  { label: 'Edebiyat',  emoji: '✍️', color: '#ec4899', desc: 'AYT' },
-  { label: 'Fizik',     emoji: '⚡', color: '#06b6d4', desc: 'TYT & AYT' },
-  { label: 'Kimya',     emoji: '🧪', color: '#10b981', desc: 'TYT & AYT' },
-  { label: 'Biyoloji',  emoji: '🔬', color: '#8b5cf6', desc: 'TYT & AYT' },
-  { label: 'Tarih',     emoji: '🏛️', color: '#f59e0b', desc: 'TYT & AYT' },
-  { label: 'Coğrafya',  emoji: '🌍', color: '#14b8a6', desc: 'TYT & AYT' },
-  { label: 'Felsefe',   emoji: '🤔', color: '#fb923c', desc: 'TYT & AYT' },
-  { label: 'Din Kültürü', emoji: '☪️', color: '#84cc16', desc: 'TYT' },
+  // ── Hızlı Odak ve Deneme Durumları ──
+  { label: 'Paragraf', emoji: '📖', color: '#ef4444', desc: 'TYT Paragraf Rutini' },
+  { label: 'Sosyal Bilimler', emoji: '🏛️', color: '#d97706', desc: 'TYT Sosyal Denemesi' },
+  { label: 'Fen Bilimleri', emoji: '🧪', color: '#06b6d4', desc: 'TYT Fen Denemesi' },
+  { label: 'Genel Deneme', emoji: '🏆', color: '#10b981', desc: 'TYT & AYT Tam Deneme' },
+
+  // ── Temel YKS Dersleri ──
+  { label: 'Türkçe', emoji: '📚', color: '#f43f5e', desc: 'TYT Dil Bilgisi & Anlam' },
+  { label: 'Matematik', emoji: '📐', color: '#3b82f6', desc: 'TYT & AYT Matematik' },
+  { label: 'Geometri', emoji: '📏', color: '#6366f1', desc: 'TYT & AYT Geometri' },
+  { label: 'Fizik', emoji: '⚡', color: '#0ea5e9', desc: 'TYT & AYT Fizik' },
+  { label: 'Kimya', emoji: '🧪', color: '#14b8a6', desc: 'TYT & AYT Kimya' },
+  { label: 'Biyoloji', emoji: '🔬', color: '#8b5cf6', desc: 'TYT & AYT Biyoloji' },
+  { label: 'Edebiyat', emoji: '✍️', color: '#ec4899', desc: 'AYT Edebiyat' },
+  { label: 'Tarih', emoji: '🏺', color: '#f59e0b', desc: 'TYT & AYT Tarih' },
+  { label: 'Coğrafya', emoji: '🌍', color: '#059669', desc: 'TYT & AYT Coğrafya' },
+  { label: 'Felsefe', emoji: '🤔', color: '#fb923c', desc: 'TYT Felsefe & Mantık' },
+  { label: 'Din Kültürü', emoji: '🕌', color: '#0891b2', desc: 'TYT Din Kültürü' },
+  { label: 'İngilizce (YDT)', emoji: '🇬🇧', color: '#a855f7', desc: 'Yabancı Dil Testi' },
 ];
 
 export function getTopicsForSubject(subjectName: string | null): { name: string; tag?: string }[] {
   if (!subjectName) return [];
   const clean = subjectName.toLowerCase().trim();
 
+  // 1. Özel Paragraf Konuları
+  if (clean.includes('paragraf')) {
+    return [
+      { name: 'Günlük 20 Paragraf Rutini', tag: 'TYT' },
+      { name: 'Günlük 30 Paragraf Rutini', tag: 'TYT' },
+      { name: 'Paragrafta Ana Düşünce (Ana Fikir)', tag: 'TYT' },
+      { name: 'Paragrafta Yardımcı Düşünceler', tag: 'TYT' },
+      { name: 'Paragraf Tamamlama & Boşluk Doldurma', tag: 'TYT' },
+      { name: 'Paragrafı İkiye Bölme', tag: 'TYT' },
+      { name: 'Akışı Bozan Cümleyi Bulma', tag: 'TYT' },
+      { name: 'Cümlelerin Yerini Değiştirme', tag: 'TYT' },
+      { name: 'Çoklu Paragraf Soruları', tag: 'TYT' },
+      { name: 'Paragrafta Anlatım Biçimleri & Teknikleri', tag: 'TYT' },
+      { name: 'Paragrafta Konu ve Başlık', tag: 'TYT' },
+      { name: 'Söz Öbeklerinde Anlam & Deyimler', tag: 'TYT' },
+      { name: 'Süreli Paragraf Hız Denemesi', tag: 'TYT' },
+    ];
+  }
+
+  // 2. Sosyal Bilimler / TYT Sosyal Denemesi
+  if (clean.includes('sosyal')) {
+    return [
+      { name: 'TYT Sosyal Karma Branş Denemesi (20 Soru)', tag: 'TYT' },
+      { name: 'TYT Tarih Karma Deneme (5 Soru)', tag: 'TYT' },
+      { name: 'TYT Coğrafya Karma Deneme (5 Soru)', tag: 'TYT' },
+      { name: 'TYT Felsefe Karma Deneme (5 Soru)', tag: 'TYT' },
+      { name: 'TYT Din Kültürü Karma Deneme (5 Soru)', tag: 'TYT' },
+      { name: 'Tarih - İlk ve Orta Çağda Türk Dünyası', tag: 'TYT' },
+      { name: 'Tarih - İslam Tarihi ve Osmanlı Devleti', tag: 'TYT' },
+      { name: 'Tarih - Milli Mücadele ve Atatürk İnkılapları', tag: 'TYT' },
+      { name: 'Coğrafya - Harita Bilgisi ve Dünyanın Şekli', tag: 'TYT' },
+      { name: 'Coğrafya - İklim Bilgisi ve Türkiye İklimi', tag: 'TYT' },
+      { name: 'Coğrafya - Nüfus, Yerleşmeler ve Doğal Afetler', tag: 'TYT' },
+      { name: 'Felsefe - Bilgi, Varlık, Ahlak, Siyaset ve Din', tag: 'TYT' },
+      { name: 'Din Kültürü - Bilgi, İnanç, İbadet ve Ahlak', tag: 'TYT' },
+    ];
+  }
+
+  // 3. Fen Bilimleri / TYT Fen Denemesi
+  if (clean.includes('fen')) {
+    return [
+      { name: 'TYT Fen Karma Branş Denemesi (20 Soru)', tag: 'TYT' },
+      { name: 'TYT Fizik Denemesi (7 Soru)', tag: 'TYT' },
+      { name: 'TYT Kimya Denemesi (7 Soru)', tag: 'TYT' },
+      { name: 'TYT Biyoloji Denemesi (6 Soru)', tag: 'TYT' },
+      { name: 'AYT Fen Karma Deneme (40 Soru)', tag: 'AYT' },
+      { name: 'Fizik - Madde, Kuvvet, Enerji, Optik', tag: 'TYT' },
+      { name: 'Kimya - Atom, Karışımlar, Asit-Baz-Tuz', tag: 'TYT' },
+      { name: 'Biyoloji - Hücre, Canlılar Dünyası, Kalıtım', tag: 'TYT' },
+    ];
+  }
+
+  // 4. Genel Deneme Sınavları
+  if (clean.includes('genel deneme') || clean === 'deneme') {
+    return [
+      { name: 'TYT Genel Deneme Sınavı (120 Soru / 165 dk)', tag: 'TYT' },
+      { name: 'AYT Sayısal Genel Deneme (80 Soru / 180 dk)', tag: 'AYT' },
+      { name: 'AYT Eşit Ağırlık Genel Deneme (80 Soru / 180 dk)', tag: 'AYT' },
+      { name: 'AYT Sözel Genel Deneme (80 Soru / 180 dk)', tag: 'AYT' },
+      { name: 'YDT İngilizce Genel Deneme (80 Soru / 120 dk)', tag: 'YDT' },
+      { name: 'Kurumsal TYT Denemesi (Özdebir / 3D / TÖDER vb.)', tag: 'TYT' },
+      { name: 'Kurumsal AYT Denemesi', tag: 'AYT' },
+      { name: 'ÖSYM Çıkmış YKS Sınavı Simülasyonu', tag: 'TYT' },
+    ];
+  }
+
+  // 5. İngilizce / YDT
+  if (clean.includes('ydt') || clean.includes('ingilizce') || clean.includes('dil')) {
+    return [
+      { name: 'YDT 80 Soru Branş Denemesi', tag: 'YDT' },
+      { name: 'Vocabulary & Phrasal Verbs', tag: 'YDT' },
+      { name: 'Grammar (Tenses, Modals, Passive & Reported)', tag: 'YDT' },
+      { name: 'Cloze Test & Prepositions', tag: 'YDT' },
+      { name: 'Sentence Completion (Cümle Tamamlama)', tag: 'YDT' },
+      { name: 'Reading Comprehension (Paragraf Okuma)', tag: 'YDT' },
+      { name: 'Translation (İngilizce - Türkçe Çeviri)', tag: 'YDT' },
+      { name: 'Dialogue & Situation Questions', tag: 'YDT' },
+      { name: 'Restatement (En Yakın Anlamı Bulma)', tag: 'YDT' },
+      { name: 'Irrelevant Sentence (Akışı Bozan Cümle)', tag: 'YDT' },
+    ];
+  }
+
+  // 6. Müfredat Dersleri (subjectsData üzerinden)
   const matched = subjectsData.filter(s => {
     const sName = s.name.toLowerCase();
     if (sName === clean) return true;
@@ -39,7 +130,6 @@ export function getTopicsForSubject(subjectName: string | null): { name: string;
     if (clean.includes('coğrafya') && sName.includes('coğrafya')) return true;
     if (clean.includes('felsefe') && sName.includes('felsefe')) return true;
     if (clean.includes('din') && sName.includes('din')) return true;
-    if ((clean.includes('dil') || clean.includes('ingilizce') || clean.includes('ydt')) && sName.includes('dil')) return true;
     return false;
   });
 
@@ -47,10 +137,21 @@ export function getTopicsForSubject(subjectName: string | null): { name: string;
   const seen = new Set<string>();
 
   for (const s of matched) {
-    const tag = s.name.includes('TYT') ? 'TYT' : s.name.includes('AYT') ? 'AYT' : undefined;
+    const defaultTag = s.name.includes('TYT-AYT') ? undefined : s.name.includes('TYT') ? 'TYT' : s.name.includes('AYT') ? 'AYT' : undefined;
     for (const t of s.topics) {
       if (!seen.has(t.name)) {
         seen.add(t.name);
+        // Otomatik etiket tahmini
+        let tag = defaultTag;
+        if (!tag) {
+          const aytKeywords = ['türev', 'integral', 'limit', 'logaritma', 'diziler', 'trigonometri', 'polinom', 'parabol', 'karmaşık', 'modern fizik', 'atom', 'organik', 'elektrokimya', 'bitki', 'protein'];
+          const lowerT = t.name.toLowerCase();
+          if (aytKeywords.some(k => lowerT.includes(k))) {
+            tag = 'AYT';
+          } else {
+            tag = 'TYT';
+          }
+        }
         topics.push({ name: t.name, tag });
       }
     }
@@ -67,6 +168,7 @@ export default function SessionLogModal() {
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [durationMinutes, setDurationMinutes] = useState<number>(25);
   const [topicSearch, setTopicSearch] = useState('');
+  const [tagFilter, setTagFilter] = useState<'ALL' | 'TYT' | 'AYT' | 'YDT'>('ALL');
   const [isSaving, setIsSaving] = useState(false);
 
   // Soru / Test Takibi State
@@ -99,21 +201,39 @@ export default function SessionLogModal() {
     };
   }, []);
 
-  // Modal açıldığında state sıfırlama
+  // Modal açıldığında state sıfırlama ve akıllı ön-seçim
   useEffect(() => {
     if (pendingSession) {
       const pref = pendingSession.prefilledSubject;
+      const prefTopic = pendingSession.prefilledTopic;
       setSelectedSubject(pref ?? null);
-      setSelectedTopic(pendingSession.prefilledTopic ?? null);
+      setSelectedTopic(prefTopic ?? null);
       const initialDur = pendingSession.durationMin && pendingSession.durationMin > 0 ? pendingSession.durationMin : 25;
       setDurationMinutes(initialDur);
       setTopicSearch('');
-      setSolvedTest(false);
+      setTagFilter('ALL');
       setQuestionsCount('');
       setCorrectCount('');
       setWrongCount('');
-      // Always start on 'subject' so the user directly sees the lesson picker!
-      setStep('subject');
+
+      // Paragraf, Deneme, Sosyal vb. özel odak modları için testi otomatik aç ve doğrudan adım 2'ye geç
+      const isTestPreset = pref && (
+        pref.includes('Paragraf') || 
+        pref.includes('Sosyal') || 
+        pref.includes('Fen') || 
+        pref.includes('Deneme')
+      );
+
+      if (isTestPreset) {
+        setSolvedTest(true);
+        setStep('topic');
+      } else if (pref) {
+        setSolvedTest(false);
+        setStep('topic');
+      } else {
+        setSolvedTest(false);
+        setStep('subject');
+      }
     }
   }, [pendingSession]);
 
@@ -121,11 +241,20 @@ export default function SessionLogModal() {
     return getTopicsForSubject(selectedSubject);
   }, [selectedSubject]);
 
+  const hasMultipleTags = useMemo(() => {
+    const tags = new Set(topics.map(t => t.tag).filter(Boolean));
+    return tags.size > 1;
+  }, [topics]);
+
   const filteredTopics = useMemo(() => {
-    if (!topicSearch.trim()) return topics;
+    let list = topics;
+    if (tagFilter !== 'ALL') {
+      list = list.filter(t => t.tag === tagFilter);
+    }
+    if (!topicSearch.trim()) return list;
     const q = topicSearch.toLowerCase().trim();
-    return topics.filter(t => t.name.toLowerCase().includes(q));
-  }, [topics, topicSearch]);
+    return list.filter(t => t.name.toLowerCase().includes(q));
+  }, [topics, topicSearch, tagFilter]);
 
   if (!pendingSession) return null;
 
@@ -489,8 +618,30 @@ export default function SessionLogModal() {
                     </button>
                   </div>
 
-                  <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 700, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Hangi konuyu çalıştın?
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      Hangi konuyu çalıştın?
+                    </div>
+                    {hasMultipleTags && (
+                      <div style={{ display: 'flex', gap: '4px' }}>
+                        {(['ALL', 'TYT', 'AYT'] as const).map(tag => (
+                          <button
+                            key={tag}
+                            type="button"
+                            onClick={() => setTagFilter(tag)}
+                            style={{
+                              padding: '3px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700,
+                              border: `1px solid ${tagFilter === tag ? '#8b5cf6' : 'rgba(255,255,255,0.08)'}`,
+                              background: tagFilter === tag ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.03)',
+                              color: tagFilter === tag ? '#fff' : '#94a3b8', cursor: 'pointer',
+                              transition: 'all 0.15s'
+                            }}
+                          >
+                            {tag === 'ALL' ? 'Tümü' : tag}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* Arama Kutusu */}
@@ -614,6 +765,33 @@ export default function SessionLogModal() {
 
                     {solvedTest && (
                       <div style={{ marginTop: '14px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                        {/* Hızlı Soru Seçim Çipleri */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginBottom: '12px' }}>
+                          <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>Hızlı Soru:</span>
+                          {[10, 15, 20, 25, 30, 40, 80, 120].map(cnt => (
+                            <button
+                              key={cnt}
+                              type="button"
+                              onClick={() => {
+                                setQuestionsCount(cnt.toString());
+                                if (!correctCount && !wrongCount) {
+                                  setCorrectCount(cnt.toString());
+                                  setWrongCount('0');
+                                }
+                              }}
+                              style={{
+                                padding: '3px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700,
+                                background: parseInt(questionsCount) === cnt ? 'rgba(139,92,246,0.3)' : 'rgba(255,255,255,0.04)',
+                                border: `1px solid ${parseInt(questionsCount) === cnt ? '#8b5cf6' : 'rgba(255,255,255,0.08)'}`,
+                                color: parseInt(questionsCount) === cnt ? '#c4b5fd' : '#94a3b8',
+                                cursor: 'pointer', transition: 'all 0.15s'
+                              }}
+                            >
+                              {cnt} Soru
+                            </button>
+                          ))}
+                        </div>
+
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginBottom: '10px' }}>
                           <div>
                             <label style={{ display: 'block', fontSize: '10px', color: '#94a3b8', fontWeight: 700, marginBottom: '4px' }}>🔢 TOPLAM SORU</label>
