@@ -126,6 +126,8 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     document.title = `${modeEmoji} ${timeStr} · ${subj} | YKS Yıldızı`;
 
     // 2. Media Session API (Native iOS & Android Lock Screen Widget / Dynamic Island)
+    // Bu yerel API, iOS APNs üzerinde push bildirimi spam'i yapmadan kilit ekranı ve bildirim merkezinde
+    // temiz, tek bir canlı medya/zaman denetleyicisi sunar.
     if ('mediaSession' in navigator) {
       try {
         navigator.mediaSession.metadata = new MediaMetadata({
@@ -144,25 +146,6 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
           position: Math.min(totalSeconds, Math.max(0, totalSeconds - remainingSec)),
         });
       } catch (_) {}
-    }
-
-    // 3. Service Worker Live Notification (Sticky in mobile notification panel)
-    if ('serviceWorker' in navigator) {
-      const payload = {
-        type: 'UPDATE_TIMER_NOTIFICATION',
-        title: `${modeEmoji} ${timeStr} · ${modeLabel}`,
-        body: `Ders: ${subj} · Hedef: ${Math.round(totalSeconds / 60)} Dk`,
-        tag: 'yks-live-timer',
-        silent: true,
-      };
-
-      if (navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller.postMessage(payload);
-      } else {
-        navigator.serviceWorker.ready.then((reg) => {
-          reg.active?.postMessage(payload);
-        }).catch(() => {});
-      }
     }
   }, []);
 
@@ -316,6 +299,19 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
       console.error('Timer hydration error:', e);
     }
     setIsHydrated(true);
+
+    // Kilit ekranında önceden birikmiş eski/takılı kalmış sayaç bildirimlerini temizle
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.ready.then((reg) => {
+        reg.getNotifications?.().then((notifications) => {
+          notifications.forEach((n) => {
+            if (n.tag === 'yks-live-timer' || (n.title && (n.title.includes('Odak') || n.title.includes('🍅')))) {
+              n.close();
+            }
+          });
+        }).catch(() => {});
+      }).catch(() => {});
+    }
   }, [finishSession]);
 
   // Save to LocalStorage whenever state changes

@@ -1,7 +1,7 @@
 // YKS Yıldızı - Custom Service Worker
 // @ducanh2912/next-pwa bu dosyayı otomatik kullanır
 
-const CACHE_NAME = 'yks-yildizi-v2';
+const CACHE_NAME = 'yks-yildizi-v4';
 const STATIC_ASSETS = [
   '/offline',
   '/manifest.json',
@@ -21,12 +21,22 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate: eski cache'leri temizle
+// Activate: eski cache'leri temizle ve kullanıcı ekranındaki eski sayaç bildirimlerini otomatik kapat
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
+    Promise.all([
+      caches.keys().then((keys) =>
+        Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+      ),
+      // iOS ve mobilde kilit ekranında birikmiş eski sayaç balonlarını temizle
+      self.registration.getNotifications().then((notifications) => {
+        notifications.forEach((n) => {
+          if (n.tag === 'yks-live-timer' || (n.title && (n.title.includes('Odak') || n.title.includes('🍅')))) {
+            n.close();
+          }
+        });
+      }).catch(() => {}),
+    ])
   );
   self.clients.claim();
 });
@@ -92,33 +102,25 @@ self.addEventListener('message', (event) => {
       })
     );
   } else if (event.data && event.data.type === 'UPDATE_TIMER_NOTIFICATION') {
-    const { title, body, tag, actions, silent } = event.data;
-    event.waitUntil(
-      self.registration.showNotification(title || '🍅 Odaklanma Devam Ediyor', {
-        body: body || 'Kalan süre hesaplanıyor...',
-        icon: '/icons/icon-192x192.png',
-        badge: '/icons/icon-192x192.png',
-        tag: tag || 'yks-live-timer',
-        renotify: false,
-        silent: silent !== undefined ? silent : true,
-        vibrate: [],
-        data: {
-          url: '/dashboard?tab=focus',
-          dateOfArrival: Date.now(),
-        },
-        actions: actions || [
-          { action: 'open_focus', title: '⏱️ Odaklanmaya Dön' },
-        ],
-        // Keeps persistent in mobile notification shade while counting
-        ongoing: true,
-      })
-    );
-  } else if (event.data && event.data.type === 'CLEAR_TIMER_NOTIFICATION') {
+    // iOS APNs ve mobil kilit ekranında her 5 saniyede bir bildirim baloncuğu basılmasını engelliyoruz.
+    // Canlı ilerleme kilit ekranında yerel MediaSession ve sekme başlığı ile yönetilir.
+    // Eski veya açık kalmış sayaç bildirimi varsa sadece kapatıyoruz:
     const tagToClose = event.data.tag || 'yks-live-timer';
     event.waitUntil(
       self.registration.getNotifications({ tag: tagToClose }).then((notifications) => {
         notifications.forEach((n) => n.close());
-      })
+      }).catch(() => {})
+    );
+  } else if (event.data && event.data.type === 'CLEAR_TIMER_NOTIFICATION') {
+    const tagToClose = event.data.tag || 'yks-live-timer';
+    event.waitUntil(
+      self.registration.getNotifications().then((notifications) => {
+        notifications.forEach((n) => {
+          if (n.tag === tagToClose || (n.title && (n.title.includes('Odak') || n.title.includes('🍅')))) {
+            n.close();
+          }
+        });
+      }).catch(() => {})
     );
   } else if (event.data && event.data.type === 'CLEAR_BADGE') {
     if ('clearAppBadge' in navigator) {
