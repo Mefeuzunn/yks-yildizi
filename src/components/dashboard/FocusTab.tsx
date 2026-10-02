@@ -911,83 +911,11 @@ export default function FocusTab() {
         </div>
       </div>
 
-      {/* ── Hızlı Çalışma & Deneme Modları (Özel Odak Durumları) ── */}
-      <div style={{
-        background: '#0f172a',
-        border: '1px solid rgba(255,255,255,0.06)',
-        borderRadius: '20px',
-        padding: '16px 20px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '12px'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '16px' }}>⚡</span>
-            <span style={{ fontSize: '13px', fontWeight: 800, color: '#f1f5f9', letterSpacing: '0.04em' }}>
-              HIZLI ÇALIŞMA & DENEME DURUMLARI
-            </span>
-          </div>
-          <span style={{ fontSize: '11px', color: '#94a3b8' }}>
-            Tek tıkla hazır süre ve branş seçimi
-          </span>
-        </div>
-
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 170px), 1fr))',
-          gap: '10px'
-        }}>
-          {FOCUS_PRESETS.map((preset) => {
-            const isSelected = selectedPreset === preset.id;
-            return (
-              <button
-                key={preset.id}
-                type="button"
-                onClick={() => handleSelectPreset(preset)}
-                style={{
-                  padding: '12px 14px',
-                  borderRadius: '14px',
-                  textAlign: 'left',
-                  background: isSelected ? `${preset.color}22` : 'rgba(255,255,255,0.02)',
-                  border: `1.5px solid ${isSelected ? preset.color : 'rgba(255,255,255,0.06)'}`,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  boxShadow: isSelected ? `0 4px 16px ${preset.color}35` : 'none',
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <span style={{ fontSize: '20px' }}>{preset.emoji}</span>
-                  <span style={{
-                    fontSize: '10px',
-                    fontWeight: 800,
-                    padding: '2px 6px',
-                    borderRadius: '6px',
-                    background: isSelected ? preset.color : 'rgba(255,255,255,0.06)',
-                    color: isSelected ? '#fff' : '#9ca3af'
-                  }}>
-                    {preset.badge}
-                  </span>
-                </div>
-                <div style={{ fontSize: '13px', fontWeight: 700, color: isSelected ? '#fff' : '#f1f5f9' }}>
-                  {preset.title}
-                </div>
-                <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
-                  {preset.defaultMin} dakika
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
       {/* ── Main Grid ── */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'flex-start' }}>
 
         {/* ── Timer Card ── */}
-        <div style={{ flex: '1 1 300px', maxWidth: '100%', width: '100%', background: '#0f172a', border: `1px solid ${cfg.glow}`, borderRadius: '28px', padding: 'clamp(20px, 4vw, 32px)',
+        <div style={{ flex: '1.1 1 360px', maxWidth: '100%', minWidth: 'min(100%, 340px)', width: '100%', background: '#0f172a', border: `1px solid ${cfg.glow}`, borderRadius: '28px', padding: 'clamp(20px, 4vw, 32px)',
                       display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative',
                       overflow: 'hidden', boxShadow: `0 10px 60px -10px ${cfg.glow}` }}>
           {/* Glow bg */}
@@ -1155,32 +1083,136 @@ export default function FocusTab() {
             </motion.button>
           )}
 
-          {/* ── Inline Duration Controls ── */}
-          <div style={{ width: '100%', marginTop: '24px' }}>
-            {/* Quick presets - only for current mode */}
-            <div style={{ marginBottom: '14px' }}>
-              <div style={{ fontSize: '10px', color: '#4b5563', fontWeight: 700, letterSpacing: '0.08em',
+          {/* ── Entegre Hızlı Çalışma & Deneme Durumları ── */}
+          {mode === 'pomodoro' ? (
+            <div style={{
+              width: '100%',
+              marginTop: '22px',
+              paddingTop: '18px',
+              borderTop: '1px solid rgba(255,255,255,0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '6px', padding: '0 2px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '15px' }}>⚡</span>
+                  <span style={{ fontSize: '12px', fontWeight: 800, color: '#f1f5f9', letterSpacing: '0.04em' }}>
+                    HIZLI ÇALIŞMA & DENEME DURUMLARI
+                  </span>
+                </div>
+                <span style={{ fontSize: '11px', color: '#94a3b8' }}>
+                  Tek tıkla hazır süre ve branş
+                </span>
+              </div>
+
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, 1fr)',
+                gap: '8px',
+                width: '100%'
+              }}>
+                {FOCUS_PRESETS.map((preset) => {
+                  const isSelected = selectedPreset === preset.id;
+                  return (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => handleSelectPreset(preset)}
+                      style={{
+                        padding: '10px 12px',
+                        borderRadius: '14px',
+                        textAlign: 'left',
+                        background: isSelected ? `${preset.color}22` : 'rgba(255,255,255,0.025)',
+                        border: `1.5px solid ${isSelected ? preset.color : 'rgba(255,255,255,0.07)'}`,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        boxShadow: isSelected ? `0 4px 16px ${preset.color}35` : 'none',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        minHeight: '74px'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                        <span style={{ fontSize: '18px' }}>{preset.emoji}</span>
+                        <span style={{
+                          fontSize: '10px',
+                          fontWeight: 800,
+                          padding: '2px 6px',
+                          borderRadius: '6px',
+                          background: isSelected ? preset.color : 'rgba(255,255,255,0.07)',
+                          color: isSelected ? '#fff' : '#9ca3af'
+                        }}>
+                          {preset.badge}
+                        </span>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '12px', fontWeight: 700, color: isSelected ? '#fff' : '#f1f5f9', lineHeight: 1.25 }}>
+                          {preset.title}
+                        </div>
+                        <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
+                          {preset.defaultMin} dakika
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Manuel Süre Seç (Serbest Çalışma) */}
+              <div style={{ marginTop: '4px' }}>
+                <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 700, letterSpacing: '0.08em',
+                              textTransform: 'uppercase', marginBottom: '6px', textAlign: 'center' }}>
+                  Manuel Süre Seç (Serbest)
+                </div>
+                <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  {[25, 45, 60, 90, 120, 180].map(min => {
+                    const isActive = durations.pomodoro === min && selectedPreset === 'pomodoro';
+                    const label = min >= 60 ? `${Math.floor(min/60)}s${min%60>0?` ${min%60}dk`:''}` : `${min}dk`;
+                    return (
+                      <button key={min}
+                        onClick={() => {
+                          triggerHaptic('light');
+                          setSelectedPreset('pomodoro');
+                          saveSettings({ ...durations, pomodoro: min });
+                        }}
+                        style={{
+                          padding: '5px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: 700,
+                          border: `1px solid ${isActive ? cfg.color : 'rgba(255,255,255,0.08)'}`,
+                          background: isActive ? cfg.color + '20' : 'rgba(255,255,255,0.03)',
+                          color: isActive ? cfg.color : '#6b7280',
+                          cursor: 'pointer', transition: 'all 0.15s',
+                          boxShadow: isActive ? `0 0 10px ${cfg.color}30` : 'none',
+                          touchAction: 'manipulation'
+                        }}>
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Break Duration Controls */
+            <div style={{ width: '100%', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+              <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 700, letterSpacing: '0.08em',
                             textTransform: 'uppercase', marginBottom: '8px', textAlign: 'center' }}>
-                Hızlı Süre Seç
+                Mola Süresi Seç
               </div>
               <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                {(mode === 'pomodoro'
-                  ? [25, 45, 60, 90, 120, 180]
-                  : mode === 'shortBreak'
-                  ? [5, 10, 15, 20]
-                  : [15, 20, 30, 45]
-                ).map(min => {
+                {(mode === 'shortBreak' ? [5, 10, 15, 20] : [15, 20, 30, 45]).map(min => {
                   const isActive = durations[mode] === min;
-                  const label = min >= 60 ? `${Math.floor(min/60)}s${min%60>0?` ${min%60}`:'' }` : `${min}dk`;
                   return (
                     <button key={min}
                       onClick={() => {
                         triggerHaptic('light');
-                        const newD = { ...durations, [mode]: min };
-                        saveSettings(newD);
+                        saveSettings({ ...durations, [mode]: min });
                       }}
                       style={{
-                        padding: '6px 12px', borderRadius: '10px', fontSize: '12px', fontWeight: 700,
+                        padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 700,
                         border: `1px solid ${isActive ? cfg.color : 'rgba(255,255,255,0.08)'}`,
                         background: isActive ? cfg.color + '20' : 'rgba(255,255,255,0.03)',
                         color: isActive ? cfg.color : '#6b7280',
@@ -1188,17 +1220,17 @@ export default function FocusTab() {
                         boxShadow: isActive ? `0 0 10px ${cfg.color}30` : 'none',
                         touchAction: 'manipulation'
                       }}>
-                      {label}
+                      {min} dk
                     </button>
                   );
                 })}
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* ── Right Column ── */}
-        <div style={{ flex: '999 1 300px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ flex: '1 1 340px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
           {/* Daily Progress */}
           <div style={{ background: '#131827', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: 'clamp(18px, 4vw, 24px)' }}>
