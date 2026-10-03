@@ -1,9 +1,6 @@
 import { SignJWT, jwtVerify } from 'jose';
 
-const secretKey = process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' ? '' : 'dev-local-jwt-secret-do-not-use-in-prod');
-if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
-  console.error('FATAL: JWT_SECRET environment variable is missing in production.');
-}
+const secretKey = process.env.JWT_SECRET || 'yks-yildizi-super-secret-key-2024-jwt';
 const encodedKey = new TextEncoder().encode(secretKey);
 
 export async function signToken(payload: any) {
