@@ -47,68 +47,70 @@ export const RegisterForm = () => {
     setErrorMsg(null);
 
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email: formData.email.trim(),
-        password: formData.password,
-        options: {
-          data: {
-            full_name: formData.fullName.trim(),
-            role: role,
-            grade: role === 'student' ? formData.grade : null,
-            field: role === 'student' ? formData.field : null,
-            class_code: role === 'student' ? formData.classCode?.trim() : null,
-            branch: role === 'teacher' ? formData.branch?.trim() : null,
-          },
-        },
+      const sinifMap: Record<string, string> = {
+        '9. Sınıf': '9', '10. Sınıf': '10', '11. Sınıf': '11', '12. Sınıf': '12', 'Mezun': 'Mezun'
+      };
+      const alanMap: Record<string, string> = {
+        'Sayısal': 'Sayisal', 'Eşit Ağırlık': 'Esit Agirlik', 'Sözel': 'Sozel', 'Dil': 'Dil'
+      };
+      const backendRole = role === 'student' ? 'ogrenci' : role === 'teacher' ? 'ogretmen' : 'veli';
+
+      // 1. Birincil Kayıt: Yerel veritabanı API üzerinden kullanıcıyı oluştur
+      const localRes = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: formData.fullName.trim(),
+          email: formData.email.trim(),
+          password: formData.password,
+          role: backendRole,
+          sinif: sinifMap[formData.grade] || '12',
+          alan: alanMap[formData.field] || 'Sayisal',
+          classCode: formData.classCode?.trim() || undefined,
+          brans: formData.branch?.trim() || undefined,
+        }),
       });
 
-      if (error) {
-        // Fallback: Yerel API üzerinden de dene (geriye dönük uyumluluk)
-        const sinifMap: Record<string, string> = {
-          '9. Sınıf': '9', '10. Sınıf': '10', '11. Sınıf': '11', '12. Sınıf': '12', 'Mezun': 'Mezun'
-        };
-        const alanMap: Record<string, string> = {
-          'Sayısal': 'Sayisal', 'Eşit Ağırlık': 'Esit Agirlik', 'Sözel': 'Sozel', 'Dil': 'Dil'
-        };
-        const backendRole = role === 'student' ? 'ogrenci' : role === 'teacher' ? 'ogretmen' : 'veli';
+      const localData = await localRes.json().catch(() => null);
 
-        const localRes = await fetch('/api/auth/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            fullName: formData.fullName.trim(),
+      if (!localRes.ok) {
+        setErrorMsg(localData?.error || 'Kayıt işlemi başarısız oldu. Lütfen bilgilerinizi kontrol edin.');
+        setLoading(false);
+        return;
+      }
+
+      // 2. Supabase Anon Key yapılandırılmışsa arka planda Supabase Auth senkronizasyonu da yap
+      const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      const isAnonConfigured = anonKey && !anonKey.includes('mock') && anonKey.length > 20;
+
+      if (isAnonConfigured) {
+        try {
+          await supabase.auth.signUp({
             email: formData.email.trim(),
             password: formData.password,
-            role: backendRole,
-            sinif: sinifMap[formData.grade] || '12',
-            alan: alanMap[formData.field] || 'Sayisal',
-            classCode: formData.classCode?.trim() || undefined,
-            brans: formData.branch?.trim() || undefined,
-          }),
-        });
-
-        if (localRes.ok) {
-          setSuccess(true);
-          setTimeout(() => {
-            if (role === 'teacher') router.push('/ogretmen/dashboard');
-            else if (role === 'parent') router.push('/veli');
-            else router.push('/dashboard');
-            router.refresh();
-          }, 1200);
-          return;
+            options: {
+              data: {
+                full_name: formData.fullName.trim(),
+                role: role,
+                grade: role === 'student' ? formData.grade : null,
+                field: role === 'student' ? formData.field : null,
+                class_code: role === 'student' ? formData.classCode?.trim() : null,
+                branch: role === 'teacher' ? formData.branch?.trim() : null,
+              },
+            },
+          });
+        } catch (_) {
+          // Arka plan senkronizasyonu başarısız olsa da yerel kayıt başarılı
         }
-
-        setErrorMsg('Kayıt başarısız: ' + error.message);
-        setLoading(false);
-      } else {
-        setSuccess(true);
-        setTimeout(() => {
-          if (role === 'teacher') router.push('/ogretmen/dashboard');
-          else if (role === 'parent') router.push('/veli');
-          else router.push('/dashboard');
-          router.refresh();
-        }, 1200);
       }
+
+      setSuccess(true);
+      setTimeout(() => {
+        if (role === 'teacher') router.push('/ogretmen/dashboard');
+        else if (role === 'parent') router.push('/veli');
+        else router.push('/dashboard');
+        router.refresh();
+      }, 1200);
     } catch (err: any) {
       setErrorMsg('Kayıt oluşturulurken bir hata oluştu: ' + (err.message || ''));
       setLoading(false);

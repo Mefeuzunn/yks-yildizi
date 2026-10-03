@@ -22,47 +22,61 @@ export const LoginForm = () => {
     setErrorMsg(null);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: identifier.trim(),
-        password: password,
+      // 1. Birincil Doğrulama: Doğrudan sistem veritabanı (/api/auth/login) üzerinden giriş yap
+      const localRes = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: identifier.trim(),
+          password: password,
+        }),
       });
 
-      if (error) {
-        // Fallback: Yerel API üzerinden de dene (geriye dönük uyumluluk)
-        const localRes = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: identifier.trim(),
-            password: password,
-          }),
-        });
-
-        if (localRes.ok) {
-          const localData = await localRes.json();
-          if (localData.user?.role === 'ogretmen' || role === 'teacher') {
-            window.location.href = '/ogretmen/dashboard';
-          } else if (localData.user?.role === 'admin') {
-            window.location.href = '/admin';
-          } else {
-            window.location.href = '/dashboard';
-          }
-          return;
-        }
-
-        setErrorMsg('Giriş başarısız: ' + (error.message || 'Kullanıcı adı/e-posta veya şifre hatalı.'));
-        setLoading(false);
-      } else {
-        const userRole = (data.user?.user_metadata?.role as Role) || role;
-        if (userRole === 'teacher') {
-          router.push('/ogretmen/dashboard');
-        } else if (userRole === 'parent') {
-          router.push('/veli');
+      if (localRes.ok) {
+        const localData = await localRes.json();
+        if (localData.user?.role === 'ogretmen' || role === 'teacher') {
+          window.location.href = '/ogretmen/dashboard';
+        } else if (localData.user?.role === 'admin') {
+          window.location.href = '/admin';
+        } else if (localData.user?.role === 'veli' || role === 'parent') {
+          window.location.href = '/veli';
         } else {
-          router.push('/dashboard');
+          window.location.href = '/dashboard';
         }
-        router.refresh();
+        return;
       }
+
+      // 2. Eğer yerel API kullanıcıyı bulamadıysa ve geçerli bir Supabase anon key tanımlıysa Supabase Auth dene
+      const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      const isAnonConfigured = anonKey && !anonKey.includes('mock') && anonKey.length > 20;
+
+      if (isAnonConfigured && identifier.includes('@')) {
+        try {
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email: identifier.trim(),
+            password: password,
+          });
+
+          if (!error && data?.user) {
+            const userRole = (data.user?.user_metadata?.role as Role) || role;
+            if (userRole === 'teacher') {
+              router.push('/ogretmen/dashboard');
+            } else if (userRole === 'parent') {
+              router.push('/veli');
+            } else {
+              router.push('/dashboard');
+            }
+            router.refresh();
+            return;
+          }
+        } catch (_) {
+          // Supabase bağlantı hatası durumunda yerel hata gösterilir
+        }
+      }
+
+      const localData = await localRes.json().catch(() => null);
+      setErrorMsg(localData?.error || 'Kullanıcı adı/e-posta veya şifre hatalı.');
+      setLoading(false);
     } catch (err: any) {
       setErrorMsg('Giriş yapılırken bir hata oluştu: ' + (err.message || ''));
       setLoading(false);
@@ -72,6 +86,14 @@ export const LoginForm = () => {
   // Google ile Giriş
   const handleGoogleLogin = async () => {
     try {
+      const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      const isAnonConfigured = anonKey && !anonKey.includes('mock') && anonKey.length > 20;
+
+      if (!isAnonConfigured) {
+        setErrorMsg('Google ile giriş henüz yapılandırılmamış. Lütfen kullanıcı adı ve şifrenizle giriş yapınız.');
+        return;
+      }
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -79,7 +101,11 @@ export const LoginForm = () => {
         },
       });
       if (error) {
-        setErrorMsg('Google ile giriş başlatılamadı: ' + error.message);
+        if (error.message.includes('not enabled') || error.message.includes('Unsupported provider') || error.message.includes('validation_failed')) {
+          setErrorMsg('Google ile giriş Supabase panelinde henüz etkinleştirilmemiş. Lütfen kullanıcı adı ve şifrenizle giriş yapınız.');
+        } else {
+          setErrorMsg('Google ile giriş başlatılamadı: ' + error.message);
+        }
       }
     } catch (err: any) {
       setErrorMsg('Google giriş hatası: ' + (err.message || ''));
