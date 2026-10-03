@@ -19,7 +19,7 @@ export async function getSimulations({
   difficulty = 0,
   search = '',
   page = 1,
-  limit = 48
+  limit = 100
 }: GetSimulationsParams = {}) {
   try {
     // Primary source: rich Master Simulations catalog

@@ -1,10 +1,11 @@
 export interface SimulationItem {
   id: string;
+  slug?: string;
   title: string;
   description: string;
   source_url: string;
   category: 'TYT' | 'AYT' | 'Tümü';
-  subject: 'Fizik' | 'Kimya' | 'Biyoloji' | 'Matematik';
+  subject: 'Fizik' | 'Kimya' | 'Biyoloji' | 'Matematik' | 'Genel';
   topic: string;
   difficulty_level: number;
   related_yks_topics: string[];
@@ -693,6 +694,71 @@ export const MASTER_SIMULATIONS: SimulationItem[] = [
     difficulty_level: 3,
     related_yks_topics: ['İzohips Eğrileri', 'Profil Çıkarma', 'Eğim Hesabı', 'Yer Şekilleri'],
     badge: 'TYT Banko Soru',
+    is_active: true
+  },
+  {
+    id: 'sim_ohm',
+    title: 'Ohm Kanunu',
+    description: 'Voltaj, direnç ve akım üçgeni ile Ohm Yasasını interaktif grafik üzerinde öğren.',
+    source_url: '/simulasyonlar/ohm-kanunu',
+    category: 'TYT',
+    subject: 'Fizik',
+    topic: 'Elektrik Devreleri',
+    difficulty_level: 1,
+    related_yks_topics: ['Ohm Yasası', 'Voltaj', 'Akım', 'Direnç'],
+    badge: 'TYT Temel',
+    is_active: true
+  },
+  {
+    id: 'sim_faraday',
+    title: 'Faraday Kanunu - EMK',
+    description: 'Bobine yaklaştırılan mıknatısla endüktif EMK, akımın yönü ve Lenz yasasını gözlemle.',
+    source_url: '/simulasyonlar/faraday-kanunu',
+    category: 'AYT',
+    subject: 'Fizik',
+    topic: 'Elektromanyetik İndüksiyon',
+    difficulty_level: 4,
+    related_yks_topics: ['Faraday Kanunu', 'EMK', 'Lenz Yasası'],
+    badge: 'AYT Banko',
+    is_active: true
+  },
+  {
+    id: 'sim_elektrik_alan',
+    title: 'Elektrik Alanı & Yük Dağılımı',
+    description: 'Nokta yüklerin oluşturduğu elektrik alanı, alan çizgileri ve potansiyel yüzeyleri.',
+    source_url: '/simulasyonlar/elektrik-alani',
+    category: 'AYT',
+    subject: 'Fizik',
+    topic: 'Elektrostatik',
+    difficulty_level: 4,
+    related_yks_topics: ['Elektrik Alan', 'Coulomb Kuvveti', 'Elektrik Potansiyeli'],
+    badge: 'AYT Elektrik',
+    is_active: true
+  },
+  {
+    id: 'sim_asit_baz_ph',
+    title: 'Asit-Baz & pH Skalası',
+    description: 'pH ve pOH ölçümleri, asit/baz kuvveti ve günlük hayattaki çözeltilerin pH değerleri.',
+    source_url: '/simulasyonlar/asit-baz-ph',
+    category: 'TYT',
+    subject: 'Kimya',
+    topic: 'Asitler & Bazlar',
+    difficulty_level: 2,
+    related_yks_topics: ['pH Skalası', 'Kuvvetli Asit-Baz', 'Zayıf Asit-Baz'],
+    badge: 'TYT/AYT Kimya',
+    is_active: true
+  },
+  {
+    id: 'sim_newton_cekim',
+    title: 'Newton Evrensel Çekim',
+    description: 'İki kütle arasındaki çekim kuvvetini kütle ve mesafeye göre değiştirerek gözlemle.',
+    source_url: '/simulasyonlar/newton-cekimi',
+    category: 'AYT',
+    subject: 'Fizik',
+    topic: 'Evrensel Çekim',
+    difficulty_level: 3,
+    related_yks_topics: ['Evrensel Çekim', 'Newton Yasası', 'Gravitasyon'],
+    badge: 'AYT Mekanik',
     is_active: true
   }
 ];

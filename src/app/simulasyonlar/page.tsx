@@ -113,6 +113,7 @@ export default function SimulasyonlarPage() {
     { key: 'Kimya', label: 'Kimya', count: '10', emoji: '🧪' },
     { key: 'Biyoloji', label: 'Biyoloji', count: '7', emoji: '🧬' },
     { key: 'Matematik', label: 'Matematik', count: '10', emoji: '📐' },
+    { key: 'Genel', label: 'Genel Bilim', emoji: '🔬' },
   ];
 
   const handleLaunch = (sim: any) => {
@@ -136,7 +137,7 @@ export default function SimulasyonlarPage() {
             <h1 style={{ fontSize: 'clamp(1.5rem, 3.5vw, 1.85rem)', fontWeight: 800, color: 'white', margin: '0 0 4px 0', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '8px' }}>
               İnteraktif Laboratuvar
               <span style={{ fontSize: '11px', fontWeight: 800, padding: '2px 8px', borderRadius: '20px', background: 'rgba(56,189,248,0.15)', color: '#38bdf8', border: '1px solid rgba(56,189,248,0.3)' }}>
-                49 SİMÜLASYON
+                {simulations.length > 0 ? `${simulations.length} SİMÜLASYON` : 'PhET LAB'}
               </span>
             </h1>
             <p style={{ color: '#94a3b8', margin: 0, fontSize: '14px' }}>

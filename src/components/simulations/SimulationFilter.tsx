@@ -114,10 +114,11 @@ export default function SimulationFilter({
             <BookOpen size={16} style={iconStyle} />
             <select value={subject} onChange={(e) => setSubject(e.target.value as Subject)} style={selectStyle}>
               <option value="Tümü">Ders: Tümü</option>
-              <option value="Fizik">Fizik (24 Deney)</option>
-              <option value="Kimya">Kimya (8 Deney)</option>
-              <option value="Biyoloji">Biyoloji (7 Deney)</option>
-              <option value="Matematik">Matematik (8 Deney)</option>
+              <option value="Fizik">Fizik</option>
+              <option value="Kimya">Kimya</option>
+              <option value="Biyoloji">Biyoloji</option>
+              <option value="Matematik">Matematik</option>
+              <option value="Genel">Genel Bilim</option>
             </select>
           </div>
 
