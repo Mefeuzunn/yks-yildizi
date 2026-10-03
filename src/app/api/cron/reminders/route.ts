@@ -9,8 +9,8 @@ export async function GET(req: Request) {
   try {
     // 1. Cron Security check
     const authHeader = req.headers.get('authorization');
-    const cronSecret = process.env.CRON_SECRET || 'yks_cron_secret_secure_key_2026';
-    if (authHeader !== `Bearer ${cronSecret}` && process.env.NODE_ENV === 'production') {
+    const cronSecret = process.env.CRON_SECRET;
+    if (process.env.NODE_ENV === 'production' && (!cronSecret || authHeader !== `Bearer ${cronSecret}`)) {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
     }
 

@@ -1,7 +1,10 @@
 import postgres from 'postgres';
 
-const connectionString = process.env.DATABASE_URL || 'postgresql://postgres.zncqndfghqkafuaswphq:Muge_Ve_Efe2008@aws-0-eu-central-1.pooler.supabase.com:6543/postgres';
-const sql = postgres(connectionString, { ssl: 'require', max: 20 });
+const connectionString = process.env.DATABASE_URL || '';
+if (!connectionString && process.env.NODE_ENV === 'production') {
+  console.error('FATAL: DATABASE_URL environment variable is missing.');
+}
+const sql = postgres(connectionString || 'postgresql://localhost:5432/postgres', { ssl: 'require', max: 20 });
 
 const db = {
   prepare: (queryStr) => {

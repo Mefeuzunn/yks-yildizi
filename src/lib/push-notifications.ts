@@ -1,17 +1,16 @@
 import webpush from 'web-push';
 import db from '@/lib/yks-db-async';
 
-export const DEFAULT_VAPID_PUBLIC_KEY = 'BIF-ljPUqATlPZDJXb-wM9WFtQ-pIfNKsvQLUg-7ixJZdA5p5U-Ol1qmKQi_txuDLWzbPQoZPyyQkwG7lkh268Q';
-export const DEFAULT_VAPID_PRIVATE_KEY = 'UKvvp6Otle3UBdEV-4FIX17W3Ms8HUTvddtVw9uroco';
+const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '';
+const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || '';
+const VAPID_EMAIL = process.env.VAPID_EMAIL || 'mailto:support@yksyildizi.com';
 
-const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || DEFAULT_VAPID_PUBLIC_KEY;
-const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || DEFAULT_VAPID_PRIVATE_KEY;
-const VAPID_EMAIL = process.env.VAPID_EMAIL || 'mailto:yksyildizi@gmail.com';
-
-try {
-  webpush.setVapidDetails(VAPID_EMAIL, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
-} catch (e) {
-  console.warn('VAPID initialization warning:', e);
+if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
+  try {
+    webpush.setVapidDetails(VAPID_EMAIL, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+  } catch (e) {
+    console.warn('VAPID initialization warning:', e);
+  }
 }
 
 export interface PushPayload {
