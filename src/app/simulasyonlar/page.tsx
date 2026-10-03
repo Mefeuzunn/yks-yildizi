@@ -108,11 +108,11 @@ export default function SimulasyonlarPage() {
   };
 
   const SUBJECT_BUTTONS: { key: Subject; label: string; count?: string; emoji: string }[] = [
-    { key: 'Tümü', label: 'Tüm Deneyler', count: '49', emoji: '🧪' },
-    { key: 'Fizik', label: 'Fizik', count: '22', emoji: '⚡' },
-    { key: 'Kimya', label: 'Kimya', count: '10', emoji: '🧪' },
-    { key: 'Biyoloji', label: 'Biyoloji', count: '7', emoji: '🧬' },
-    { key: 'Matematik', label: 'Matematik', count: '10', emoji: '📐' },
+    { key: 'Tümü', label: 'Tüm Deneyler', emoji: '🧪' },
+    { key: 'Fizik', label: 'Fizik', emoji: '⚡' },
+    { key: 'Kimya', label: 'Kimya', emoji: '🧪' },
+    { key: 'Biyoloji', label: 'Biyoloji', emoji: '🧬' },
+    { key: 'Matematik', label: 'Matematik', emoji: '📐' },
     { key: 'Genel', label: 'Genel Bilim', emoji: '🔬' },
   ];
 

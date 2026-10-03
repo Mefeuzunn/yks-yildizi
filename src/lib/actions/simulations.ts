@@ -3,6 +3,7 @@
 import { cookies } from 'next/headers';
 import db from '@/lib/yks-db-async';
 import { MASTER_SIMULATIONS, SimulationItem } from '@/lib/simulations-catalog';
+import { PHET_REGISTRY } from '@/lib/phet-registry';
 
 export interface GetSimulationsParams {
   category?: 'Tümü' | 'TYT' | 'AYT';
@@ -19,11 +20,34 @@ export async function getSimulations({
   difficulty = 0,
   search = '',
   page = 1,
-  limit = 100
+  limit = 200
 }: GetSimulationsParams = {}) {
   try {
     // Primary source: rich Master Simulations catalog
     let allSims: SimulationItem[] = [...MASTER_SIMULATIONS];
+
+    // Merge comprehensive high school PhET Registry
+    PHET_REGISTRY.forEach(phet => {
+      const alreadyExists = allSims.some(
+        s => s.source_url === `/simulasyonlar/${phet.slug}` || s.slug === phet.slug || s.title.toLowerCase() === phet.title_tr.toLowerCase()
+      );
+      if (!alreadyExists) {
+        allSims.push({
+          id: `phet_${phet.slug.replace(/-/g, '_')}`,
+          slug: phet.slug,
+          title: phet.title_tr,
+          description: phet.description,
+          source_url: `/simulasyonlar/${phet.slug}`,
+          category: phet.category === 'TYT/AYT' ? 'Tümü' : phet.category,
+          subject: phet.subject,
+          topic: phet.topic,
+          difficulty_level: phet.difficulty_level,
+          related_yks_topics: phet.related_yks_topics,
+          badge: phet.badge || (phet.category === 'AYT' ? 'AYT' : 'TYT'),
+          is_active: phet.is_active
+        });
+      }
+    });
 
     // Optional: Also incorporate any extra custom dynamic rows from DB if exists
     try {
