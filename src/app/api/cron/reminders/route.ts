@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
-import { sendPushToUser } from '@/lib/push-notifications';
-import { v4 as uuidv4 } from 'uuid';
+import { sendSmartPushToUser, isWithinQuietHours } from '@/lib/push-notifications';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,13 +16,23 @@ export async function GET(req: Request) {
     const now = new Date();
     // Turkey time is UTC+3
     const trHour = (now.getUTCHours() + 3) % 24;
-    const todayStr = now.toISOString().split('T')[0];
 
     let morningRemindersSent = 0;
     let streakWarningsSent = 0;
     let homeworkRemindersSent = 0;
+    let skippedQuietHours = 0;
 
-    // ─── 1. Sabah Hatırlatıcısı (07:00 - 10:00 arası) ─────────────────
+    // Genel gece sessizliği kontrolü (23:00 - 07:30 arası toplu hatırlatıcıları durdur)
+    if (isWithinQuietHours('23:00', '07:30', now)) {
+      return NextResponse.json({
+        success: true,
+        message: 'Sessiz saatler (gece dinlenme periyodu) aktif, otomatik hatırlatıcı gönderilmedi.',
+        trHour,
+        skippedQuietHours: true,
+      });
+    }
+
+    // ─── 1. Sabah Hatırlatıcısı (07:30 - 10:30 arası) ─────────────────
     if (trHour >= 7 && trHour <= 10) {
       // Find students who haven't received a morning reminder today
       const eligibleStudents = await db.prepare(`
@@ -45,25 +54,27 @@ export async function GET(req: Request) {
         const notifTitle = '☀️ Günaydın! Günlük YKS Hedefin Seni Bekliyor 🎯';
         const notifBody = `Merhaba ${st.username || 'Öğrenci'}! Bugün odaklanma süreni başlat, hedefine bir adım daha yaklaş.`;
 
-        await db.prepare(`
-          INSERT INTO user_notifications (id, user_id, title, body, type, icon, url)
-          VALUES (?, ?, ?, ?, 'morning_plan', '☀️', '/dashboard?tab=focus')
-        `).run(uuidv4(), st.id, notifTitle, notifBody).catch(() => {});
-
-        await sendPushToUser(st.id, {
+        const res = await sendSmartPushToUser(st.id, {
           title: notifTitle,
           body: notifBody,
           url: '/dashboard?tab=focus',
           tag: 'morning-reminder',
           actions: [{ action: 'open', title: '🚀 Odaklan' }]
-        }).catch(() => {});
+        }, {
+          category: 'daily_reminder',
+          isAutomated: true,
+          type: 'morning_plan',
+          icon: '☀️',
+          url: '/dashboard?tab=focus'
+        });
 
-        morningRemindersSent++;
+        if (res.pushSent) morningRemindersSent++;
+        if (res.reason === 'quiet_hours') skippedQuietHours++;
       }
     }
 
-    // ─── 2. Akşam Seri (Streak) Koruyucusu (19:00 - 23:00 arası) ──────
-    if (trHour >= 19 && trHour <= 23) {
+    // ─── 2. Akşam Seri (Streak) Koruyucusu (19:00 - 22:45 arası) ──────
+    if (trHour >= 19 && trHour <= 22) {
       const endangeredStreaks = await db.prepare(`
         SELECT u.id, u.username, st.streak_days
         FROM users u
@@ -86,20 +97,22 @@ export async function GET(req: Request) {
         const notifTitle = `🔥 ${st.streak_days} Günlük Serin Tehlikede!`;
         const notifBody = `${st.username}, serin gece yarısı sonlanabilir! 1 soru çöz veya 10 dk odaklan, serini kurtar! ⭐`;
 
-        await db.prepare(`
-          INSERT INTO user_notifications (id, user_id, title, body, type, icon, url)
-          VALUES (?, ?, ?, ?, 'streak_alert', '🔥', '/dashboard?tab=focus')
-        `).run(uuidv4(), st.id, notifTitle, notifBody).catch(() => {});
-
-        await sendPushToUser(st.id, {
+        const res = await sendSmartPushToUser(st.id, {
           title: notifTitle,
           body: notifBody,
           url: '/dashboard?tab=focus',
           tag: 'streak-guardian',
           actions: [{ action: 'open', title: '🔥 Seriyi Kurtar' }]
-        }).catch(() => {});
+        }, {
+          category: 'streak_warning',
+          isAutomated: true,
+          type: 'streak_alert',
+          icon: '🔥',
+          url: '/dashboard?tab=focus'
+        });
 
-        streakWarningsSent++;
+        if (res.pushSent) streakWarningsSent++;
+        if (res.reason === 'quiet_hours') skippedQuietHours++;
       }
     }
 
@@ -129,20 +142,22 @@ export async function GET(req: Request) {
       const notifTitle = `⏳ Ödev Teslimine Son ${remainingHours} Saat!`;
       const notifBody = `"${hw.title}" ödevini sisteme yüklemeyi unutma. Başarılar dileriz! 📋`;
 
-      await db.prepare(`
-        INSERT INTO user_notifications (id, user_id, title, body, type, icon, url)
-        VALUES (?, ?, ?, ?, 'homework', '⏳', '/odevlerim')
-      `).run(uuidv4(), hw.student_id, notifTitle, notifBody).catch(() => {});
-
-      await sendPushToUser(hw.student_id, {
+      const res = await sendSmartPushToUser(hw.student_id, {
         title: notifTitle,
         body: notifBody,
         url: '/odevlerim',
         tag: `hw-due-${hw.assignment_id}`,
         actions: [{ action: 'open', title: '📋 Ödeve Git' }]
-      }).catch(() => {});
+      }, {
+        category: 'homework',
+        isAutomated: true,
+        type: 'homework',
+        icon: '⏳',
+        url: '/odevlerim'
+      });
 
-      homeworkRemindersSent++;
+      if (res.pushSent) homeworkRemindersSent++;
+      if (res.reason === 'quiet_hours') skippedQuietHours++;
     }
 
     return NextResponse.json({
@@ -153,6 +168,7 @@ export async function GET(req: Request) {
         morningRemindersSent,
         streakWarningsSent,
         homeworkRemindersSent,
+        skippedQuietHours,
       }
     });
 

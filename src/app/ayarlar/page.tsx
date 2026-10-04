@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Settings, User, Bell, Palette, Shield, Save, Loader2, CheckCircle2, AlertCircle, CreditCard, Trash2, Smartphone, ExternalLink, Trophy, Flame } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Settings, User, Bell, Palette, Shield, Save, Loader2, CheckCircle2, AlertCircle, CreditCard, Trash2, Smartphone, ExternalLink, Trophy, Flame, Moon, Clock } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { PushNotificationToggle } from '@/components/PWAComponents';
 import WidgetInstallModal from '@/components/WidgetInstallModal';
@@ -20,6 +21,10 @@ export default function AyarlarPage() {
   const [notifHomework, setNotifHomework] = useState(true);
   const [notifDuel, setNotifDuel] = useState(true);
   const [notifSound, setNotifSound] = useState(true);
+  const [quietHoursEnabled, setQuietHoursEnabled] = useState(true);
+  const [quietHoursStart, setQuietHoursStart] = useState('23:00');
+  const [quietHoursEnd, setQuietHoursEnd] = useState('08:00');
+  const [frequencyLimit, setFrequencyLimit] = useState<'smart' | 'minimal' | 'all'>('smart');
   const [isTestingPush, setIsTestingPush] = useState(false);
 
   // Güvenlik states
@@ -61,6 +66,10 @@ export default function AyarlarPage() {
           setNotifHomework(s.notif_homework ?? true);
           setNotifDuel(s.notif_duel ?? true);
           setNotifSound(s.notif_sound ?? true);
+          setQuietHoursEnabled(s.quiet_hours_enabled ?? true);
+          setQuietHoursStart(s.quiet_hours_start || '23:00');
+          setQuietHoursEnd(s.quiet_hours_end || '08:00');
+          setFrequencyLimit(s.frequency_limit || 'smart');
         }
       })
       .catch(() => {});
@@ -94,6 +103,11 @@ export default function AyarlarPage() {
           notif_homework: notifHomework,
           notif_duel: notifDuel,
           notif_sound: notifSound,
+          quiet_hours_enabled: quietHoursEnabled,
+          quiet_hours_start: quietHoursStart,
+          quiet_hours_end: quietHoursEnd,
+          frequency_limit: frequencyLimit,
+          max_daily_notifs: frequencyLimit === 'minimal' ? 1 : 2,
         })
       });
 
@@ -378,7 +392,120 @@ export default function AyarlarPage() {
                 <div style={{ marginBottom: '0.5rem' }}>
                   <PushNotificationToggle />
                 </div>
-                
+
+                {/* ─── 🌙 Sessiz Saatler (Rahatsız Etme) ─── */}
+                <div style={{ padding: '1.25rem 1.5rem', background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.6))', borderRadius: '14px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: quietHoursEnabled ? '12px' : 0 }}>
+                    <div style={{ paddingRight: '1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Moon size={18} color="#38bdf8" />
+                        <h4 style={{ color: '#fff', margin: 0, fontSize: '0.95rem', fontWeight: 600 }}>
+                          Sessiz Saatler (Gece Rahatsız Etme)
+                        </h4>
+                      </div>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '0.825rem', margin: '4px 0 0 0', lineHeight: 1.4 }}>
+                        Belirlediğin saat aralığında push bildirimler engellenir, uykun ve dinlenmen bölünmez.
+                      </p>
+                    </div>
+
+                    {/* Toggle */}
+                    <div 
+                      onClick={() => setQuietHoursEnabled(!quietHoursEnabled)}
+                      style={{ width: '48px', height: '24px', background: quietHoursEnabled ? accent : 'rgba(255,255,255,0.1)', borderRadius: '12px', position: 'relative', cursor: 'pointer', transition: 'background 0.3s', flexShrink: 0 }}
+                    >
+                      <div style={{ width: '20px', height: '20px', background: '#fff', borderRadius: '50%', position: 'absolute', top: '2px', left: quietHoursEnabled ? '26px' : '2px', transition: 'left 0.2s', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }} />
+                    </div>
+                  </div>
+
+                  {quietHoursEnabled && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(255, 255, 255, 0.06)', flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: '12px', color: '#94a3b8' }}>Başlangıç:</span>
+                        <input
+                          type="time"
+                          value={quietHoursStart}
+                          onChange={(e) => setQuietHoursStart(e.target.value)}
+                          style={{
+                            backgroundColor: 'rgba(15, 23, 42, 0.8)',
+                            border: '1px solid rgba(255, 255, 255, 0.15)',
+                            borderRadius: '8px',
+                            color: '#f8fafc',
+                            padding: '4px 8px',
+                            fontSize: '13px',
+                          }}
+                        />
+                      </div>
+                      <span style={{ color: '#64748b' }}>➔</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: '12px', color: '#94a3b8' }}>Bitiş:</span>
+                        <input
+                          type="time"
+                          value={quietHoursEnd}
+                          onChange={(e) => setQuietHoursEnd(e.target.value)}
+                          style={{
+                            backgroundColor: 'rgba(15, 23, 42, 0.8)',
+                            border: '1px solid rgba(255, 255, 255, 0.15)',
+                            borderRadius: '8px',
+                            color: '#f8fafc',
+                            padding: '4px 8px',
+                            fontSize: '13px',
+                          }}
+                        />
+                      </div>
+                      <span style={{ fontSize: '11px', color: '#38bdf8', fontStyle: 'italic' }}>
+                        (Varsayılan: 23:00 – 08:00)
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* ─── 🛡️ Akıllı Spam Önleme & Gönderim Sıklığı ─── */}
+                <div style={{ padding: '1.25rem 1.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div style={{ marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Shield size={18} color="#a855f7" />
+                      <h4 style={{ color: '#fff', margin: 0, fontSize: '0.95rem', fontWeight: 600 }}>
+                        Akıllı Bildirim Kotası (Spam Koruma)
+                      </h4>
+                    </div>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.825rem', margin: '4px 0 0 0', lineHeight: 1.4 }}>
+                      Otomatik motivasyon ve hatırlatıcıların sıklığını sınırlandırın.
+                    </p>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px' }}>
+                    {[
+                      { id: 'smart', label: '🌟 Akıllı & Ölçülü', desc: 'Günde en fazla 2 bildirim (Önerilen)' },
+                      { id: 'minimal', label: '🔕 Minimal', desc: 'Günde en fazla 1 bildirim (Kritik olanlar)' },
+                      { id: 'all', label: '⚡ Tüm Bildirimler', desc: 'Kota sınırı olmadan ilet' },
+                    ].map((opt) => {
+                      const isSelected = frequencyLimit === opt.id;
+                      return (
+                        <div
+                          key={opt.id}
+                          onClick={() => setFrequencyLimit(opt.id as any)}
+                          style={{
+                            padding: '12px 14px',
+                            borderRadius: '10px',
+                            cursor: 'pointer',
+                            backgroundColor: isSelected ? 'rgba(168, 85, 247, 0.15)' : 'rgba(255, 255, 255, 0.02)',
+                            border: isSelected ? '1px solid rgba(168, 85, 247, 0.45)' : '1px solid rgba(255, 255, 255, 0.06)',
+                            transition: 'all 0.2s',
+                          }}
+                        >
+                          <div style={{ fontSize: '13px', fontWeight: 700, color: isSelected ? '#c084fc' : '#f8fafc' }}>
+                            {opt.label}
+                          </div>
+                          <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '4px', lineHeight: 1.3 }}>
+                            {opt.desc}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* ─── Kategori Bazlı Tercihler ─── */}
                 {[
                   { title: '🍅 Odak & Pomodoro Bildirimleri', desc: 'Oturum tamamlandığında ve mola bittiğinde sesli ve titreşimli uyar.', state: notifFocus, setter: setNotifFocus },
                   { title: '☀️ Sabah Çalışma & Ders Hatırlatıcısı', desc: 'Her sabah 08:30\'da günlük ders hedeflerini ve programını anımsat.', state: notifDaily, setter: setNotifDaily },

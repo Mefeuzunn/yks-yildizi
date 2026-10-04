@@ -16,6 +16,7 @@ async function ensureNotificationTables() {
       icon TEXT DEFAULT '🔔',
       url TEXT DEFAULT '/dashboard',
       is_read BOOLEAN DEFAULT false,
+      is_automated BOOLEAN DEFAULT false,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `).run();
@@ -32,9 +33,22 @@ async function ensureNotificationTables() {
       notif_streak_time TEXT DEFAULT '20:30',
       notif_duel BOOLEAN DEFAULT true,
       notif_sound BOOLEAN DEFAULT true,
+      quiet_hours_enabled BOOLEAN DEFAULT true,
+      quiet_hours_start TEXT DEFAULT '23:00',
+      quiet_hours_end TEXT DEFAULT '08:00',
+      max_daily_notifs INTEGER DEFAULT 2,
+      frequency_limit TEXT DEFAULT 'smart',
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `).run();
+
+  // Migrations for existing tables
+  await db.prepare('ALTER TABLE user_notifications ADD COLUMN IF NOT EXISTS is_automated BOOLEAN DEFAULT false').run().catch(() => {});
+  await db.prepare('ALTER TABLE user_notification_settings ADD COLUMN IF NOT EXISTS quiet_hours_enabled BOOLEAN DEFAULT true').run().catch(() => {});
+  await db.prepare('ALTER TABLE user_notification_settings ADD COLUMN IF NOT EXISTS quiet_hours_start TEXT DEFAULT \'23:00\'').run().catch(() => {});
+  await db.prepare('ALTER TABLE user_notification_settings ADD COLUMN IF NOT EXISTS quiet_hours_end TEXT DEFAULT \'08:00\'').run().catch(() => {});
+  await db.prepare('ALTER TABLE user_notification_settings ADD COLUMN IF NOT EXISTS max_daily_notifs INTEGER DEFAULT 2').run().catch(() => {});
+  await db.prepare('ALTER TABLE user_notification_settings ADD COLUMN IF NOT EXISTS frequency_limit TEXT DEFAULT \'smart\'').run().catch(() => {});
 }
 
 // GET: Fetch user's notifications and unread count
@@ -98,14 +112,14 @@ export async function POST(req: Request) {
     await ensureNotificationTables();
 
     const body = await req.json();
-    const { title, body: msgBody, type, icon, url, targetUserId } = body;
+    const { title, body: msgBody, type, icon, url, targetUserId, is_automated } = body;
 
     const recipientId = targetUserId || userId;
     const notifId = uuidv4();
 
     await db.prepare(`
-      INSERT INTO user_notifications (id, user_id, title, body, type, icon, url)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO user_notifications (id, user_id, title, body, type, icon, url, is_automated)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       notifId,
       recipientId,
@@ -113,7 +127,8 @@ export async function POST(req: Request) {
       msgBody || '',
       type || 'general',
       icon || '🔔',
-      url || '/dashboard'
+      url || '/dashboard',
+      is_automated ?? false
     );
 
     return NextResponse.json({ success: true, id: notifId });
