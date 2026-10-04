@@ -613,34 +613,35 @@ export default function MobileLiveActivityWidget({
         </Link>
       </div>
 
-      {/* Ana Ekrana Ekle Butonu */}
-      <button
-        type="button"
-        onClick={() => {
-          triggerHaptic('light');
-          setShowWidgetModal(true);
-        }}
-        style={{
-          marginTop: 10,
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 6,
-          padding: '7px 10px',
-          background: 'rgba(56, 189, 248, 0.08)',
-          border: '1px solid rgba(56, 189, 248, 0.2)',
-          borderRadius: 10,
-          color: '#38bdf8',
-          fontSize: '11px',
-          fontWeight: 600,
-          cursor: 'pointer',
-          transition: 'all 0.2s',
-        }}
-      >
-        <Smartphone size={12} />
-        <span>📱 Bu sayacı telefonunun ana ekranına widget olarak ekle</span>
-      </button>
+      {/* Sadece mobil cihazlarda görünen Widget Kurulum Rehberi butonu (Web masaüstünde gizlenir) */}
+      <div className="mobile-only" style={{ width: '100%', marginTop: 8 }}>
+        <button
+          type="button"
+          onClick={() => {
+            triggerHaptic('light');
+            setShowWidgetModal(true);
+          }}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 6,
+            padding: '7px 10px',
+            background: 'rgba(56, 189, 248, 0.08)',
+            border: '1px solid rgba(56, 189, 248, 0.22)',
+            borderRadius: 10,
+            color: '#38bdf8',
+            fontSize: '11px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+          }}
+        >
+          <Smartphone size={12} />
+          <span>📱 Telefon Ana Ekranına Widget Ekle</span>
+        </button>
+      </div>
 
       <WidgetInstallModal
         isOpen={showWidgetModal}
