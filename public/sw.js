@@ -7,6 +7,7 @@ const STATIC_ASSETS = [
   '/manifest.json',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png',
+  '/widgets/yks-summary-template.json',
 ];
 
 // Install: statik varlıkları ve offline fallback sayfasını önbelleğe al
@@ -126,6 +127,8 @@ self.addEventListener('message', (event) => {
     if ('clearAppBadge' in navigator) {
       navigator.clearAppBadge().catch(() => {});
     }
+  } else if (event.data && event.data.type === 'UPDATE_WIDGET') {
+    updatePWAWidget(event.data.tag || 'yks-summary-widget');
   }
 });
 
@@ -191,3 +194,68 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
+
+// ─── PWA WIDGETS DESTEĞİ (Android Chromium / Windows PWA) ───
+async function updatePWAWidget(widgetTag = 'yks-summary-widget') {
+  if (!('widgets' in self)) return;
+  try {
+    const [templateRes, dataRes] = await Promise.all([
+      fetch('/widgets/yks-summary-template.json'),
+      fetch('/api/widget/data')
+    ]);
+    const template = await templateRes.text();
+    const data = await dataRes.text();
+
+    await self.widgets.updateByTag(widgetTag, {
+      template,
+      data
+    });
+  } catch (err) {
+    console.warn('PWA widget update error:', err);
+  }
+}
+
+self.addEventListener('widgetinstall', (event) => {
+  if ('widgets' in self) {
+    const tag = event.widget?.definition?.tag || 'yks-summary-widget';
+    event.waitUntil(updatePWAWidget(tag));
+  }
+});
+
+self.addEventListener('widgetresume', (event) => {
+  if ('widgets' in self) {
+    const tag = event.widget?.definition?.tag || 'yks-summary-widget';
+    event.waitUntil(updatePWAWidget(tag));
+  }
+});
+
+self.addEventListener('widgetclick', (event) => {
+  const verb = event.action;
+  let targetUrl = '/dashboard';
+
+  if (verb === 'focus') {
+    targetUrl = '/dashboard?tab=focus';
+  } else if (verb === 'addQuestions') {
+    targetUrl = '/dashboard?tab=focus&action=add-questions';
+  } else if (verb === 'openApp' || !verb) {
+    targetUrl = '/dashboard';
+  }
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          if (verb === 'focus') {
+            try { client.postMessage({ type: 'NAVIGATE_TAB', tab: 'focus' }); } catch (_) {}
+          }
+          client.navigate(targetUrl);
+          return client.focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
+    })
+  );
+});
+

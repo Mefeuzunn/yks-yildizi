@@ -75,6 +75,9 @@ export async function getSimulations({
       // Safe fallback to MASTER_SIMULATIONS
     }
 
+    // Pasif kayıtları ele (yapıyı bozmadan sadece filtre)
+    allSims = allSims.filter(s => s.is_active !== false);
+
     // Filter by Category
     if (category !== 'Tümü') {
       allSims = allSims.filter(s => s.category === category || s.category === 'Tümü');

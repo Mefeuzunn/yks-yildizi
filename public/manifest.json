@@ -1,7 +1,7 @@
 {
   "name": "YKS Yıldızı — YKS Hazırlık & Simülasyon",
   "short_name": "YKS Yıldızı",
-  "description": "Yapay Zeka Destekli YKS Hazırlık Platformu: 49+ İnteraktif Simülasyon, Canlı Çalışma Odaları, Bilgi Arenası ve Sokratik Ders Koçu",
+  "description": "Yapay Zeka Destekli YKS Hazırlık Platformu: 114+ İnteraktif Simülasyon, Canlı Çalışma Odaları, Bilgi Arenası ve Sokratik Ders Koçu",
   "start_url": "/dashboard",
   "scope": "/",
   "id": "/dashboard",
@@ -42,10 +42,34 @@
   ],
   "shortcuts": [
     {
+      "name": "Pomodoro Odak",
+      "short_name": "Odaklan",
+      "description": "Zamanlayıcıyı başlat ve soruları çöz",
+      "url": "/dashboard?tab=focus",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
       "name": "Soru Çöz & Koç",
       "short_name": "Soru Çöz",
       "description": "Yapay zeka koçu ile soru çözmeye başla",
       "url": "/soru-coz",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "YKS Geri Sayım Widget",
+      "short_name": "Widget",
+      "description": "Canlı YKS 2027 sayacı ve günlük soru hedefi",
+      "url": "/widget",
       "icons": [
         {
           "src": "/icons/icon-192x192.png",
@@ -68,7 +92,7 @@
     {
       "name": "İnteraktif Deneyler",
       "short_name": "Deneyler",
-      "description": "49+ Fizik, Kimya, Biyoloji ve Matematik simülasyonu",
+      "description": "114+ Fizik, Kimya, Biyoloji ve Matematik simülasyonu",
       "url": "/simulasyonlar",
       "icons": [
         {
@@ -76,18 +100,33 @@
           "sizes": "192x192"
         }
       ]
-    },
+    }
+  ],
+  "widgets": [
     {
-      "name": "Bilgi Arenası",
-      "short_name": "Düello",
-      "description": "Canlı YKS sorularıyla rakiplerle yarış",
-      "url": "/duello",
+      "name": "YKS Yıldızı Sayacı",
+      "short_name": "YKS Sayacı",
+      "description": "YKS 2027 Kalan Gün, Günlük Soru Hedefi ve Seri Takibi",
+      "tag": "yks-summary-widget",
+      "template": "yks-summary-template",
+      "ms_ac_template": "/widgets/yks-summary-template.json",
+      "data": "/api/widget/data",
+      "type": "application/json",
+      "screenshots": [
+        {
+          "src": "/icons/icon-512x512.png",
+          "sizes": "512x512",
+          "label": "YKS Yıldızı Widget Önizlemesi"
+        }
+      ],
       "icons": [
         {
           "src": "/icons/icon-192x192.png",
           "sizes": "192x192"
         }
-      ]
+      ],
+      "auth": false,
+      "update": 3600
     }
   ]
 }

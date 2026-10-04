@@ -3,10 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, Flame, Zap, Timer, Sparkles, CheckCircle2, Play, Pause, RotateCcw, ArrowRight } from 'lucide-react';
+import { Bell, Flame, Zap, Timer, Sparkles, CheckCircle2, Play, Pause, RotateCcw, ArrowRight, Smartphone } from 'lucide-react';
 import { triggerHaptic } from '@/lib/haptics';
 import { usePushNotifications } from '@/components/PWAComponents';
 import { useTimer } from '@/context/TimerContext';
+import WidgetInstallModal from '@/components/WidgetInstallModal';
 
 interface MobileLiveActivityWidgetProps {
   streak?: number;
@@ -29,6 +30,7 @@ export default function MobileLiveActivityWidget({
 
   const { permission, subscription, isSubscribing, subscribe } = usePushNotifications();
   const isSubscribed = !!subscription && permission === 'granted';
+  const [showWidgetModal, setShowWidgetModal] = useState(false);
 
   // Live countdown to YKS (Next YKS: June 2027)
   useEffect(() => {
@@ -610,6 +612,40 @@ export default function MobileLiveActivityWidget({
           Deneyler
         </Link>
       </div>
+
+      {/* Ana Ekrana Ekle Butonu */}
+      <button
+        type="button"
+        onClick={() => {
+          triggerHaptic('light');
+          setShowWidgetModal(true);
+        }}
+        style={{
+          marginTop: 10,
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 6,
+          padding: '7px 10px',
+          background: 'rgba(56, 189, 248, 0.08)',
+          border: '1px solid rgba(56, 189, 248, 0.2)',
+          borderRadius: 10,
+          color: '#38bdf8',
+          fontSize: '11px',
+          fontWeight: 600,
+          cursor: 'pointer',
+          transition: 'all 0.2s',
+        }}
+      >
+        <Smartphone size={12} />
+        <span>📱 Bu sayacı telefonunun ana ekranına widget olarak ekle</span>
+      </button>
+
+      <WidgetInstallModal
+        isOpen={showWidgetModal}
+        onClose={() => setShowWidgetModal(false)}
+      />
     </motion.div>
   );
 }

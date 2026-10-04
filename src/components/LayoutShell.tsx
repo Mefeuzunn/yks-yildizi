@@ -28,6 +28,18 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
   const pathname = usePathname();
 
   // Pages that use their own self-contained layout (no sidebar)
+  const isWidgetPage = pathname?.startsWith('/widget');
+  if (isWidgetPage) {
+    return (
+      <AuthProvider>
+        <TimerProvider>
+          {children}
+          <ServiceWorkerRegistrar />
+        </TimerProvider>
+      </AuthProvider>
+    );
+  }
+
   const isNoSidebarPage = pathname === '/' || pathname === '/login' || pathname === '/register';
 
   if (isNoSidebarPage) {

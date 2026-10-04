@@ -1,0 +1,136 @@
+{
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "Container",
+      "style": "emphasis",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "Image",
+                  "url": "/icons/icon-192x192.png",
+                  "size": "Small",
+                  "style": "Person"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "YKS YILDIZI",
+                  "weight": "Bolder",
+                  "size": "Medium",
+                  "color": "Accent"
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "YKS 2027 Hedef Sayacı",
+                  "isSubtle": true,
+                  "size": "Small",
+                  "spacing": "None"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "${streak} Gün 🔥",
+                  "weight": "Bolder",
+                  "color": "Warning",
+                  "horizontalAlignment": "Right"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "Medium",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "50",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "KALAN GÜN",
+                  "size": "Small",
+                  "isSubtle": true
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "${daysRemaining}",
+                  "size": "ExtraLarge",
+                  "weight": "Bolder",
+                  "color": "Accent"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "50",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "BUGÜNKÜ SORU",
+                  "size": "Small",
+                  "isSubtle": true
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "${todayQuestions} / ${dailyGoal}",
+                  "size": "Large",
+                  "weight": "Bolder"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TextBlock",
+          "text": "\"${motivationalQuote}\"",
+          "isSubtle": true,
+          "italic": true,
+          "size": "Small",
+          "wrap": true,
+          "spacing": "Small"
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Execute",
+      "title": "⏱️ Odaklan",
+      "verb": "focus"
+    },
+    {
+      "type": "Action.Execute",
+      "title": "📝 Soru Ekle",
+      "verb": "addQuestions"
+    },
+    {
+      "type": "Action.OpenUrl",
+      "title": "🚀 Uygulamayı Aç",
+      "url": "/dashboard"
+    }
+  ]
+}
