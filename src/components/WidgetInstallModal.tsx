@@ -256,9 +256,11 @@ export default function WidgetInstallModal({ isOpen, onClose }: WidgetInstallMod
             <div
               style={{
                 flex: '1 1 auto',
+                minHeight: 0,
                 overflowY: 'auto',
                 overscrollBehavior: 'contain',
                 WebkitOverflowScrolling: 'touch',
+                touchAction: 'pan-y',
                 padding: '16px 18px',
                 display: 'flex',
                 flexDirection: 'column',
