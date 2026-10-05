@@ -18,7 +18,12 @@ interface NotificationItem {
   created_at: string;
 }
 
-export default function NotificationCenter() {
+interface NotificationCenterProps {
+  align?: 'left' | 'right';
+  className?: string;
+}
+
+export default function NotificationCenter({ align = 'right', className = '' }: NotificationCenterProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -34,7 +39,11 @@ export default function NotificationCenter() {
       if (res.ok) {
         const data = await res.json();
         setNotifications(data.notifications || []);
-        setUnreadCount(data.unreadCount || 0);
+        const unread = data.unreadCount || 0;
+        setUnreadCount(unread);
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('yks:unread-count', { detail: unread }));
+        }
       }
     } catch (e) {
       console.warn('Failed to load notifications:', e);
@@ -84,6 +93,9 @@ export default function NotificationCenter() {
       });
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
       setUnreadCount(0);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('yks:unread-count', { detail: 0 }));
+      }
     } catch (e) {
       console.error(e);
     }
@@ -98,7 +110,13 @@ export default function NotificationCenter() {
         body: JSON.stringify({ id: notif.id }),
       }).catch(() => {});
       setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, is_read: true } : n));
-      setUnreadCount(c => Math.max(0, c - 1));
+      setUnreadCount(c => {
+        const next = Math.max(0, c - 1);
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('yks:unread-count', { detail: next }));
+        }
+        return next;
+      });
     }
     setIsOpen(false);
   };
@@ -254,9 +272,9 @@ export default function NotificationCenter() {
               style={{
                 position: 'absolute',
                 top: 'calc(100% + 8px)',
-                right: 0,
+                ...(align === 'left' ? { left: 0 } : { right: 0 }),
                 width: '360px',
-                maxWidth: '92vw',
+                maxWidth: 'calc(100vw - 24px)',
                 maxHeight: '520px',
                 backgroundColor: '#0c101d',
                 border: '1px solid rgba(139, 92, 246, 0.3)',

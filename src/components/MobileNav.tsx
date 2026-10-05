@@ -58,7 +58,23 @@ function MobileNavContent() {
   
   const currentMainTabs = user?.role === 'ogretmen' ? TEACHER_MAIN_TABS : MAIN_TABS;
   const currentMoreTabs = user?.role === 'ogretmen' ? TEACHER_MORE_TABS : MORE_TABS;
+  const [unreadCount, setUnreadCount] = useState(0);
 
+  // Unread notification listener
+  useEffect(() => {
+    const handleCount = (e: Event) => {
+      const customEvent = e as CustomEvent<number>;
+      if (typeof customEvent.detail === 'number') {
+        setUnreadCount(customEvent.detail);
+      }
+    };
+    window.addEventListener('yks:unread-count', handleCount);
+    fetch('/api/notifications')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.unreadCount !== undefined) setUnreadCount(d.unreadCount); })
+      .catch(() => {});
+    return () => window.removeEventListener('yks:unread-count', handleCount);
+  }, []);
 
   // Close drawer on route change
   useEffect(() => {
@@ -176,18 +192,44 @@ function MobileNavContent() {
             touchAction: 'manipulation',
           }}
         >
-          <span
-            style={{
-              fontSize: '21px',
-              lineHeight: 1,
-              filter: isMoreOpen ? 'drop-shadow(0 0 8px rgba(167,139,250,0.6))' : 'none',
-              opacity: isMoreOpen ? 1 : 0.75,
-              transform: isMoreOpen ? 'scale(1.1)' : 'scale(1)',
-              transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
-            }}
-          >
-            ✨
-          </span>
+          <div style={{ position: 'relative', display: 'inline-flex' }}>
+            <span
+              style={{
+                fontSize: '21px',
+                lineHeight: 1,
+                filter: isMoreOpen ? 'drop-shadow(0 0 8px rgba(167,139,250,0.6))' : 'none',
+                opacity: isMoreOpen ? 1 : 0.75,
+                transform: isMoreOpen ? 'scale(1.1)' : 'scale(1)',
+                transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+              }}
+            >
+              ✨
+            </span>
+            {unreadCount > 0 && (
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '-4px',
+                  right: '-6px',
+                  minWidth: '15px',
+                  height: '15px',
+                  padding: '0 3px',
+                  borderRadius: '9999px',
+                  backgroundColor: '#ef4444',
+                  color: '#fff',
+                  fontSize: '9px',
+                  fontWeight: 800,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 0 8px rgba(239, 68, 68, 0.8)',
+                  border: '1.5px solid #0b0f19',
+                }}
+              >
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </div>
           <span
             style={{
               fontSize: '10.5px',

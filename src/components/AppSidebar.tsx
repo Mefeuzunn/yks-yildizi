@@ -434,7 +434,7 @@ export default function AppSidebar() {
             YKS<span style={{ color: '#8b5cf6' }}>Yıldızı</span>
           </span>
         </Link>
-        <NotificationCenter />
+        <NotificationCenter align="left" />
       </div>
 
       {/* ── User Card ── */}

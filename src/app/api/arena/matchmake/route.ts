@@ -70,6 +70,30 @@ export async function POST(req: Request) {
         `).run(JSON.stringify(questions), roundEndTime.toISOString(), waitingDuel.id);
       })();
 
+      // Bekleyen ilk oyuncuya anlık bildirim ilet
+      try {
+        const firstParticipant = await db.prepare(
+          'SELECT user_id FROM duel_participants WHERE duel_id = ? AND user_id != ? LIMIT 1'
+        ).get(waitingDuel.id, user.id) as any;
+
+        if (firstParticipant?.user_id && firstParticipant.user_id !== 'yks-bot-user') {
+          const { sendSmartPushToUser } = await import('@/lib/push-notifications');
+          sendSmartPushToUser(firstParticipant.user_id, {
+            title: '⚔️ Rakip Bulundu! Düello Başlıyor!',
+            body: `${user.username || 'Bir rakip'} arenaya katıldı. Hazır ol, düello başlıyor!`,
+            url: '/duello',
+            tag: `duel-${waitingDuel.id}`,
+            actions: [{ action: 'open', title: '⚔️ Arenaya Gir' }]
+          }, {
+            category: 'duel',
+            isAutomated: false,
+            type: 'duel_matched',
+            icon: '⚔️',
+            url: '/duello'
+          }).catch(() => {});
+        }
+      } catch (_) {}
+
       return NextResponse.json({ duelId: waitingDuel.id, status: 'starting' }, { status: 200 });
     }
 

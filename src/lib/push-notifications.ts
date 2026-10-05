@@ -270,17 +270,32 @@ export async function sendPushToUsers(userIds: string[], payload: PushPayload): 
 }
 
 /**
- * Send push notification to all students in a class
+ * Send smart push notification to all students in a class
+ * Saves in-app notification for each student and sends Web Push
  */
-export async function sendPushToClass(classId: string, payload: PushPayload): Promise<number> {
+export async function sendPushToClass(
+  classId: string,
+  payload: PushPayload,
+  options: SmartPushOptions = {}
+): Promise<number> {
   try {
     const students = await db.prepare(
       'SELECT student_id FROM class_students WHERE class_id = ?'
     ).all(classId) as any[];
 
     if (!students || students.length === 0) return 0;
-    const uids = students.map((s: any) => s.student_id);
-    return await sendPushToUsers(uids, payload);
+    let pushSentCount = 0;
+    for (const s of students) {
+      const res = await sendSmartPushToUser(s.student_id, payload, {
+        category: 'homework',
+        isAutomated: false,
+        url: payload.url || '/odevlerim',
+        icon: payload.icon || '📋',
+        ...options,
+      });
+      if (res.pushSent) pushSentCount++;
+    }
+    return pushSentCount;
   } catch (err) {
     console.error(`Error sending push to class ${classId}:`, err);
     return 0;

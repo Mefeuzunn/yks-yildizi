@@ -7,6 +7,7 @@ import { TimerProvider } from '@/context/TimerContext';
 import GlobalTimerWidget from '@/components/GlobalTimerWidget';
 import AppSidebar from '@/components/AppSidebar';
 import MobileNav from '@/components/MobileNav';
+import MobileHeader from '@/components/MobileHeader';
 import { PWAInstallBanner, OfflineStatusBanner, OfflineFocusNotification } from '@/components/PWAComponents';
 import SessionLogModal from '@/components/dashboard/SessionLogModal';
 
@@ -63,6 +64,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
     <AuthProvider>
       <TimerProvider>
       <div style={{ minHeight: '100vh', backgroundColor: '#0b0f19', overflowX: 'hidden' }}>
+        <MobileHeader />
         <React.Suspense fallback={<div className="desktop-only" style={{ width: 220, borderRight: '1px solid #1f2937' }} />}>
           <AppSidebar />
         </React.Suspense>
