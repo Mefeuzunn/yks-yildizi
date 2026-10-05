@@ -12,29 +12,67 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const subject = searchParams.get('subject');
     const topic = searchParams.get('topic');
-
-    if (!subject) return NextResponse.json({ error: 'Ders seçimi zorunludur' }, { status: 400 });
+    const mode = searchParams.get('mode') || 'due'; // 'due' | 'all' | 'learning' | 'mastered'
 
     let query = `
-      SELECT f.*, p.status, p.next_review_date, p.interval, p.ease_factor
+      SELECT 
+        f.id, 
+        f.id as card_id, 
+        f.subject, 
+        f.topic, 
+        f.category, 
+        f.front_text, 
+        f.back_text, 
+        f.tip,
+        p.status, 
+        p.next_review_date, 
+        p.interval, 
+        p.ease_factor,
+        p.repetitions,
+        p.review_count,
+        p.last_reviewed
       FROM flashcards f
       LEFT JOIN flashcards_progress p ON f.id = p.card_id AND p.user_id = ?
-      WHERE f.user_id = ? AND f.subject = ?
+      WHERE (f.user_id = ? OR f.user_id = 'system' OR f.user_id IS NULL)
     `;
-    const params: any[] = [userId, userId, subject];
+    const params: any[] = [userId, userId];
 
-    if (topic) {
+    if (subject && subject !== 'all' && subject !== 'Tümü') {
+      query += ` AND f.subject = ?`;
+      params.push(subject);
+    }
+
+    if (topic && topic !== 'all' && topic !== 'Tümü') {
       query += ` AND f.topic = ?`;
       params.push(topic);
     }
 
-    const cards = await db.prepare(query).all(...params) as any[];
+    query += ` ORDER BY p.next_review_date ASC NULLS FIRST, f.id ASC`;
 
-    // Calculate due cards
-    const now = new Date().toISOString();
-    const dueCards = cards.filter(c => !c.next_review_date || c.next_review_date <= now);
+    const allCards = await db.prepare(query).all(...params) as any[];
 
-    return NextResponse.json(dueCards, { status: 200 });
+    const now = new Date();
+    let filteredCards = allCards;
+
+    if (mode === 'due') {
+      // Filter for cards ready to be reviewed (never reviewed or next_review_date <= now)
+      filteredCards = allCards.filter(c => !c.next_review_date || new Date(c.next_review_date) <= now);
+      // If there are no due cards in this topic/subject, fall back to all cards for revision practice
+      if (filteredCards.length === 0 && allCards.length > 0) {
+        filteredCards = allCards;
+      }
+    } else if (mode === 'learning') {
+      filteredCards = allCards.filter(c => c.status === 'learning' || (!c.repetitions || c.repetitions < 3));
+    } else if (mode === 'mastered') {
+      filteredCards = allCards.filter(c => (c.repetitions && c.repetitions >= 3) || c.status === 'mastered' || c.status === 'learned');
+    }
+
+    return NextResponse.json({
+      success: true,
+      cards: filteredCards,
+      totalSubjectCards: allCards.length,
+      mode
+    }, { status: 200 });
   } catch (error) {
     console.error('Flashcards Study GET Error:', error);
     return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });

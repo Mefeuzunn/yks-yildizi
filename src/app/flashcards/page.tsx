@@ -212,7 +212,7 @@ export default function FlashcardsDashboard() {
                       onChange={e => setNewCard({...newCard, subject: e.target.value})}
                       className="premium-input modal-input-touch"
                     >
-                      {['Biyoloji', 'Tarih', 'Coğrafya', 'Kimya', 'Fizik', 'Edebiyat', 'Matematik'].map(t => <option key={t} value={t} style={{background: '#0f1015'}}>{t}</option>)}
+                      {['Matematik', 'Geometri', 'Fizik', 'Kimya', 'Biyoloji', 'Türkçe', 'Türk Dili ve Edebiyatı', 'Tarih', 'Coğrafya', 'Felsefe & Din'].map(t => <option key={t} value={t} style={{background: '#0f1015'}}>{t}</option>)}
                     </select>
                   </div>
                   <div>
