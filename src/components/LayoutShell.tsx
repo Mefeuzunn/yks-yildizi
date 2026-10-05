@@ -14,7 +14,9 @@ import SessionLogModal from '@/components/dashboard/SessionLogModal';
 function ServiceWorkerRegistrar() {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
+      navigator.serviceWorker.register('/sw.js').then((reg) => {
+        reg.update().catch(() => {});
+      }).catch(() => {});
     }
   }, []);
   return null;

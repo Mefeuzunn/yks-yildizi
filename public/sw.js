@@ -1,7 +1,7 @@
 // YKS Yıldızı - Custom Service Worker
 // @ducanh2912/next-pwa bu dosyayı otomatik kullanır
 
-const CACHE_NAME = 'yks-yildizi-v4';
+const CACHE_NAME = 'yks-yildizi-v5';
 const STATIC_ASSETS = [
   '/offline',
   '/manifest.json',
