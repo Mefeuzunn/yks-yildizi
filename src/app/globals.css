@@ -398,9 +398,18 @@ button:active {
 
 /* Dashboard main responsive class */
 .dashboard-main-responsive {
-  margin-left: 220px;
-  padding: 40px;
+  margin-left: 230px;
+  width: calc(100% - 230px);
+  max-width: calc(100% - 230px);
+  padding: 24px 32px;
+  box-sizing: border-box;
   transition: margin-left 0.3s ease, padding 0.3s ease;
+}
+
+@media (max-width: 1100px) and (min-width: 769px) {
+  .dashboard-main-responsive {
+    padding: 20px 20px !important;
+  }
 }
 
 @media (max-width: 768px) {

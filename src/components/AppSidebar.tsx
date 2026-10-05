@@ -380,7 +380,7 @@ export default function AppSidebar() {
       className="app-sidebar-aside desktop-flex"
       onWheel={handleAsideWheel}
       style={{
-        width: '220px',
+        width: '230px',
         height: '100vh',
         background: 'linear-gradient(180deg, #0c0e16 0%, #0f1117 100%)',
         borderRight: '1px solid rgba(255,255,255,0.06)',
@@ -400,7 +400,7 @@ export default function AppSidebar() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        gap: '6px',
+        gap: '8px',
       }}>
         <Link
           href={user?.role === 'ogretmen' ? '/ogretmen/dashboard' : '/dashboard?tab=home'}
@@ -416,7 +416,7 @@ export default function AppSidebar() {
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '10px',
+            gap: '8px',
             textDecoration: 'none',
             cursor: 'pointer',
             flex: 1,
@@ -430,7 +430,7 @@ export default function AppSidebar() {
             fontSize: '14px',
             boxShadow: '0 0 12px rgba(139,92,246,0.4)',
           }}>✨</div>
-          <span style={{ color: '#f8fafc', fontSize: '15.5px', fontWeight: 800, letterSpacing: '-0.03em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <span style={{ color: '#f8fafc', fontSize: '15px', fontWeight: 800, letterSpacing: '-0.03em', whiteSpace: 'nowrap' }}>
             YKS<span style={{ color: '#8b5cf6' }}>Yıldızı</span>
           </span>
         </Link>

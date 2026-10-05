@@ -848,8 +848,8 @@ export default function FocusTab() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-      style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: 'clamp(16px,3vw,32px)',
-               maxWidth: '1400px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
+      style={{ display: 'flex', flexDirection: 'column', gap: '24px',
+               maxWidth: '1280px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
 
       {/* Zen Mode */}
       <AnimatePresence>
@@ -882,27 +882,27 @@ export default function FocusTab() {
       </AnimatePresence>
 
       {/* ── Header ── */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
-        <div>
-          <h2 style={{ fontSize: 'clamp(22px,4vw,30px)', fontWeight: 800, color: '#fff', marginBottom: '6px',
-                       display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', width: '100%', boxSizing: 'border-box' }}>
+        <div style={{ minWidth: 0 }}>
+          <h2 style={{ fontSize: 'clamp(20px, 3.5vw, 28px)', fontWeight: 800, color: '#fff', margin: '0 0 6px 0',
+                       display: 'flex', alignItems: 'center', gap: '10px' }}>
             <Target size={26} style={{ color: '#8b5cf6' }}/> Odak Merkezi
           </h2>
-          <p style={{ color: '#9ca3af', fontSize: '14px', margin: 0, display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <p style={{ color: '#9ca3af', fontSize: '13.5px', margin: 0, display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             Bugün <strong style={{ color: '#fff' }}>{todayMinutes} dk</strong> çalıştın &nbsp;·&nbsp;
             <strong style={{ color: '#fff' }}>{todayCount}</strong> oturum
             &nbsp;·&nbsp; {statusMsg().text}
           </p>
         </div>
         {/* Stats pills */}
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', width: '100%', maxWidth: '420px' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
           {[
             { icon: <Flame size={14}/>, label: 'Bugün', value: `${todayMinutes}dk`, color: '#f97316' },
             { icon: <Zap size={14}/>, label: 'Oturum', value: `${allTimeCount}`, color: '#8b5cf6' },
             { icon: <Trophy size={14}/>, label: 'Pomodoro', value: `${pomodoroCount}`, color: '#fcd34d' },
           ].map(s => (
-            <div key={s.label} style={{ flex: '1 1 95px', minWidth: '95px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: '#131827',
-                 border: `1px solid ${s.color}30`, borderRadius: '12px', padding: '8px 12px' }}>
+            <div key={s.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: '#131827',
+                 border: `1px solid ${s.color}30`, borderRadius: '12px', padding: '6px 12px', whiteSpace: 'nowrap' }}>
               <span style={{ color: s.color, display: 'flex' }}>{s.icon}</span>
               <span style={{ color: '#9ca3af', fontSize: '11px', fontWeight: 500 }}>{s.label}:</span>
               <span style={{ color: '#fff', fontSize: '12px', fontWeight: 700 }}>{s.value}</span>
@@ -912,10 +912,17 @@ export default function FocusTab() {
       </div>
 
       {/* ── Main Grid ── */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'flex-start' }}>
+      <div className="focus-main-grid" style={{
+        display: 'grid',
+        gridTemplateColumns: 'minmax(0, 1.28fr) minmax(0, 1fr)',
+        gap: '20px',
+        alignItems: 'start',
+        width: '100%',
+        boxSizing: 'border-box',
+      }}>
 
         {/* ── Timer Card ── */}
-        <div style={{ flex: '1.1 1 360px', maxWidth: '100%', minWidth: 'min(100%, 340px)', width: '100%', background: '#0f172a', border: `1px solid ${cfg.glow}`, borderRadius: '28px', padding: 'clamp(20px, 4vw, 32px)',
+        <div style={{ width: '100%', minWidth: 0, boxSizing: 'border-box', background: '#0f172a', border: `1px solid ${cfg.glow}`, borderRadius: '28px', padding: 'clamp(20px, 3.5vw, 32px)',
                       display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative',
                       overflow: 'hidden', boxShadow: `0 10px 60px -10px ${cfg.glow}` }}>
           {/* Glow bg */}
@@ -1230,7 +1237,7 @@ export default function FocusTab() {
         </div>
 
         {/* ── Right Column ── */}
-        <div style={{ flex: '1 1 340px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
 
           {/* Daily Progress */}
           <div style={{ background: '#131827', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: 'clamp(18px, 4vw, 24px)' }}>
@@ -1522,7 +1529,13 @@ export default function FocusTab() {
           </div>
         )}
       </div>
-
+      <style jsx>{`
+        @media (max-width: 960px) {
+          .focus-main-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </motion.div>
   );
 }

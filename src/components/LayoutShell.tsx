@@ -65,7 +65,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
       <TimerProvider>
       <div style={{ minHeight: '100vh', backgroundColor: '#0b0f19', overflowX: 'hidden' }}>
         <MobileHeader />
-        <React.Suspense fallback={<div className="desktop-only" style={{ width: 220, borderRight: '1px solid #1f2937' }} />}>
+        <React.Suspense fallback={<div className="desktop-only" style={{ width: 230, borderRight: '1px solid #1f2937' }} />}>
           <AppSidebar />
         </React.Suspense>
         <React.Suspense fallback={<div className="mobile-only" style={{ height: 60 }} />}>
@@ -74,9 +74,6 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
         <main
           className="dashboard-main-responsive"
           style={{
-            marginLeft: '220px', // Offset for fixed sidebar
-            padding: '40px',
-            paddingBottom: '80px', // Mobile bottom bar clearance
             minHeight: '100vh',
             backgroundColor: '#0b0f19',
             boxSizing: 'border-box',
