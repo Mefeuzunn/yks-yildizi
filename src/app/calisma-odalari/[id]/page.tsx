@@ -680,7 +680,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
           haptics.selection();
           setShowMobileDrawer(true);
         }}
-        className="lg:hidden fixed bottom-[calc(76px+env(safe-area-inset-bottom,20px))] right-4 z-40 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-2.5 rounded-full shadow-[0_8px_25px_rgba(99,102,241,0.5)] flex items-center gap-2 font-bold text-xs border border-white/20 cursor-pointer"
+        className="lg:hidden fixed bottom-[calc(76px+env(safe-area-inset-bottom,20px))] left-4 z-40 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-2.5 rounded-full shadow-[0_8px_25px_rgba(99,102,241,0.5)] flex items-center gap-2 font-bold text-xs border border-white/20 cursor-pointer"
       >
         <MessageSquare className="w-4 h-4" />
         <span>Sohbet & Kişiler</span>

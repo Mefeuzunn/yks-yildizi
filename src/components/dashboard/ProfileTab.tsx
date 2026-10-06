@@ -201,7 +201,7 @@ export default function ProfileTab() {
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '1.5rem' }}>
+      <div className="profile-tab-layout-grid" style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '1.5rem' }}>
 
         {/* ── Left Sidebar ── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -523,6 +523,14 @@ export default function ProfileTab() {
           </motion.div>
         </div>
       </div>
+      <style jsx>{`
+        @media (max-width: 768px) {
+          .profile-tab-layout-grid {
+            grid-template-columns: 1fr !important;
+            gap: 1rem !important;
+          }
+        }
+      `}</style>
     </motion.div>
   );
 }

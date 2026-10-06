@@ -524,7 +524,7 @@ export default function SinifimTab() {
                         display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem'
                       }}
                     >
-                      <div style={{ flex: 1, minWidth: '280px' }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                           <h3 style={{
                             fontSize: '1.1rem', color: '#fff', margin: 0, fontWeight: 700,

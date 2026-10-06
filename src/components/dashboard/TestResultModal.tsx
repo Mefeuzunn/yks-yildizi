@@ -60,7 +60,7 @@ export default function TestResultModal({ isOpen, onClose, resultData }: TestRes
             </button>
           </div>
 
-          <div style={{ display: 'flex', padding: '2rem', gap: '2rem' }}>
+          <div className="test-result-modal-body" style={{ display: 'flex', padding: '2rem', gap: '2rem' }}>
             
             {/* Stats Left */}
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -109,6 +109,15 @@ export default function TestResultModal({ isOpen, onClose, resultData }: TestRes
               Analizlere Dön
             </button>
           </div>
+          <style jsx>{`
+            @media (max-width: 768px) {
+              .test-result-modal-body {
+                flex-direction: column !important;
+                padding: 1.25rem 1rem !important;
+                gap: 1.25rem !important;
+              }
+            }
+          `}</style>
         </motion.div>
       </motion.div>
     </AnimatePresence>

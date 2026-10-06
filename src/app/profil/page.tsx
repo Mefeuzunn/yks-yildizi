@@ -78,7 +78,7 @@ export default function ProfilPage() {
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '2rem 1rem' }}>
       
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>
+      <div className="profil-main-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>
         
         {/* Sol Panel: Kullanıcı Kartı */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -195,7 +195,7 @@ export default function ProfilPage() {
                 Başarı Özeti
               </h2>
               
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
+              <div className="profil-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
                 <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Lig</div>
                   <div style={{ fontSize: '1.25rem', color: '#fff', fontWeight: 700 }}>{stats.league}</div>
@@ -226,7 +226,7 @@ export default function ProfilPage() {
                 <Star size={20} color="#f59e0b" />
                 Kupa Odası (Rozetler)
               </h2>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
+              <div className="profil-badges-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
                 {BADGES.map(badge => {
                   const isUnlocked = data.badges?.some((b: any) => b.badge_id === badge.id);
 
@@ -254,6 +254,22 @@ export default function ProfilPage() {
 
         </div>
       </div>
+      <style jsx>{`
+        @media (max-width: 768px) {
+          .profil-main-grid {
+            grid-template-columns: 1fr !important;
+            gap: 1.25rem !important;
+          }
+          .profil-stats-grid {
+            grid-template-columns: 1fr !important;
+            gap: 0.75rem !important;
+          }
+          .profil-badges-grid {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 0.75rem !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

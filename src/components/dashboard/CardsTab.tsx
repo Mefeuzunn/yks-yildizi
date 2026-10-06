@@ -510,6 +510,7 @@ export default function CardsTab() {
         <AnimatePresence>
           {flipped && (
             <motion.div 
+              className="cards-rating-grid"
               initial={{ opacity: 0, y: 15 }} 
               animate={{ opacity: 1, y: 0 }} 
               exit={{ opacity: 0, y: 10 }}
@@ -999,7 +1000,14 @@ export default function CardsTab() {
           </motion.div>
         )}
       </AnimatePresence>
-
+      <style jsx>{`
+        @media (max-width: 768px) {
+          :global(.cards-rating-grid) {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 0.5rem !important;
+          }
+        }
+      `}</style>
     </motion.div>
   );
 }

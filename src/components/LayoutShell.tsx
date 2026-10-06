@@ -56,6 +56,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
           <SessionLogModal />
           <OfflineStatusBanner />
           <OfflineFocusNotification />
+          <ServiceWorkerRegistrar />
         </TimerProvider>
       </AuthProvider>
     );

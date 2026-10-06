@@ -118,8 +118,9 @@ function Scratchpad() {
               type="button"
               onClick={() => setColor(c)} 
               style={{ 
-                width: 22, height: 22, borderRadius: '50%', background: c, 
-                border: color === c ? '2px solid #D1D5DB' : '2px solid transparent', 
+                width: 32, height: 32, borderRadius: '50%', background: c, 
+                border: color === c ? '3px solid #fff' : '2px solid rgba(255,255,255,0.2)', 
+                boxShadow: color === c ? '0 0 10px rgba(255,255,255,0.4)' : 'none',
                 cursor: 'pointer', outline: 'none', transition: 'all 0.15s' 
               }} 
             />

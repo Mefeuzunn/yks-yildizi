@@ -536,7 +536,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     return () => {
       clearInterval(interval);
     };
-  }, [isRunning, mode, selectedSubject, selectedTopic, durations, timeLeft, totalSec, isHydrated]);
+  }, [isRunning, mode, selectedSubject, selectedTopic, durations, isHydrated]);
 
   // Before unload cleanup
   useEffect(() => {
