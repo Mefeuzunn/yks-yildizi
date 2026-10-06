@@ -257,7 +257,20 @@ export default function HataDefteriPage() {
                     
                     <button 
                       onClick={() => deleteMistake(mistake.id)}
-                      style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0.25rem' }}
+                      aria-label="Defterden Kaldır"
+                      style={{ 
+                        background: 'rgba(255, 255, 255, 0.04)', 
+                        border: '1px solid rgba(255, 255, 255, 0.08)', 
+                        color: 'var(--text-muted)', 
+                        cursor: 'pointer', 
+                        width: '38px',
+                        height: '38px',
+                        borderRadius: '10px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        touchAction: 'manipulation'
+                      }}
                       className="hover-red"
                       title="Defterden Kaldır"
                     >

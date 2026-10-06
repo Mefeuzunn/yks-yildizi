@@ -81,35 +81,41 @@ export default function GlobalTimerWidget() {
 
           <button
             onClick={timer.toggle}
+            aria-label={timer.isRunning ? 'Durdur' : 'Başlat'}
             style={{
-              width: '32px', height: '32px', borderRadius: '50%', background: modeColor,
-              color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'
+              width: '38px', height: '38px', borderRadius: '50%', background: modeColor,
+              color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+              touchAction: 'manipulation'
             }}
           >
-            {timer.isRunning ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" style={{ marginLeft: '2px' }} />}
+            {timer.isRunning ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" style={{ marginLeft: '2px' }} />}
           </button>
 
           {timer.mode === 'pomodoro' && (
             <button
               onClick={timer.finishSession}
               title="Oturumu Bitir & Ders/Konu Kaydet"
+              aria-label="Oturumu Bitir"
               style={{
-                width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.25)',
-                color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'
+                width: '38px', height: '38px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.25)',
+                color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                touchAction: 'manipulation'
               }}
             >
-              <CheckCircle2 size={16} />
+              <CheckCircle2 size={18} />
             </button>
           )}
 
           <button
             onClick={timer.reset}
+            aria-label="Sıfırla"
             style={{
-              width: '28px', height: '28px', borderRadius: '50%', background: 'transparent',
-              color: '#9ca3af', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'
+              width: '34px', height: '34px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)',
+              color: '#9ca3af', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+              touchAction: 'manipulation'
             }}
           >
-            <X size={16} />
+            <X size={18} />
           </button>
 
         </motion.div>

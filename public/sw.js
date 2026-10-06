@@ -184,11 +184,25 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Diğer statik varlıklar: Cache first -> Network fallback
+  // Diğer statik varlıklar: Cache first -> Network fallback + Dinamik Önbellek
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
       return fetch(event.request).then((networkRes) => {
+        // Yalnızca geçerli GET yanıtlarını ve statik dosyaları dinamik olarak önbelleğe al
+        if (
+          networkRes &&
+          networkRes.status === 200 &&
+          event.request.method === 'GET' &&
+          (event.request.url.includes('/_next/static/') ||
+           event.request.url.includes('/icons/') ||
+           event.request.url.includes('/logos/'))
+        ) {
+          const clone = networkRes.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, clone).catch(() => {});
+          });
+        }
         return networkRes;
       }).catch(() => cached);
     })

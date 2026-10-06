@@ -216,7 +216,7 @@ export default function ProgramPage() {
     const days = eachDayOfInterval({ start: startDate, end: endDate });
 
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '1px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', overflow: 'hidden' }}>
+      <div className="program-calendar-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '1px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', overflow: 'hidden' }}>
         {['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'].map(d => (
           <div key={d} style={{ padding: '0.75rem', textAlign: 'center', background: 'rgba(0,0,0,0.4)', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.875rem' }}>
             {d}
@@ -721,6 +721,11 @@ export default function ProgramPage() {
           }
           .program-input-touch {
             font-size: 16px !important;
+          }
+          .program-calendar-grid {
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            min-width: 480px !important;
           }
         }
       `}</style>

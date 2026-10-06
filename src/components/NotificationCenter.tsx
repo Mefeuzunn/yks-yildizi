@@ -221,9 +221,9 @@ export default function NotificationCenter({ align = 'right', className = '' }: 
           aria-label="Bildirimler"
           style={{
             position: 'relative',
-            width: '36px',
-            height: '36px',
-            borderRadius: '10px',
+            width: '40px',
+            height: '40px',
+            borderRadius: '11px',
             background: isOpen ? 'rgba(139, 92, 246, 0.25)' : 'rgba(255, 255, 255, 0.05)',
             border: `1px solid ${isOpen ? 'rgba(139, 92, 246, 0.45)' : 'rgba(255, 255, 255, 0.1)'}`,
             display: 'flex',
@@ -232,9 +232,10 @@ export default function NotificationCenter({ align = 'right', className = '' }: 
             cursor: 'pointer',
             color: unreadCount > 0 ? '#c4b5fd' : '#94a3b8',
             transition: 'all 0.2s ease',
+            touchAction: 'manipulation',
           }}
         >
-          <Bell size={18} />
+          <Bell size={19} />
           {unreadCount > 0 && (
             <span
               style={{
