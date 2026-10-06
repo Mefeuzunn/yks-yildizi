@@ -612,12 +612,12 @@ export default function AyarlarPage() {
                     onClick={() => setShowWidgetModal(true)}
                     style={{
                       padding: '8px 12px',
-                      background: 'rgba(56, 189, 248, 0.15)',
-                      border: '1px solid rgba(56, 189, 248, 0.3)',
+                      background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(139, 92, 246, 0.2))',
+                      border: '1px solid rgba(56, 189, 248, 0.4)',
                       borderRadius: '10px',
                       color: '#38bdf8',
                       fontSize: '12px',
-                      fontWeight: 700,
+                      fontWeight: 800,
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
@@ -625,8 +625,8 @@ export default function AyarlarPage() {
                       gap: '6px',
                     }}
                   >
-                    <Smartphone size={12} />
-                    <span>Kurulum Rehberi</span>
+                    <Smartphone size={14} />
+                    <span>Widget Stüdyosu ✨</span>
                   </button>
                 </div>
               </div>

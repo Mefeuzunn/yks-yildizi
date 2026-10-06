@@ -613,33 +613,60 @@ export default function MobileLiveActivityWidget({
         </Link>
       </div>
 
-      {/* Sadece mobil cihazlarda görünen Widget Kurulum Rehberi butonu (Web masaüstünde gizlenir) */}
-      <div className="mobile-only" style={{ width: '100%', marginTop: 8 }}>
+      {/* Sadece mobil cihazlarda görünen Widget Stüdyosu Giriş Kartı */}
+      <div className="mobile-only" style={{ width: '100%', marginTop: 10 }}>
         <button
           type="button"
           onClick={() => {
-            triggerHaptic('light');
+            triggerHaptic('medium');
             setShowWidgetModal(true);
           }}
           style={{
             width: '100%',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            gap: 6,
-            padding: '7px 10px',
-            background: 'rgba(56, 189, 248, 0.08)',
-            border: '1px solid rgba(56, 189, 248, 0.22)',
-            borderRadius: 10,
-            color: '#38bdf8',
-            fontSize: '11px',
-            fontWeight: 600,
+            justifyContent: 'space-between',
+            padding: '10px 14px',
+            background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(139, 92, 246, 0.08))',
+            border: '1px solid rgba(56, 189, 248, 0.3)',
+            borderRadius: 14,
             cursor: 'pointer',
-            transition: 'all 0.2s',
+            transition: 'all 0.2s ease',
+            boxShadow: '0 4px 15px rgba(0, 0, 0, 0.25)',
+            touchAction: 'manipulation',
           }}
         >
-          <Smartphone size={12} />
-          <span>📱 Telefon Ana Ekranına Widget Ekle</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 10,
+                background: 'linear-gradient(135deg, #0284c7, #8b5cf6)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 0 12px rgba(56, 189, 248, 0.4)',
+                flexShrink: 0,
+              }}
+            >
+              <Smartphone size={16} color="#ffffff" />
+            </div>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: '12px', fontWeight: 800, color: '#f8fafc' }}>
+                  Telefon Ana Ekranına Widget Ekle
+                </span>
+                <span style={{ fontSize: '9px', fontWeight: 800, padding: '1px 5px', borderRadius: 5, background: 'rgba(56, 189, 248, 0.2)', color: '#38bdf8' }}>
+                  CANLI
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: '10.5px', color: '#94a3b8' }}>
+                Geri sayım, yangın serisi ve hedeflerini telefonuna sabitle ✨
+              </p>
+            </div>
+          </div>
+          <ArrowRight size={14} color="#38bdf8" style={{ flexShrink: 0 }} />
         </button>
       </div>
 
