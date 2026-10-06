@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, BellOff, X, Download, Smartphone, Wifi, WifiOff, Share2, PlusSquare, CheckCircle2 } from 'lucide-react';
 import { triggerHaptic } from '@/lib/haptics';
+import WidgetInstallModal from '@/components/WidgetInstallModal';
 
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '';
 
@@ -102,6 +103,7 @@ export function PWAInstallBanner() {
   const [showBanner, setShowBanner] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [showIOSGuide, setShowIOSGuide] = useState(false);
+  const [showWidgetModal, setShowWidgetModal] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
@@ -172,91 +174,151 @@ export function PWAInstallBanner() {
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           style={{
             position: 'fixed',
-            bottom: 'calc(64px + env(safe-area-inset-bottom) + 12px)',
+            bottom: 'calc(64px + env(safe-area-inset-bottom, 0px) + 12px)',
             left: '50%',
             transform: 'translateX(-50%)',
-            width: 'calc(100% - 24px)',
-            maxWidth: 440,
+            width: 'calc(100% - 20px)',
+            maxWidth: 460,
             background: 'linear-gradient(135deg, rgba(15,23,42,0.98), rgba(18,20,28,0.98))',
-            border: '1px solid rgba(139,92,246,0.3)',
-            borderRadius: 16,
-            padding: '14px 16px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-            boxShadow: '0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(139,92,246,0.15)',
+            border: '1px solid rgba(139,92,246,0.35)',
+            borderRadius: 18,
+            padding: '12px 14px',
+            boxShadow: '0 12px 36px rgba(0,0,0,0.6), 0 0 20px rgba(139,92,246,0.2)',
             backdropFilter: 'blur(20px)',
             zIndex: 9999,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 10,
           }}
         >
-          {/* İkon */}
-          <div style={{
-            width: 44, height: 44, borderRadius: 12, flexShrink: 0,
-            background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 22,
-            boxShadow: '0 4px 12px rgba(139,92,246,0.35)',
-          }}>
-            ✨
-          </div>
-
-          {/* Metin */}
-          <div style={{ flex: 1, overflow: 'hidden' }}>
-            <div style={{ color: '#fff', fontWeight: 700, fontSize: 13.5, marginBottom: 2 }}>
-              YKS Yıldızı Uygulaması
+          {/* Header Row */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{
+                width: 38, height: 38, borderRadius: 10, flexShrink: 0,
+                background: 'linear-gradient(135deg, #8b5cf6, #38bdf8)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 18,
+                boxShadow: '0 4px 12px rgba(139,92,246,0.35)',
+              }}>
+                ✨
+              </div>
+              <div>
+                <div style={{ color: '#fff', fontWeight: 800, fontSize: 13.5, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span>YKS Yıldızı</span>
+                  <span style={{ fontSize: 9.5, fontWeight: 800, padding: '1px 6px', borderRadius: 4, background: 'rgba(56, 189, 248, 0.2)', color: '#38bdf8', letterSpacing: '0.04em' }}>
+                    CANLI WIDGET
+                  </span>
+                </div>
+                <div style={{ color: '#94a3b8', fontSize: 11, lineHeight: 1.3 }}>
+                  Canlı geri sayım widget&apos;ı veya uygulamayı ana ekranına ekle!
+                </div>
+              </div>
             </div>
-            <div style={{ color: '#94a3b8', fontSize: 11.5, lineHeight: 1.35 }}>
-              {isIOS
-                ? 'Hızlı erişim & tam ekran için ana ekrana ekle'
-                : 'Uygulamayı ana ekrana ekle, anında başla!'}
-            </div>
-          </div>
 
-          {/* Butonlar */}
-          {isIOS ? (
             <button
+              onClick={handleDismiss}
+              aria-label="Kapat"
+              style={{
+                background: 'rgba(255,255,255,0.06)', border: 'none', color: '#94a3b8',
+                cursor: 'pointer', padding: 5, borderRadius: '50%', flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+            >
+              <X size={16} />
+            </button>
+          </div>
+
+          {/* Action Buttons Row: Dual Option for Widget & App */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 8 }}>
+            {/* Widget Ekle Butonu */}
+            <button
+              type="button"
               onClick={() => {
-                triggerHaptic('light');
-                setShowIOSGuide(true);
+                triggerHaptic('medium');
+                setShowWidgetModal(true);
               }}
               style={{
-                padding: '7px 12px', borderRadius: 8, flexShrink: 0,
-                background: 'linear-gradient(135deg, rgba(139,92,246,0.25), rgba(99,102,241,0.2))',
-                border: '1px solid rgba(139,92,246,0.45)', color: '#c4b5fd', fontWeight: 700, fontSize: 12,
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
+                padding: '9px 10px',
+                borderRadius: 10,
+                background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(139, 92, 246, 0.2))',
+                border: '1px solid rgba(56, 189, 248, 0.5)',
+                color: '#38bdf8',
+                fontWeight: 800,
+                fontSize: 12,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6,
+                boxShadow: '0 2px 10px rgba(56, 189, 248, 0.2)',
+                touchAction: 'manipulation',
               }}
             >
-              <Smartphone size={13} />
-              Nasıl?
+              <span style={{ fontSize: 14 }}>🧩</span>
+              <span>Widget Ekle</span>
             </button>
-          ) : (
-            <button
-              onClick={handleInstall}
-              style={{
-                padding: '7px 13px', borderRadius: 8, flexShrink: 0,
-                background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
-                border: 'none', color: '#fff', fontWeight: 700, fontSize: 12.5,
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
-                boxShadow: '0 2px 8px rgba(139,92,246,0.4)',
-              }}
-            >
-              <Download size={13} />
-              Yükle
-            </button>
-          )}
 
-          <button
-            onClick={handleDismiss}
-            aria-label="Kapat"
-            style={{
-              background: 'none', border: 'none', color: '#64748b',
-              cursor: 'pointer', padding: 4, flexShrink: 0,
-            }}
-          >
-            <X size={18} />
-          </button>
+            {/* Uygulama Olarak Yükle Butonu */}
+            {isIOS ? (
+              <button
+                type="button"
+                onClick={() => {
+                  triggerHaptic('light');
+                  setShowIOSGuide(true);
+                }}
+                style={{
+                  padding: '9px 10px',
+                  borderRadius: 10,
+                  background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(99, 102, 241, 0.2))',
+                  border: '1px solid rgba(139, 92, 246, 0.45)',
+                  color: '#c4b5fd',
+                  fontWeight: 700,
+                  fontSize: 12,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 5,
+                  touchAction: 'manipulation',
+                }}
+              >
+                <Smartphone size={13} />
+                <span>Uygulama Yükle</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleInstall}
+                style={{
+                  padding: '9px 10px',
+                  borderRadius: 10,
+                  background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+                  border: 'none',
+                  color: '#fff',
+                  fontWeight: 700,
+                  fontSize: 12,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 5,
+                  boxShadow: '0 2px 8px rgba(139, 92, 246, 0.4)',
+                  touchAction: 'manipulation',
+                }}
+              >
+                <Download size={13} />
+                <span>Uygulama Yükle</span>
+              </button>
+            )}
+          </div>
         </motion.div>
       </AnimatePresence>
+
+      <WidgetInstallModal
+        isOpen={showWidgetModal}
+        onClose={() => setShowWidgetModal(false)}
+      />
 
       {/* iOS Kurulum Rehberi Bottom Sheet */}
       <AnimatePresence>

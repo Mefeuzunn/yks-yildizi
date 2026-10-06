@@ -178,32 +178,60 @@ export default function MobileLiveActivityWidget({
           </span>
         </div>
 
-        {/* Push Notification Shortcut if not granted */}
-        {!isSubscribed && permission !== 'denied' && (
+        {/* Widget Ekle & Bildirim Butonları */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <button
+            type="button"
             onClick={() => {
-              triggerHaptic('light');
-              subscribe();
+              triggerHaptic('medium');
+              setShowWidgetModal(true);
             }}
-            disabled={isSubscribing}
             style={{
-              background: 'rgba(139, 92, 246, 0.15)',
-              border: '1px solid rgba(139, 92, 246, 0.35)',
+              background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(139, 92, 246, 0.2))',
+              border: '1px solid rgba(56, 189, 248, 0.5)',
               borderRadius: 16,
-              padding: '3px 9px',
-              color: '#c4b5fd',
+              padding: '4px 10px',
+              color: '#38bdf8',
               fontSize: '11px',
-              fontWeight: 600,
+              fontWeight: 800,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: 4,
+              gap: 5,
+              boxShadow: '0 0 10px rgba(56, 189, 248, 0.25)',
+              touchAction: 'manipulation',
             }}
           >
-            <Bell size={11} />
-            {isSubscribing ? 'İzin İsteniyor...' : 'Hatırlatıcı Aç'}
+            <span>🧩</span>
+            <span>Widget Ekle</span>
           </button>
-        )}
+
+          {!isSubscribed && permission !== 'denied' && (
+            <button
+              onClick={() => {
+                triggerHaptic('light');
+                subscribe();
+              }}
+              disabled={isSubscribing}
+              style={{
+                background: 'rgba(139, 92, 246, 0.15)',
+                border: '1px solid rgba(139, 92, 246, 0.35)',
+                borderRadius: 16,
+                padding: '3px 9px',
+                color: '#c4b5fd',
+                fontSize: '11px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+              }}
+            >
+              <Bell size={11} />
+              {isSubscribing ? 'İzin...' : 'Bildirim'}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Dynamic Content Area: Focus Session Active vs Exam Countdown */}

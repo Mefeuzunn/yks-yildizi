@@ -119,10 +119,13 @@ function WidgetLoadingFallback() {
 function WidgetContent() {
   const searchParams = useSearchParams();
   const rawType = searchParams?.get('type') || searchParams?.get('size') || 'medium';
-  const type: WidgetType = rawType === 'small' ? 'compact' : rawType === 'large' ? 'medium' : (rawType as WidgetType);
+  const initialType: WidgetType = rawType === 'small' ? 'compact' : rawType === 'large' ? 'medium' : (rawType as WidgetType);
   const rawTheme = (searchParams?.get('theme') || 'oled') as WidgetTheme;
-  const themeKey: WidgetTheme = THEMES[rawTheme] ? rawTheme : 'oled';
-  const theme = THEMES[themeKey];
+  const initialTheme: WidgetTheme = THEMES[rawTheme] ? rawTheme : 'oled';
+
+  const [activeType, setActiveType] = useState<WidgetType>(initialType);
+  const [activeTheme, setActiveTheme] = useState<WidgetTheme>(initialTheme);
+  const theme = THEMES[activeTheme];
 
   const isEmbed = searchParams?.get('embed') === 'true';
 
@@ -218,8 +221,111 @@ function WidgetContent() {
         position: 'relative',
       }}
     >
+      {/* ── ÜST KONTROL & GEZİNTİ ÇUBUĞU (Yalnızca tam sayfa modunda) ── */}
+      {!isEmbed && (
+        <div style={{
+          width: '100%',
+          maxWidth: '480px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 12,
+          marginBottom: 20,
+        }}>
+          {/* Üst Başlık & Panele Dön */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Link
+              href="/dashboard"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '6px 14px',
+                borderRadius: 10,
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                color: '#cbd5e1',
+                fontSize: '12.5px',
+                fontWeight: 600,
+                textDecoration: 'none',
+              }}
+            >
+              ← Panele Dön
+            </Link>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: '13.5px', fontWeight: 800, color: '#fff' }}>Widget Stüdyosu</span>
+              <span style={{ fontSize: '10px', fontWeight: 800, padding: '2px 7px', borderRadius: 6, background: 'rgba(56,189,248,0.2)', color: '#38bdf8' }}>CANLI</span>
+            </div>
+
+            <button
+              type="button"
+              onClick={fetchData}
+              disabled={isRefreshing}
+              style={{
+                padding: '6px 12px',
+                borderRadius: 10,
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                color: '#94a3b8',
+                fontSize: '12px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+              }}
+            >
+              <RefreshCw size={13} className={isRefreshing ? 'animate-spin' : ''} />
+              <span style={{ fontSize: '11px' }}>Yenile</span>
+            </button>
+          </div>
+
+          {/* Widget Boyutu & Türü Seçici */}
+          <div style={{
+            display: 'flex',
+            gap: 6,
+            background: 'rgba(255,255,255,0.05)',
+            padding: 4,
+            borderRadius: 14,
+            border: '1px solid rgba(255,255,255,0.08)',
+            overflowX: 'auto',
+          }}>
+            {[
+              { id: 'compact', label: '◻️ Kare' },
+              { id: 'medium', label: '▭ Geniş' },
+              { id: 'tip', label: '💡 İpucu' },
+              { id: 'live', label: '🔴 Canlı' },
+            ].map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => {
+                  triggerHaptic('light');
+                  setActiveType(t.id as WidgetType);
+                }}
+                style={{
+                  flex: 1,
+                  padding: '8px 10px',
+                  borderRadius: 10,
+                  fontSize: '12px',
+                  fontWeight: activeType === t.id ? 800 : 600,
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: activeType === t.id ? 'rgba(56,189,248,0.25)' : 'transparent',
+                  color: activeType === t.id ? '#38bdf8' : '#94a3b8',
+                  boxShadow: activeType === t.id ? '0 2px 8px rgba(56,189,248,0.2)' : 'none',
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ── A: KARE 2x2 WIDGET GÖRÜNÜMÜ ── */}
-      {type === 'compact' && (
+      {activeType === 'compact' && (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -309,7 +415,7 @@ function WidgetContent() {
       )}
 
       {/* ── B: GENİŞ 4x2 WIDGET GÖRÜNÜMÜ (STANDART) ── */}
-      {type === 'medium' && (
+      {activeType === 'medium' && (
         <motion.div
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -563,7 +669,7 @@ function WidgetContent() {
       )}
 
       {/* ── C: ÖSYM HAP BİLGİ WIDGET GÖRÜNÜMÜ ── */}
-      {type === 'tip' && (
+      {activeType === 'tip' && (
         <motion.div
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -620,7 +726,7 @@ function WidgetContent() {
       )}
 
       {/* ── D: LIVE ACTIVITY / KİLİT EKRANI GÖRÜNÜMÜ ── */}
-      {type === 'live' && (
+      {activeType === 'live' && (
         <motion.div
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -697,33 +803,48 @@ function WidgetContent() {
         </motion.div>
       )}
 
-      {/* Ana Ekrana Ekle Butonu */}
+      {/* Ana Ekrana Ekle Butonu & Rehber */}
       {!isEmbed && (
-        <div style={{ marginTop: '18px', textAlign: 'center' }}>
+        <div style={{
+          marginTop: '22px',
+          width: '100%',
+          maxWidth: '440px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 10,
+          alignItems: 'center',
+        }}>
           <button
             type="button"
             onClick={() => {
-              triggerHaptic('light');
+              triggerHaptic('medium');
               setShowInstallModal(true);
             }}
             style={{
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.12)',
-              color: '#38bdf8',
-              fontSize: '12.5px',
-              fontWeight: 700,
+              width: '100%',
+              background: 'linear-gradient(135deg, #0284c7, #8b5cf6)',
+              border: 'none',
+              color: '#ffffff',
+              fontSize: '13.5px',
+              fontWeight: 800,
               cursor: 'pointer',
-              display: 'inline-flex',
+              display: 'flex',
               alignItems: 'center',
-              gap: '6px',
-              padding: '8px 16px',
-              borderRadius: '12px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+              justifyContent: 'center',
+              gap: '8px',
+              padding: '13px 20px',
+              borderRadius: '16px',
+              boxShadow: '0 8px 24px rgba(2, 132, 199, 0.4), 0 0 16px rgba(139, 92, 246, 0.3)',
+              touchAction: 'manipulation',
             }}
           >
-            <Smartphone size={14} />
-            <span>Bu widget&apos;ı telefonunun ana ekranına nasıl eklersin?</span>
+            <Smartphone size={18} />
+            <span>Telefon Ana Ekranına Widget Olarak Ekle (Rehber & QR)</span>
           </button>
+
+          <p style={{ margin: 0, fontSize: '11px', color: '#64748b', textAlign: 'center', lineHeight: 1.4 }}>
+            iOS (Safari / Scriptable) & Android (Chrome / Widget) ile canlı senkronizasyon
+          </p>
         </div>
       )}
 
