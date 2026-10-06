@@ -268,6 +268,15 @@ function MobileNavContent() {
 
             {/* Drawer */}
             <motion.div
+              drag="y"
+              dragConstraints={{ top: 0 }}
+              dragElastic={0.2}
+              onDragEnd={(e, info) => {
+                if (info.offset.y > 80 || info.velocity.y > 400) {
+                  triggerHaptic('medium');
+                  setIsMoreOpen(false);
+                }
+              }}
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
@@ -288,10 +297,22 @@ function MobileNavContent() {
                 maxHeight: '82dvh',
                 overflowY: 'auto',
                 boxShadow: '0 -10px 40px rgba(0,0,0,0.5)',
+                touchAction: 'pan-y',
               }}
             >
               {/* Native Drag Handle */}
-              <div className="modal-drag-handle" style={{ marginBottom: 14 }} />
+              <div 
+                style={{ 
+                  width: '100%', 
+                  padding: '6px 0 16px 0', 
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  cursor: 'grab',
+                  touchAction: 'none'
+                }}
+              >
+                <div className="modal-drag-handle" style={{ margin: 0 }} />
+              </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -308,8 +329,8 @@ function MobileNavContent() {
                     background: 'rgba(255, 255, 255, 0.08)',
                     border: 'none',
                     borderRadius: '50%',
-                    width: '36px',
-                    height: '36px',
+                    width: '44px',
+                    height: '44px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -318,7 +339,7 @@ function MobileNavContent() {
                     touchAction: 'manipulation',
                   }}
                 >
-                  <X size={18} />
+                  <X size={20} />
                 </button>
               </div>
 

@@ -625,6 +625,7 @@ export default function SoruCozPage() {
             bottom: 0 !important;
             height: 85vh !important;
             max-height: 85vh !important;
+            padding-bottom: calc(16px + env(safe-area-inset-bottom, 20px)) !important;
             border-top-left-radius: 24px !important;
             border-top-right-radius: 24px !important;
             border-bottom-left-radius: 0 !important;
@@ -639,16 +640,26 @@ export default function SoruCozPage() {
             z-index: 99 !important;
             backdrop-filter: blur(4px) !important;
           }
+          .soru-badge-toast-container {
+            right: 12px !important;
+            left: 12px !important;
+            top: calc(65px + env(safe-area-inset-top, 0px)) !important;
+          }
+          .soru-badge-toast-card {
+            min-width: unset !important;
+            width: 100% !important;
+          }
         }
       `}</style>
       
       {/* Badge Unlock Notification */}
       <AnimatePresence>
         {unlockedBadges.length > 0 && (
-          <div style={{ position: 'fixed', top: '85px', right: '20px', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="soru-badge-toast-container" style={{ position: 'fixed', top: '85px', right: '20px', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {unlockedBadges.map((badge, idx) => (
               <motion.div
                 key={idx}
+                className="soru-badge-toast-card"
                 initial={{ opacity: 0, x: 50, scale: 0.9 }}
                 animate={{ opacity: 1, x: 0, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9, x: 50 }}

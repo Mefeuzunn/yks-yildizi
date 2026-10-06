@@ -242,13 +242,28 @@ function StudyContent() {
             <span style={{ fontWeight: 700, color: '#f1f5f9' }}>{currentIndex + 1} / {cards.length}</span>
           </div>
 
-          <div 
+          {/* Swipeable & Flippable Card */}
+          <motion.div 
+            key={currentCard?.id || currentIndex}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.65}
+            onDragEnd={(e, info) => {
+              if (info.offset.x > 100 || info.velocity.x > 500) {
+                // Swiped RIGHT -> İyi (Biliyorum)
+                handleReview(2);
+              } else if (info.offset.x < -100 || info.velocity.x < -500) {
+                // Swiped LEFT -> Tekrar
+                handleReview(0);
+              }
+            }}
             className="flashcard-flip-container"
             style={{ 
               perspective: '1200px', 
               width: '100%', 
               minHeight: '340px', 
-              cursor: 'pointer' 
+              cursor: 'pointer',
+              touchAction: 'pan-y',
             }}
             onClick={handleFlip}
           >
@@ -360,7 +375,7 @@ function StudyContent() {
                 </div>
               </div>
             </motion.div>
-          </div>
+          </motion.div>
 
           <AnimatePresence>
             {isFlipped && (
@@ -404,17 +419,18 @@ function StudyContent() {
             min-height: 300px !important;
           }
           .study-actions-grid {
-            gap: 0.4rem !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 0.6rem !important;
           }
           .study-action-btn {
-            padding: 0.75rem 0.35rem !important;
-            border-radius: 12px !important;
+            padding: 0.85rem 0.5rem !important;
+            border-radius: 14px !important;
           }
           .study-action-label {
-            font-size: 0.78rem !important;
+            font-size: 0.9rem !important;
           }
           .study-action-desc {
-            font-size: 0.65rem !important;
+            font-size: 0.75rem !important;
           }
         }
       `}</style>
