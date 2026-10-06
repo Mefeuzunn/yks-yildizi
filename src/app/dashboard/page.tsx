@@ -10,6 +10,7 @@ import dynamic from 'next/dynamic';
 import confetti from 'canvas-confetti';
 import { haptics } from '@/lib/haptics';
 import MobileLiveActivityWidget from '@/components/MobileLiveActivityWidget';
+import PullToRefresh from '@/components/mobile/PullToRefresh';
 
 // ─── Pofuduk Evolution System ──────────────────────────────────────────────
 const POFUDUK_STAGES = [
@@ -166,17 +167,23 @@ function DashboardContent() {
     }
   };
 
-  useEffect(() => {
-    if (user) {
-      fetchGamificationData();
+  const handleRefresh = useCallback(async () => {
+    await Promise.all([
+      fetchGamificationData(),
       fetch('/api/odevler').then(r => r.ok ? r.json() : {assignments: []}).then(d => {
         setPendingAssignments((d.assignments ?? []).filter((a: any) => a.status === 'pending'));
-      }).catch(() => {});
+      }).catch(() => {}),
       fetch('/api/ogrenci/duyurular').then(r => r.ok ? r.json() : {announcements: []}).then(d => {
         setAnnouncements(d.announcements ?? []);
-      }).catch(() => {});
-    }
+      }).catch(() => {}),
+    ]);
   }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      handleRefresh();
+    }
+  }, [user, handleRefresh]);
 
   useEffect(() => {
     if (user && user.role === 'ogretmen') {
@@ -585,7 +592,13 @@ function DashboardContent() {
   return (
     <div style={{ width: '100%', height: '100%', fontFamily: '"Inter", sans-serif' }}>
       <AnimatePresence mode="wait">
-        {(activeTab === 'home' || !activeTab) && <motion.div key="home" style={{ height: '100%' }}>{renderHome()}</motion.div>}
+        {(activeTab === 'home' || !activeTab) && (
+          <motion.div key="home" style={{ height: '100%' }}>
+            <PullToRefresh onRefresh={handleRefresh}>
+              {renderHome()}
+            </PullToRefresh>
+          </motion.div>
+        )}
         {activeTab === 'hedef' && <HedefTab key="hedef" />}
         {activeTab === 'mistakes' && <MistakesTab key="mistakes" />}
         {activeTab === 'topics' && <TopicsTab key="topics" />}

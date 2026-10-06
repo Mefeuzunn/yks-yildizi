@@ -186,6 +186,8 @@ export default function ScheduleTab() {
   const [editNotes, setEditNotes]           = useState('');
   const [editDuration, setEditDuration]     = useState(2);
   const [editColor, setEditColor]           = useState('#8b5cf6');
+  const [editDay, setEditDay]               = useState(0);
+  const [editTime, setEditTime]             = useState(7);
   const [showMobileTimeline, setShowMobileTimeline] = useState(false);
   
   // Current hour highlight
@@ -217,7 +219,15 @@ export default function ScheduleTab() {
       setIsModalOpen(false); setSelectedCellHour(null); setCustomTitle(''); setCustomNotes('');
     }
   };
-  const handleBlockClick = (b: ScheduleBlock) => { setEditBlock(b); setEditTitle(b.title); setEditNotes(b.notes||''); setEditDuration(b.duration); setEditColor(b.color); };
+  const handleBlockClick = (b: ScheduleBlock) => {
+    setEditBlock(b);
+    setEditTitle(b.title);
+    setEditNotes(b.notes||'');
+    setEditDuration(b.duration);
+    setEditColor(b.color);
+    setEditDay(b.day);
+    setEditTime(b.time);
+  };
 
   const dayBlocks = blocks.filter(b => b.day === currentDayView).sort((a,b) => a.time - b.time);
   const dayTotalHours = dayBlocks.reduce((acc, b) => acc + (b.duration || 0), 0);
@@ -799,10 +809,36 @@ export default function ScheduleTab() {
                 <button onClick={()=>setEditBlock(null)} style={{background:'none',border:'none',color:'#9ca3af',cursor:'pointer'}}><X size={20}/></button>
               </div>
 
-              {/* Time info */}
-              <div style={{color:'#9ca3af',fontSize:'12px',marginBottom:'20px',padding:'10px 14px',background:'#0b0f19',borderRadius:'10px',border:'1px solid rgba(255,255,255,0.06)',display:'flex',alignItems:'center',gap:'8px'}}>
-                <Clock size={13}/>
-                <span>{DAYS[editBlock.day]} — <strong style={{color:'#a78bfa'}}>{getHourRangeStr(editBlock.time, editDuration)}</strong></span>
+              {/* Day & Time Selector (Touch-friendly rescheduling on mobile) */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '18px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#9ca3af', marginBottom: '6px', fontWeight: 600 }}>Gün</label>
+                  <select
+                    value={editDay}
+                    onChange={e => setEditDay(Number(e.target.value))}
+                    style={{ ...inputStyle, cursor: 'pointer', appearance: 'none', WebkitAppearance: 'none' }}
+                  >
+                    {FULL_DAYS.map((name, idx) => (
+                      <option key={idx} value={idx} style={{ background: '#131827', color: '#fff' }}>
+                        {name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#9ca3af', marginBottom: '6px', fontWeight: 600 }}>Başlangıç Saati</label>
+                  <select
+                    value={editTime}
+                    onChange={e => setEditTime(Number(e.target.value))}
+                    style={{ ...inputStyle, cursor: 'pointer', appearance: 'none', WebkitAppearance: 'none' }}
+                  >
+                    {VISIBLE_HOURS.map(hour => (
+                      <option key={hour} value={hour} style={{ background: '#131827', color: '#fff' }}>
+                        {formatHour(hour)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <div style={{display:'flex',flexDirection:'column',gap:'18px',marginBottom:'22px'}}>
@@ -822,7 +858,7 @@ export default function ScheduleTab() {
                 </div>
 
                 <DurationPicker value={editDuration} onChange={setEditDuration}
-                  color={editColor} startHour={editBlock.time}/>
+                  color={editColor} startHour={editTime}/>
 
                 <ColorPicker value={editColor} onChange={setEditColor}/>
               </div>
@@ -832,7 +868,7 @@ export default function ScheduleTab() {
                   style={{padding:'10px 14px',borderRadius:'12px',backgroundColor:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.2)',color:'#ef4444',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>
                   <Trash2 size={17}/>
                 </button>
-                <button onClick={()=>{updateBlock(editBlock.id,{title:editTitle,duration:editDuration,color:editColor,notes:editNotes});setEditBlock(null);}}
+                <button onClick={()=>{updateBlock(editBlock.id,{title:editTitle,duration:editDuration,color:editColor,notes:editNotes,day:editDay,time:editTime});setEditBlock(null);}}
                   style={{flex:1,padding:'10px 16px',borderRadius:'12px',backgroundColor:editColor,border:'none',color:'#fff',fontWeight:700,cursor:'pointer',fontSize:'14px',display:'flex',alignItems:'center',justifyContent:'center',gap:'8px',boxShadow:'0 0 20px '+editColor+'40'}}>
                   Kaydet
                 </button>

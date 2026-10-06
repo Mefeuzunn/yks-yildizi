@@ -74,14 +74,19 @@ export default function UniversalSimulationStage({ sim, onBack }: Props) {
         flexDirection: 'column',
         borderRadius: isFullscreen ? '0' : '16px',
         overflow: 'hidden',
-        border: '1px solid rgba(255,255,255,0.08)',
-        boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
+        border: isFullscreen ? 'none' : '1px solid rgba(255,255,255,0.08)',
+        boxShadow: isFullscreen ? 'none' : '0 25px 50px -12px rgba(0,0,0,0.5)',
+        paddingLeft: isFullscreen ? 'env(safe-area-inset-left, 0px)' : '0px',
+        paddingRight: isFullscreen ? 'env(safe-area-inset-right, 0px)' : '0px',
       }}
     >
       {/* Üst Bar */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 16px', height: '56px', minHeight: '56px',
+        padding: isFullscreen
+          ? '0 calc(16px + env(safe-area-inset-right, 0px)) 0 calc(16px + env(safe-area-inset-left, 0px))'
+          : '0 16px',
+        height: '56px', minHeight: '56px',
         backgroundColor: '#0f172a',
         borderBottom: '1px solid rgba(255,255,255,0.08)',
         flexShrink: 0,
@@ -135,8 +140,23 @@ export default function UniversalSimulationStage({ sim, onBack }: Props) {
 
       {/* Mobil Uyarısı */}
       {isMobileLandscapeWarning && (
-        <div style={{ padding: '8px 16px', background: 'rgba(245,158,11,0.1)', borderBottom: '1px solid rgba(245,158,11,0.2)', color: '#fcd34d', fontSize: '12px', textAlign: 'center' }}>
-          📱 Daha iyi deneyim için telefonunuzu yatay tutun veya tam ekran modunu kullanın.
+        <div style={{ padding: '8px 16px', background: 'rgba(245,158,11,0.1)', borderBottom: '1px solid rgba(245,158,11,0.2)', color: '#fcd34d', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <span>📱 Daha iyi deneyim için telefonunuzu yatay tutun veya tam ekrana geçin.</span>
+          <button
+            onClick={toggleFullscreen}
+            style={{
+              padding: '2px 8px',
+              fontSize: '11px',
+              fontWeight: 700,
+              background: 'rgba(245,158,11,0.2)',
+              border: '1px solid rgba(245,158,11,0.4)',
+              color: '#fef08a',
+              borderRadius: '6px',
+              cursor: 'pointer'
+            }}
+          >
+            Tam Ekran Aç ⛶
+          </button>
         </div>
       )}
 

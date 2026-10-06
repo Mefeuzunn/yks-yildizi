@@ -24,8 +24,9 @@ export default function ProgramPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newTask, setNewTask] = useState({ date: format(new Date(), 'yyyy-MM-dd'), subject: 'Matematik', title: '', color: '#38bdf8' });
 
-  // Drag and Drop state
+  // Drag and Drop & Touch Move state
   const [draggedTask, setDraggedTask] = useState<{ dateStr: string, taskId: string } | null>(null);
+  const [movingTask, setMovingTask] = useState<{ id: string; title: string; currentDate: string } | null>(null);
   const [isAIGenerating, setIsAIGenerating] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -142,18 +143,8 @@ export default function ProgramPage() {
     e.dataTransfer.dropEffect = 'move';
   };
 
-  const handleDrop = async (e: React.DragEvent, targetDateStr: string) => {
-    e.preventDefault();
-    if (!draggedTask) return;
-
-    const { dateStr: sourceDateStr, taskId } = draggedTask;
-    
-    // If dropped in the same column, ignore
-    if (sourceDateStr === targetDateStr) {
-      setDraggedTask(null);
-      return;
-    }
-
+  const moveTask = async (taskId: string, sourceDateStr: string, targetDateStr: string) => {
+    if (sourceDateStr === targetDateStr) return;
     haptics.impact('light');
 
     // Optimistic UI update
@@ -175,13 +166,27 @@ export default function ProgramPage() {
       };
     });
 
-    setDraggedTask(null);
+    try {
+      await fetch('/api/user/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'move', id: taskId, targetDate: targetDateStr })
+      });
+      haptics.notification('success');
+      setToastMessage('Görev başarıyla yeni güne taşındı!');
+      setTimeout(() => setToastMessage(null), 3000);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
-    // Make API call to save drag & drop change
-    await fetch('/api/user/tasks', {
-      method: 'POST',
-      body: JSON.stringify({ action: 'move', id: taskId, targetDate: targetDateStr })
-    });
+  const handleDrop = async (e: React.DragEvent, targetDateStr: string) => {
+    e.preventDefault();
+    if (!draggedTask) return;
+
+    const { dateStr: sourceDateStr, taskId } = draggedTask;
+    setDraggedTask(null);
+    await moveTask(taskId, sourceDateStr, targetDateStr);
   };
 
   const navigatePrev = () => {
@@ -483,8 +488,32 @@ export default function ProgramPage() {
                         <X size={16} />
                       </button>
                       
-                      <div style={{ fontSize: '0.65rem', color: task.color, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>
-                        {task.subject}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.25rem', paddingRight: '2.5rem' }}>
+                        <span style={{ fontSize: '0.65rem', color: task.color, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                          {task.subject}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            haptics.selection();
+                            setMovingTask({ id: task.id, title: task.title, currentDate: activeMobileDateStr });
+                          }}
+                          style={{
+                            background: 'rgba(255,255,255,0.06)',
+                            border: '1px solid rgba(255,255,255,0.12)',
+                            borderRadius: '6px',
+                            color: '#cbd5e1',
+                            fontSize: '10px',
+                            fontWeight: 600,
+                            padding: '3px 8px',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          ⇄ Günü Taşı
+                        </button>
                       </div>
                       <div style={{ fontSize: '0.9rem', color: '#fff', paddingRight: '2rem', wordBreak: 'break-word', fontWeight: 500 }}>
                         {task.title}
@@ -700,6 +729,118 @@ export default function ProgramPage() {
             <CheckCircle2 size={18} />
             <span>{toastMessage}</span>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Görev Günü Değiştirme Modalı (Mobil Dokunmatik Taşıma) */}
+      <AnimatePresence>
+        {movingTask && (
+          <div
+            className="program-modal-overlay"
+            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 110, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
+            onClick={() => setMovingTask(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 10 }}
+              className="program-modal-box"
+              style={{ background: '#1e293b', padding: '1.75rem', borderRadius: '16px', width: '100%', maxWidth: '380px', border: '1px solid rgba(255,255,255,0.1)' }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="mobile-only modal-drag-handle" style={{ width: 40, height: 4, background: 'rgba(255,255,255,0.2)', borderRadius: 2, margin: '-0.75rem auto 1rem' }} />
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                <h3 style={{ fontSize: '1.15rem', color: '#fff', margin: 0, fontWeight: 700 }}>Görevi Başka Güne Taşı</h3>
+                <button onClick={() => setMovingTask(null)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '4px' }}>
+                  <X size={20} />
+                </button>
+              </div>
+
+              <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: '0 0 1.25rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                "{movingTask.title}"
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '1.25rem' }}>
+                <button
+                  onClick={() => {
+                    const nextDay = format(addDays(new Date(movingTask.currentDate), 1), 'yyyy-MM-dd');
+                    moveTask(movingTask.id, movingTask.currentDate, nextDay);
+                    setMovingTask(null);
+                  }}
+                  style={{
+                    padding: '10px 14px',
+                    borderRadius: '10px',
+                    background: 'rgba(236,72,153,0.12)',
+                    border: '1px solid rgba(236,72,153,0.3)',
+                    color: '#f472b6',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    textAlign: 'left'
+                  }}
+                >
+                  👉 Yarına Taşı (+1 Gün)
+                </button>
+                <button
+                  onClick={() => {
+                    const prevDay = format(subDays(new Date(movingTask.currentDate), 1), 'yyyy-MM-dd');
+                    moveTask(movingTask.id, movingTask.currentDate, prevDay);
+                    setMovingTask(null);
+                  }}
+                  style={{
+                    padding: '10px 14px',
+                    borderRadius: '10px',
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    color: '#e2e8f0',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    textAlign: 'left'
+                  }}
+                >
+                  👈 Düne Taşı (-1 Gün)
+                </button>
+                <button
+                  onClick={() => {
+                    const next2Days = format(addDays(new Date(movingTask.currentDate), 2), 'yyyy-MM-dd');
+                    moveTask(movingTask.id, movingTask.currentDate, next2Days);
+                    setMovingTask(null);
+                  }}
+                  style={{
+                    padding: '10px 14px',
+                    borderRadius: '10px',
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    color: '#e2e8f0',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    textAlign: 'left'
+                  }}
+                >
+                  📅 2 Gün Sonraya Taşı (+2 Gün)
+                </button>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '6px' }}>Veya Özel Bir Tarih Seç:</label>
+                <input
+                  type="date"
+                  defaultValue={movingTask.currentDate}
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      moveTask(movingTask.id, movingTask.currentDate, e.target.value);
+                      setMovingTask(null);
+                    }
+                  }}
+                  className="program-input-touch"
+                  style={{ width: '100%', padding: '0.75rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', color: '#fff', fontSize: '15px' }}
+                />
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 

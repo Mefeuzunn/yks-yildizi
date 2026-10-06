@@ -26,7 +26,10 @@ export default function MobileHeader() {
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
         borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-        paddingTop: 'env(safe-area-inset-top)',
+        paddingTop: 'env(safe-area-inset-top, 0px)',
+        paddingLeft: 'env(safe-area-inset-left, 0px)',
+        paddingRight: 'env(safe-area-inset-right, 0px)',
+        minHeight: 'calc(52px + env(safe-area-inset-top, 0px))',
         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.35)',
       }}
     >
