@@ -15,8 +15,8 @@ export async function GET() {
     try {
       if (token) {
         decodedPayload = await verifyToken(token);
-        if (decodedPayload && decodedPayload.userId) {
-          userId = decodedPayload.userId;
+        if (decodedPayload && (decodedPayload as any).userId) {
+          userId = (decodedPayload as any).userId;
         }
       }
     } catch(e: any) {}

@@ -32,6 +32,7 @@ interface StudentItem {
   league: string;
   league_points: number;
   streak_days: number;
+  xp?: number;
   class_id?: string;
   class_name?: string;
   class_names?: string;
@@ -92,7 +93,7 @@ function formatDate(d: string) {
   return new Date(d).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-function daysLeft(due: string) {
+function daysLeft(due?: string | null) {
   if (!due) return null;
   const diff = Math.ceil((new Date(due).getTime() - Date.now()) / 86400000);
   return diff;
@@ -2557,7 +2558,10 @@ function TeacherDashboardContent() {
       });
       if (res.ok) {
         fetchAssignments(); fetchDashboard();
-        setNewAssignment({ title: '', description: '', class_id: '', due_date: '' });
+        setNewAssignment({
+          title: '', description: '', class_id: '', due_date: '',
+          category: 'Genel', subject: '', topic: '', generateQuestions: false, questionCount: 5
+        });
         setActiveModal(null);
       }
     } catch (e) { console.error(e); }
@@ -2591,7 +2595,7 @@ function TeacherDashboardContent() {
       });
       if (res.ok) {
         fetchAnnouncements(); fetchDashboard();
-        setNewAnnouncement({ title: '', content: '', class_id: '' });
+        setNewAnnouncement({ title: '', content: '', class_id: '', category: 'Genel', event_date: '' });
         setActiveModal(null);
       }
     } catch (e) { console.error(e); }
@@ -3300,7 +3304,7 @@ function TeacherDashboardContent() {
                                     </span>
                                   );
                                 })()}
-                                {isAtRisk && <AlertTriangle size={12} color="#ef4444" title="Hareketsiz öğrenci" />}
+                                {isAtRisk && <span title="Hareketsiz öğrenci" style={{ display: 'inline-flex' }}><AlertTriangle size={12} color="#ef4444" /></span>}
                               </div>
                               <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 2, flexWrap: 'wrap' }}>
                                 {s.sinif && <span style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>{s.sinif}. Sınıf</span>}
@@ -3399,7 +3403,7 @@ function TeacherDashboardContent() {
                           <div>
                             <div style={{ color: '#fff', fontWeight: 700, fontSize: '0.98rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
                               <span>{s.username}</span>
-                              {isAtRisk && <AlertTriangle size={13} color="#ef4444" title="Hareketsiz öğrenci" />}
+                              {isAtRisk && <span title="Hareketsiz öğrenci" style={{ display: 'inline-flex' }}><AlertTriangle size={13} color="#ef4444" /></span>}
                             </div>
                             <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginTop: '2px', flexWrap: 'wrap' }}>
                               {s.sinif && <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>{s.sinif}. Sınıf</span>}
@@ -3957,8 +3961,10 @@ function TeacherDashboardContent() {
                                     subject: w.subject,
                                     topic: w.topic,
                                     category: 'Pekiştirme',
-                                    target_class_id: aiClassId || (classes[0]?.id ?? ''),
+                                    class_id: aiClassId || (classes[0]?.id ?? ''),
                                     due_date: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
+                                    generateQuestions: false,
+                                    questionCount: 5,
                                   });
                                   setActiveModal('odev');
                                 }}

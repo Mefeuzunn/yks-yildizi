@@ -60,7 +60,7 @@ export async function POST(req: Request) {
     const mathDiff = previousExams.length > 0 ? (latestExam.math_net - avgPrevMath) : 0;
     const turkDiff = previousExams.length > 0 ? (latestExam.turkish_net - avgPrevTurk) : 0;
 
-    const weakTopicsList = memory?.topWeakTopics?.map(t => `${t.subject} (${t.topic})`).join(', ') || 'Belirtilmemiş';
+    const weakTopicsList = (memory?.weakTopics || []).map((t: any) => `${t.subject} (${t.topic})`).join(', ') || 'Belirtilmemiş';
 
     // ── KOTA TASARRUF KATMANI 1: Akıllı Sınav Analizi Önbelleği (0 Token Harcama) ──
     const cacheKey = `exam_${latestExam.id}_${latestExam.total_net}_${hashString(weakTopicsList)}`;
@@ -203,8 +203,8 @@ Lütfen bu verileri analiz ederek öğrenciye şu JSON formatında yanıt üret 
       }
     }
 
-    const firstWeakTopic = memory?.topWeakTopics?.[0]?.topic || (examType === 'TYT' ? 'Problemler' : 'Trigonometri');
-    const secondWeakTopic = memory?.topWeakTopics?.[1]?.topic || (examType === 'TYT' ? 'Optik' : 'Türev');
+    const firstWeakTopic = memory?.weakTopics?.[0]?.topic || (examType === 'TYT' ? 'Problemler' : 'Trigonometri');
+    const secondWeakTopic = memory?.weakTopics?.[1]?.topic || (examType === 'TYT' ? 'Optik' : 'Türev');
 
     const localAnalysis = {
       overallEvaluation: isPositive 

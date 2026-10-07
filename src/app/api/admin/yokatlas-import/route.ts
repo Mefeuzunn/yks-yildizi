@@ -14,9 +14,9 @@ export async function POST(req: Request) {
     // SQLite Batch Insert
     await db.transaction(async () => {
       // Prepared statements for speed
-      const insertUni = await db.prepare('INSERT INTO universities (id, name, type, city) VALUES (?, ?, ?, ?) ON CONFLICT DO NOTHING');
-      const checkUni = await db.prepare('SELECT id FROM universities WHERE name = ?');
-      const insertDep = await db.prepare('INSERT INTO departments (id, uni_id, name, faculty, score_type, base_score, ranking, quota, year) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
+      const insertUni = db.prepare('INSERT INTO universities (id, name, type, city) VALUES (?, ?, ?, ?) ON CONFLICT DO NOTHING');
+      const checkUni = db.prepare('SELECT id FROM universities WHERE name = ?');
+      const insertDep = db.prepare('INSERT INTO departments (id, uni_id, name, faculty, score_type, base_score, ranking, quota, year) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
 
       // We need to deduplicate universities from the data array
       // A simple map to keep track of uni names to their generated UUIDs
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
         let uniId = uniMap.get(row.uni_name);
         if (!uniId) {
           // Check DB just in case it exists from a previous upload
-          const existing = await checkUni.get(row.uni_name) as { id: string } | undefined;
+          const existing = await checkUni.get(row.uni_name) as unknown as { id: string } | undefined;
           if (existing) {
             uniId = existing.id;
           } else {

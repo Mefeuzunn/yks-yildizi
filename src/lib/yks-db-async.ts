@@ -4,42 +4,42 @@ const connectionString = process.env.DATABASE_URL || 'postgresql://postgres.zncq
 const sql = postgres(connectionString, { ssl: 'require', max: 20 });
 
 const db = {
-  prepare: (queryStr) => {
+  prepare: (queryStr: string) => {
     let idx = 1;
     const pgQuery = queryStr.replace(/\?/g, () => `$${idx++}`);
     
     return {
-      get: async (...args) => {
+      get: async (...args: any[]) => {
         try {
           const res = await sql.unsafe(pgQuery, args);
           return res[0] || null;
-        } catch (e) {
-          console.error('DB GET ERROR:', e.message, pgQuery);
+        } catch (e: any) {
+          console.error('DB GET ERROR:', e?.message, pgQuery);
           throw e;
         }
       },
-      all: async (...args) => {
+      all: async (...args: any[]) => {
         try {
           const res = await sql.unsafe(pgQuery, args);
           return res;
-        } catch (e) {
-          console.error('DB ALL ERROR:', e.message, pgQuery);
+        } catch (e: any) {
+          console.error('DB ALL ERROR:', e?.message, pgQuery);
           throw e;
         }
       },
-      run: async (...args) => {
+      run: async (...args: any[]) => {
         try {
           const res = await sql.unsafe(pgQuery, args);
           return { changes: res.count, lastInsertRowid: null };
-        } catch (e) {
-          console.error('DB RUN ERROR:', e.message, pgQuery);
+        } catch (e: any) {
+          console.error('DB RUN ERROR:', e?.message, pgQuery);
           throw e;
         }
       }
     };
   },
-  transaction: (callback) => {
-    return async (...args) => {
+  transaction: (callback: (...args: any[]) => any) => {
+    return async (...args: any[]) => {
       return await callback(...args);
     };
   }

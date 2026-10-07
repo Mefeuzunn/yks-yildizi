@@ -208,7 +208,6 @@ function NavGroup({
           {items.map((item: any) => (
             <NavItem
               key={item.href}
-              icon={item.icon}
               emoji={item.emoji}
               label={item.label}
               href={item.href}

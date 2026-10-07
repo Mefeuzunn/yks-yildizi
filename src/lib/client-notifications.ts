@@ -152,7 +152,7 @@ export async function showLocalNotification(
           tag: options.tag || 'yks-local',
           data: { url: options.url || '/dashboard' },
           actions: options.actions || [{ action: 'open', title: 'İncele' }],
-        });
+        } as any);
         return;
       }
     } catch (e) {

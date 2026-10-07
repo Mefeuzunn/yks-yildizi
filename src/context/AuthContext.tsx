@@ -11,6 +11,7 @@ type User = {
   parent_code?: string;
   league?: string;
   league_points?: number;
+  created_at?: string;
 };
 
 type AuthContextType = {

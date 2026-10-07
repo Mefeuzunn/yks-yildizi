@@ -64,9 +64,10 @@ const SUBJECT_KNOWLEDGE: { keywords: string[]; title: string; reply: string; act
 ];
 
 export async function POST(req: Request) {
+  let rawMessage = '';
   try {
     const body = await req.json();
-    const rawMessage = (body.message || body.content || '').trim();
+    rawMessage = (body.message || body.content || '').trim();
     const mode = body.mode === 'rehberlik' ? 'rehberlik' : 'ders';
 
     if (!rawMessage) {

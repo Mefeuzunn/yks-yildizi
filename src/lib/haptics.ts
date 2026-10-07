@@ -2,7 +2,7 @@
  * Safe mobile haptic feedback helper
  * Triggers subtle vibration on supporting devices (Android, PWA, Chrome/Firefox mobile)
  */
-export function triggerHaptic(type: 'light' | 'medium' | 'heavy' | 'success' | 'warning' = 'light') {
+export function triggerHaptic(type: 'light' | 'medium' | 'heavy' | 'success' | 'warning' | 'error' = 'light') {
   if (typeof window === 'undefined' || !('vibrate' in navigator)) return;
   try {
     switch (type) {
@@ -19,6 +19,7 @@ export function triggerHaptic(type: 'light' | 'medium' | 'heavy' | 'success' | '
         navigator.vibrate([15, 40, 20]);
         break;
       case 'warning':
+      case 'error':
         navigator.vibrate([30, 50, 30]);
         break;
     }
@@ -30,5 +31,5 @@ export function triggerHaptic(type: 'light' | 'medium' | 'heavy' | 'success' | '
 export const haptics = {
   selection: () => triggerHaptic('light'),
   impact: (style: 'light' | 'medium' | 'heavy' = 'medium') => triggerHaptic(style),
-  notification: (type: 'success' | 'warning' = 'success') => triggerHaptic(type),
+  notification: (type: 'success' | 'warning' | 'error' = 'success') => triggerHaptic(type),
 };
