@@ -616,11 +616,9 @@ export default function MaarifPortalPage() {
                           </div>
                         </div>
 
-                        <button
-                          onClick={() => {
-                            triggerHaptic('success');
-                            alert(`"${scen.scenario_name}" simülatör sınav oturumu Faz 4 kapsamında başlatılacaktır!`);
-                          }}
+                        <Link
+                          href={`/maarif/sinav/${scen.id}`}
+                          onClick={() => triggerHaptic('success')}
                           style={{
                             width: '100%',
                             padding: '11px',
@@ -636,11 +634,12 @@ export default function MaarifPortalPage() {
                             justifyContent: 'center',
                             gap: '6px',
                             boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)',
+                            textDecoration: 'none',
                           }}
                         >
                           <span>Sınav Provasını Başlat</span>
                           <ChevronRight size={16} />
-                        </button>
+                        </Link>
                       </div>
                     ))}
                   </div>
