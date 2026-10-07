@@ -92,33 +92,49 @@ export default function VeliDashboardPage() {
       <div style={{ minHeight: 'calc(100vh - 80px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
         <motion.div 
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          style={{ background: 'var(--surface-color)', padding: '3rem 2rem', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)', maxWidth: '400px', width: '100%', textAlign: 'center' }}
+          style={{ backgroundColor: '#0f1523', padding: '3rem 2rem', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.08)', maxWidth: '400px', width: '100%', textAlign: 'center', boxShadow: '0 25px 60px rgba(0,0,0,0.7)', backdropFilter: 'blur(16px)' }}
         >
-          <div style={{ width: '64px', height: '64px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
-            <ShieldCheck size={32} color="#10b981" />
+          <div style={{ width: '64px', height: '64px', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.15))', border: '1px solid rgba(16, 185, 129, 0.35)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto', boxShadow: '0 0 25px rgba(16, 185, 129, 0.25)' }}>
+            <ShieldCheck size={32} color="#34d399" />
           </div>
-          <h1 style={{ fontSize: '1.75rem', color: '#fff', marginBottom: '0.5rem' }}>Veli Girişi</h1>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '0.875rem' }}>Öğrencinizin profilindeki bağlantı kodunu girerek gelişimini takip edin.</p>
+          <h1 style={{ fontSize: '1.75rem', color: '#fff', marginBottom: '0.5rem', fontWeight: 900, letterSpacing: '-0.02em' }}>Veli Girişi</h1>
+          <p style={{ color: '#94a3b8', marginBottom: '2rem', fontSize: '0.875rem' }}>Öğrencinizin profilindeki bağlantı kodunu girerek gelişimini takip edin.</p>
           
           <form onSubmit={(e) => { e.preventDefault(); handleLogin(inputCode); }}>
             <div style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)', fontSize: '0.875rem' }}>Bağlantı Kodu</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.85rem', fontWeight: 700 }}>Bağlantı Kodu</label>
               <div style={{ position: 'relative' }}>
-                <Lock size={18} color="var(--text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+                <Lock size={18} color="#64748b" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
                 <input 
                   type="text" 
                   className="premium-input" 
                   placeholder="Örn: 8A4F10BC" 
                   value={inputCode}
                   onChange={(e) => setInputCode(e.target.value.toUpperCase())}
-                  style={{ paddingLeft: '2.75rem', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}
+                  style={{ paddingLeft: '2.75rem', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 800, backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff', width: '100%', padding: '0.75rem 1rem 0.75rem 2.75rem' }}
                   required
                 />
               </div>
-              {error && <div style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.5rem', textAlign: 'center' }}>{error}</div>}
+              {error && <div style={{ color: '#f87171', fontSize: '0.75rem', marginTop: '0.5rem', textAlign: 'center', fontWeight: 600 }}>{error}</div>}
             </div>
             
-            <button type="submit" className="btn-interactive" style={{ width: '100%', background: 'linear-gradient(135deg, #10b981, #047857)', color: '#fff' }}>
+            <button
+              type="submit"
+              className="btn-interactive active:scale-[0.98]"
+              style={{
+                width: '100%',
+                padding: '0.85rem',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                color: '#fff',
+                fontWeight: 800,
+                fontSize: '0.95rem',
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
+                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+              }}
+            >
               Bağlan ve Görüntüle
             </button>
           </form>
@@ -138,58 +154,85 @@ export default function VeliDashboardPage() {
   const lastExam = studentData.exams.length > 0 ? studentData.exams[studentData.exams.length - 1] : null;
 
   return (
-    <div className="veli-page-wrap" style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
+    <div className="veli-page-wrap" style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem', fontFamily: 'var(--font-sans)' }}>
       
       {/* Header */}
-      <div className="veli-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+      <div className="veli-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h1 style={{ fontSize: '2rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <ShieldCheck size={32} color="#10b981" /> Veli Takip Paneli
+          <h1 style={{ fontSize: '1.85rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 900, letterSpacing: '-0.02em', margin: 0 }}>
+            <ShieldCheck size={32} color="#34d399" /> Veli Takip Paneli
           </h1>
-          <p style={{ color: 'var(--text-secondary)' }}>Öğrencinizin gelişimini şeffaf bir şekilde izliyorsunuz.</p>
+          <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: '4px 0 0' }}>Öğrencinizin gelişimini şeffaf bir şekilde izliyorsunuz.</p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
           <button 
             onClick={() => window.print()}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#3b82f6', color: '#fff', padding: '0.5rem 1rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '0.875rem' }}
+            className="active:scale-[0.98]"
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: '#fff', padding: '0.6rem 1.25rem', borderRadius: '12px', border: 'none', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 800, boxShadow: '0 4px 14px rgba(59, 130, 246, 0.35)', transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
           >
             <FileText size={16} /> PDF İndir
           </button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(16, 185, 129, 0.1)', padding: '0.5rem 1rem', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, textTransform: 'uppercase' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', backgroundColor: 'rgba(15, 21, 35, 0.85)', padding: '0.5rem 1rem', borderRadius: '14px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+            <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'linear-gradient(135deg, #10b981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, textTransform: 'uppercase' }}>
               {studentData.student.username.substring(0, 2)}
             </div>
             <div>
-              <div style={{ color: '#fff', fontWeight: 600 }}>{studentData.student.username}</div>
-              <div style={{ color: '#10b981', fontSize: '0.75rem' }}>{studentData.student.alan} - {studentData.student.sinif}. Sınıf</div>
+              <div style={{ color: '#fff', fontWeight: 700, fontSize: '0.875rem' }}>{studentData.student.username}</div>
+              <div style={{ color: '#34d399', fontSize: '0.75rem', fontWeight: 600 }}>{studentData.student.alan} - {studentData.student.sinif}. Sınıf</div>
             </div>
           </div>
-          <button onClick={handleLogout} className="btn-secondary" style={{ padding: '0.5rem 1rem' }}>Çıkış</button>
+          <button
+            onClick={handleLogout}
+            className="btn-secondary active:scale-[0.98]"
+            style={{ padding: '0.6rem 1rem', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer' }}
+          >
+            Çıkış
+          </button>
         </div>
       </div>
 
       <div className="veli-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
-        <div className="premium-card" style={{ padding: '2rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>Son Deneme Neti</span>
-            <Target color="#ec4899" />
+        <div
+          className="premium-card"
+          style={{
+            backgroundColor: 'rgba(15, 21, 35, 0.75)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '20px',
+            padding: '1.75rem',
+            backdropFilter: 'blur(16px)',
+            boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', alignItems: 'center' }}>
+            <span style={{ color: '#94a3b8', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Son Deneme Neti</span>
+            <Target color="#ec4899" size={20} />
           </div>
-          <div style={{ fontSize: '2.5rem', color: '#fff', fontWeight: 700 }}>{lastExam ? lastExam.totalNet : '-'}</div>
-          <div style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+          <div style={{ fontSize: '2.5rem', color: '#fff', fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}>{lastExam ? lastExam.totalNet : '-'}</div>
+          <div style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
             {lastExam ? `${lastExam.type} Denemesi (${lastExam.name})` : 'Henüz deneme çözülmedi'}
           </div>
         </div>
 
-        <div className="premium-card" style={{ padding: '2rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>Çözülen Soru</span>
-            <BookOpen color="#f59e0b" />
+        <div
+          className="premium-card"
+          style={{
+            backgroundColor: 'rgba(15, 21, 35, 0.75)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '20px',
+            padding: '1.75rem',
+            backdropFilter: 'blur(16px)',
+            boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', alignItems: 'center' }}>
+            <span style={{ color: '#94a3b8', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Çözülen Soru</span>
+            <BookOpen color="#fbbf24" size={20} />
           </div>
-          <div style={{ fontSize: '2.5rem', color: '#fff', fontWeight: 700 }}>
+          <div style={{ fontSize: '2.5rem', color: '#fff', fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}>
             {studentData.student.stats?.solved_questions || 0}
           </div>
-          <div style={{ color: '#10b981', fontSize: '0.875rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-            <TrendingUp size={16} /> Gelişim devam ediyor
+          <div style={{ color: '#34d399', fontSize: '0.8rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: 600 }}>
+            <TrendingUp size={15} /> Gelişim devam ediyor
           </div>
         </div>
       </div>
@@ -197,30 +240,40 @@ export default function VeliDashboardPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
         
         {/* Chart */}
-        <div className="premium-card" style={{ padding: '2rem' }}>
-          <h2 style={{ fontSize: '1.25rem', color: '#fff', marginBottom: '1.5rem' }}>Deneme Net Gelişimi</h2>
+        <div
+          className="premium-card"
+          style={{
+            backgroundColor: 'rgba(15, 21, 35, 0.75)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '20px',
+            padding: '2rem',
+            backdropFilter: 'blur(16px)',
+            boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)'
+          }}
+        >
+          <h2 style={{ fontSize: '1.25rem', color: '#fff', marginBottom: '1.5rem', fontWeight: 800 }}>Deneme Net Gelişimi</h2>
           <div style={{ height: '300px', width: '100%', minWidth: 0 }}>
             {chartData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                 <AreaChart data={chartData}>
                   <defs>
                     <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.35}/>
                       <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                  <XAxis dataKey="name" stroke="var(--text-muted)" tick={{fill: 'var(--text-muted)'}} axisLine={false} tickLine={false} />
-                  <YAxis stroke="var(--text-muted)" tick={{fill: 'var(--text-muted)'}} axisLine={false} tickLine={false} />
+                  <XAxis dataKey="name" stroke="#64748b" tick={{fill: '#64748b'}} axisLine={false} tickLine={false} />
+                  <YAxis stroke="#64748b" tick={{fill: '#64748b'}} axisLine={false} tickLine={false} />
                   <RechartsTooltip 
-                    contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff' }}
-                    itemStyle={{ color: '#10b981' }}
+                    contentStyle={{ background: '#0f1523', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }}
+                    itemStyle={{ color: '#34d399' }}
                   />
-                  <Area type="monotone" dataKey="score" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorScore)" />
+                  <Area type="monotone" dataKey="score" stroke="#34d399" strokeWidth={3} fillOpacity={1} fill="url(#colorScore)" />
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
-              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
+              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: '0.9rem' }}>
                 Henüz yeterli deneme verisi bulunmuyor.
               </div>
             )}
@@ -228,75 +281,118 @@ export default function VeliDashboardPage() {
         </div>
 
         {/* 360 Derece Görünürlük (Faz 1) - Timeline ve Zayıf Konular */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginTop: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginTop: '0.5rem' }}>
           
-          <div className="premium-card" style={{ padding: '2rem' }}>
-            <h2 style={{ fontSize: '1.25rem', color: '#fff', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Activity size={20} color="#3b82f6" /> Son 7 Gün - Ders Odaklanma Dağılımı
+          <div
+            className="premium-card"
+            style={{
+              backgroundColor: 'rgba(15, 21, 35, 0.75)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '20px',
+              padding: '2rem',
+              backdropFilter: 'blur(16px)',
+              boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)'
+            }}
+          >
+            <h2 style={{ fontSize: '1.2rem', color: '#fff', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 800 }}>
+              <Activity size={20} color="#38bdf8" /> Son 7 Gün - Ders Odaklanma Dağılımı
             </h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {subjectFocus.length > 0 ? subjectFocus.map((sf: any, i: number) => (
-                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '8px' }}>
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', padding: '0.85rem 1rem', borderRadius: '12px' }}>
                   <span style={{ color: '#fff', fontWeight: 600 }}>{sf.subject}</span>
-                  <span style={{ color: '#3b82f6', fontWeight: 700 }}>{Math.floor(sf.total_min / 60)}s {sf.total_min % 60}dk</span>
+                  <span style={{ color: '#38bdf8', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>{Math.floor(sf.total_min / 60)}s {sf.total_min % 60}dk</span>
                 </div>
               )) : (
-                <div style={{ color: 'var(--text-muted)' }}>Son 7 günde kaydedilmiş odaklanma yok.</div>
+                <div style={{ color: '#64748b', fontSize: '0.9rem' }}>Son 7 günde kaydedilmiş odaklanma yok.</div>
               )}
             </div>
           </div>
 
-          <div className="premium-card" style={{ padding: '2rem' }}>
-            <h2 style={{ fontSize: '1.25rem', color: '#fff', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <BookOpen size={20} color="#ef4444" /> Gelişim Bekleyen Dersler
+          <div
+            className="premium-card"
+            style={{
+              backgroundColor: 'rgba(15, 21, 35, 0.75)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '20px',
+              padding: '2rem',
+              backdropFilter: 'blur(16px)',
+              boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)'
+            }}
+          >
+            <h2 style={{ fontSize: '1.2rem', color: '#fff', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 800 }}>
+              <BookOpen size={20} color="#f87171" /> Gelişim Bekleyen Dersler
             </h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {mistakes.length > 0 ? mistakes.map((m: any, i: number) => (
-                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(239,68,68,0.1)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.2)' }}>
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(239,68,68,0.1)', padding: '0.85rem 1rem', borderRadius: '12px', border: '1px solid rgba(239,68,68,0.2)' }}>
                   <span style={{ color: '#fff', fontWeight: 600 }}>{m.subject}</span>
-                  <span style={{ color: '#ef4444', fontWeight: 700 }}>{m.mistake_count} Hata</span>
+                  <span style={{ color: '#f87171', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>{m.mistake_count} Hata</span>
                 </div>
               )) : (
-                <div style={{ color: 'var(--text-muted)' }}>Öğrencinin hata defterinde kayıt yok. Harika!</div>
+                <div style={{ color: '#64748b', fontSize: '0.9rem' }}>Öğrencinin hata defterinde kayıt yok. Harika!</div>
               )}
             </div>
           </div>
           
         </div>
 
-        <div className="premium-card" style={{ padding: '2rem', marginTop: '1.5rem' }}>
-          <h2 style={{ fontSize: '1.25rem', color: '#fff', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <TrendingUp size={20} color="#8b5cf6" /> Günlük Çalışma Akışı (Timeline)
+        <div
+          className="premium-card"
+          style={{
+            backgroundColor: 'rgba(15, 21, 35, 0.75)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '20px',
+            padding: '2rem',
+            backdropFilter: 'blur(16px)',
+            boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)',
+            marginTop: '0.5rem'
+          }}
+        >
+          <h2 style={{ fontSize: '1.2rem', color: '#fff', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 800 }}>
+            <TrendingUp size={20} color="#c084fc" /> Günlük Çalışma Akışı (Timeline)
           </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '400px', overflowY: 'auto' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', maxHeight: '400px', overflowY: 'auto' }}>
             {timeline.length > 0 ? timeline.map((item: any, idx: number) => (
-              <div key={idx} style={{ display: 'flex', gap: '1rem', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', borderLeft: `4px solid ${item.mode === 'pomodoro' ? '#8b5cf6' : '#38bdf8'}` }}>
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', width: '60px', flexShrink: 0 }}>
+              <div key={idx} style={{ display: 'flex', gap: '1rem', padding: '0.85rem 1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', borderLeft: `4px solid ${item.mode === 'pomodoro' ? '#8b5cf6' : '#38bdf8'}`, border: '1px solid rgba(255,255,255,0.05)' }}>
+                <div style={{ color: '#94a3b8', fontSize: '0.85rem', width: '60px', flexShrink: 0, fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>
                   {new Date(item.started_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
                 </div>
                 <div>
-                  <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.95rem' }}>
+                  <div style={{ color: '#fff', fontWeight: 700, fontSize: '0.95rem' }}>
                     {item.mode === 'pomodoro' ? (item.subject ? `${item.subject} Çalıştı` : 'Serbest Çalışma') : (item.mode === 'shortBreak' ? 'Kısa Ara Verdi' : 'Uzun Ara Verdi')}
                   </div>
-                  {item.topic && <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{item.topic}</div>}
+                  {item.topic && <div style={{ color: '#94a3b8', fontSize: '0.82rem', marginTop: '2px' }}>{item.topic}</div>}
                 </div>
-                <div style={{ marginLeft: 'auto', color: item.mode === 'pomodoro' ? '#8b5cf6' : '#38bdf8', fontWeight: 700, fontSize: '0.9rem' }}>
+                <div style={{ marginLeft: 'auto', color: item.mode === 'pomodoro' ? '#c084fc' : '#38bdf8', fontWeight: 800, fontSize: '0.9rem', fontVariantNumeric: 'tabular-nums' }}>
                   {item.duration_min} dk
                 </div>
               </div>
             )) : (
-              <div style={{ color: 'var(--text-muted)' }}>Bugün kaydedilmiş çalışma yok.</div>
+              <div style={{ color: '#64748b', fontSize: '0.9rem' }}>Bugün kaydedilmiş çalışma yok.</div>
             )}
           </div>
         </div>
 
         {/* Veli Bildirim Sistemi ve AI Mektubu */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginTop: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginTop: '0.5rem' }}>
           
           {/* AI Veli Raporu */}
-          <div className="premium-card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column' }}>
-            <h2 style={{ fontSize: '1.25rem', color: '#fff', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <TrendingUp size={20} color="#10b981" /> AI Haftalık Veli Mektubu
+          <div
+            className="premium-card"
+            style={{
+              backgroundColor: 'rgba(15, 21, 35, 0.75)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '20px',
+              padding: '2rem',
+              backdropFilter: 'blur(16px)',
+              boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+          >
+            <h2 style={{ fontSize: '1.2rem', color: '#fff', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 800 }}>
+              <TrendingUp size={20} color="#34d399" /> AI Haftalık Veli Mektubu
             </h2>
             {aiLetter ? (
               <div style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', fontSize: '0.95rem', color: 'var(--text-secondary)', lineHeight: 1.7, whiteSpace: 'pre-line', flex: 1, textAlign: 'left' }}>

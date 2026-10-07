@@ -131,16 +131,28 @@ function SuccessRing({ value, size = 56 }: { value: number; size?: number }) {
 // ─────────────────────────────────────────────
 function StatCard({ label, value, icon: Icon, color, sub }: any) {
   return (
-    <div className="premium-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+    <div
+      className="premium-card active:scale-[0.99] transition-all"
+      style={{
+        backgroundColor: '#0f1523',
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: 16,
+        padding: '1.5rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.75rem',
+        boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+      }}
+    >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div style={{ background: `${color}18`, padding: '0.65rem', borderRadius: 12 }}>
+        <div style={{ background: `${color}18`, border: `1px solid ${color}30`, padding: '0.65rem', borderRadius: 12 }}>
           <Icon size={22} color={color} />
         </div>
       </div>
       <div>
-        <div style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', lineHeight: 1 }}>{value}</div>
-        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: 4 }}>{label}</div>
-        {sub && <div style={{ fontSize: '0.75rem', color, marginTop: 4 }}>{sub}</div>}
+        <div style={{ fontSize: '2rem', fontWeight: 900, color: '#fff', lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>{value}</div>
+        <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: 6, fontWeight: 600 }}>{label}</div>
+        {sub && <div style={{ fontSize: '0.75rem', color, marginTop: 4, fontWeight: 700 }}>{sub}</div>}
       </div>
     </div>
   );
@@ -155,16 +167,16 @@ function Modal({ open, onClose, title, children, maxW = 560 }: any) {
     <AnimatePresence>
       <div
         className="modal-overlay-mobile"
-        style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backdropFilter: 'blur(8px)' }}
+        style={{ position: 'fixed', inset: 0, background: 'rgba(5,7,14,0.85)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backdropFilter: 'blur(16px)' }}
         onClick={onClose}
       >
         <motion.div
           className="modal-content"
-          initial={{ opacity: 0, scale: 0.93, y: 16 }}
+          initial={{ opacity: 0, scale: 0.95, y: 16 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.93 }}
+          exit={{ opacity: 0, scale: 0.95 }}
           transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-          style={{ background: 'linear-gradient(135deg,#12141c,#0d0f18)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, width: '100%', maxWidth: maxW, maxHeight: '88vh', overflowY: 'auto', padding: '2rem', boxShadow: '0 32px 80px rgba(0,0,0,0.6)' }}
+          style={{ backgroundColor: '#0f1523', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 24, width: '100%', maxWidth: maxW, maxHeight: '88vh', overflowY: 'auto', padding: '2rem', boxShadow: '0 32px 80px rgba(0,0,0,0.8)' }}
           onClick={e => e.stopPropagation()}
         >
           {/* Mobile Drag Handle */}
@@ -557,10 +569,11 @@ function TeacherProfileTab() {
   if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}><Loader2 className="animate-spin" size={32} color="#6366f1" /></div>;
 
   const cardStyle: React.CSSProperties = {
-    background: 'rgba(255,255,255,0.03)',
+    backgroundColor: '#0f1523',
     border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: '14px',
+    borderRadius: '16px',
     padding: '1.5rem',
+    boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
   };
 
   const labelStyle: React.CSSProperties = {
@@ -2752,10 +2765,11 @@ function TeacherDashboardContent() {
   // ── Shared input styles ──
   const inp: React.CSSProperties = {
     width: '100%', padding: '0.75rem 1rem',
-    background: 'rgba(255,255,255,0.05)',
-    border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: 10, color: '#fff', fontSize: '0.95rem', outline: 'none',
+    background: 'rgba(255,255,255,0.04)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: 12, color: '#fff', fontSize: '0.95rem', outline: 'none',
     boxSizing: 'border-box',
+    transition: 'border-color 0.15s ease',
   };
   const sel: React.CSSProperties = { ...inp, appearance: 'none' as any };
 
@@ -2780,38 +2794,38 @@ function TeacherDashboardContent() {
       {/* ── HEADER ── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ width: 52, height: 52, borderRadius: 16, background: 'linear-gradient(135deg,#10b981,#3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px rgba(16,185,129,0.3)' }}>
+          <div style={{ width: 52, height: 52, borderRadius: 16, background: 'linear-gradient(135deg,#10b981,#3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 28px rgba(16,185,129,0.35)', border: '1px solid rgba(255,255,255,0.15)' }}>
             <BookOpen size={26} color="#fff" />
           </div>
           <div>
-            <h1 style={{ fontSize: '1.75rem', color: '#fff', margin: 0, fontWeight: 800 }}>Eğitmen Paneli</h1>
-            <p style={{ color: 'var(--text-secondary)', margin: 0, fontSize: '0.9rem' }}>
-              {user.username} · <span style={{ color: '#10b981' }}>{(user as any).brans || 'Genel'}</span>
+            <h1 style={{ fontSize: '1.75rem', color: '#fff', margin: 0, fontWeight: 900, letterSpacing: '-0.02em' }}>Eğitmen Paneli</h1>
+            <p style={{ color: '#94a3b8', margin: 0, fontSize: '0.9rem', fontWeight: 500 }}>
+              {user.username} · <span style={{ color: '#34d399', fontWeight: 700 }}>{(user as any).brans || 'Genel'}</span>
             </p>
           </div>
         </div>
         <div style={{ display: 'flex', gap: '0.65rem', alignItems: 'center', flexWrap: 'wrap' }}>
-          <button onClick={() => { fetchDashboard(); fetchClasses(); }} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, color: '#9ca3af', padding: '0.6rem 0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.85rem' }}>
+          <button onClick={() => { fetchDashboard(); fetchClasses(); }} className="active:scale-[0.98] transition-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, color: '#94a3b8', padding: '0.65rem 1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.85rem', fontWeight: 600 }}>
             <RefreshCw size={15} /> Yenile
           </button>
-          <button onClick={() => setActiveModal('sinif')} className="btn-interactive" style={{ background: 'linear-gradient(135deg,#10b981,#059669)', display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.85rem' }}>
+          <button onClick={() => setActiveModal('sinif')} className="btn-interactive active:scale-[0.98]" style={{ background: 'linear-gradient(135deg,#10b981 0%,#059669 100%)', display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.85rem', fontWeight: 800, padding: '0.65rem 1.15rem', borderRadius: 12, border: 'none', color: '#fff', cursor: 'pointer', boxShadow: '0 4px 14px rgba(16,185,129,0.35)' }}>
             <Plus size={16} /> Yeni Sınıf
           </button>
           <button
             onClick={logout}
+            className="active:scale-[0.98] transition-all"
             style={{
-              background: 'rgba(239, 68, 68, 0.12)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              borderRadius: 10,
+              background: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.25)',
+              borderRadius: 12,
               color: '#f87171',
-              padding: '0.6rem 0.9rem',
+              padding: '0.65rem 1rem',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '0.45rem',
               fontSize: '0.85rem',
               fontWeight: 700,
-              transition: 'all 0.15s'
             }}
             title="Oturumu Kapat"
           >
@@ -2826,12 +2840,13 @@ function TeacherDashboardContent() {
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
-          marginBottom: '1.25rem',
-          backgroundColor: 'rgba(255, 255, 255, 0.03)',
+          marginBottom: '1.5rem',
+          backgroundColor: '#0f1523',
           border: '1px solid rgba(255, 255, 255, 0.08)',
           padding: '6px 8px',
           borderRadius: '16px',
           width: 'fit-content',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
         }}
       >
         <button
@@ -2841,9 +2856,10 @@ function TeacherDashboardContent() {
             setCurriculumMode('legacy_yks');
             if (activeTab === 'maarif') handleTabChange('genel');
           }}
+          className="active:scale-[0.98] transition-all"
           style={{
-            padding: '7px 16px',
-            borderRadius: '10px',
+            padding: '8px 16px',
+            borderRadius: '11px',
             border: 'none',
             backgroundColor: curriculumMode === 'legacy_yks' ? '#3b82f6' : 'transparent',
             color: curriculumMode === 'legacy_yks' ? '#fff' : '#94a3b8',
@@ -2853,7 +2869,7 @@ function TeacherDashboardContent() {
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
-            transition: 'all 0.2s',
+            boxShadow: curriculumMode === 'legacy_yks' ? '0 2px 10px rgba(59,130,246,0.35)' : 'none',
           }}
         >
           <span>🎓 12. Sınıf / YKS (TYT-AYT) Modu</span>
@@ -2866,9 +2882,10 @@ function TeacherDashboardContent() {
             setCurriculumMode('maarif_v1');
             handleTabChange('maarif');
           }}
+          className="active:scale-[0.98] transition-all"
           style={{
-            padding: '7px 16px',
-            borderRadius: '10px',
+            padding: '8px 16px',
+            borderRadius: '11px',
             border: 'none',
             backgroundColor: curriculumMode === 'maarif_v1' ? '#10b981' : 'transparent',
             color: curriculumMode === 'maarif_v1' ? '#fff' : '#94a3b8',
@@ -2878,7 +2895,7 @@ function TeacherDashboardContent() {
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
-            transition: 'all 0.2s',
+            boxShadow: curriculumMode === 'maarif_v1' ? '0 2px 10px rgba(16,185,129,0.35)' : 'none',
           }}
         >
           <span>🌱 9-11. Sınıf Maarif Modeli Modu</span>
@@ -2886,16 +2903,28 @@ function TeacherDashboardContent() {
       </div>
 
       {/* ── TAB NAV ── */}
-      <div style={{ display: 'flex', gap: '0.4rem', overflowX: 'auto', marginBottom: '2rem', paddingBottom: 4, scrollbarWidth: 'none' }}>
+      <div className="ogretmen-tab-bar" style={{ display: 'flex', gap: '0.45rem', overflowX: 'auto', marginBottom: '2rem', paddingBottom: 4, scrollbarWidth: 'none' }}>
         {TABS.map(t => (
-          <button key={t.key} onClick={() => handleTabChange(t.key)} style={{
-            padding: '0.65rem 1.1rem', borderRadius: 12, border: 'none', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.875rem', fontWeight: 600,
-            whiteSpace: 'nowrap', transition: 'all 0.2s',
-            background: activeTab === t.key ? `${t.color}20` : 'rgba(255,255,255,0.04)',
-            color: activeTab === t.key ? t.color : 'var(--text-secondary)',
-            boxShadow: activeTab === t.key ? `0 0 0 1px ${t.color}40` : 'none',
-          }}>
+          <button
+            key={t.key}
+            onClick={() => handleTabChange(t.key)}
+            className="active:scale-[0.97] transition-all"
+            style={{
+              padding: '0.65rem 1.15rem',
+              borderRadius: 12,
+              border: activeTab === t.key ? `1px solid ${t.color}50` : '1px solid rgba(255,255,255,0.06)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              fontSize: '0.875rem',
+              fontWeight: activeTab === t.key ? 800 : 600,
+              whiteSpace: 'nowrap',
+              background: activeTab === t.key ? `${t.color}15` : 'rgba(255,255,255,0.03)',
+              color: activeTab === t.key ? t.color : '#94a3b8',
+              boxShadow: activeTab === t.key ? `0 0 16px ${t.color}20` : 'none',
+            }}
+          >
             <t.icon size={16} /> {t.label}
           </button>
         ))}
