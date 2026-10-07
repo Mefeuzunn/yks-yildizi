@@ -7,7 +7,6 @@ import { Bell, Flame, Zap, Timer, Sparkles, CheckCircle2, Play, Pause, RotateCcw
 import { triggerHaptic } from '@/lib/haptics';
 import { usePushNotifications } from '@/components/PWAComponents';
 import { useTimer } from '@/context/TimerContext';
-import WidgetInstallModal from '@/components/WidgetInstallModal';
 
 interface MobileLiveActivityWidgetProps {
   streak?: number;
@@ -30,7 +29,6 @@ export default function MobileLiveActivityWidget({
 
   const { permission, subscription, isSubscribing, subscribe } = usePushNotifications();
   const isSubscribed = !!subscription && permission === 'granted';
-  const [showWidgetModal, setShowWidgetModal] = useState(false);
 
   // Live countdown to YKS (Next YKS: June 2027)
   useEffect(() => {
@@ -178,34 +176,8 @@ export default function MobileLiveActivityWidget({
           </span>
         </div>
 
-        {/* Widget Ekle & Bildirim Butonları */}
+        {/* Bildirim Butonu */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <button
-            type="button"
-            onClick={() => {
-              triggerHaptic('medium');
-              setShowWidgetModal(true);
-            }}
-            style={{
-              background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(139, 92, 246, 0.2))',
-              border: '1px solid rgba(56, 189, 248, 0.5)',
-              borderRadius: 16,
-              padding: '4px 10px',
-              color: '#38bdf8',
-              fontSize: '11px',
-              fontWeight: 800,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 5,
-              boxShadow: '0 0 10px rgba(56, 189, 248, 0.25)',
-              touchAction: 'manipulation',
-            }}
-          >
-            <span>🧩</span>
-            <span>Widget Ekle</span>
-          </button>
-
           {!isSubscribed && permission !== 'denied' && (
             <button
               onClick={() => {
@@ -641,67 +613,6 @@ export default function MobileLiveActivityWidget({
         </Link>
       </div>
 
-      {/* Sadece mobil cihazlarda görünen Widget Stüdyosu Giriş Kartı */}
-      <div className="mobile-only" style={{ width: '100%', marginTop: 10 }}>
-        <button
-          type="button"
-          onClick={() => {
-            triggerHaptic('medium');
-            setShowWidgetModal(true);
-          }}
-          style={{
-            width: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '10px 14px',
-            background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(139, 92, 246, 0.08))',
-            border: '1px solid rgba(56, 189, 248, 0.3)',
-            borderRadius: 14,
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            boxShadow: '0 4px 15px rgba(0, 0, 0, 0.25)',
-            touchAction: 'manipulation',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: 10,
-                background: 'linear-gradient(135deg, #0284c7, #8b5cf6)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 0 12px rgba(56, 189, 248, 0.4)',
-                flexShrink: 0,
-              }}
-            >
-              <Smartphone size={16} color="#ffffff" />
-            </div>
-            <div style={{ textAlign: 'left' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: '12px', fontWeight: 800, color: '#f8fafc' }}>
-                  Telefon Ana Ekranına Widget Ekle
-                </span>
-                <span style={{ fontSize: '9px', fontWeight: 800, padding: '1px 5px', borderRadius: 5, background: 'rgba(56, 189, 248, 0.2)', color: '#38bdf8' }}>
-                  CANLI
-                </span>
-              </div>
-              <p style={{ margin: 0, fontSize: '10.5px', color: '#94a3b8' }}>
-                Geri sayım, yangın serisi ve hedeflerini telefonuna sabitle ✨
-              </p>
-            </div>
-          </div>
-          <ArrowRight size={14} color="#38bdf8" style={{ flexShrink: 0 }} />
-        </button>
-      </div>
-
-      <WidgetInstallModal
-        isOpen={showWidgetModal}
-        onClose={() => setShowWidgetModal(false)}
-      />
     </motion.div>
   );
 }

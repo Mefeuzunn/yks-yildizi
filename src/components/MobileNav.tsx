@@ -17,7 +17,6 @@ const MAIN_TABS = [
 ];
 
 const MORE_TABS = [
-  { emoji: '🧩', label: 'Widget Stüdyosu', href: '/widget' },
   { emoji: '📈', label: 'Denemeler', href: '/denemeler' },
   { emoji: '🎯', label: 'Hedeflerim', href: '/dashboard?tab=hedef' },
   { emoji: '🤖', label: 'Astra AI & Rehberlik', href: '/dashboard?tab=astratutor' },
@@ -343,52 +342,6 @@ function MobileNavContent() {
                   <X size={20} />
                 </button>
               </div>
-
-              {/* Widget Stüdyosu Banner */}
-              <Link
-                href="/widget"
-                onClick={() => {
-                  triggerHaptic('medium');
-                  setIsMoreOpen(false);
-                }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '12px 16px',
-                  marginBottom: '16px',
-                  borderRadius: '16px',
-                  background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.16), rgba(139, 92, 246, 0.12))',
-                  border: '1px solid rgba(56, 189, 248, 0.4)',
-                  boxShadow: '0 4px 16px rgba(56, 189, 248, 0.15)',
-                  textDecoration: 'none',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{
-                    width: '36px', height: '36px', borderRadius: '10px',
-                    background: 'linear-gradient(135deg, #0284c7, #8b5cf6)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '18px',
-                    boxShadow: '0 0 12px rgba(56, 189, 248, 0.4)',
-                    flexShrink: 0,
-                  }}>
-                    🧩
-                  </div>
-                  <div>
-                    <div style={{ color: '#fff', fontWeight: 800, fontSize: '13.5px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span>YKS Widget Stüdyosu</span>
-                      <span style={{ fontSize: '9px', fontWeight: 800, padding: '1px 6px', borderRadius: '4px', background: 'rgba(56, 189, 248, 0.25)', color: '#38bdf8' }}>
-                        CANLI
-                      </span>
-                    </div>
-                    <div style={{ color: '#94a3b8', fontSize: '11px', marginTop: '2px' }}>
-                      Geri sayımı telefonunun ana ekranına sabitle!
-                    </div>
-                  </div>
-                </div>
-                <span style={{ color: '#38bdf8', fontSize: '12px', fontWeight: 700 }}>Aç →</span>
-              </Link>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
                 {currentMoreTabs.map((tab) => {

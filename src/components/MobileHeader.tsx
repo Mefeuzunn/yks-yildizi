@@ -1,18 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import NotificationCenter from '@/components/NotificationCenter';
-import WidgetInstallModal from '@/components/WidgetInstallModal';
-import { triggerHaptic } from '@/lib/haptics';
 
 export default function MobileHeader() {
   const pathname = usePathname();
-  const [showWidgetModal, setShowWidgetModal] = useState(false);
 
-  // Widget, login, register sayfalarında mobile header render edilmez
-  if (pathname === '/' || pathname === '/login' || pathname === '/register' || pathname?.startsWith('/widget')) {
+  // Login, register sayfalarında mobile header render edilmez
+  if (pathname === '/' || pathname === '/login' || pathname === '/register') {
     return null;
   }
 
@@ -83,41 +80,11 @@ export default function MobileHeader() {
           </span>
         </Link>
 
-        {/* Action icons: Widget Butonu & Bildirim Çanı */}
+        {/* Action icons: Bildirim Çanı */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <button
-            type="button"
-            onClick={() => {
-              triggerHaptic('medium');
-              setShowWidgetModal(true);
-            }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              padding: '5px 10px',
-              background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(139, 92, 246, 0.15))',
-              border: '1px solid rgba(56, 189, 248, 0.45)',
-              borderRadius: '20px',
-              color: '#38bdf8',
-              fontSize: '11.5px',
-              fontWeight: 800,
-              cursor: 'pointer',
-              WebkitTapHighlightColor: 'transparent',
-              boxShadow: '0 0 10px rgba(56, 189, 248, 0.2)',
-            }}
-          >
-            <span>🧩</span>
-            <span>Widget</span>
-          </button>
           <NotificationCenter align="right" />
         </div>
       </div>
-
-      <WidgetInstallModal
-        isOpen={showWidgetModal}
-        onClose={() => setShowWidgetModal(false)}
-      />
     </header>
   );
 }

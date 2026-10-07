@@ -47,7 +47,6 @@ export default function LandingPage() {
     { title: "Soru Çöz", href: "/soru-coz", badge: "AI" },
     { title: "Simülasyonlar", href: "/simulasyonlar", badge: "49 Deney" },
     { title: "Çalışma Odaları", href: "/calisma-odalari", badge: "Lofi" },
-    { title: "Widget Stüdyosu", href: "/widget", badge: "Canlı" },
     { title: "Ligler & Arena", href: "/ligler" },
     { title: "Rehberlik", href: "/rehberlik" },
   ];
@@ -206,12 +205,6 @@ export default function LandingPage() {
               </button>
             </Link>
 
-            <Link href="/widget">
-              <button className="px-5 py-3.5 bg-gradient-to-r from-sky-500/15 to-violet-500/15 hover:from-sky-500/25 hover:to-violet-500/25 text-sky-300 hover:text-white rounded-xl text-base font-semibold border border-sky-500/30 transition-all flex items-center gap-2 hover:border-sky-400">
-                <span>🧩 Canlı Widget Ekle</span>
-              </button>
-            </Link>
-
             <Link href="/simulasyonlar">
               <button className="px-6 py-3.5 bg-slate-900/80 hover:bg-slate-800 text-slate-200 hover:text-white rounded-xl text-base font-semibold border border-slate-700/80 transition-all flex items-center gap-2 hover:border-slate-600">
                 <span>🔬 49+ Simülasyonu İncele</span>
@@ -226,12 +219,12 @@ export default function LandingPage() {
               <span>%100 Ücretsiz Erişim</span>
             </div>
             <div className="flex items-center gap-1.5 text-slate-300">
-              <CheckCircle2 size={16} className="text-sky-400" />
-              <span>iOS & Android Canlı Widget</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-slate-300">
               <CheckCircle2 size={16} className="text-violet-400" />
               <span>Kredi Kartı Gerekmez</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-slate-300">
+              <CheckCircle2 size={16} className="text-indigo-400" />
+              <span>Mobil PWA Uyumlu</span>
             </div>
           </div>
 

@@ -175,7 +175,6 @@ export default function AyarlarPage() {
           { id: 'hesap', icon: CreditCard, label: 'Hesap' },
           { id: 'tema', icon: Palette, label: 'Görünüm (Tema)' },
           { id: 'bildirim', icon: Bell, label: 'Bildirimler' },
-          { id: 'widget', icon: Smartphone, label: 'Telefon Widgetı' },
           { id: 'guvenlik', icon: Shield, label: 'Güvenlik' }
         ].map(tab => (
           <button 
