@@ -117,29 +117,31 @@ export default function MaarifPortalPage() {
       className="maarif-page-wrap"
       style={{
         minHeight: '100vh',
-        backgroundColor: '#070a13',
+        backgroundColor: '#080c14',
         color: '#f8fafc',
         padding: '1.5rem 1rem calc(95px + env(safe-area-inset-bottom, 20px))',
         maxWidth: '1200px',
         margin: '0 auto',
+        fontFamily: 'var(--font-sans)',
       }}
     >
       {/* ── ÜST BAŞLIK & MAARİF ROZETİ ── */}
       <header style={{ marginBottom: '2rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', flexWrap: 'wrap' }}>
           <span
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
-              padding: '4px 12px',
+              padding: '5px 14px',
               borderRadius: '20px',
-              backgroundColor: 'rgba(16, 185, 129, 0.15)',
+              backgroundColor: 'rgba(16, 185, 129, 0.14)',
               border: '1px solid rgba(16, 185, 129, 0.35)',
               color: '#34d399',
-              fontSize: '12px',
+              fontSize: '11.5px',
               fontWeight: 800,
               letterSpacing: '0.04em',
+              boxShadow: '0 2px 10px rgba(16, 185, 129, 0.15)',
             }}
           >
             🌱 TÜRKİYE YÜZYILI MAARİF MODELİ
@@ -149,13 +151,13 @@ export default function MaarifPortalPage() {
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '4px',
-              padding: '4px 10px',
+              gap: '5px',
+              padding: '5px 12px',
               borderRadius: '20px',
-              backgroundColor: 'rgba(56, 189, 248, 0.12)',
+              backgroundColor: 'rgba(56, 189, 248, 0.1)',
               border: '1px solid rgba(56, 189, 248, 0.25)',
               color: '#38bdf8',
-              fontSize: '11px',
+              fontSize: '11.5px',
               fontWeight: 700,
             }}
           >
@@ -173,6 +175,11 @@ export default function MaarifPortalPage() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '4px',
+                padding: '4px 10px',
+                borderRadius: '8px',
+                backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                transition: 'all 0.2s',
               }}
             >
               <span>12. Sınıf / YKS Paneline Dön</span>
@@ -185,18 +192,18 @@ export default function MaarifPortalPage() {
           <div>
             <h1
               style={{
-                fontSize: 'clamp(1.6rem, 4vw, 2.3rem)',
+                fontSize: 'clamp(1.6rem, 4vw, 2.25rem)',
                 fontWeight: 900,
-                color: '#fff',
+                color: '#ffffff',
                 margin: 0,
-                letterSpacing: '-0.02em',
+                letterSpacing: '-0.025em',
                 lineHeight: 1.2,
               }}
             >
               Lise Maarif Öğrenme Portalı
             </h1>
-            <p style={{ color: '#94a3b8', fontSize: '0.92rem', margin: '6px 0 0', maxWidth: '650px', lineHeight: 1.5 }}>
-              9, 10 ve 11. sınıflar için özel kurgulanmış beceri temelli öğrenme çıktıları, PhET laboratuvar deneyleri ve resmi MEB Ortak Yazılı Sınav simülasyonları.
+            <p style={{ color: '#94a3b8', fontSize: '0.92rem', margin: '6px 0 0', maxWidth: '650px', lineHeight: 1.55 }}>
+              9, 10 ve 11. sınıflar için beceri temelli öğrenme çıktıları, interaktif PhET laboratuvar deneyleri ve resmi MEB Ortak Yazılı Sınav simülasyonları.
             </p>
           </div>
 
@@ -204,10 +211,11 @@ export default function MaarifPortalPage() {
           <div
             style={{
               display: 'flex',
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              backgroundColor: 'rgba(15, 21, 35, 0.85)',
               padding: '4px',
               borderRadius: '14px',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              backdropFilter: 'blur(12px)',
             }}
           >
             {([9, 10, 11] as MaarifGrade[]).map(grade => {
@@ -216,16 +224,20 @@ export default function MaarifPortalPage() {
                 <button
                   key={grade}
                   onClick={() => handleGradeChange(grade)}
+                  className="active:scale-[0.97]"
                   style={{
                     padding: '8px 18px',
                     borderRadius: '10px',
-                    border: 'none',
-                    backgroundColor: isSelected ? '#10b981' : 'transparent',
-                    color: isSelected ? '#fff' : '#94a3b8',
+                    border: isSelected ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid transparent',
+                    background: isSelected
+                      ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                      : 'transparent',
+                    color: isSelected ? '#ffffff' : '#94a3b8',
                     fontSize: '13px',
                     fontWeight: isSelected ? 800 : 600,
                     cursor: 'pointer',
-                    transition: 'all 0.2s',
+                    transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                    boxShadow: isSelected ? '0 4px 14px rgba(16, 185, 129, 0.35)' : 'none',
                   }}
                 >
                   {grade}. Sınıf
@@ -239,8 +251,8 @@ export default function MaarifPortalPage() {
       {/* ── MEB ORTAK YAZILI GERİ SAYIM KARTI ── */}
       <div
         style={{
-          background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(6, 182, 212, 0.08) 100%)',
-          border: '1px solid rgba(16, 185, 129, 0.3)',
+          background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(15, 21, 35, 0.95) 50%, rgba(6, 182, 212, 0.08) 100%)',
+          border: '1px solid rgba(16, 185, 129, 0.28)',
           borderRadius: '20px',
           padding: '1.25rem 1.5rem',
           marginBottom: '2rem',
@@ -249,7 +261,8 @@ export default function MaarifPortalPage() {
           alignItems: 'center',
           flexWrap: 'wrap',
           gap: '1rem',
-          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.25)',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06)',
+          backdropFilter: 'blur(16px)',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -258,12 +271,13 @@ export default function MaarifPortalPage() {
               width: '52px',
               height: '52px',
               borderRadius: '14px',
-              backgroundColor: 'rgba(16, 185, 129, 0.2)',
+              backgroundColor: 'rgba(16, 185, 129, 0.18)',
               border: '1px solid rgba(16, 185, 129, 0.4)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '26px',
+              boxShadow: '0 0 16px rgba(16, 185, 129, 0.2)',
             }}
           >
             📝
@@ -272,7 +286,7 @@ export default function MaarifPortalPage() {
             <div style={{ fontSize: '11px', fontWeight: 800, color: '#34d399', letterSpacing: '0.05em' }}>
               MEB RESMİ SINAV TAKVİMİ
             </div>
-            <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff', marginTop: '2px' }}>
+            <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#ffffff', marginTop: '2px', letterSpacing: '-0.01em' }}>
               1. Dönem 1. Ortak Yazılı Sınavları
             </div>
             <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '3px' }}>
@@ -280,19 +294,32 @@ export default function MaarifPortalPage() {
             </div>
           </div>
         </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
           <div
             style={{
-              backgroundColor: 'rgba(7, 10, 19, 0.65)',
+              backgroundColor: 'rgba(8, 12, 20, 0.75)',
               padding: '8px 18px',
-              borderRadius: '12px',
+              borderRadius: '14px',
               border: '1px solid rgba(255, 255, 255, 0.08)',
               textAlign: 'center',
+              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.05)',
             }}
           >
-            <div style={{ fontSize: '24px', fontWeight: 900, color: '#34d399', lineHeight: 1 }}>{daysLeft}</div>
-            <div style={{ fontSize: '10px', fontWeight: 700, color: '#94a3b8', marginTop: '4px' }}>GÜN KALDI</div>
+            <div
+              style={{
+                fontSize: '26px',
+                fontWeight: 900,
+                color: '#34d399',
+                lineHeight: 1,
+                fontVariantNumeric: 'tabular-nums',
+                letterSpacing: '-0.02em',
+              }}
+            >
+              {daysLeft}
+            </div>
+            <div style={{ fontSize: '9.5px', fontWeight: 800, color: '#94a3b8', marginTop: '4px', letterSpacing: '0.06em' }}>
+              GÜN KALDI
+            </div>
           </div>
 
           <button
@@ -300,11 +327,12 @@ export default function MaarifPortalPage() {
               triggerHaptic('medium');
               setActiveTab('senaryolar');
             }}
+            className="active:scale-[0.98]"
             style={{
-              padding: '10px 18px',
+              padding: '10px 20px',
               borderRadius: '12px',
-              backgroundColor: '#10b981',
-              color: '#fff',
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              color: '#ffffff',
               fontSize: '13px',
               fontWeight: 800,
               border: 'none',
@@ -312,7 +340,8 @@ export default function MaarifPortalPage() {
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
+              boxShadow: '0 4px 16px rgba(16, 185, 129, 0.35)',
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
           >
             <span>Senaryoları İncele</span>
@@ -325,12 +354,15 @@ export default function MaarifPortalPage() {
       <div
         style={{
           display: 'flex',
-          gap: '8px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-          paddingBottom: '12px',
+          gap: '6px',
+          backgroundColor: 'rgba(15, 21, 35, 0.65)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: '16px',
+          padding: '5px',
           marginBottom: '1.5rem',
           overflowX: 'auto',
           WebkitOverflowScrolling: 'touch',
+          backdropFilter: 'blur(12px)',
         }}
       >
         {[
@@ -348,20 +380,22 @@ export default function MaarifPortalPage() {
                 triggerHaptic('light');
                 setActiveTab(tab.key as any);
               }}
+              className="active:scale-[0.98]"
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
                 padding: '8px 16px',
-                borderRadius: '10px',
-                border: 'none',
-                backgroundColor: isSelected ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
+                borderRadius: '11px',
+                border: isSelected ? '1px solid rgba(16, 185, 129, 0.35)' : '1px solid transparent',
+                backgroundColor: isSelected ? 'rgba(16, 185, 129, 0.16)' : 'transparent',
                 color: isSelected ? '#34d399' : '#94a3b8',
                 fontWeight: isSelected ? 800 : 600,
                 fontSize: '13px',
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
-                transition: 'all 0.2s',
+                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                boxShadow: isSelected ? '0 2px 10px rgba(16, 185, 129, 0.2)' : 'none',
               }}
             >
               <Icon size={16} />
@@ -389,20 +423,23 @@ export default function MaarifPortalPage() {
               <button
                 key={sub.id}
                 onClick={() => handleSubjectChange(sub.id)}
+                className="active:scale-[0.96]"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px',
-                  padding: '7px 14px',
+                  padding: '7px 15px',
                   borderRadius: '12px',
                   border: isSelected ? `1px solid ${sub.color}` : '1px solid rgba(255, 255, 255, 0.08)',
-                  backgroundColor: isSelected ? `${sub.color}22` : 'rgba(255, 255, 255, 0.03)',
-                  color: isSelected ? '#fff' : '#94a3b8',
+                  backgroundColor: isSelected ? `${sub.color}25` : 'rgba(15, 21, 35, 0.6)',
+                  color: isSelected ? '#ffffff' : '#94a3b8',
                   fontSize: '12.5px',
                   fontWeight: isSelected ? 800 : 500,
                   cursor: 'pointer',
                   whiteSpace: 'nowrap',
-                  transition: 'all 0.2s',
+                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                  boxShadow: isSelected ? `0 4px 14px ${sub.color}33` : 'none',
+                  backdropFilter: 'blur(8px)',
                 }}
               >
                 <span>{sub.emoji}</span>
@@ -442,23 +479,36 @@ export default function MaarifPortalPage() {
                     Bu ders için henüz tema bulunamadı.
                   </div>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                     {themes.map((theme, i) => (
                       <div
                         key={i}
                         style={{
-                          backgroundColor: 'rgba(255, 255, 255, 0.02)',
-                          border: '1px solid rgba(255, 255, 255, 0.06)',
-                          borderRadius: '18px',
-                          padding: '1.25rem 1.5rem',
+                          backgroundColor: 'rgba(15, 21, 35, 0.75)',
+                          border: '1px solid rgba(255, 255, 255, 0.08)',
+                          borderRadius: '20px',
+                          padding: '1.35rem 1.6rem',
+                          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                          backdropFilter: 'blur(16px)',
                         }}
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
-                          <span style={{ fontSize: '18px' }}>📂</span>
-                          <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#f8fafc', margin: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.15rem' }}>
+                          <span style={{ fontSize: '20px' }}>📂</span>
+                          <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#f8fafc', margin: 0, letterSpacing: '-0.01em' }}>
                             {theme.name}
                           </h3>
-                          <span style={{ fontSize: '11px', color: '#94a3b8', marginLeft: 'auto' }}>
+                          <span
+                            style={{
+                              fontSize: '11px',
+                              fontWeight: 700,
+                              color: '#94a3b8',
+                              marginLeft: 'auto',
+                              padding: '3px 10px',
+                              borderRadius: '12px',
+                              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                              border: '1px solid rgba(255, 255, 255, 0.07)',
+                            }}
+                          >
                             {theme.nodes.length} Öğrenme Çıktısı
                           </span>
                         </div>
@@ -469,13 +519,14 @@ export default function MaarifPortalPage() {
                             <div
                               key={node.code}
                               style={{
-                                backgroundColor: 'rgba(7, 10, 19, 0.6)',
+                                backgroundColor: 'rgba(22, 32, 53, 0.55)',
                                 border: '1px solid rgba(255, 255, 255, 0.07)',
-                                borderRadius: '14px',
-                                padding: '1.1rem',
+                                borderRadius: '15px',
+                                padding: '1.15rem',
                                 display: 'flex',
                                 flexDirection: 'column',
                                 justifyContent: 'space-between',
+                                transition: 'all 0.2s',
                               }}
                             >
                               <div>
@@ -489,6 +540,7 @@ export default function MaarifPortalPage() {
                                       padding: '2px 8px',
                                       borderRadius: '6px',
                                       backgroundColor: 'rgba(56, 189, 248, 0.12)',
+                                      border: '1px solid rgba(56, 189, 248, 0.2)',
                                     }}
                                   >
                                     {node.code}
@@ -502,37 +554,40 @@ export default function MaarifPortalPage() {
                                       padding: '2px 8px',
                                       borderRadius: '6px',
                                       backgroundColor: 'rgba(167, 139, 250, 0.12)',
+                                      border: '1px solid rgba(167, 139, 250, 0.2)',
                                     }}
                                   >
                                     {node.skill_domain}
                                   </span>
                                 </div>
 
-                                <h4 style={{ fontSize: '0.98rem', fontWeight: 700, color: '#fff', margin: '0 0 6px' }}>
+                                <h4 style={{ fontSize: '0.98rem', fontWeight: 700, color: '#ffffff', margin: '0 0 6px', lineHeight: 1.35 }}>
                                   {node.outcome_title}
                                 </h4>
 
-                                <p style={{ fontSize: '12px', color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
+                                <p style={{ fontSize: '12px', color: '#94a3b8', lineHeight: 1.55, margin: 0 }}>
                                   {node.outcome_description}
                                 </p>
                               </div>
 
-                              <div style={{ marginTop: '1rem', paddingTop: '10px', borderTop: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                              <div style={{ marginTop: '1rem', paddingTop: '10px', borderTop: '1px solid rgba(255, 255, 255, 0.06)', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                                 {node.has_phet_sim && node.related_sim_slug && (
                                   <Link
                                     href={`/simulasyonlar/${node.related_sim_slug}`}
+                                    className="active:scale-[0.97]"
                                     style={{
                                       display: 'inline-flex',
                                       alignItems: 'center',
                                       gap: '5px',
-                                      padding: '6px 12px',
-                                      borderRadius: '8px',
-                                      backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                                      padding: '6px 14px',
+                                      borderRadius: '9px',
+                                      backgroundColor: 'rgba(16, 185, 129, 0.14)',
                                       border: '1px solid rgba(16, 185, 129, 0.35)',
                                       color: '#6ee7b7',
                                       fontSize: '11.5px',
                                       fontWeight: 700,
                                       textDecoration: 'none',
+                                      transition: 'all 0.2s',
                                     }}
                                   >
                                     <Atom size={13} />
@@ -553,8 +608,8 @@ export default function MaarifPortalPage() {
             {/* 2. SEKME: MEB YAZILI SENARYOLARI */}
             {activeTab === 'senaryolar' && (
               <div>
-                <div style={{ marginBottom: '1.25rem' }}>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff', margin: 0 }}>
+                <div style={{ marginBottom: '1.35rem' }}>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', margin: 0, letterSpacing: '-0.015em' }}>
                     {selectedGrade}. Sınıf {selectedSubject} Resmi MEB Yazılı Sınav Senaryoları
                   </h3>
                   <p style={{ color: '#94a3b8', fontSize: '12.5px', margin: '4px 0 0' }}>
@@ -572,13 +627,15 @@ export default function MaarifPortalPage() {
                       <div
                         key={scen.id}
                         style={{
-                          backgroundColor: 'rgba(255, 255, 255, 0.02)',
-                          border: '1px solid rgba(255, 255, 255, 0.08)',
-                          borderRadius: '18px',
+                          backgroundColor: 'rgba(15, 21, 35, 0.8)',
+                          border: '1px solid rgba(16, 185, 129, 0.22)',
+                          borderRadius: '20px',
                           padding: '1.5rem',
                           display: 'flex',
                           flexDirection: 'column',
                           justifyContent: 'space-between',
+                          boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                          backdropFilter: 'blur(16px)',
                         }}
                       >
                         <div>
@@ -588,35 +645,53 @@ export default function MaarifPortalPage() {
                                 fontSize: '11px',
                                 fontWeight: 800,
                                 color: '#10b981',
-                                padding: '3px 9px',
+                                padding: '3px 10px',
                                 borderRadius: '8px',
                                 backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                                border: '1px solid rgba(16, 185, 129, 0.25)',
                               }}
                             >
                               {scen.term}. Dönem {scen.exam_number}. Yazılı
                             </span>
 
-                            <span style={{ fontSize: '12px', fontWeight: 800, color: '#f59e0b' }}>
+                            <span style={{ fontSize: '12px', fontWeight: 800, color: '#f59e0b', fontVariantNumeric: 'tabular-nums' }}>
                               ⭐ {scen.total_points} Tam Puan
                             </span>
                           </div>
 
-                          <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff', margin: '0 0 6px' }}>
+                          <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#ffffff', margin: '0 0 6px', letterSpacing: '-0.01em' }}>
                             {scen.scenario_name}
                           </h4>
 
-                          <p style={{ fontSize: '12px', color: '#94a3b8', lineHeight: 1.5, margin: '0 0 1rem' }}>
+                          <p style={{ fontSize: '12px', color: '#94a3b8', lineHeight: 1.55, margin: '0 0 1.15rem' }}>
                             {scen.description}
                           </p>
 
                           {/* Soru Dağılım Matrisi */}
-                          <div style={{ backgroundColor: 'rgba(7, 10, 19, 0.6)', borderRadius: '12px', padding: '10px 12px', marginBottom: '1.25rem' }}>
-                            <div style={{ fontSize: '11px', fontWeight: 700, color: '#cbd5e1', marginBottom: '6px' }}>
+                          <div
+                            style={{
+                              backgroundColor: 'rgba(8, 12, 20, 0.7)',
+                              border: '1px solid rgba(255, 255, 255, 0.06)',
+                              borderRadius: '13px',
+                              padding: '11px 13px',
+                              marginBottom: '1.35rem',
+                            }}
+                          >
+                            <div style={{ fontSize: '11px', fontWeight: 700, color: '#cbd5e1', marginBottom: '7px' }}>
                               📊 Konu Soru Dağılımı:
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                               {(scen.question_distribution || []).map((dist: any, idx: number) => (
-                                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', color: '#94a3b8' }}>
+                                <div
+                                  key={idx}
+                                  style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    fontSize: '11.5px',
+                                    color: '#94a3b8',
+                                    fontVariantNumeric: 'tabular-nums',
+                                  }}
+                                >
                                   <span style={{ fontFamily: 'monospace', color: '#38bdf8' }}>{dist.node_code}</span>
                                   <span>{dist.count} Açık Uçlu Soru</span>
                                   <span style={{ fontWeight: 700, color: '#e2e8f0' }}>{dist.points} P</span>
@@ -629,13 +704,14 @@ export default function MaarifPortalPage() {
                         <Link
                           href={`/maarif/sinav/${scen.id}`}
                           onClick={() => triggerHaptic('success')}
+                          className="active:scale-[0.98]"
                           style={{
                             width: '100%',
                             padding: '11px',
                             borderRadius: '12px',
-                            background: 'linear-gradient(135deg, #10b981, #059669)',
+                            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                             border: 'none',
-                            color: '#fff',
+                            color: '#ffffff',
                             fontWeight: 800,
                             fontSize: '13px',
                             cursor: 'pointer',
@@ -643,8 +719,9 @@ export default function MaarifPortalPage() {
                             alignItems: 'center',
                             justifyContent: 'center',
                             gap: '6px',
-                            boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)',
+                            boxShadow: '0 4px 16px rgba(16, 185, 129, 0.35)',
                             textDecoration: 'none',
+                            transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
                           }}
                         >
                           <span>Sınav Provasını Başlat</span>
@@ -660,8 +737,8 @@ export default function MaarifPortalPage() {
             {/* 3. SEKME: PhET DENEYLERİ */}
             {activeTab === 'deneyler' && (
               <div>
-                <div style={{ marginBottom: '1.25rem' }}>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff', margin: 0 }}>
+                <div style={{ marginBottom: '1.35rem' }}>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', margin: 0, letterSpacing: '-0.015em' }}>
                     Maarif Modeli Etkileşimli Deney ve Simülasyon Kataloğu
                   </h3>
                   <p style={{ color: '#94a3b8', fontSize: '12.5px', margin: '4px 0 0' }}>
@@ -676,13 +753,15 @@ export default function MaarifPortalPage() {
                       <div
                         key={node.code}
                         style={{
-                          backgroundColor: 'rgba(255, 255, 255, 0.02)',
-                          border: '1px solid rgba(16, 185, 129, 0.25)',
-                          borderRadius: '16px',
-                          padding: '1.25rem',
+                          backgroundColor: 'rgba(15, 21, 35, 0.8)',
+                          border: '1px solid rgba(16, 185, 129, 0.22)',
+                          borderRadius: '18px',
+                          padding: '1.3rem',
                           display: 'flex',
                           flexDirection: 'column',
                           justifyContent: 'space-between',
+                          boxShadow: '0 6px 24px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                          backdropFilter: 'blur(16px)',
                         }}
                       >
                         <div>
@@ -694,30 +773,33 @@ export default function MaarifPortalPage() {
                               {node.code}
                             </span>
                           </div>
-                          <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#fff', margin: '0 0 6px' }}>
+                          <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#ffffff', margin: '0 0 6px', lineHeight: 1.35 }}>
                             {node.outcome_title}
                           </h4>
-                          <p style={{ fontSize: '12px', color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
+                          <p style={{ fontSize: '12px', color: '#94a3b8', lineHeight: 1.55, margin: 0 }}>
                             {node.outcome_description}
                           </p>
                         </div>
 
                         <Link
                           href={`/simulasyonlar/${node.related_sim_slug}`}
+                          className="active:scale-[0.97]"
                           style={{
-                            marginTop: '1rem',
+                            marginTop: '1.15rem',
                             display: 'inline-flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             gap: '6px',
-                            padding: '9px 14px',
-                            borderRadius: '10px',
-                            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                            padding: '10px 15px',
+                            borderRadius: '11px',
+                            backgroundColor: 'rgba(16, 185, 129, 0.18)',
                             border: '1px solid rgba(16, 185, 129, 0.4)',
                             color: '#6ee7b7',
                             fontSize: '12.5px',
                             fontWeight: 700,
                             textDecoration: 'none',
+                            transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                            boxShadow: '0 2px 10px rgba(16, 185, 129, 0.15)',
                           }}
                         >
                           <Atom size={15} />

@@ -227,20 +227,63 @@ function DashboardContent() {
     const formattedDate = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
 
     return (
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} style={{ minHeight: '100vh', backgroundColor: '#020617', padding: '16px 0', fontFamily: '"Inter", sans-serif', boxSizing: 'border-box' }} className="dashboard-home">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.2 }}
+        style={{
+          minHeight: '100vh',
+          backgroundColor: '#080c14',
+          padding: '16px 0',
+          fontFamily: 'var(--font-sans)',
+          boxSizing: 'border-box',
+        }}
+        className="dashboard-home"
+      >
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           {/* Header Row */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              marginBottom: '20px',
+              flexWrap: 'wrap',
+              gap: '12px',
+            }}
+          >
             <div style={{ minWidth: 0 }}>
-              <h1 style={{ fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.03em', margin: '0 0 4px 0', lineHeight: 1.2 }}>
-                Merhaba, {user?.username || 'Efe'}! 👋
+              <h1
+                style={{
+                  fontSize: 'clamp(22px, 4.5vw, 30px)',
+                  fontWeight: 800,
+                  color: '#ffffff',
+                  letterSpacing: '-0.025em',
+                  margin: '0 0 4px 0',
+                  lineHeight: 1.2,
+                }}
+              >
+                Merhaba, {user?.username || 'Öğrenci'}! 👋
               </h1>
-              <p style={{ fontSize: '13px', color: '#9ca3af', margin: 0, fontWeight: 500 }}>
-                Bugün hangi konuyu keşfedeceksin?
+              <p style={{ fontSize: '13px', color: '#94a3b8', margin: 0, fontWeight: 500 }}>
+                Bugün hangi hedefe odaklanacaksın?
               </p>
             </div>
-            <div style={{ fontSize: '12px', color: '#e5e7eb', backgroundColor: '#1e293b', padding: '6px 14px', borderRadius: '9999px', fontWeight: 500, border: '1px solid #334155', flexShrink: 0 }}>
-              {formattedDate}
+            <div
+              style={{
+                fontSize: '12px',
+                color: '#cbd5e1',
+                backgroundColor: 'rgba(255, 255, 255, 0.035)',
+                padding: '6px 14px',
+                borderRadius: '9999px',
+                fontWeight: 600,
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                flexShrink: 0,
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.35)',
+              }}
+            >
+              📅 {formattedDate}
             </div>
           </div>
 
@@ -248,25 +291,26 @@ function DashboardContent() {
           {(user?.curriculum_mode === 'maarif_v1' || user?.sinif === '9' || user?.sinif === '10' || user?.sinif === '11') && (
             <div
               style={{
-                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(6, 182, 212, 0.1) 100%)',
-                border: '1px solid rgba(16, 185, 129, 0.35)',
+                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(6, 182, 212, 0.08) 100%)',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
                 borderRadius: '16px',
-                padding: '12px 16px',
-                marginBottom: '16px',
+                padding: '14px 18px',
+                marginBottom: '18px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 gap: '12px',
                 flexWrap: 'wrap',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '22px' }}>🌱</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '24px' }}>🌱</span>
                 <div>
                   <div style={{ fontSize: '13px', fontWeight: 800, color: '#34d399' }}>
                     {user?.sinif ? `${user.sinif}. Sınıf` : '9-11. Sınıf'} Maarif Modeli Müfredatın Hazır!
                   </div>
-                  <div style={{ fontSize: '11.5px', color: '#94a3b8' }}>
+                  <div style={{ fontSize: '11.5px', color: '#94a3b8', marginTop: '2px' }}>
                     MEB Ortak Yazılı Sınav Senaryoları ve yeni tema çıktıları için Maarif Portalı'nı ziyaret et.
                   </div>
                 </div>
@@ -274,17 +318,18 @@ function DashboardContent() {
               <Link
                 href="/maarif"
                 style={{
-                  padding: '7px 14px',
+                  padding: '8px 16px',
                   backgroundColor: '#10b981',
                   borderRadius: '10px',
-                  color: '#fff',
+                  color: '#ffffff',
                   fontSize: '12px',
                   fontWeight: 800,
                   textDecoration: 'none',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '4px',
-                  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                  gap: '5px',
+                  boxShadow: '0 2px 10px rgba(16, 185, 129, 0.35)',
+                  transition: 'transform 0.16s ease',
                 }}
               >
                 <span>Maarif Portalına Geç</span>
@@ -302,7 +347,6 @@ function DashboardContent() {
 
           {/* Odak Dostun (Pofuduk) & Stats Row container */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
-            
             {/* Odak Dostun — Pofuduk Evolution & Petting */}
             {(() => {
               const level = stats?.pofuduk_level || 1;
@@ -312,10 +356,40 @@ function DashboardContent() {
               const xpNeeded = level * 500;
               const xpPct = Math.min(100, (xp / xpNeeded) * 100);
               return (
-                <div style={{ flex: '1 1 300px', backgroundColor: '#0f172a', border: `1px solid ${stage.color}35`, borderRadius: '20px', padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', boxShadow: `0 0 30px ${stage.color}15` }}>
+                <div
+                  style={{
+                    flex: '1 1 300px',
+                    backgroundColor: '#0f1523',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    borderTop: `2px solid ${stage.color}`,
+                    borderRadius: '20px',
+                    padding: '24px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    boxShadow: 'var(--shadow-card)',
+                  }}
+                >
                   {/* Glow background */}
-                  <div style={{ position: 'absolute', width: '220px', height: '220px', borderRadius: '50%', background: stage.color, filter: 'blur(80px)', opacity: 0.15, top: '50%', left: '50%', transform: 'translate(-50%,-50%)', pointerEvents: 'none' }}/>
-                  
+                  <div
+                    style={{
+                      position: 'absolute',
+                      width: '200px',
+                      height: '200px',
+                      borderRadius: '50%',
+                      background: stage.color,
+                      filter: 'blur(75px)',
+                      opacity: 0.12,
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%,-50%)',
+                      pointerEvents: 'none',
+                    }}
+                  />
+
                   {/* Speech Bubble */}
                   <AnimatePresence>
                     {speechBubble && (
@@ -329,7 +403,7 @@ function DashboardContent() {
                           left: '16px',
                           right: '16px',
                           textAlign: 'center',
-                          background: 'rgba(15, 23, 42, 0.95)',
+                          background: 'rgba(8, 12, 20, 0.95)',
                           border: `1px solid ${stage.color}70`,
                           borderRadius: '12px',
                           padding: '6px 12px',
@@ -338,7 +412,7 @@ function DashboardContent() {
                           fontWeight: 700,
                           boxShadow: `0 6px 20px rgba(0,0,0,0.6), 0 0 15px ${stage.glow}`,
                           zIndex: 20,
-                          pointerEvents: 'none'
+                          pointerEvents: 'none',
                         }}
                       >
                         {speechBubble}
@@ -347,7 +421,7 @@ function DashboardContent() {
                   </AnimatePresence>
 
                   {/* Floating hearts */}
-                  {floatingHearts.map(h => (
+                  {floatingHearts.map((h) => (
                     <motion.span
                       key={h.id}
                       initial={{ opacity: 1, y: 0, x: h.x, scale: 0.8 }}
@@ -364,15 +438,38 @@ function DashboardContent() {
                     onClick={handlePetPofuduk}
                     animate={pofudukWiggle ? { rotate: [-12, 12, -8, 8, -4, 4, 0], scale: [1, 1.25, 1] } : { scale: [1, 1.08, 1] }}
                     transition={pofudukWiggle ? { duration: 0.5 } : { duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                    style={{ fontSize: '64px', marginBottom: '8px', filter: `drop-shadow(0 0 14px ${stage.glow})`, position: 'relative', zIndex: 1, cursor: 'pointer', userSelect: 'none' }}
+                    style={{
+                      fontSize: '64px',
+                      marginBottom: '8px',
+                      filter: `drop-shadow(0 0 14px ${stage.glow})`,
+                      position: 'relative',
+                      zIndex: 1,
+                      cursor: 'pointer',
+                      userSelect: 'none',
+                    }}
                     title="Pofuduk'u sevmek için tıkla!"
                   >
                     {stage.emoji}
                   </motion.div>
-                  
-                  <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#ffffff', marginBottom: '2px', zIndex: 1 }}>{stage.name}</h3>
-                  <div style={{ fontSize: '11px', color: stage.color, fontWeight: 700, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.08em', zIndex: 1 }}>{stage.title}</div>
-                  <div style={{ fontSize: '12px', color: '#a855f7', fontWeight: 700, marginBottom: '8px', zIndex: 1 }}>Seviye {level}</div>
+
+                  <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#ffffff', marginBottom: '4px', zIndex: 1 }}>{stage.name}</h3>
+                  <div
+                    style={{
+                      fontSize: '10.5px',
+                      color: stage.color,
+                      backgroundColor: `${stage.color}15`,
+                      border: `1px solid ${stage.color}35`,
+                      padding: '2px 10px',
+                      borderRadius: '20px',
+                      fontWeight: 800,
+                      marginBottom: '8px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.06em',
+                      zIndex: 1,
+                    }}
+                  >
+                    {stage.title} · Seviye {level}
+                  </div>
 
                   {/* Pet button */}
                   <button
@@ -390,51 +487,55 @@ function DashboardContent() {
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '5px',
-                      transition: 'all 0.2s',
-                      zIndex: 1
+                      transition: 'all 0.16s ease',
+                      zIndex: 1,
                     }}
                   >
                     <Heart size={12} fill="#f472b6" /> Pofuduk'u Sev
                   </button>
-                  
+
                   {/* XP Progress */}
                   <div style={{ width: '100%', marginBottom: '10px', zIndex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#9ca3af', marginBottom: '6px', fontWeight: 600 }}>
-                      <span>XP</span>
-                      <span>{xp} / {xpNeeded}</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#94a3b8', marginBottom: '5px', fontWeight: 600 }}>
+                      <span>XP İlerlemesi</span>
+                      <span style={{ color: '#f1f5f9' }}>{xp} / {xpNeeded}</span>
                     </div>
-                    <div style={{ width: '100%', height: '8px', backgroundColor: '#1e293b', borderRadius: '999px', overflow: 'hidden' }}>
-                      <motion.div initial={{ width: 0 }} animate={{ width: `${xpPct}%` }} transition={{ duration: 1.2, ease: 'easeOut' }}
-                        style={{ height: '100%', backgroundImage: `linear-gradient(to right, ${stage.color}88, ${stage.color})`, borderRadius: '999px' }}/>
+                    <div style={{ width: '100%', height: '8px', backgroundColor: '#090e18', borderRadius: '999px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${xpPct}%` }}
+                        transition={{ duration: 1.2, ease: 'easeOut' }}
+                        style={{ height: '100%', backgroundImage: `linear-gradient(to right, ${stage.color}88, ${stage.color})`, borderRadius: '999px' }}
+                      />
                     </div>
                   </div>
 
                   {/* Stats bars */}
                   <div style={{ width: '100%', marginBottom: '8px', zIndex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#d1d5db', marginBottom: '4px', fontWeight: 600 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#cbd5e1', marginBottom: '4px', fontWeight: 600 }}>
                       <span>😊 Mutluluk</span>
-                      <span>{stats?.pofuduk_happiness ?? 85}%</span>
+                      <span style={{ color: '#f472b6' }}>{stats?.pofuduk_happiness ?? 85}%</span>
                     </div>
-                    <div style={{ width: '100%', height: '6px', backgroundColor: '#1e293b', borderRadius: '999px', overflow: 'hidden' }}>
-                      <div style={{ width: `${stats?.pofuduk_happiness ?? 85}%`, height: '100%', backgroundImage: 'linear-gradient(to right, #ec4899, #a855f7)', borderRadius: '999px' }}/>
+                    <div style={{ width: '100%', height: '6px', backgroundColor: '#090e18', borderRadius: '999px', overflow: 'hidden' }}>
+                      <div style={{ width: `${stats?.pofuduk_happiness ?? 85}%`, height: '100%', backgroundImage: 'linear-gradient(to right, #ec4899, #a855f7)', borderRadius: '999px' }} />
                     </div>
                   </div>
                   <div style={{ width: '100%', marginBottom: '12px', zIndex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#d1d5db', marginBottom: '4px', fontWeight: 600 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#cbd5e1', marginBottom: '4px', fontWeight: 600 }}>
                       <span>⚡ Enerji</span>
-                      <span>{stats?.pofuduk_energy ?? 60}%</span>
+                      <span style={{ color: '#fbbf24' }}>{stats?.pofuduk_energy ?? 60}%</span>
                     </div>
-                    <div style={{ width: '100%', height: '6px', backgroundColor: '#1e293b', borderRadius: '999px', overflow: 'hidden' }}>
-                      <div style={{ width: `${stats?.pofuduk_energy ?? 60}%`, height: '100%', backgroundImage: 'linear-gradient(to right, #eab308, #f97316)', borderRadius: '999px' }}/>
+                    <div style={{ width: '100%', height: '6px', backgroundColor: '#090e18', borderRadius: '999px', overflow: 'hidden' }}>
+                      <div style={{ width: `${stats?.pofuduk_energy ?? 60}%`, height: '100%', backgroundImage: 'linear-gradient(to right, #eab308, #f97316)', borderRadius: '999px' }} />
                     </div>
                   </div>
 
                   {/* Next evolution preview */}
                   {next && (
-                    <div style={{ width: '100%', padding: '8px 12px', background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.08)', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '8px', zIndex: 1 }}>
+                    <div style={{ width: '100%', padding: '8px 12px', background: 'rgba(255,255,255,0.025)', border: '1px dashed rgba(255,255,255,0.08)', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '8px', zIndex: 1 }}>
                       <span style={{ fontSize: '18px' }}>{next.emoji}</span>
                       <div>
-                        <div style={{ fontSize: '10px', color: '#6b7280', fontWeight: 600 }}>Sonraki Evrim: Lvl {next.minLevel}</div>
+                        <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 600 }}>Sonraki Evrim: Lvl {next.minLevel}</div>
                         <div style={{ fontSize: '11px', color: next.color, fontWeight: 700 }}>{next.name}</div>
                       </div>
                     </div>
@@ -445,49 +546,68 @@ function DashboardContent() {
 
             {/* 4 Dynamic Stat Cards */}
             <div style={{ flex: '2 1 300px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px' }}>
-              <div style={{ backgroundColor: '#0f172a', borderTop: '2px solid #a855f7', borderRadius: '16px', padding: '22px', display: 'flex', flexDirection: 'column', justifyContent: 'center', boxShadow: '0 4px 20px rgba(168,85,247,0.08)' }}>
-                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                   <div style={{ fontSize: '12px', color: '#9ca3af', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                     <FileText size={14} color="#a855f7" /> Çözülen Soru
-                   </div>
-                   <div style={{ fontSize: '30px', fontWeight: 800, color: '#ffffff', margin: 0, lineHeight: 1 }}>
-                     {(stats?.solved_questions ?? 0).toLocaleString('tr-TR')}
-                   </div>
-                   <span style={{ fontSize: '11px', color: '#64748b' }}>Toplam soru hacmi</span>
-                 </div>
+              {/* Çözülen Soru */}
+              <div style={{ backgroundColor: '#0f1523', border: '1px solid rgba(255, 255, 255, 0.07)', borderTop: '2.5px solid #a855f7', borderRadius: '16px', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'center', boxShadow: 'var(--shadow-card)' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: 'rgba(168,85,247,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <FileText size={13} color="#c084fc" />
+                    </div>
+                    <span>Çözülen Soru</span>
+                  </div>
+                  <div style={{ fontSize: '28px', fontWeight: 800, color: '#ffffff', margin: 0, lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
+                    {(stats?.solved_questions ?? 0).toLocaleString('tr-TR')}
+                  </div>
+                  <span style={{ fontSize: '11px', color: '#64748b' }}>Toplam soru hacmi</span>
+                </div>
               </div>
-              <div style={{ backgroundColor: '#0f172a', borderTop: '2px solid #22c55e', borderRadius: '16px', padding: '22px', display: 'flex', flexDirection: 'column', justifyContent: 'center', boxShadow: '0 4px 20px rgba(34,197,94,0.08)' }}>
-                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                   <div style={{ fontSize: '12px', color: '#9ca3af', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                     <BarChart3 size={14} color="#22c55e" /> Başarı Oranı
-                   </div>
-                   <div style={{ fontSize: '30px', fontWeight: 800, color: '#ffffff', margin: 0, lineHeight: 1 }}>
-                     %{stats?.success_rate ?? 0}
-                   </div>
-                   <span style={{ fontSize: '11px', color: '#64748b' }}>Doğruluk yüzdesi</span>
-                 </div>
+
+              {/* Başarı Oranı */}
+              <div style={{ backgroundColor: '#0f1523', border: '1px solid rgba(255, 255, 255, 0.07)', borderTop: '2.5px solid #22c55e', borderRadius: '16px', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'center', boxShadow: 'var(--shadow-card)' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: 'rgba(34,197,94,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <BarChart3 size={13} color="#4ade80" />
+                    </div>
+                    <span>Başarı Oranı</span>
+                  </div>
+                  <div style={{ fontSize: '28px', fontWeight: 800, color: '#ffffff', margin: 0, lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
+                    %{stats?.success_rate ?? 0}
+                  </div>
+                  <span style={{ fontSize: '11px', color: '#64748b' }}>Doğruluk yüzdesi</span>
+                </div>
               </div>
-              <div style={{ backgroundColor: '#0f172a', borderTop: '2px solid #3b82f6', borderRadius: '16px', padding: '22px', display: 'flex', flexDirection: 'column', justifyContent: 'center', boxShadow: '0 4px 20px rgba(59,130,246,0.08)' }}>
-                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                   <div style={{ fontSize: '12px', color: '#9ca3af', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                     <TrendingUp size={14} color="#3b82f6" /> Lig XP
-                   </div>
-                   <div style={{ fontSize: '30px', fontWeight: 800, color: '#ffffff', margin: 0, lineHeight: 1 }}>
-                     {(stats?.league_points ?? 0).toLocaleString('tr-TR')}
-                   </div>
-                   <span style={{ fontSize: '11px', color: '#38bdf8', fontWeight: 600 }}>{stats?.league || 'Bronz'} Ligi</span>
-                 </div>
+
+              {/* Lig Puanı */}
+              <div style={{ backgroundColor: '#0f1523', border: '1px solid rgba(255, 255, 255, 0.07)', borderTop: '2.5px solid #3b82f6', borderRadius: '16px', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'center', boxShadow: 'var(--shadow-card)' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: 'rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <TrendingUp size={13} color="#60a5fa" />
+                    </div>
+                    <span>Lig XP</span>
+                  </div>
+                  <div style={{ fontSize: '28px', fontWeight: 800, color: '#ffffff', margin: 0, lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
+                    {(stats?.league_points ?? 0).toLocaleString('tr-TR')}
+                  </div>
+                  <span style={{ fontSize: '11px', color: '#38bdf8', fontWeight: 700 }}>🏆 {stats?.league || 'Bronz'} Ligi</span>
+                </div>
               </div>
-              <div style={{ backgroundColor: '#0f172a', borderTop: '2px solid #f97316', borderRadius: '16px', padding: '22px', display: 'flex', flexDirection: 'column', justifyContent: 'center', boxShadow: '0 4px 20px rgba(249,115,22,0.08)' }}>
-                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                   <div style={{ fontSize: '12px', color: '#9ca3af', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                     <Flame size={14} color="#f97316" /> Çalışma Serisi
-                   </div>
-                   <div style={{ fontSize: '30px', fontWeight: 800, color: '#ffffff', margin: 0, lineHeight: 1, display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-                     {stats?.streak_days ?? 0} <span style={{ fontSize: '15px', fontWeight: 600, color: '#9ca3af' }}>gün</span>
-                   </div>
-                   <span style={{ fontSize: '11px', color: '#f97316', fontWeight: 600 }}>🔥 Alevin yanıyor</span>
-                 </div>
+
+              {/* Çalışma Serisi */}
+              <div style={{ backgroundColor: '#0f1523', border: '1px solid rgba(255, 255, 255, 0.07)', borderTop: '2.5px solid #f97316', borderRadius: '16px', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'center', boxShadow: 'var(--shadow-card)' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: 'rgba(249,115,22,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Flame size={13} color="#fb923c" />
+                    </div>
+                    <span>Çalışma Serisi</span>
+                  </div>
+                  <div style={{ fontSize: '28px', fontWeight: 800, color: '#ffffff', margin: 0, lineHeight: 1, display: 'flex', alignItems: 'baseline', gap: '6px', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
+                    {stats?.streak_days ?? 0} <span style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>gün</span>
+                  </div>
+                  <span style={{ fontSize: '11px', color: '#f97316', fontWeight: 700 }}>🔥 Alevin canlı</span>
+                </div>
               </div>
             </div>
           </div>
@@ -495,25 +615,27 @@ function DashboardContent() {
           {/* ── Ödevler + Duyurular Row ── */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '24px' }}>
             {/* Ödevlerim */}
-            <div style={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: 16, padding: '20px 24px' }}>
+            <div style={{ backgroundColor: '#0f1523', border: '1px solid rgba(255, 255, 255, 0.07)', borderRadius: '16px', padding: '20px', boxShadow: 'var(--shadow-card)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                <span style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>📋 Ödevlerim</span>
+                <span style={{ fontSize: '14.5px', fontWeight: 700, color: '#fff', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  📋 Ödevlerim
+                </span>
                 {pendingAssignments.length > 0 && (
-                  <span style={{ background: 'rgba(245,158,11,0.15)', color: '#fbbf24', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 20, border: '1px solid rgba(245,158,11,0.2)' }}>
+                  <span style={{ background: 'rgba(245,158,11,0.15)', color: '#fbbf24', fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '20px', border: '1px solid rgba(245,158,11,0.25)' }}>
                     {pendingAssignments.length} bekliyor
                   </span>
                 )}
               </div>
               {pendingAssignments.length === 0 ? (
-                <p style={{ fontSize: 13, color: '#6b7280', margin: 0 }}>Bekleyen ödeviniz yok 🎉</p>
+                <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>Bekleyen ödeviniz yok 🎉</p>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {pendingAssignments.slice(0, 3).map((a: any) => {
                     const isOverdue = a.due_date && new Date(a.due_date) < new Date();
                     return (
-                      <div key={a.id} style={{ padding: '10px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: 8, border: `1px solid ${isOverdue ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.06)'}` }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>{a.title}</div>
-                        <div style={{ fontSize: 11, color: isOverdue ? '#ef4444' : '#6b7280', marginTop: 2 }}>
+                      <div key={a.id} style={{ padding: '10px 12px', background: 'rgba(255,255,255,0.025)', borderRadius: '10px', border: `1px solid ${isOverdue ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.06)'}` }}>
+                        <div style={{ fontSize: '13px', fontWeight: 600, color: '#fff' }}>{a.title}</div>
+                        <div style={{ fontSize: '11px', color: isOverdue ? '#ef4444' : '#64748b', marginTop: 2 }}>
                           {a.teacher_name} · {a.due_date ? new Date(a.due_date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }) : 'Süresiz'}
                         </div>
                       </div>
@@ -524,18 +646,20 @@ function DashboardContent() {
             </div>
 
             {/* Duyurular */}
-            <div style={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: 16, padding: '20px 24px' }}>
+            <div style={{ backgroundColor: '#0f1523', border: '1px solid rgba(255, 255, 255, 0.07)', borderRadius: '16px', padding: '20px', boxShadow: 'var(--shadow-card)' }}>
               <div style={{ marginBottom: 14 }}>
-                <span style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>📢 Duyurular</span>
+                <span style={{ fontSize: '14.5px', fontWeight: 700, color: '#fff', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  📢 Duyurular
+                </span>
               </div>
               {announcements.length === 0 ? (
-                <p style={{ fontSize: 13, color: '#6b7280', margin: 0 }}>Yeni duyuru yok.</p>
+                <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>Yeni duyuru bulunmuyor.</p>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {announcements.slice(0, 3).map((a: any) => (
-                    <div key={a.id} style={{ padding: '10px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: 8, border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>{a.title}</div>
-                      <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>
+                    <div key={a.id} style={{ padding: '10px 12px', background: 'rgba(255,255,255,0.025)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      <div style={{ fontSize: '13px', fontWeight: 600, color: '#fff' }}>{a.title}</div>
+                      <div style={{ fontSize: '11px', color: '#64748b', marginTop: 2 }}>
                         {a.teacher_name} · {new Date(a.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}
                       </div>
                     </div>
@@ -546,16 +670,15 @@ function DashboardContent() {
           </div>
 
           {/* Günlük Görevler */}
-
-          <div style={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '16px', padding: '24px', marginBottom: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#ffffff', margin: 0 }}>Günlük Görevler</h3>
-              <span style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', color: '#4ade80', fontSize: '12px', padding: '6px 12px', borderRadius: '9999px', fontWeight: 600, border: '1px solid rgba(34, 197, 94, 0.2)' }}>
+          <div style={{ backgroundColor: '#0f1523', border: '1px solid rgba(255, 255, 255, 0.07)', borderRadius: '16px', padding: '22px', marginBottom: '24px', boxShadow: 'var(--shadow-card)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#ffffff', margin: 0 }}>🎯 Günlük Görevler</h3>
+              <span style={{ backgroundColor: 'rgba(34, 197, 94, 0.12)', color: '#4ade80', fontSize: '11.5px', padding: '5px 12px', borderRadius: '9999px', fontWeight: 700, border: '1px solid rgba(34, 197, 94, 0.25)' }}>
                 {quests.length > 0 ? `${quests.filter(q => q.is_completed === 1).length}/${quests.length} Tamamlandı` : '0/0 Tamamlandı'}
               </span>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
               {quests.map((quest) => (
                 <div 
                   key={quest.id}
@@ -583,61 +706,75 @@ function DashboardContent() {
                       fetchGamificationData();
                     }
                   }}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', backgroundColor: '#1e293b', borderRadius: '12px', border: quest.is_completed === 1 ? 'none' : '1px solid #374151', cursor: quest.is_completed === 1 ? 'default' : 'pointer' }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '14px 16px',
+                    backgroundColor: '#090e18',
+                    borderRadius: '12px',
+                    border: quest.is_completed === 1 ? '1px solid rgba(34, 197, 94, 0.25)' : '1px solid rgba(255, 255, 255, 0.07)',
+                    cursor: quest.is_completed === 1 ? 'default' : 'pointer',
+                    transition: 'all 0.16s ease',
+                  }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                     {quest.is_completed === 1 ? (
-                      <div style={{ width: '24px', height: '24px', borderRadius: '6px', backgroundColor: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <Check size={16} color="#FFFFFF" strokeWidth={3} />
+                      <div style={{ width: '22px', height: '22px', borderRadius: '6px', backgroundColor: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <Check size={14} color="#FFFFFF" strokeWidth={3} />
                       </div>
                     ) : (
-                      <div style={{ width: '24px', height: '24px', borderRadius: '6px', border: '2px solid #6b7280', backgroundColor: 'transparent', boxSizing: 'border-box', flexShrink: 0 }}></div>
+                      <div style={{ width: '22px', height: '22px', borderRadius: '6px', border: '2px solid #475569', backgroundColor: 'transparent', boxSizing: 'border-box', flexShrink: 0 }}></div>
                     )}
-                    <div style={{ fontSize: '15px', color: quest.is_completed === 1 ? '#9ca3af' : '#ffffff', textDecoration: quest.is_completed === 1 ? 'line-through' : 'none', fontWeight: quest.is_completed === 1 ? 500 : 600 }}>{quest.title}</div>
+                    <div style={{ fontSize: '14px', color: quest.is_completed === 1 ? '#64748b' : '#ffffff', textDecoration: quest.is_completed === 1 ? 'line-through' : 'none', fontWeight: quest.is_completed === 1 ? 500 : 600 }}>
+                      {quest.title}
+                    </div>
                   </div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#fcd34d' }}>+{quest.xp_reward} XP</div>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: '#fbbf24', backgroundColor: 'rgba(251, 191, 36, 0.1)', border: '1px solid rgba(251, 191, 36, 0.25)', padding: '3px 9px', borderRadius: '6px' }}>
+                    +{quest.xp_reward} XP
+                  </div>
                 </div>
               ))}
               {quests.length === 0 && (
-                <div style={{ color: '#9ca3af', fontSize: '14px', textAlign: 'center' }}>Şu an için görev bulunmuyor.</div>
+                <div style={{ color: '#64748b', fontSize: '13px', textAlign: 'center', padding: '12px' }}>Şu an için görev bulunmuyor.</div>
               )}
             </div>
             
             {/* Chest */}
             {quests.length > 0 && quests.every(q => q.is_completed === 1) ? (
-              <div style={{ backgroundColor: 'rgba(234, 179, 8, 0.2)', border: '1px solid rgba(234, 179, 8, 0.5)', borderRadius: '12px', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', cursor: 'pointer', boxShadow: '0 0 15px rgba(234, 179, 8, 0.3)' }}>
+              <div style={{ backgroundColor: 'rgba(234, 179, 8, 0.15)', border: '1px solid rgba(234, 179, 8, 0.45)', borderRadius: '12px', padding: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', cursor: 'pointer', boxShadow: '0 0 16px rgba(234, 179, 8, 0.25)' }}>
                 <span style={{ fontSize: '20px' }}>🔓</span>
-                <span style={{ color: '#fbbf24', fontWeight: 700, fontSize: '15px', textShadow: '0 0 10px rgba(251, 191, 36, 0.5)' }}>Sandığı Aç!</span>
+                <span style={{ color: '#fbbf24', fontWeight: 700, fontSize: '14px', textShadow: '0 0 10px rgba(251, 191, 36, 0.5)' }}>Sandığı Aç!</span>
               </div>
             ) : (
-              <div style={{ backgroundColor: 'rgba(234, 179, 8, 0.1)', border: '1px dashed rgba(234, 179, 8, 0.3)', borderRadius: '12px', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-                <span style={{ fontSize: '20px' }}>🔒</span>
-                <span style={{ color: '#fbbf24', fontWeight: 600, fontSize: '15px' }}>Günlük Sandık Kilitli</span>
+              <div style={{ backgroundColor: 'rgba(234, 179, 8, 0.06)', border: '1px dashed rgba(234, 179, 8, 0.25)', borderRadius: '12px', padding: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '18px' }}>🔒</span>
+                <span style={{ color: '#fbbf24', fontWeight: 600, fontSize: '13.5px' }}>Günlük Sandık Kilitli</span>
               </div>
             )}
           </div>
 
           {/* Başarımlarım */}
-          <div style={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '16px', padding: '24px', marginBottom: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#ffffff', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ backgroundColor: '#0f1523', border: '1px solid rgba(255, 255, 255, 0.07)', borderRadius: '16px', padding: '22px', marginBottom: '24px', boxShadow: 'var(--shadow-card)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+              <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#ffffff', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 🏅 Başarımlarım
               </h3>
-              <span style={{ backgroundColor: 'rgba(168, 85, 247, 0.1)', color: '#c084fc', fontSize: '12px', padding: '6px 12px', borderRadius: '9999px', fontWeight: 600, border: '1px solid rgba(168, 85, 247, 0.2)' }}>
+              <span style={{ backgroundColor: 'rgba(168, 85, 247, 0.12)', color: '#c084fc', fontSize: '11.5px', padding: '4px 12px', borderRadius: '9999px', fontWeight: 700, border: '1px solid rgba(168, 85, 247, 0.25)' }}>
                 {achievements.length} Başarım
               </span>
             </div>
 
             {achievements.length === 0 ? (
-              <div style={{ padding: '2rem', textAlign: 'center', color: '#9ca3af', backgroundColor: '#1e293b', borderRadius: '12px', border: '1px dashed #374151' }}>
+              <div style={{ padding: '1.75rem', textAlign: 'center', color: '#64748b', backgroundColor: '#090e18', borderRadius: '12px', border: '1px dashed rgba(255, 255, 255, 0.08)', fontSize: '13px' }}>
                 Henüz hiç başarım kazanmadın. Çalışmaya devam et!
               </div>
             ) : (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                 {achievements.map((ach) => (
-                  <div key={ach.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', backgroundColor: '#1e293b', borderRadius: '9999px', border: '1px solid #374151' }}>
-                    <span style={{ fontSize: '1.25rem' }}>{ach.icon || '🏆'}</span>
-                    <span style={{ color: '#f8fafc', fontWeight: 600, fontSize: '14px' }}>{ach.name}</span>
+                  <div key={ach.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '7px 14px', backgroundColor: 'rgba(255, 255, 255, 0.03)', borderRadius: '9999px', border: '1px solid rgba(255, 255, 255, 0.07)' }}>
+                    <span style={{ fontSize: '1.15rem' }}>{ach.icon || '🏆'}</span>
+                    <span style={{ color: '#f8fafc', fontWeight: 600, fontSize: '13px' }}>{ach.name}</span>
                   </div>
                 ))}
               </div>
