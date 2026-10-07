@@ -20,12 +20,23 @@ import {
   Eye,
 } from 'lucide-react';
 import { MaarifOpenEndedQuestion, MaarifExamScenario } from '@/types/maarif';
+import { useAuth } from '@/context/AuthContext';
 
 const MATH_SYMBOLS = ['√', 'x²', 'x³', 'x₁', 'x₂', 'Δ', 'π', '≤', '≥', '≠', '±', '∞', '°'];
 
 export default function MaarifExamSessionPage({ params }: { params: Promise<{ scenarioId: string }> }) {
   const { scenarioId } = use(params);
   const router = useRouter();
+  const { user } = useAuth();
+
+  // Güvenlik & İzolasyon: 12. Sınıf ve Mezun öğrenciler klasik YKS'ye yönlendirilir
+  useEffect(() => {
+    if (user && (user.role === 'ogrenci' || !user.role)) {
+      if (user.curriculum_mode === 'legacy_yks' || ['12', 'Mezun'].includes(user.sinif)) {
+        window.location.href = '/dashboard';
+      }
+    }
+  }, [user]);
 
   const [scenario, setScenario] = useState<MaarifExamScenario | null>(null);
   const [questions, setQuestions] = useState<MaarifOpenEndedQuestion[]>([]);

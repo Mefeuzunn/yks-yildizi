@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect } from 'react';
-import { usePathname } from 'next/navigation';
-import { AuthProvider } from '@/context/AuthContext';
+import { usePathname, useRouter } from 'next/navigation';
+import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { TimerProvider } from '@/context/TimerContext';
 import GlobalTimerWidget from '@/components/GlobalTimerWidget';
 import AppSidebar from '@/components/AppSidebar';
@@ -19,6 +19,53 @@ function ServiceWorkerRegistrar() {
       }).catch(() => {});
     }
   }, []);
+  return null;
+}
+
+/**
+ * CurriculumBoundaryGuard — Katı Müfredat & Panel İzolasyon Koruyucusu (Zero Contamination)
+ * - 9, 10, 11. Sınıf öğrencileri ASLA klasik YKS panellerine giremez (hemen /maarif'e yönlendirilir).
+ * - 12. Sınıf ve Mezun öğrencileri ASLA Maarif senaryolarına/yazılılarına giremez (hemen /dashboard'a yönlendirilir).
+ */
+function CurriculumBoundaryGuard() {
+  const { user, loading } = useAuth();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (loading || !user) return;
+
+    // Sadece öğrenci rolü için katı izolasyon kuralları uygulanır
+    if (user.role === 'ogrenci' || !user.role) {
+      const isMaarifUser =
+        user.curriculum_mode === 'maarif_v1' ||
+        ['9', '10', '11'].includes(user.sinif);
+
+      const isLegacyUser =
+        user.curriculum_mode === 'legacy_yks' ||
+        ['12', 'Mezun'].includes(user.sinif);
+
+      // Klasik YKS'ye özel sayfalar (9-11 girmemeli)
+      const legacyOnlyPrefixes = ['/dashboard', '/denemeler', '/puan-hesaplama', '/konular', '/eksikler'];
+
+      if (isMaarifUser) {
+        const isTryingLegacy = legacyOnlyPrefixes.some(
+          prefix => pathname === prefix || pathname?.startsWith(`${prefix}/`) || pathname?.startsWith(`${prefix}?`)
+        );
+        if (isTryingLegacy) {
+          router.replace('/maarif');
+          return;
+        }
+      }
+
+      // Maarif'e özel sayfalar (12 ve Mezun girmemeli)
+      if (isLegacyUser && (pathname === '/maarif' || pathname?.startsWith('/maarif/'))) {
+        router.replace('/dashboard');
+        return;
+      }
+    }
+  }, [user, loading, pathname, router]);
+
   return null;
 }
 
@@ -66,6 +113,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
   return (
     <AuthProvider>
       <TimerProvider>
+      <CurriculumBoundaryGuard />
       <div style={{ minHeight: '100vh', backgroundColor: '#0b0f19', overflowX: 'hidden' }}>
         <MobileHeader />
         <React.Suspense fallback={<div className="desktop-only" style={{ width: 230, borderRight: '1px solid #1f2937' }} />}>

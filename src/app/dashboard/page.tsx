@@ -187,8 +187,17 @@ function DashboardContent() {
   }, [user, handleRefresh]);
 
   useEffect(() => {
-    if (user && user.role === 'ogretmen') {
-      window.location.href = '/ogretmen/dashboard';
+    if (user) {
+      if (user.role === 'ogretmen') {
+        window.location.href = '/ogretmen/dashboard';
+      } else if (user.role === 'veli') {
+        window.location.href = '/veli';
+      } else if (
+        user.curriculum_mode === 'maarif_v1' ||
+        ['9', '10', '11'].includes(user.sinif)
+      ) {
+        window.location.href = '/maarif';
+      }
     }
   }, [user]);
 

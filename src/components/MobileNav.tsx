@@ -23,7 +23,6 @@ const MORE_TABS = [
   { emoji: '⚔️', label: 'Bilgi Arenası', href: '/duello' },
   { emoji: '🎧', label: 'Çalışma Odaları', href: '/calisma-odalari' },
   { emoji: '🔬', label: 'Simülasyonlar', href: '/simulasyonlar' },
-  { emoji: '🌱', label: 'Maarif Modeli (9-11)', href: '/maarif' },
   { emoji: '🎓', label: 'Tercih Robotu', href: '/dashboard?tab=tercih_robotu' },
   { emoji: '🧮', label: 'Puan Hesaplama', href: '/puan-hesaplama' },
   { emoji: '📋', label: 'Ödevlerim', href: '/odevlerim' },
@@ -35,6 +34,24 @@ const MORE_TABS = [
   { emoji: '🎴', label: 'Kartlar', href: '/dashboard?tab=cards' },
   { emoji: '🏫', label: 'Sınıfım', href: '/dashboard?tab=sinif' },
   { emoji: '👤', label: 'Profilim', href: '/dashboard?tab=profile' },
+];
+
+const MAARIF_MAIN_TABS = [
+  { emoji: '🌱', label: 'Maarif', href: '/maarif' },
+  { emoji: '📝', label: 'Yazılılar', href: '/maarif?tab=senaryolar' },
+  { emoji: '📚', label: 'Kazanımlar', href: '/maarif?tab=dersler' },
+  { emoji: '🤖', label: 'Mentor', href: '/maarif?tab=mentor' },
+];
+
+const MAARIF_MORE_TABS = [
+  { emoji: '🔬', label: 'Deney & Simülasyon', href: '/maarif?tab=deneyler' },
+  { emoji: '📋', label: 'Ödevlerim', href: '/odevlerim' },
+  { emoji: '🎧', label: 'Çalışma Odaları', href: '/calisma-odalari' },
+  { emoji: '🔬', label: 'Tüm Simülasyonlar', href: '/simulasyonlar' },
+  { emoji: '⚔️', label: 'Bilgi Arenası', href: '/duello' },
+  { emoji: '🏆', label: 'Ligler', href: '/ligler' },
+  { emoji: '🛍️', label: 'Mağaza', href: '/magaza' },
+  { emoji: '⚙️', label: 'Ayarlar', href: '/ayarlar' },
 ];
 
 function MobileNavContent() {
@@ -57,8 +74,21 @@ function MobileNavContent() {
     { emoji: '👤', label: 'Profilim', href: '/ogretmen/dashboard?tab=profil' },
   ];
   
-  const currentMainTabs = user?.role === 'ogretmen' ? TEACHER_MAIN_TABS : MAIN_TABS;
-  const currentMoreTabs = user?.role === 'ogretmen' ? TEACHER_MORE_TABS : MORE_TABS;
+  const isMaarif =
+    user?.curriculum_mode === 'maarif_v1' ||
+    ['9', '10', '11'].includes(user?.sinif || '');
+
+  const currentMainTabs = user?.role === 'ogretmen'
+    ? TEACHER_MAIN_TABS
+    : isMaarif
+    ? MAARIF_MAIN_TABS
+    : MAIN_TABS;
+
+  const currentMoreTabs = user?.role === 'ogretmen'
+    ? TEACHER_MORE_TABS
+    : isMaarif
+    ? MAARIF_MORE_TABS
+    : MORE_TABS;
   const [unreadCount, setUnreadCount] = useState(0);
 
   // Unread notification listener

@@ -40,6 +40,11 @@ export const LoginForm = () => {
           window.location.href = '/admin';
         } else if (localData.user?.role === 'veli' || role === 'parent') {
           window.location.href = '/veli';
+        } else if (
+          localData.user?.curriculum_mode === 'maarif_v1' ||
+          ['9', '10', '11'].includes(localData.user?.sinif)
+        ) {
+          window.location.href = '/maarif';
         } else {
           window.location.href = '/dashboard';
         }
@@ -59,10 +64,15 @@ export const LoginForm = () => {
 
           if (!error && data?.user) {
             const userRole = (data.user?.user_metadata?.role as Role) || role;
+            const userGrade = data.user?.user_metadata?.grade || '';
+            const isMaarif = ['9. Sınıf', '10. Sınıf', '11. Sınıf', '9', '10', '11'].includes(userGrade);
+
             if (userRole === 'teacher') {
               router.push('/ogretmen/dashboard');
             } else if (userRole === 'parent') {
               router.push('/veli');
+            } else if (isMaarif) {
+              router.push('/maarif');
             } else {
               router.push('/dashboard');
             }

@@ -53,6 +53,10 @@ export const RegisterForm = () => {
       const alanMap: Record<string, string> = {
         'Sayısal': 'Sayisal', 'Eşit Ağırlık': 'Esit Agirlik', 'Sözel': 'Sozel', 'Dil': 'Dil'
       };
+      const isMaarif = ['9. Sınıf', '10. Sınıf', '11. Sınıf'].includes(formData.grade);
+      const chosenSinif = sinifMap[formData.grade] || '12';
+      // 9 ve 10. sınıfta MEB ortak müfredat vardır, alan seçimi yoktur
+      const chosenAlan = (chosenSinif === '9' || chosenSinif === '10') ? 'Yok' : (alanMap[formData.field] || 'Sayisal');
       const backendRole = role === 'student' ? 'ogrenci' : role === 'teacher' ? 'ogretmen' : 'veli';
 
       // 1. Birincil Kayıt: Yerel veritabanı API üzerinden kullanıcıyı oluştur
@@ -64,8 +68,8 @@ export const RegisterForm = () => {
           email: formData.email.trim(),
           password: formData.password,
           role: backendRole,
-          sinif: sinifMap[formData.grade] || '12',
-          alan: alanMap[formData.field] || 'Sayisal',
+          sinif: chosenSinif,
+          alan: chosenAlan,
           classCode: formData.classCode?.trim() || undefined,
           brans: formData.branch?.trim() || undefined,
         }),
@@ -93,7 +97,7 @@ export const RegisterForm = () => {
                 full_name: formData.fullName.trim(),
                 role: role,
                 grade: role === 'student' ? formData.grade : null,
-                field: role === 'student' ? formData.field : null,
+                field: role === 'student' ? (chosenSinif === '9' || chosenSinif === '10' ? 'Ortak Müfredat' : formData.field) : null,
                 class_code: role === 'student' ? formData.classCode?.trim() : null,
                 branch: role === 'teacher' ? formData.branch?.trim() : null,
               },
@@ -108,6 +112,7 @@ export const RegisterForm = () => {
       setTimeout(() => {
         if (role === 'teacher') router.push('/ogretmen/dashboard');
         else if (role === 'parent') router.push('/veli');
+        else if (isMaarif) router.push('/maarif');
         else router.push('/dashboard');
         router.refresh();
       }, 1200);
@@ -232,25 +237,113 @@ export const RegisterForm = () => {
         <form onSubmit={handleSubmit} className="space-y-3.5">
           {role === 'student' && (
             <>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-slate-300">Sınıf</label>
-                  <select
-                    name="grade"
-                    value={formData.grade}
-                    onChange={handleChange}
-                    className="w-full bg-slate-950/60 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors"
-                  >
-                    <option value="9. Sınıf">9. Sınıf</option>
-                    <option value="10. Sınıf">10. Sınıf</option>
-                    <option value="11. Sınıf">11. Sınıf</option>
-                    <option value="12. Sınıf">12. Sınıf</option>
-                    <option value="Mezun">Mezun</option>
-                  </select>
+              {/* Sınıf & Müfredat Seçici */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-slate-200">Sınıfınızı Seçin</label>
+                  <span className="text-[10px] text-slate-400">Panel içeriğiniz sınıfınıza göre kilitlenir</span>
                 </div>
 
+                {/* Maarif Modeli Grubu (9, 10, 11) */}
+                <div className="p-2.5 rounded-xl bg-slate-950/70 border border-emerald-900/40 space-y-1.5">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="text-emerald-400 font-medium flex items-center gap-1">
+                      <span>🌱</span> Maarif Modeli (9 - 11. Sınıf)
+                    </span>
+                    <span className="text-[10px] text-emerald-500/80 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/40">
+                      Yeni Müfredat
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {(['9. Sınıf', '10. Sınıf', '11. Sınıf'] as const).map((g) => {
+                      const isSelected = formData.grade === g;
+                      return (
+                        <button
+                          key={g}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, grade: g })}
+                          className={`py-2 px-1 text-xs font-medium rounded-lg transition-all border cursor-pointer ${
+                            isSelected
+                              ? 'bg-emerald-950/80 border-emerald-500 text-emerald-200 shadow-sm shadow-emerald-900/40 ring-1 ring-emerald-500/50'
+                              : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                          }`}
+                        >
+                          {g}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Klasik YKS Grubu (12, Mezun) */}
+                <div className="p-2.5 rounded-xl bg-slate-950/70 border border-blue-900/40 space-y-1.5">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="text-blue-400 font-medium flex items-center gap-1">
+                      <span>🎓</span> Klasik YKS (12. Sınıf & Mezun)
+                    </span>
+                    <span className="text-[10px] text-blue-500/80 bg-blue-950/60 px-1.5 py-0.5 rounded border border-blue-800/40">
+                      TYT / AYT
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {(['12. Sınıf', 'Mezun'] as const).map((g) => {
+                      const isSelected = formData.grade === g;
+                      return (
+                        <button
+                          key={g}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, grade: g })}
+                          className={`py-2 px-1 text-xs font-medium rounded-lg transition-all border cursor-pointer ${
+                            isSelected
+                              ? 'bg-blue-950/80 border-blue-500 text-blue-200 shadow-sm shadow-blue-900/40 ring-1 ring-blue-500/50'
+                              : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                          }`}
+                        >
+                          {g}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Dinamik Bilgilendirme Kartı */}
+                {['9. Sınıf', '10. Sınıf', '11. Sınıf'].includes(formData.grade) ? (
+                  <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 text-xs">
+                    <div className="flex items-center gap-1.5 font-semibold text-emerald-300 mb-1">
+                      <span>🌱</span>
+                      <span>{formData.grade} Maarif Portalı Açılacak</span>
+                    </div>
+                    <p className="text-[11px] text-emerald-200/90 leading-relaxed m-0">
+                      Açık uçlu yazılı sınav senaryoları, süreç kazanımları, PhET deneyleri ve AstraTutor Maarif Mentoru paneli görüntülenecektir.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-200 text-xs">
+                    <div className="flex items-center gap-1.5 font-semibold text-blue-300 mb-1">
+                      <span>🎓</span>
+                      <span>{formData.grade} Klasik YKS Paneli Açılacak</span>
+                    </div>
+                    <p className="text-[11px] text-blue-200/90 leading-relaxed m-0">
+                      TYT/AYT deneme sınavları, hedef net takibi, soru havuzu, ligler ve YÖK Atlas tercih robotu paneli görüntülenecektir.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Alan Seçimi: 9 ve 10'da ortak müfredat, 11/12/Mezun'da alan seçimi */}
+              {formData.grade === '9. Sınıf' || formData.grade === '10. Sınıf' ? (
+                <div className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />
+                    <span>Alan Bilgisi:</span>
+                  </span>
+                  <span className="text-emerald-300 font-medium">MEB Ortak Müfredat (Tüm Dersler)</span>
+                </div>
+              ) : (
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-slate-300">Alan</label>
+                  <label className="text-xs font-medium text-slate-300">
+                    {formData.grade === '11. Sınıf' ? '11. Sınıf Alanı' : 'YKS Alanı'}
+                  </label>
                   <select
                     name="field"
                     value={formData.field}
@@ -263,7 +356,7 @@ export const RegisterForm = () => {
                     <option value="Dil">Dil</option>
                   </select>
                 </div>
-              </div>
+              )}
 
               <div className="space-y-1">
                 <div className="flex justify-between">

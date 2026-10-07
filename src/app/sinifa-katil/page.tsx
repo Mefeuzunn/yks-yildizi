@@ -4,10 +4,12 @@ import React, { Suspense, useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { GraduationCap, Loader2, CheckCircle, AlertCircle, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useAuth } from '@/context/AuthContext';
 
 function JoinClassContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { user } = useAuth();
   const initialCode = searchParams.get('code') || '';
   
   const [code, setCode] = useState(initialCode);
@@ -51,7 +53,12 @@ function JoinClassContent() {
         setClassName(data.className);
         
         setTimeout(() => {
-          router.push('/dashboard?tab=sinif');
+          const isMaarif = user?.curriculum_mode === 'maarif_v1' || ['9', '10', '11'].includes(user?.sinif || '');
+          if (isMaarif) {
+            router.push('/maarif');
+          } else {
+            router.push('/dashboard?tab=sinif');
+          }
         }, 1500);
       }
     } catch (err) {

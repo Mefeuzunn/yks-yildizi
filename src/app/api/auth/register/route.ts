@@ -128,24 +128,42 @@ export async function POST(req: Request) {
     // Oturum JWT oluştur ve çerezleri kaydet (anında giriş)
     const token = await signToken({ userId: id, role });
     const cookieStore = await cookies();
-    cookieStore.set('yks_session', token, {
-      httpOnly: true,
+    const cookieOpts = {
       secure: process.env.NODE_ENV === 'production',
       maxAge: 60 * 60 * 24 * 30, // 30 gün
       path: '/'
+    };
+
+    cookieStore.set('yks_session', token, {
+      ...cookieOpts,
+      httpOnly: true
     });
     cookieStore.set('yks_role', role, {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 60 * 60 * 24 * 30, // 30 gün
-      path: '/'
+      ...cookieOpts,
+      httpOnly: false
+    });
+    cookieStore.set('yks_curriculum_mode', curriculumMode, {
+      ...cookieOpts,
+      httpOnly: false
+    });
+    cookieStore.set('yks_sinif', sinif, {
+      ...cookieOpts,
+      httpOnly: false
     });
 
     return NextResponse.json({
       success: true,
       message: 'Kayıt başarılı!',
       token: id,
-      user: { id, username: finalUsername, role, email: email || null }
+      user: {
+        id,
+        username: finalUsername,
+        role,
+        email: email || null,
+        sinif,
+        alan,
+        curriculum_mode: curriculumMode
+      }
     }, { status: 201 });
 
   } catch (error: any) {

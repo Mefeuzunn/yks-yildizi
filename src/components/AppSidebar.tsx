@@ -34,7 +34,6 @@ const STUDENT_NAV_GROUPS: {
       { emoji: '🍅', label: 'Odak', href: '/dashboard?tab=focus' },
       { emoji: '📅', label: 'Program', href: '/dashboard?tab=schedule' },
       { emoji: '🔬', label: 'Simülasyonlar', href: '/simulasyonlar' },
-      { emoji: '🌱', label: 'Maarif Modeli (9-11)', href: '/maarif' },
     ],
   },
   {
@@ -54,6 +53,43 @@ const STUDENT_NAV_GROUPS: {
       { emoji: '⚔️', label: 'Bilgi Arenası', href: '/duello' },
       { emoji: '🎧', label: 'Çalışma Odaları', href: '/calisma-odalari' },
       { emoji: '🏫', label: 'Sınıfım', href: '/dashboard?tab=sinif' },
+      { emoji: '🏆', label: 'Ligler', href: '/ligler' },
+      { emoji: '🛍️', label: 'Mağaza', href: '/magaza' },
+    ],
+  },
+];
+
+// ─── Maarif Modeli Öğrenci Navigasyonu (9, 10, 11. Sınıf) ────────────────
+const MAARIF_NAV_GROUPS: {
+  label: string;
+  color: string;
+  items: { emoji: string; label: string; href: string }[];
+}[] = [
+  {
+    label: 'Maarif Portalı',
+    color: '#10b981',  // emerald
+    items: [
+      { emoji: '🌱', label: 'Maarif Ana Sayfa', href: '/maarif' },
+      { emoji: '📝', label: 'Yazılı Senaryoları', href: '/maarif?tab=senaryolar' },
+      { emoji: '📚', label: 'Müfredat & Kazanımlar', href: '/maarif?tab=dersler' },
+      { emoji: '🔬', label: 'Deney & Simülasyon', href: '/maarif?tab=deneyler' },
+      { emoji: '🤖', label: 'AstraTutor Mentoru', href: '/maarif?tab=mentor' },
+    ],
+  },
+  {
+    label: 'Çalışma & Araçlar',
+    color: '#3b82f6',  // blue
+    items: [
+      { emoji: '📋', label: 'Ödevlerim', href: '/odevlerim' },
+      { emoji: '🎧', label: 'Çalışma Odaları', href: '/calisma-odalari' },
+      { emoji: '🔬', label: 'Tüm Simülasyonlar', href: '/simulasyonlar' },
+    ],
+  },
+  {
+    label: 'Topluluk',
+    color: '#f59e0b',  // amber
+    items: [
+      { emoji: '⚔️', label: 'Bilgi Arenası', href: '/duello' },
       { emoji: '🏆', label: 'Ligler', href: '/ligler' },
       { emoji: '🛍️', label: 'Mağaza', href: '/magaza' },
     ],
@@ -270,9 +306,15 @@ function SidebarNav({ user }: { user: any }) {
     );
   }
 
+  const isMaarif =
+    user?.curriculum_mode === 'maarif_v1' ||
+    ['9', '10', '11'].includes(user?.sinif || '');
+
+  const activeNavGroups = isMaarif ? MAARIF_NAV_GROUPS : STUDENT_NAV_GROUPS;
+
   return (
     <nav style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-      {STUDENT_NAV_GROUPS.map(group => (
+      {activeNavGroups.map(group => (
         <NavGroup
           key={group.label}
           label={group.label}
@@ -353,19 +395,29 @@ export default function AppSidebar() {
   const { user, logout } = useAuth();
   const navScrollRef = useRef<HTMLDivElement>(null);
 
+  const isMaarif =
+    user?.curriculum_mode === 'maarif_v1' ||
+    ['9', '10', '11'].includes(user?.sinif || '');
+
   const initials = user?.username?.charAt(0)?.toUpperCase() || 'U';
   const roleLabel = user?.role === 'ogretmen'
     ? 'Eğitmen'
+    : isMaarif
+    ? `${user?.sinif || 9}. Sınıf Maarif`
     : user?.sinif === 'Mezun'
-    ? 'Mezun'
-    : `${user?.sinif || 12}. Sınıf Öğrenci`;
+    ? 'Mezun (YKS)'
+    : `${user?.sinif || 12}. Sınıf YKS`;
 
   const profileHref = user?.role === 'ogretmen'
     ? '/ogretmen/dashboard?tab=profil'
+    : isMaarif
+    ? '/maarif'
     : '/dashboard?tab=profile';
 
   const avatarColor = user?.role === 'ogretmen'
     ? 'linear-gradient(135deg,#10b981,#059669)'
+    : isMaarif
+    ? 'linear-gradient(135deg,#059669,#10b981)'
     : 'linear-gradient(135deg,#8b5cf6,#6366f1)';
 
   // Mouse wheel anywhere on aside will smoothly scroll the nav container
