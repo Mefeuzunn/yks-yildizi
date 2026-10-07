@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Settings, User, Bell, Palette, Shield, Save, Loader2, CheckCircle2, AlertCircle, CreditCard, Trash2, Smartphone, ExternalLink, Trophy, Flame, Moon, Clock } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { PushNotificationToggle } from '@/components/PWAComponents';
-import WidgetInstallModal from '@/components/WidgetInstallModal';
 
 export default function AyarlarPage() {
   const { user } = useAuth();
@@ -38,7 +37,6 @@ export default function AyarlarPage() {
   
   // Hesap Silme state
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [showWidgetModal, setShowWidgetModal] = useState(false);
 
   const avatars = ['Felix', 'Aneka', 'Bandit', 'Jasper', 'Max'];
 
@@ -531,124 +529,6 @@ export default function AyarlarPage() {
             </div>
           )}
 
-          {activeTab === 'widget' && (
-            <div>
-              <div style={{ marginBottom: '1.5rem' }}>
-                <h2 style={{ fontSize: '1.5rem', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Smartphone size={24} color="#38bdf8" /> Telefon Ana Ekran Widgetı
-                </h2>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: 4 }}>
-                  YKS 2027 geri sayımı, günlük çözülen soru adedi ve yangın serisi istatistiklerinizi telefonunuzun ana ekranında canlı takip edin.
-                </p>
-              </div>
-
-              {/* Widget Canlı Önizleme Kartı */}
-              <div
-                style={{
-                  background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95))',
-                  border: '1px solid rgba(56, 189, 248, 0.3)',
-                  borderRadius: '20px',
-                  padding: '20px',
-                  marginBottom: '1.5rem',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.4), 0 0 20px rgba(56, 189, 248, 0.1)',
-                  maxWidth: '480px',
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'linear-gradient(135deg, #0284c7, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <span style={{ fontSize: '14px' }}>✨</span>
-                    </div>
-                    <span style={{ fontSize: '13px', fontWeight: 800, color: '#fff' }}>YKS YILDIZI WIDGET</span>
-                  </div>
-                  <div style={{ display: 'flex', gap: '6px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
-                      🔥 Seri Aktif
-                    </span>
-                  </div>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', background: 'rgba(2, 6, 23, 0.6)', padding: '12px 16px', borderRadius: '14px', marginBottom: '12px' }}>
-                  <div>
-                    <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 700 }}>KALAN GÜN</div>
-                    <div style={{ fontSize: '26px', fontWeight: 900, color: '#38bdf8' }}>257</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 700 }}>BUGÜNKÜ HEDEF</div>
-                    <div style={{ fontSize: '20px', fontWeight: 800, color: '#f8fafc', marginTop: '4px' }}>0 / 50 Soru</div>
-                  </div>
-                </div>
-
-                <p style={{ margin: '0 0 14px 0', fontSize: '11px', color: '#94a3b8', fontStyle: 'italic', textAlign: 'center' }}>
-                  &ldquo;Bugün attığın her adım, yarınki sıralamanı belirleyecek.&rdquo;
-                </p>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                  <a
-                    href="/widget"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      padding: '8px 12px',
-                      background: 'linear-gradient(135deg, #0284c7, #2563eb)',
-                      borderRadius: '10px',
-                      color: '#fff',
-                      fontSize: '12px',
-                      fontWeight: 700,
-                      textDecoration: 'none',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '6px',
-                    }}
-                  >
-                    <span>Canlı Widget Aç</span>
-                    <ExternalLink size={12} />
-                  </a>
-
-                  <button
-                    type="button"
-                    onClick={() => setShowWidgetModal(true)}
-                    style={{
-                      padding: '8px 12px',
-                      background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(139, 92, 246, 0.2))',
-                      border: '1px solid rgba(56, 189, 248, 0.4)',
-                      borderRadius: '10px',
-                      color: '#38bdf8',
-                      fontSize: '12px',
-                      fontWeight: 800,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '6px',
-                    }}
-                  >
-                    <Smartphone size={14} />
-                    <span>Widget Stüdyosu ✨</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Bilgilendirme Kartları */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <h4 style={{ color: '#38bdf8', margin: '0 0 0.5rem 0', fontSize: '0.95rem', fontWeight: 600 }}>🤖 Android PWA Desteği</h4>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0, lineHeight: 1.5 }}>
-                    Chrome veya Edge ile siteyi telefonunuza yükledikten sonra telefonunuzun Araç Takımları (Widget) menüsünden YKS Yıldızı sayacını doğrudan ana ekranınıza ekleyebilirsiniz.
-                  </p>
-                </div>
-
-                <div style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <h4 style={{ color: '#c084fc', margin: '0 0 0.5rem 0', fontSize: '0.95rem', fontWeight: 600 }}>🍎 iOS (iPhone) Desteği</h4>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0, lineHeight: 1.5 }}>
-                    Safari Paylaş menüsünden &quot;Ana Ekrana Ekle&quot; yaparak bağımsız çerçevesiz mini widget simgesi oluşturabilir, Pomodoro sayacını başlattığınızda kilit ekranı Canlı Etkinliğini kullanabilirsiniz.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
           {activeTab === 'guvenlik' && (
             <div>
               <h2 style={{ fontSize: '1.5rem', color: '#fff', marginBottom: '2rem' }}>Güvenlik & Şifre</h2>
@@ -686,11 +566,6 @@ export default function AyarlarPage() {
 
         </motion.div>
       </div>
-
-      <WidgetInstallModal 
-        isOpen={showWidgetModal} 
-        onClose={() => setShowWidgetModal(false)} 
-      />
 
       <style jsx>{`
         @media (max-width: 768px) {
