@@ -160,29 +160,31 @@ export default function StorePage() {
         </div>
         
         {/* User Balance */}
-        <div className="shop-balance" style={{ backgroundColor: '#131827', border: '1px solid rgba(255,255,255,0.1)', padding: '12px 20px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '13px', color: '#9ca3af', fontWeight: 600 }}>Bakiye:</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div className="shop-balance" style={{ backgroundColor: 'rgba(15, 21, 35, 0.85)', border: '1px solid rgba(255,255,255,0.08)', padding: '12px 20px', borderRadius: '18px', display: 'flex', alignItems: 'center', gap: '12px', backdropFilter: 'blur(16px)', boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }}>
+          <span style={{ fontSize: '13px', color: '#94a3b8', fontWeight: 700 }}>Bakiye:</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Star size={20} color="#facc15" fill="#facc15" />
-            <span style={{ fontSize: '22px', fontWeight: 800, color: '#fff' }}>{userXP.toLocaleString('tr-TR')}</span>
+            <span style={{ fontSize: '22px', fontWeight: 900, color: '#fff', fontVariantNumeric: 'tabular-nums' }}>{userXP.toLocaleString('tr-TR')}</span>
           </div>
         </div>
       </header>
 
       {/* Tabs */}
-      <div className="shop-tabs" style={{ display: 'flex', gap: '12px', marginBottom: '32px', overflowX: 'auto', paddingBottom: '8px' }}>
+      <div className="shop-tabs" style={{ display: 'flex', gap: '10px', marginBottom: '32px', overflowX: 'auto', paddingBottom: '8px' }}>
         {CATEGORIES.map(cat => (
           <button
             key={cat.id}
             onClick={() => setActiveTab(cat.id)}
+            className="active:scale-[0.98]"
             style={{
               display: 'flex', alignItems: 'center', gap: '8px',
-              padding: '12px 20px', borderRadius: '12px',
-              backgroundColor: activeTab === cat.id ? 'rgba(236, 72, 153, 0.15)' : '#131827',
-              color: activeTab === cat.id ? '#ec4899' : '#9ca3af',
-              border: `1px solid ${activeTab === cat.id ? 'rgba(236, 72, 153, 0.3)' : 'rgba(255,255,255,0.05)'}`,
-              fontWeight: 600, fontSize: '14px', cursor: 'pointer',
-              transition: 'all 0.2s', whiteSpace: 'nowrap'
+              padding: '12px 20px', borderRadius: '14px',
+              backgroundColor: activeTab === cat.id ? 'rgba(236, 72, 153, 0.15)' : 'rgba(15, 21, 35, 0.75)',
+              color: activeTab === cat.id ? '#f472b6' : '#94a3b8',
+              border: `1px solid ${activeTab === cat.id ? 'rgba(236, 72, 153, 0.4)' : 'rgba(255,255,255,0.08)'}`,
+              fontWeight: 800, fontSize: '13.5px', cursor: 'pointer',
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)', whiteSpace: 'nowrap',
+              boxShadow: activeTab === cat.id ? '0 0 20px rgba(236, 72, 153, 0.25)' : 'none'
             }}
           >
             {cat.icon}
@@ -203,13 +205,14 @@ export default function StorePage() {
               key={item.id}
               className="shop-card"
               style={{ 
-                backgroundColor: '#131827', 
-                border: isEquipped ? '2px solid #10b981' : '1px solid rgba(255,255,255,0.05)', 
-                boxShadow: isEquipped ? '0 0 25px rgba(16, 185, 129, 0.2)' : 'none',
-                borderRadius: '20px', 
+                backgroundColor: 'rgba(15, 21, 35, 0.85)', 
+                border: isEquipped ? '2px solid #10b981' : '1px solid rgba(255,255,255,0.08)', 
+                boxShadow: isEquipped ? '0 0 30px rgba(16, 185, 129, 0.25)' : '0 8px 30px rgba(0,0,0,0.3)',
+                borderRadius: '22px', 
                 padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center',
                 position: 'relative', overflow: 'hidden',
-                transition: 'all 0.3s ease'
+                backdropFilter: 'blur(16px)',
+                transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
               }}
             >
               {/* Active Equipped Badge */}
@@ -217,25 +220,25 @@ export default function StorePage() {
                 <div style={{
                   position: 'absolute', top: '12px', right: '12px',
                   background: 'rgba(16, 185, 129, 0.2)', border: '1px solid rgba(16, 185, 129, 0.5)',
-                  color: '#34d399', fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '12px',
+                  color: '#34d399', fontSize: '11px', fontWeight: 800, padding: '4px 10px', borderRadius: '12px',
                   display: 'flex', alignItems: 'center', gap: '4px'
                 }}>
-                  <CheckCircle2 size={12} /> Kuşanıldı
+                  <CheckCircle2 size={13} /> Kuşanıldı
                 </div>
               )}
 
               {/* Background Glow */}
-              <div style={{ position: 'absolute', top: '-30px', left: '50%', transform: 'translateX(-50%)', width: '100px', height: '100px', background: item.color, opacity: 0.12, filter: 'blur(40px)', borderRadius: '50%' }} />
+              <div style={{ position: 'absolute', top: '-30px', left: '50%', transform: 'translateX(-50%)', width: '110px', height: '110px', background: item.color, opacity: 0.15, filter: 'blur(45px)', borderRadius: '50%' }} />
               
               <div className="shop-emoji" style={{ fontSize: '64px', marginBottom: '16px', filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.5))' }}>
                 {item.emoji}
               </div>
               
-              <h3 className="shop-item-name" style={{ fontSize: '18px', fontWeight: 700, color: '#fff', marginBottom: '8px', textAlign: 'center' }}>{item.name}</h3>
+              <h3 className="shop-item-name" style={{ fontSize: '18px', fontWeight: 800, color: '#fff', marginBottom: '8px', textAlign: 'center' }}>{item.name}</h3>
               
               <div className="shop-price-row" style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '24px' }}>
-                <Star size={16} color={item.purchased ? '#9ca3af' : "#facc15"} fill={item.purchased ? 'transparent' : "#facc15"} />
-                <span className="shop-price-text" style={{ fontSize: '16px', fontWeight: 600, color: item.purchased ? '#9ca3af' : '#facc15' }}>
+                <Star size={16} color={item.purchased ? '#64748b' : "#facc15"} fill={item.purchased ? 'transparent' : "#facc15"} />
+                <span className="shop-price-text" style={{ fontSize: '15px', fontWeight: 700, color: item.purchased ? '#64748b' : '#facc15', fontVariantNumeric: 'tabular-nums' }}>
                   {item.purchased ? 'Satın Alındı' : item.price.toLocaleString('tr-TR')}
                 </span>
               </div>
@@ -245,15 +248,16 @@ export default function StorePage() {
                 <button 
                   onClick={() => handleBuy(item)}
                   disabled={userXP < item.price || buyingId === item.id}
-                  className="shop-buy-btn"
+                  className="shop-buy-btn active:scale-[0.98]"
                   style={{
-                    width: '100%', padding: '12px', borderRadius: '12px',
-                    backgroundColor: userXP >= item.price ? item.color : 'rgba(255,255,255,0.02)',
-                    color: userXP >= item.price ? '#fff' : '#4b5563',
-                    border: 'none', fontWeight: 700, fontSize: '14px',
+                    width: '100%', padding: '12px', borderRadius: '14px',
+                    backgroundColor: userXP >= item.price ? item.color : 'rgba(255,255,255,0.03)',
+                    color: userXP >= item.price ? '#fff' : '#64748b',
+                    border: 'none', fontWeight: 800, fontSize: '14px',
                     cursor: (userXP < item.price || buyingId === item.id) ? 'not-allowed' : 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                    transition: 'all 0.2s', marginTop: 'auto'
+                    transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)', marginTop: 'auto',
+                    boxShadow: userXP >= item.price ? `0 4px 16px ${item.color}50` : 'none'
                   }}
                 >
                   {buyingId === item.id ? <Loader2 className="animate-spin" size={18} /> : (userXP < item.price ? <Lock size={18} /> : null)}
@@ -263,16 +267,16 @@ export default function StorePage() {
                 <button
                   onClick={() => handleEquip(item)}
                   disabled={equippingId === item.id}
-                  className="shop-buy-btn"
+                  className="shop-buy-btn active:scale-[0.98]"
                   style={{
-                    width: '100%', padding: '12px', borderRadius: '12px',
+                    width: '100%', padding: '12px', borderRadius: '14px',
                     backgroundColor: 'rgba(16, 185, 129, 0.15)',
                     color: '#34d399',
                     border: '1px solid rgba(16, 185, 129, 0.4)',
-                    fontWeight: 700, fontSize: '14px',
+                    fontWeight: 800, fontSize: '14px',
                     cursor: equippingId === item.id ? 'not-allowed' : 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                    transition: 'all 0.2s', marginTop: 'auto'
+                    transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)', marginTop: 'auto'
                   }}
                 >
                   {equippingId === item.id ? <Loader2 className="animate-spin" size={18} /> : <CheckCircle2 size={18} />}
@@ -282,16 +286,16 @@ export default function StorePage() {
                 <button
                   onClick={() => handleEquip(item)}
                   disabled={equippingId === item.id}
-                  className="shop-buy-btn"
+                  className="shop-buy-btn active:scale-[0.98]"
                   style={{
-                    width: '100%', padding: '12px', borderRadius: '12px',
+                    width: '100%', padding: '12px', borderRadius: '14px',
                     background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
                     color: '#fff',
-                    border: 'none', fontWeight: 700, fontSize: '14px',
+                    border: 'none', fontWeight: 800, fontSize: '14px',
                     cursor: equippingId === item.id ? 'not-allowed' : 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                    transition: 'all 0.2s', marginTop: 'auto',
-                    boxShadow: '0 4px 14px rgba(99, 102, 241, 0.35)'
+                    transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)', marginTop: 'auto',
+                    boxShadow: '0 4px 16px rgba(99, 102, 241, 0.35)'
                   }}
                 >
                   {equippingId === item.id ? <Loader2 className="animate-spin" size={18} /> : <Sparkles size={18} />}

@@ -442,26 +442,26 @@ export default function DuelloPage() {
               </p>
 
               <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '2.5rem', flexWrap: 'wrap' }}>
-                <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '18px', padding: '1.5rem', width: '100%', maxWidth: '200px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', backdropFilter: 'blur(12px)' }}>
-                  <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(56,189,248,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Clock size={24} color="#38bdf8" />
+                <div style={{ backgroundColor: 'rgba(15, 21, 35, 0.75)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '20px', padding: '1.5rem', width: '100%', maxWidth: '200px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', backdropFilter: 'blur(16px)', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}>
+                  <div style={{ width: '46px', height: '46px', borderRadius: '14px', background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Clock size={22} color="#38bdf8" />
                   </div>
-                  <div style={{ fontWeight: 700, fontSize: '1.05rem', color: '#f1f5f9' }}>15 Saniye/Soru</div>
-                  <span style={{ fontSize: '11px', color: '#64748b' }}>Hızlı karar ver</span>
+                  <div style={{ fontWeight: 800, fontSize: '1.05rem', color: '#f1f5f9' }}>15 Saniye/Soru</div>
+                  <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Hızlı karar ver</span>
                 </div>
-                <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '18px', padding: '1.5rem', width: '100%', maxWidth: '200px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', backdropFilter: 'blur(12px)' }}>
-                  <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(245,158,11,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Activity size={24} color="#f59e0b" />
+                <div style={{ backgroundColor: 'rgba(15, 21, 35, 0.75)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '20px', padding: '1.5rem', width: '100%', maxWidth: '200px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', backdropFilter: 'blur(16px)', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}>
+                  <div style={{ width: '46px', height: '46px', borderRadius: '14px', background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Activity size={22} color="#fbbf24" />
                   </div>
-                  <div style={{ fontWeight: 700, fontSize: '1.05rem', color: '#f1f5f9' }}>10 Tur</div>
-                  <span style={{ fontSize: '11px', color: '#64748b' }}>En yüksek puan kazanır</span>
+                  <div style={{ fontWeight: 800, fontSize: '1.05rem', color: '#f1f5f9' }}>10 Tur</div>
+                  <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>En yüksek puan kazanır</span>
                 </div>
-                <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '18px', padding: '1.5rem', width: '100%', maxWidth: '200px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', boxShadow: '0 0 30px rgba(16, 185, 129, 0.08)', backdropFilter: 'blur(12px)' }}>
-                  <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(16,185,129,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Trophy size={24} color="#10b981" />
+                <div style={{ backgroundColor: 'rgba(15, 21, 35, 0.75)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '20px', padding: '1.5rem', width: '100%', maxWidth: '200px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', boxShadow: '0 8px 32px rgba(0,0,0,0.3)', backdropFilter: 'blur(16px)' }}>
+                  <div style={{ width: '46px', height: '46px', borderRadius: '14px', background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Trophy size={22} color="#34d399" />
                   </div>
-                  <div style={{ fontWeight: 700, fontSize: '1.05rem', color: '#f1f5f9' }}>+50 XP & Lig Puanı</div>
-                  <span style={{ fontSize: '11px', color: '#64748b' }}>Liderlikte yüksel</span>
+                  <div style={{ fontWeight: 800, fontSize: '1.05rem', color: '#f1f5f9' }}>+50 XP & Lig</div>
+                  <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Liderlikte yüksel</span>
                 </div>
               </div>
 
@@ -471,17 +471,18 @@ export default function DuelloPage() {
                   <button
                     key={sub.id}
                     onClick={() => setSelectedSubject(sub.id)}
+                    className="active:scale-[0.98]"
                     style={{
-                      background: selectedSubject === sub.id ? 'linear-gradient(135deg, rgba(239,68,68,0.25), rgba(185,28,28,0.15))' : 'rgba(255,255,255,0.03)',
+                      background: selectedSubject === sub.id ? 'linear-gradient(135deg, rgba(239,68,68,0.25), rgba(185,28,28,0.15))' : 'rgba(15, 21, 35, 0.75)',
                       border: selectedSubject === sub.id ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.08)',
                       color: selectedSubject === sub.id ? '#fca5a5' : '#94a3b8',
                       padding: '0.6rem 1.4rem',
                       borderRadius: '999px',
-                      fontWeight: 700,
-                      fontSize: '0.9rem',
+                      fontWeight: 800,
+                      fontSize: '0.875rem',
                       cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      boxShadow: selectedSubject === sub.id ? '0 0 15px rgba(239,68,68,0.2)' : 'none'
+                      transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                      boxShadow: selectedSubject === sub.id ? '0 0 20px rgba(239,68,68,0.25)' : 'none'
                     }}
                   >
                     {sub.label}
@@ -490,26 +491,27 @@ export default function DuelloPage() {
               </div>
 
               <motion.button 
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
                 onClick={startMatchmaking}
                 style={{ 
                   background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)', 
                   color: '#fff', 
                   border: 'none', 
                   borderRadius: '999px', 
-                  padding: '1.25rem 3.5rem', 
-                  fontSize: '1.35rem', 
+                  padding: '1.15rem 3.25rem', 
+                  fontSize: '1.25rem', 
                   fontWeight: 900, 
                   cursor: 'pointer', 
                   display: 'inline-flex', 
                   alignItems: 'center', 
-                  gap: '1rem',
-                  boxShadow: '0 0 35px rgba(239, 68, 68, 0.45)',
-                  letterSpacing: '0.02em'
+                  gap: '0.85rem',
+                  boxShadow: '0 8px 32px rgba(239, 68, 68, 0.45)',
+                  letterSpacing: '0.02em',
+                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
                 }}
               >
-                <Swords size={28} /> Rakip Bul ve Başla!
+                <Swords size={26} /> Rakip Bul ve Başla!
               </motion.button>
             </motion.div>
           )}
@@ -575,32 +577,46 @@ export default function DuelloPage() {
             <motion.div key="active" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ width: '100%' }}>
               
               {/* Top Bar */}
-              <div className="duel-top-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', background: 'rgba(255,255,255,0.03)', padding: '1.25rem 2rem', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)' }}>
+              <div
+                className="duel-top-bar"
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '1.25rem',
+                  backgroundColor: 'rgba(15, 21, 35, 0.85)',
+                  padding: '1.25rem 2rem',
+                  borderRadius: '24px',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  backdropFilter: 'blur(16px)',
+                  boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)',
+                }}
+              >
                 
                 {/* Player 1 (Me) */}
                 <div className="duel-player-me" style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '33%' }}>
-                  <div className="duel-avatar" style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.2rem', fontWeight: 800, border: '2px solid rgba(59,130,246,0.5)', boxShadow: '0 0 15px rgba(59,130,246,0.3)' }}>
+                  <div className="duel-avatar" style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.2rem', fontWeight: 800, border: '2px solid rgba(59,130,246,0.5)', boxShadow: '0 0 20px rgba(59,130,246,0.35)' }}>
                     {me?.username?.substring(0,2).toUpperCase()}
                   </div>
                   <div>
-                    <div className="duel-username" style={{ color: '#94a3b8', fontWeight: 600, fontSize: '0.85rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{me?.username}</div>
-                    <div className="duel-score" style={{ color: '#fff', fontWeight: 900, fontSize: '1.6rem', lineHeight: 1 }}>{me?.score || 0}</div>
+                    <div className="duel-username" style={{ color: '#94a3b8', fontWeight: 700, fontSize: '0.85rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{me?.username}</div>
+                    <div className="duel-score" style={{ color: '#fff', fontWeight: 900, fontSize: '1.75rem', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{me?.score || 0}</div>
                   </div>
                 </div>
 
                 {/* Center Status & Progress */}
                 <div className="duel-center-status" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '33%' }}>
-                  <div className="duel-round-pill" style={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)', color: '#fff', padding: '0.3rem 1.1rem', borderRadius: '999px', fontWeight: 800, fontSize: '0.85rem', marginBottom: '0.5rem', letterSpacing: '0.08em', whiteSpace: 'nowrap', boxShadow: '0 0 15px rgba(239,68,68,0.35)' }}>
+                  <div className="duel-round-pill" style={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)', color: '#fff', padding: '0.35rem 1.25rem', borderRadius: '999px', fontWeight: 800, fontSize: '0.85rem', marginBottom: '0.5rem', letterSpacing: '0.08em', whiteSpace: 'nowrap', boxShadow: '0 0 15px rgba(239,68,68,0.35)' }}>
                      Tur {currentRound} / 10
                   </div>
-                  <div style={{ width: '100%', height: '7px', background: 'rgba(255,255,255,0.08)', borderRadius: '999px', overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${timeProgress}%`, background: progressColor, transition: 'width 0.1s linear, background-color 0.4s', borderRadius: '999px', boxShadow: `0 0 8px ${progressColor}` }} />
+                  <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.06)', borderRadius: '999px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.04)' }}>
+                    <div style={{ height: '100%', width: `${timeProgress}%`, background: progressColor, transition: 'width 0.1s linear, background-color 0.4s', borderRadius: '999px', boxShadow: `0 0 10px ${progressColor}` }} />
                   </div>
                 </div>
 
                 {/* Player 2 (Opponent) */}
                 <div className="duel-player-opp" style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexDirection: 'row-reverse', width: '33%', textAlign: 'right' }}>
-                  <div className="duel-avatar" style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'linear-gradient(135deg, #f59e0b, #ea580c)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.2rem', fontWeight: 800, position: 'relative', border: '2px solid rgba(245,158,11,0.5)', boxShadow: '0 0 15px rgba(245,158,11,0.3)' }}>
+                  <div className="duel-avatar" style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'linear-gradient(135deg, #f59e0b, #ea580c)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.2rem', fontWeight: 800, position: 'relative', border: '2px solid rgba(245,158,11,0.5)', boxShadow: '0 0 20px rgba(245,158,11,0.35)' }}>
                     {opponent?.username ? opponent.username.substring(0,2).toUpperCase() : '?'}
                     {opponent?.answeredCurrentRound && (
                        <div style={{ position: 'absolute', top: -5, right: -5, background: '#10b981', borderRadius: '50%', padding: '2px', border: '2px solid #080c14' }}>
@@ -609,8 +625,8 @@ export default function DuelloPage() {
                     )}
                   </div>
                   <div>
-                    <div className="duel-username" style={{ color: '#94a3b8', fontWeight: 600, fontSize: '0.85rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{opponent?.username || 'Rakip'}</div>
-                    <div className="duel-score" style={{ color: '#fff', fontWeight: 900, fontSize: '1.6rem', lineHeight: 1 }}>{opponent?.score || 0}</div>
+                    <div className="duel-username" style={{ color: '#94a3b8', fontWeight: 700, fontSize: '0.85rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{opponent?.username || 'Rakip'}</div>
+                    <div className="duel-score" style={{ color: '#fff', fontWeight: 900, fontSize: '1.75rem', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{opponent?.score || 0}</div>
                   </div>
                 </div>
               </div>
@@ -621,14 +637,14 @@ export default function DuelloPage() {
                 transition={{ duration: 0.4 }}
                 className="duel-question-area" 
                 style={{ 
-                  background: isGlow ? 'rgba(16,185,129,0.06)' : 'rgba(255,255,255,0.03)', 
-                  border: isGlow ? '1px solid rgba(16,185,129,0.4)' : isShaking ? '1px solid rgba(239,68,68,0.5)' : '1px solid rgba(255,255,255,0.06)', 
-                  boxShadow: isGlow ? '0 0 35px rgba(16,185,129,0.25)' : isShaking ? '0 0 35px rgba(239,68,68,0.25)' : 'none',
+                  backgroundColor: isGlow ? 'rgba(16,185,129,0.08)' : 'rgba(15, 21, 35, 0.85)', 
+                  border: isGlow ? '1px solid rgba(16,185,129,0.45)' : isShaking ? '1px solid rgba(239,68,68,0.5)' : '1px solid rgba(255,255,255,0.08)', 
+                  boxShadow: isGlow ? '0 0 35px rgba(16,185,129,0.25)' : isShaking ? '0 0 35px rgba(239,68,68,0.25)' : '0 12px 36px rgba(0, 0, 0, 0.35)',
                   borderRadius: '24px', 
-                  padding: '3rem', 
+                  padding: 'clamp(1.5rem, 4vw, 3rem)', 
                   minHeight: '400px', 
                   display: 'flex', 
-                  flexDirection: 'column',
+                  flexDirection: 'column', 
                   backdropFilter: 'blur(16px)',
                   transition: 'background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease'
                 }}
@@ -639,7 +655,7 @@ export default function DuelloPage() {
                   </div>
                 ) : (
                   <>
-                    <h3 className="duel-question-text" style={{ fontSize: '1.45rem', color: '#f8fafc', lineHeight: 1.6, marginBottom: '2.5rem', textAlign: 'center', fontWeight: 600 }}>
+                    <h3 className="duel-question-text" style={{ fontSize: 'clamp(1.15rem, 2.5vw, 1.45rem)', color: '#f8fafc', lineHeight: 1.6, marginBottom: '2.5rem', textAlign: 'center', fontWeight: 700 }}>
                       {question.metin}
                     </h3>
                     <div className="duel-options-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: 'auto' }}>
@@ -647,7 +663,7 @@ export default function DuelloPage() {
                         const labels = ['A', 'B', 'C', 'D', 'E'];
                         const isSelected = selectedOption === opt;
                         
-                        let bg = 'rgba(255,255,255,0.04)';
+                        let bg = 'rgba(255,255,255,0.035)';
                         let border = '1px solid rgba(255,255,255,0.08)';
                         let textColor = '#e2e8f0';
 
@@ -655,22 +671,22 @@ export default function DuelloPage() {
                           if (isAnswerCorrect === true) {
                             bg = 'rgba(16, 185, 129, 0.18)';
                             border = '2px solid #10b981';
-                            textColor = '#10b981';
+                            textColor = '#34d399';
                           } else if (isAnswerCorrect === false) {
                             bg = 'rgba(239, 68, 68, 0.18)';
                             border = '2px solid #ef4444';
-                            textColor = '#ef4444';
+                            textColor = '#f87171';
                           } else {
                             bg = 'rgba(59, 130, 246, 0.18)';
                             border = '2px solid #3b82f6';
-                            textColor = '#3b82f6';
+                            textColor = '#60a5fa';
                           }
                         }
 
                         if (selectedOption && opt === question.dogruCevap && !isAnswerCorrect) {
                            bg = 'rgba(16, 185, 129, 0.12)';
                            border = '2px dashed #10b981';
-                           textColor = '#10b981';
+                           textColor = '#34d399';
                         }
 
                         return (
@@ -678,27 +694,27 @@ export default function DuelloPage() {
                             key={idx}
                             onClick={() => handleAnswer(opt)}
                             disabled={!!selectedOption}
-                            className="duel-option-button"
+                            className="duel-option-button active:scale-[0.98]"
                             style={{
-                              padding: '1.25rem', 
+                              padding: '1.15rem 1.25rem', 
                               borderRadius: '16px', 
                               background: bg, 
                               border,
                               color: textColor, 
-                              fontSize: '1.05rem', 
+                              fontSize: '1rem', 
                               textAlign: 'left', 
                               display: 'flex', 
                               alignItems: 'center', 
                               gap: '1rem',
                               cursor: selectedOption ? 'default' : 'pointer', 
-                              transition: 'all 0.2s ease',
+                              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
                               gridColumn: idx === 4 ? 'span 2' : 'span 1',
-                              fontWeight: 600
+                              fontWeight: 700
                             }}
-                            onMouseOver={(e) => { if (!selectedOption) e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
+                            onMouseOver={(e) => { if (!selectedOption) e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; }}
                             onMouseOut={(e) => { if (!selectedOption) e.currentTarget.style.background = bg; }}
                           >
-                            <span className="duel-option-label" style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '1rem', flexShrink: 0, border: '1px solid rgba(255,255,255,0.08)' }}>
+                            <span className="duel-option-label" style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.95rem', flexShrink: 0, border: '1px solid rgba(255,255,255,0.1)' }}>
                               {labels[idx]}
                             </span>
                             <span style={{ flex: 1 }}>{opt}</span>
@@ -715,45 +731,55 @@ export default function DuelloPage() {
           )}
 
           {phase === 'finished' && (
-            <motion.div key="finished" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} style={{ textAlign: 'center', width: '100%', maxWidth: '620px' }}>
-              <div className="duel-finished-card" style={{ background: 'rgba(255,255,255,0.03)', padding: '3.5rem 3rem', borderRadius: '32px', border: winnerId === user.id ? '2px solid #f59e0b' : winnerId === 'draw' ? '2px solid #3b82f6' : '1px solid rgba(255,255,255,0.1)', boxShadow: winnerId === user.id ? '0 0 50px rgba(245, 158, 11, 0.25)' : 'none', backdropFilter: 'blur(20px)' }}>
+            <motion.div key="finished" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ textAlign: 'center', width: '100%', maxWidth: '620px' }}>
+              <div
+                className="duel-finished-card"
+                style={{
+                  backgroundColor: '#0f1523',
+                  padding: 'clamp(2rem, 5vw, 3.5rem) clamp(1.5rem, 4vw, 3rem)',
+                  borderRadius: '32px',
+                  border: winnerId === user.id ? '2px solid rgba(245, 158, 11, 0.6)' : winnerId === 'draw' ? '2px solid rgba(59, 130, 246, 0.6)' : '1px solid rgba(255, 255, 255, 0.1)',
+                  boxShadow: winnerId === user.id ? '0 0 60px rgba(245, 158, 11, 0.3)' : '0 25px 60px rgba(0, 0, 0, 0.6)',
+                  backdropFilter: 'blur(20px)'
+                }}
+              >
                 {winnerId === user.id ? (
                   <>
-                    <motion.div animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 2.2 }}>
-                      <div style={{ width: '96px', height: '96px', borderRadius: '50%', background: 'linear-gradient(135deg, rgba(245,158,11,0.25), rgba(217,119,6,0.1))', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', border: '2px solid #f59e0b', boxShadow: '0 0 30px rgba(245,158,11,0.4)' }}>
+                    <motion.div animate={{ y: [0, -8, 0] }} transition={{ repeat: Infinity, duration: 2.2 }}>
+                      <div style={{ width: '96px', height: '96px', borderRadius: '50%', background: 'linear-gradient(135deg, rgba(245,158,11,0.25), rgba(217,119,6,0.1))', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', border: '2px solid #f59e0b', boxShadow: '0 0 35px rgba(245,158,11,0.45)' }}>
                         <Trophy size={48} color="#f59e0b" />
                       </div>
                     </motion.div>
-                    <h2 style={{ fontSize: '2.8rem', fontWeight: 900, color: '#fff', marginBottom: '0.4rem', letterSpacing: '0.04em' }}>ZAFER!</h2>
-                    <p style={{ color: '#10b981', fontSize: '1.2rem', fontWeight: 700, margin: 0 }}>+50 XP & Şampiyonlar Ligi Puanı</p>
+                    <h2 style={{ fontSize: 'clamp(2.2rem, 5vw, 3rem)', fontWeight: 900, color: '#fff', marginBottom: '0.4rem', letterSpacing: '0.04em' }}>ZAFER!</h2>
+                    <p style={{ color: '#34d399', fontSize: '1.2rem', fontWeight: 800, margin: 0 }}>+50 XP & Şampiyonlar Ligi Puanı</p>
                   </>
                 ) : winnerId === 'draw' ? (
                   <>
-                    <div style={{ width: '96px', height: '96px', borderRadius: '50%', background: 'rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', border: '2px solid #3b82f6' }}>
+                    <div style={{ width: '96px', height: '96px', borderRadius: '50%', background: 'rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', border: '2px solid #3b82f6', boxShadow: '0 0 35px rgba(59,130,246,0.35)' }}>
                       <Swords size={48} color="#3b82f6" />
                     </div>
-                    <h2 style={{ fontSize: '2.8rem', fontWeight: 900, color: '#fff', marginBottom: '0.4rem' }}>BERABERLİK</h2>
-                    <p style={{ color: '#94a3b8', fontSize: '1.15rem', margin: 0 }}>Çok çekişmeli bir mücadele oldu!</p>
+                    <h2 style={{ fontSize: 'clamp(2.2rem, 5vw, 3rem)', fontWeight: 900, color: '#fff', marginBottom: '0.4rem' }}>BERABERLİK</h2>
+                    <p style={{ color: '#94a3b8', fontSize: '1.15rem', margin: 0, fontWeight: 600 }}>Çok çekişmeli bir mücadele oldu!</p>
                   </>
                 ) : (
                   <>
-                    <div style={{ width: '96px', height: '96px', borderRadius: '50%', background: 'rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', border: '2px solid #ef4444' }}>
+                    <div style={{ width: '96px', height: '96px', borderRadius: '50%', background: 'rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', border: '2px solid #ef4444', boxShadow: '0 0 35px rgba(239,68,68,0.35)' }}>
                       <XCircle size={48} color="#ef4444" />
                     </div>
-                    <h2 style={{ fontSize: '2.8rem', fontWeight: 900, color: '#fff', marginBottom: '0.4rem' }}>MAĞLUBİYET</h2>
-                    <p style={{ color: '#94a3b8', fontSize: '1.15rem', margin: 0 }}>Bir dahaki sefere daha hızlı ol!</p>
+                    <h2 style={{ fontSize: 'clamp(2.2rem, 5vw, 3rem)', fontWeight: 900, color: '#fff', marginBottom: '0.4rem' }}>MAĞLUBİYET</h2>
+                    <p style={{ color: '#94a3b8', fontSize: '1.15rem', margin: 0, fontWeight: 600 }}>Bir dahaki sefere daha hızlı ol!</p>
                   </>
                 )}
 
-                <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '2.5rem', background: 'rgba(0,0,0,0.35)', padding: '1.75rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '2.5rem', background: 'rgba(0,0,0,0.4)', padding: '1.75rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
                    <div>
-                      <div style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '0.4rem', fontWeight: 600 }}>Senin Skorun</div>
-                      <div style={{ color: '#fff', fontSize: '2.75rem', fontWeight: 900 }}>{me?.score || 0}</div>
+                      <div style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Senin Skorun</div>
+                      <div style={{ color: '#fff', fontSize: '2.75rem', fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}>{me?.score || 0}</div>
                    </div>
                    <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
                    <div>
-                      <div style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '0.4rem', fontWeight: 600 }}>Rakibin Skoru</div>
-                      <div style={{ color: '#fff', fontSize: '2.75rem', fontWeight: 900 }}>{opponent?.score || 0}</div>
+                      <div style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Rakibin Skoru</div>
+                      <div style={{ color: '#fff', fontSize: '2.75rem', fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}>{opponent?.score || 0}</div>
                    </div>
                 </div>
 
@@ -761,14 +787,16 @@ export default function DuelloPage() {
                   <Link href="/dashboard" style={{ flex: 1, textDecoration: 'none' }}>
                     <button 
                       onClick={() => { setPhase('idle'); setDuelId(null); setWinnerId(null); setParticipants([]); setCurrentRound(1); }}
-                      style={{ width: '100%', padding: '1.1rem', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '16px', fontSize: '1rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}
+                      className="active:scale-[0.98]"
+                      style={{ width: '100%', padding: '1.1rem', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '16px', fontSize: '1rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
                     >
                       Ana Sayfa
                     </button>
                   </Link>
                   <button 
                     onClick={() => { setPhase('idle'); setDuelId(null); setWinnerId(null); setParticipants([]); setCurrentRound(1); setTimeout(startMatchmaking, 400); }}
-                    style={{ flex: 1, padding: '1.1rem', background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)', color: '#fff', border: 'none', borderRadius: '16px', fontSize: '1rem', fontWeight: 800, cursor: 'pointer', boxShadow: '0 0 25px rgba(239, 68, 68, 0.45)', transition: 'all 0.2s' }}
+                    className="active:scale-[0.98]"
+                    style={{ flex: 1, padding: '1.1rem', background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)', color: '#fff', border: 'none', borderRadius: '16px', fontSize: '1rem', fontWeight: 800, cursor: 'pointer', boxShadow: '0 8px 25px rgba(239, 68, 68, 0.45)', transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
                   >
                     Tekrar Oyna
                   </button>

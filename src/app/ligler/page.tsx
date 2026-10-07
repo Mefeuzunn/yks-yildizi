@@ -187,13 +187,14 @@ export default function LeaderboardPage() {
             initial={{ opacity: 0, y: 15 }} 
             animate={{ opacity: 1, y: 0 }} 
             style={{ 
-              backgroundColor: '#0f172a', 
+              backgroundColor: '#0f1523', 
               border: `1px solid ${currentLeagueInfo.border}`, 
               borderRadius: '24px', 
               padding: 'clamp(20px, 4vw, 28px)', 
               position: 'relative', 
               overflow: 'hidden',
-              boxShadow: `0 0 30px ${currentLeagueInfo.glow}`
+              boxShadow: `0 0 35px ${currentLeagueInfo.glow}`,
+              backdropFilter: 'blur(16px)'
             }}
           >
             {/* Top ambient glow */}
@@ -291,7 +292,7 @@ export default function LeaderboardPage() {
           initial={{ opacity: 0, y: 15 }} 
           animate={{ opacity: 1, y: 0 }} 
           transition={{ delay: 0.1 }} 
-          style={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '24px', overflow: 'hidden' }}
+          style={{ backgroundColor: '#0f1523', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)', backdropFilter: 'blur(16px)' }}
         >
           {/* ── 3D PODIUM SHOWCASE (Desktop & Mobile) ── */}
           {top3.length >= 3 && (

@@ -117,7 +117,7 @@ export default function CalismaOdalariLobby() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 pb-32">
       {/* Hero Header */}
-      <div className="relative mb-10 p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-white/[0.04] via-white/[0.02] to-transparent border border-white/10 backdrop-blur-xl overflow-hidden shadow-2xl">
+      <div className="relative mb-10 p-6 sm:p-8 rounded-3xl bg-[#0f1523]/80 border border-white/10 backdrop-blur-xl overflow-hidden shadow-2xl">
         <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-purple-500/10 rounded-full blur-[90px] pointer-events-none" />
 
@@ -127,7 +127,7 @@ export default function CalismaOdalariLobby() {
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>Canlı Sanal Kütüphane • Study With Me</span>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight mb-2">
+            <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight mb-2">
               Birlikte Çalış, Asla Yalnız Kalma
             </h1>
             <p className="text-gray-400 text-sm sm:text-base max-w-2xl leading-relaxed">
@@ -137,7 +137,7 @@ export default function CalismaOdalariLobby() {
 
           {/* Quick Live Stats Pill Box */}
           <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
-            <div className="px-4 py-3 rounded-2xl bg-black/40 border border-white/10 flex items-center gap-3 min-w-[140px]">
+            <div className="px-4 py-3 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center gap-3 min-w-[140px] backdrop-blur-md">
               <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
                 <Users className="w-5 h-5" />
               </div>
@@ -147,7 +147,7 @@ export default function CalismaOdalariLobby() {
               </div>
             </div>
 
-            <div className="px-4 py-3 rounded-2xl bg-black/40 border border-white/10 flex items-center gap-3 min-w-[140px]">
+            <div className="px-4 py-3 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center gap-3 min-w-[140px] backdrop-blur-md">
               <div className="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400">
                 <Timer className="w-5 h-5" />
               </div>
@@ -174,10 +174,10 @@ export default function CalismaOdalariLobby() {
             <button
               key={tab.id}
               onClick={() => setFilter(tab.id as any)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap active:scale-95 ${
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap active:scale-[0.98] ${
                 isActive
-                  ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-[0_0_20px_rgba(99,102,241,0.35)]'
-                  : 'bg-white/[0.03] hover:bg-white/[0.07] text-gray-400 hover:text-white border border-white/5'
+                  ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-[0_4px_20px_rgba(99,102,241,0.35)]'
+                  : 'bg-[#0f1523]/80 hover:bg-white/[0.07] text-gray-400 hover:text-white border border-white/10'
               }`}
             >
               <span className="text-sm">{tab.emoji}</span>
@@ -202,7 +202,7 @@ export default function CalismaOdalariLobby() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.25, delay: i * 0.05 }}
-                className="group relative rounded-3xl bg-white/[0.025] hover:bg-white/[0.045] border border-white/10 hover:border-white/20 transition-all duration-300 p-6 flex flex-col justify-between backdrop-blur-md shadow-xl hover:shadow-2xl overflow-hidden"
+                className="group relative rounded-3xl bg-[#0f1523]/80 hover:bg-[#0f1523] border border-white/10 hover:border-white/20 transition-all duration-300 p-6 flex flex-col justify-between backdrop-blur-xl shadow-xl hover:shadow-2xl overflow-hidden"
               >
                 {/* Ambient Card Header Glow */}
                 <div 
@@ -223,7 +223,7 @@ export default function CalismaOdalariLobby() {
                       {config.icon}
                     </div>
 
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/50 border border-white/10 backdrop-blur-sm">
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/60 border border-white/10 backdrop-blur-sm">
                       <span className={`w-2 h-2 rounded-full ${room.current_participants > 0 ? 'bg-emerald-400 animate-pulse' : 'bg-gray-500'}`} />
                       <span className="text-xs font-bold text-gray-200">
                         {room.current_participants || 0} / {room.max_capacity}
@@ -239,7 +239,7 @@ export default function CalismaOdalariLobby() {
                         <span>{config.title}</span>
                       </span>
                     </div>
-                    <h3 className="text-xl font-extrabold text-white group-hover:text-indigo-200 transition-colors">
+                    <h3 className="text-xl font-black text-white group-hover:text-indigo-200 transition-colors">
                       {room.name}
                     </h3>
                   </div>
@@ -283,7 +283,7 @@ export default function CalismaOdalariLobby() {
                   <Link href={`/calisma-odalari/${room.id}`} className="no-underline block">
                     <button 
                       type="button"
-                      className="w-full py-3.5 px-4 rounded-2xl bg-white/[0.06] hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 text-white font-bold text-sm border border-white/10 hover:border-transparent transition-all duration-200 flex items-center justify-center gap-2 group-hover:shadow-[0_0_25px_rgba(99,102,241,0.3)] cursor-pointer active:scale-[0.99]"
+                      className="w-full py-3.5 px-4 rounded-2xl bg-white/[0.06] hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 text-white font-bold text-sm border border-white/10 hover:border-transparent transition-all duration-200 flex items-center justify-center gap-2 group-hover:shadow-[0_0_25px_rgba(99,102,241,0.3)] cursor-pointer active:scale-[0.98]"
                     >
                       <Radio className="w-4 h-4 text-emerald-400 animate-pulse" />
                       <span>Odaya Katıl & Odaklan</span>
@@ -298,7 +298,7 @@ export default function CalismaOdalariLobby() {
       </div>
 
       {/* Science & Tip Section */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-indigo-500/10 via-purple-500/5 to-transparent border border-indigo-500/20 backdrop-blur-md flex flex-col md:flex-row items-center gap-6">
+      <div className="p-6 sm:p-8 rounded-3xl bg-[#0f1523]/80 border border-indigo-500/20 backdrop-blur-xl flex flex-col md:flex-row items-center gap-6 shadow-xl">
         <div className="w-14 h-14 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center flex-shrink-0 text-indigo-400">
           <Flame className="w-7 h-7" />
         </div>

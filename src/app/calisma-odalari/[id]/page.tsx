@@ -483,7 +483,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
         </div>
 
         {/* ── Pomodoro Focus Clock ── */}
-        <div className="relative p-6 sm:p-8 rounded-3xl bg-white/[0.035] border border-white/10 shadow-2xl backdrop-blur-xl flex flex-col items-center justify-center max-w-lg mx-auto w-full overflow-hidden">
+        <div className="relative p-6 sm:p-8 rounded-3xl bg-[#0f1523]/85 border border-white/10 shadow-2xl backdrop-blur-xl flex flex-col items-center justify-center max-w-lg mx-auto w-full overflow-hidden">
           {/* Preset Buttons */}
           <div className="flex items-center gap-2 mb-6 flex-wrap justify-center">
             {[
@@ -495,7 +495,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
               <button
                 key={idx}
                 onClick={() => resetTimer(preset.sec)}
-                className={`px-3 py-1 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer active:scale-[0.98] ${
                   initialTime === preset.sec && !timerActive
                     ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40 shadow-sm'
                     : 'bg-white/5 text-gray-400 hover:text-white border-white/5 hover:border-white/10'
@@ -508,7 +508,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
 
           {/* Glowing Digital Digits */}
           <div className="relative mb-6">
-            <div className="text-6xl sm:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400 font-mono tracking-tighter drop-shadow-[0_0_35px_rgba(255,255,255,0.15)]">
+            <div className="text-6xl sm:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-300 font-mono tracking-tighter drop-shadow-[0_0_35px_rgba(255,255,255,0.15)]">
               {formatTime(timeLeft)}
             </div>
             <div className="text-center mt-2">
@@ -523,7 +523,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
           </div>
 
           {/* Linear Progress Bar */}
-          <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden mb-8">
+          <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden mb-8 border border-white/5">
             <div 
               className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-300"
               style={{ width: `${timerProgress}%` }}
@@ -534,10 +534,10 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
           <div className="flex items-center gap-4">
             <button
               onClick={toggleTimer}
-              className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-200 cursor-pointer shadow-lg active:scale-95 ${
+              className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-200 cursor-pointer shadow-lg active:scale-[0.98] ${
                 timerActive
                   ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 shadow-[0_0_25px_rgba(245,158,11,0.25)]'
-                  : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-[0_0_30px_rgba(99,102,241,0.4)] hover:brightness-110'
+                  : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-[0_4px_25px_rgba(99,102,241,0.4)] hover:brightness-110'
               }`}
               title={timerActive ? 'Durdur' : 'Başlat'}
             >
@@ -546,7 +546,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
 
             <button
               onClick={() => resetTimer()}
-              className="w-12 h-12 rounded-2xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/10 flex items-center justify-center transition-all cursor-pointer active:scale-95"
+              className="w-12 h-12 rounded-2xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/10 flex items-center justify-center transition-all cursor-pointer active:scale-[0.98]"
               title="Sıfırla"
             >
               <RotateCcw className="w-5 h-5" />
