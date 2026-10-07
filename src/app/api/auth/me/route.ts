@@ -32,10 +32,15 @@ export async function GET(req: Request) {
       return NextResponse.json({ authenticated: false }, { status: 401 });
     }
 
-    const user = await db.prepare('SELECT id, username, role, alan, sinif, brans, kurum, parent_code, target_university, target_department, invite_code FROM users WHERE id = ?').get(userId) as any;
+    const user = await db.prepare('SELECT id, username, role, alan, sinif, brans, kurum, parent_code, target_university, target_department, invite_code, curriculum_mode FROM users WHERE id = ?').get(userId) as any;
 
     if (!user) {
       return NextResponse.json({ authenticated: false }, { status: 401 });
+    }
+
+    // Maarif Modu tespiti: 9, 10, 11. sınıflar maarif_v1, 12 ve mezun legacy_yks
+    if (!user.curriculum_mode) {
+      user.curriculum_mode = (user.sinif === '9' || user.sinif === '10' || user.sinif === '11') ? 'maarif_v1' : 'legacy_yks';
     }
 
     const stats = await db.prepare('SELECT league, league_points FROM user_stats WHERE user_id = ?').get(userId) as any;

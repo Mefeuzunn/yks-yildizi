@@ -12,6 +12,7 @@ type User = {
   league?: string;
   league_points?: number;
   created_at?: string;
+  curriculum_mode?: 'legacy_yks' | 'maarif_v1';
 };
 
 type AuthContextType = {

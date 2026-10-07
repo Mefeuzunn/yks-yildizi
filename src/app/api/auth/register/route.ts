@@ -63,12 +63,15 @@ export async function POST(req: Request) {
     const id = uuidv4();
     const parentCode = role === 'veli' && veliCode ? veliCode.trim().toUpperCase() : crypto.randomBytes(4).toString('hex').toUpperCase();
 
+    // Müfredat modu tespiti (9, 10, 11 => maarif_v1, 12 ve mezun => legacy_yks)
+    const curriculumMode = (sinif === '9' || sinif === '10' || sinif === '11') ? 'maarif_v1' : 'legacy_yks';
+
     // Veritabanına kaydet
     await db.transaction(async () => {
       await db.prepare(`
-        INSERT INTO users (id, username, password_hash, role, alan, sinif, brans, kurum, parent_code, email) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `).run(id, finalUsername, password_hash, role, alan, sinif, brans || null, kurum || null, parentCode, email || null);
+        INSERT INTO users (id, username, password_hash, role, alan, sinif, brans, kurum, parent_code, email, curriculum_mode) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(id, finalUsername, password_hash, role, alan, sinif, brans || null, kurum || null, parentCode, email || null, curriculumMode);
 
       if (role === 'ogretmen') {
         // Öğretmen için otomatik ilk sınıf oluştur
