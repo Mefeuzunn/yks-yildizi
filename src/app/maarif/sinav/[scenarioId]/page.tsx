@@ -41,6 +41,50 @@ export default function MaarifExamSessionPage({ params }: { params: Promise<{ sc
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
+  // Yapay Zeka Rubrik Değerlendirme Durumları
+  const [evaluations, setEvaluations] = useState<Record<string, any>>({});
+  const [evaluatingQuestionId, setEvaluatingQuestionId] = useState<string | null>(null);
+  const [isBulkEvaluating, setIsBulkEvaluating] = useState(false);
+
+  const handleEvaluateAnswer = async (qId: string) => {
+    setEvaluatingQuestionId(qId);
+    triggerHaptic('light');
+    try {
+      const res = await fetch('/api/maarif/evaluate-answer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          questionId: qId,
+          studentAnswer: answers[qId] || '',
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setEvaluations(prev => ({
+          ...prev,
+          [qId]: data.evaluation,
+        }));
+        triggerHaptic('success');
+      }
+    } catch (e) {
+      console.error('Eval error:', e);
+    } finally {
+      setEvaluatingQuestionId(null);
+    }
+  };
+
+  const handleBulkEvaluate = async () => {
+    setIsBulkEvaluating(true);
+    triggerHaptic('light');
+    for (const q of questions) {
+      if (!evaluations[q.id]) {
+        await handleEvaluateAnswer(q.id);
+      }
+    }
+    setIsBulkEvaluating(false);
+    triggerHaptic('success');
+  };
+
   // Sınav Verilerini Çek
   useEffect(() => {
     let isMounted = true;
@@ -589,12 +633,39 @@ export default function MaarifExamSessionPage({ params }: { params: Promise<{ sc
 
           {/* Soru Bazlı Rubrik ve Çözüm İnceleme */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', margin: 0 }}>
-              Soru ve Rubrik Değerlendirme Analizi:
-            </h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', margin: 0 }}>
+                Soru ve Rubrik Değerlendirme Analizi:
+              </h3>
+
+              <button
+                type="button"
+                onClick={handleBulkEvaluate}
+                disabled={isBulkEvaluating}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '9px 18px',
+                  borderRadius: '12px',
+                  backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                  border: '1px solid rgba(139, 92, 246, 0.4)',
+                  color: '#c084fc',
+                  fontWeight: 800,
+                  fontSize: '12.5px',
+                  cursor: isBulkEvaluating ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s',
+                }}
+              >
+                <Sparkles size={16} />
+                <span>{isBulkEvaluating ? 'AstraTutor Değerlendiriyor...' : 'Tümünü AstraTutor ile Rubrikle Puanla'}</span>
+              </button>
+            </div>
 
             {questions.map((q, idx) => {
               const myAnswer = answers[q.id] || '';
+              const evalData = evaluations[q.id];
+              const isCurrentEvaluating = evaluatingQuestionId === q.id;
 
               return (
                 <div
@@ -606,13 +677,31 @@ export default function MaarifExamSessionPage({ params }: { params: Promise<{ sc
                     padding: '1.25rem 1.5rem',
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
                     <span style={{ fontWeight: 800, color: '#38bdf8', fontSize: '13px' }}>
                       Soru {idx + 1} • {q.curriculum_node_code}
                     </span>
-                    <span style={{ fontSize: '12px', fontWeight: 800, color: '#f59e0b' }}>
-                      {q.max_score} Tam Puan
-                    </span>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {evalData && (
+                        <span
+                          style={{
+                            fontSize: '11px',
+                            fontWeight: 800,
+                            padding: '3px 8px',
+                            borderRadius: '6px',
+                            backgroundColor: evalData.earned_score >= (q.max_score * 0.7) ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.2)',
+                            color: evalData.earned_score >= (q.max_score * 0.7) ? '#34d399' : '#fbbf24',
+                          }}
+                        >
+                          {evalData.mastery_level}
+                        </span>
+                      )}
+
+                      <span style={{ fontSize: '12px', fontWeight: 800, color: '#f59e0b' }}>
+                        {evalData ? `${evalData.earned_score} / ${q.max_score} Puan` : `${q.max_score} Tam Puan`}
+                      </span>
+                    </div>
                   </div>
 
                   <p style={{ fontSize: '13.5px', color: '#e2e8f0', margin: '0 0 1rem', lineHeight: 1.5 }}>
@@ -628,6 +717,80 @@ export default function MaarifExamSessionPage({ params }: { params: Promise<{ sc
                       {myAnswer || 'Bu soru boş bırakıldı.'}
                     </div>
                   </div>
+
+                  {/* AstraTutor Yapay Zeka Rubrik Değerlendirmesi */}
+                  {evalData ? (
+                    <div style={{ backgroundColor: 'rgba(139, 92, 246, 0.08)', border: '1px solid rgba(139, 92, 246, 0.25)', borderRadius: '12px', padding: '12px 14px', marginBottom: '12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                        <Sparkles size={15} color="#c084fc" />
+                        <span style={{ fontSize: '12px', fontWeight: 800, color: '#c084fc' }}>
+                          AstraTutor MEB Rubrik Değerlendirmesi:
+                        </span>
+                      </div>
+
+                      {/* Kriter Bazlı Sonuçlar */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '10px' }}>
+                        {(evalData.rubric_breakdown || []).map((rb: any, rIdx: number) => (
+                          <div
+                            key={rIdx}
+                            style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              fontSize: '11.5px',
+                              backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                              padding: '6px 10px',
+                              borderRadius: '8px',
+                            }}
+                          >
+                            <span style={{ color: rb.achieved ? '#e2e8f0' : '#94a3b8', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <span>{rb.achieved ? '✅' : '⚠️'}</span>
+                              <span>{rb.criteria}</span>
+                            </span>
+                            <span style={{ fontWeight: 800, color: rb.achieved ? '#34d399' : '#f87171' }}>
+                              +{rb.earned_points} / {rb.max_points} P
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Pedagojik Dönüt */}
+                      <p style={{ fontSize: '12px', color: '#e2e8f0', margin: '0 0 6px', lineHeight: 1.5 }}>
+                        <strong>Dönüt:</strong> {evalData.ai_feedback}
+                      </p>
+
+                      {/* Sokratik İpucu */}
+                      {evalData.socratic_hint && (
+                        <div style={{ fontSize: '11.5px', color: '#93c5fd', fontStyle: 'italic' }}>
+                          🤔 <strong>Düşünme İpucu:</strong> {evalData.socratic_hint}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div style={{ marginBottom: '12px' }}>
+                      <button
+                        type="button"
+                        onClick={() => handleEvaluateAnswer(q.id)}
+                        disabled={isCurrentEvaluating || !myAnswer.trim()}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          padding: '7px 14px',
+                          borderRadius: '10px',
+                          backgroundColor: myAnswer.trim() ? 'rgba(139, 92, 246, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                          border: myAnswer.trim() ? '1px solid rgba(139, 92, 246, 0.3)' : '1px solid rgba(255, 255, 255, 0.1)',
+                          color: myAnswer.trim() ? '#c084fc' : '#64748b',
+                          fontWeight: 700,
+                          fontSize: '12px',
+                          cursor: myAnswer.trim() && !isCurrentEvaluating ? 'pointer' : 'not-allowed',
+                        }}
+                      >
+                        <Sparkles size={14} />
+                        <span>{isCurrentEvaluating ? 'AstraTutor Puanlıyor...' : '✨ AstraTutor ile Rubrik Puanla'}</span>
+                      </button>
+                    </div>
+                  )}
 
                   {/* MEB Dereceli Puanlama Anahtarı (Rubrik) */}
                   <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '12px', borderRadius: '12px', marginBottom: '10px' }}>

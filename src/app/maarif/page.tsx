@@ -23,6 +23,7 @@ import {
   Lightbulb,
 } from 'lucide-react';
 import { MaarifCurriculumNode, MaarifExamScenario, MaarifSubject, MaarifGrade } from '@/types/maarif';
+import MaarifAstraTutorChat from '@/components/maarif/MaarifAstraTutorChat';
 
 const SUBJECT_LIST: { id: MaarifSubject; name: string; emoji: string; color: string }[] = [
   { id: 'Matematik', name: 'Matematik', emoji: '📐', color: '#3b82f6' },
@@ -721,90 +722,8 @@ export default function MaarifPortalPage() {
 
             {/* 4. SEKME: ASTRATUTOR MAARİF MENTORU */}
             {activeTab === 'mentor' && (
-              <div
-                style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.02)',
-                  border: '1px solid rgba(139, 92, 246, 0.3)',
-                  borderRadius: '20px',
-                  padding: '2rem',
-                  maxWidth: '750px',
-                  margin: '0 auto',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.25rem' }}>
-                  <div
-                    style={{
-                      width: '48px',
-                      height: '48px',
-                      borderRadius: '14px',
-                      background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '24px',
-                    }}
-                  >
-                    🤖
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff', margin: 0 }}>
-                      AstraTutor Maarif Mentoru
-                    </h3>
-                    <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>
-                      Sokratik rehberlik ile ezbersiz akıl yürütme ortağın
-                    </p>
-                  </div>
-                </div>
-
-                <div
-                  style={{
-                    backgroundColor: 'rgba(139, 92, 246, 0.08)',
-                    border: '1px solid rgba(139, 92, 246, 0.2)',
-                    borderRadius: '14px',
-                    padding: '1rem 1.25rem',
-                    marginBottom: '1.5rem',
-                    fontSize: '13px',
-                    color: '#c4b5fd',
-                    lineHeight: 1.6,
-                  }}
-                >
-                  <p style={{ margin: '0 0 8px' }}>
-                    💡 <strong>Maarif Modeli İlkesi:</strong> Cevabı doğrudan söylemek yerine seni adım adım düşündürüyorum. MEB açık uçlu sorularında tam puan (10/10) alabilmen için hangi adımları yazman gerektiğini keşfedelim!
-                  </p>
-                </div>
-
-                <div style={{ marginBottom: '1.5rem' }}>
-                  <div style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8', marginBottom: '8px' }}>
-                    Örnek Keşif Başlıkları:
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {[
-                      '9. Sınıf Matematik: Doğrusal değişimde oransal akıl yürütme problem senaryosu ver.',
-                      'Fizik: Sürtünme kuvveti deneyinde statik ve kinetik katsayıyı nasıl ayırt ederim?',
-                      'Edebiyat: Olay hikâyesinde hâkim bakış açısını metin üzerinde nasıl tespit ederim?',
-                    ].map((prompt, idx) => (
-                      <Link
-                        key={idx}
-                        href={`/dashboard?tab=astratutor&maarifPrompt=${encodeURIComponent(prompt)}`}
-                        style={{
-                          padding: '10px 14px',
-                          borderRadius: '10px',
-                          backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                          border: '1px solid rgba(255, 255, 255, 0.07)',
-                          color: '#e2e8f0',
-                          fontSize: '12.5px',
-                          textDecoration: 'none',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                        }}
-                      >
-                        <span>{prompt}</span>
-                        <ChevronRight size={14} color="#a78bfa" />
-                      </Link>
-                    ))}
-                  </div>
-                </div>
+              <div>
+                <MaarifAstraTutorChat grade={selectedGrade} />
               </div>
             )}
           </motion.div>
