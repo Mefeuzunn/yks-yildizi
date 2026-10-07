@@ -23,6 +23,7 @@ const MORE_TABS = [
   { emoji: '⚔️', label: 'Bilgi Arenası', href: '/duello' },
   { emoji: '🎧', label: 'Çalışma Odaları', href: '/calisma-odalari' },
   { emoji: '🔬', label: 'Simülasyonlar', href: '/simulasyonlar' },
+  { emoji: '🌱', label: 'Maarif Modeli (9-11)', href: '/maarif' },
   { emoji: '🎓', label: 'Tercih Robotu', href: '/dashboard?tab=tercih_robotu' },
   { emoji: '🧮', label: 'Puan Hesaplama', href: '/puan-hesaplama' },
   { emoji: '📋', label: 'Ödevlerim', href: '/odevlerim' },

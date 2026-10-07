@@ -34,6 +34,7 @@ const STUDENT_NAV_GROUPS: {
       { emoji: '🍅', label: 'Odak', href: '/dashboard?tab=focus' },
       { emoji: '📅', label: 'Program', href: '/dashboard?tab=schedule' },
       { emoji: '🔬', label: 'Simülasyonlar', href: '/simulasyonlar' },
+      { emoji: '🌱', label: 'Maarif Modeli (9-11)', href: '/maarif' },
     ],
   },
   {

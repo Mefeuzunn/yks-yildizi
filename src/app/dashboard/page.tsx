@@ -4,8 +4,9 @@ import React, { useEffect, useState, Suspense, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import Link from 'next/link';
 import { ScheduleProvider } from '@/context/ScheduleContext';
-import { FileText, BarChart3, BookOpen, Flame, Check, Heart, Sparkles, TrendingUp } from 'lucide-react';
+import { FileText, BarChart3, BookOpen, Flame, Check, Heart, Sparkles, TrendingUp, ChevronRight } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import confetti from 'canvas-confetti';
 import { haptics } from '@/lib/haptics';
@@ -233,6 +234,55 @@ function DashboardContent() {
               {formattedDate}
             </div>
           </div>
+
+          {/* Maarif Modeli Öğrencileri İçin Özel Portal Banner'ı */}
+          {(user?.curriculum_mode === 'maarif_v1' || user?.sinif === '9' || user?.sinif === '10' || user?.sinif === '11') && (
+            <div
+              style={{
+                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(6, 182, 212, 0.1) 100%)',
+                border: '1px solid rgba(16, 185, 129, 0.35)',
+                borderRadius: '16px',
+                padding: '12px 16px',
+                marginBottom: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '12px',
+                flexWrap: 'wrap',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '22px' }}>🌱</span>
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: 800, color: '#34d399' }}>
+                    {user?.sinif ? `${user.sinif}. Sınıf` : '9-11. Sınıf'} Maarif Modeli Müfredatın Hazır!
+                  </div>
+                  <div style={{ fontSize: '11.5px', color: '#94a3b8' }}>
+                    MEB Ortak Yazılı Sınav Senaryoları ve yeni tema çıktıları için Maarif Portalı'nı ziyaret et.
+                  </div>
+                </div>
+              </div>
+              <Link
+                href="/maarif"
+                style={{
+                  padding: '7px 14px',
+                  backgroundColor: '#10b981',
+                  borderRadius: '10px',
+                  color: '#fff',
+                  fontSize: '12px',
+                  fontWeight: 800,
+                  textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                }}
+              >
+                <span>Maarif Portalına Geç</span>
+                <ChevronRight size={14} />
+              </Link>
+            </div>
+          )}
 
           {/* Live Activity & YKS Countdown Widget */}
           <MobileLiveActivityWidget
