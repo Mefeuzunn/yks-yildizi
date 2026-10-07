@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, LogOut } from 'lucide-react';
+import { X, LogOut, ChevronRight } from 'lucide-react';
 import { triggerHaptic } from '@/lib/haptics';
 import NotificationCenter from '@/components/NotificationCenter';
 
@@ -19,11 +19,11 @@ const MAIN_TABS = [
 const MORE_TABS = [
   { emoji: '📈', label: 'Denemeler', href: '/denemeler' },
   { emoji: '🎯', label: 'Hedeflerim', href: '/dashboard?tab=hedef' },
-  { emoji: '🤖', label: 'Astra AI & Rehberlik', href: '/dashboard?tab=astratutor' },
+  { emoji: '🤖', label: 'Astra AI Koç', href: '/dashboard?tab=astratutor' },
   { emoji: '⚔️', label: 'Bilgi Arenası', href: '/duello' },
   { emoji: '🎧', label: 'Çalışma Odaları', href: '/calisma-odalari' },
   { emoji: '🔬', label: 'Simülasyonlar', href: '/simulasyonlar' },
-  { emoji: '🎓', label: 'Tercih Robotu', href: '/dashboard?tab=tercih_robotu' },
+  { emoji: '🎓', label: 'Tercih Robotu', href: '/dashboard?tab=tercih-robotu' },
   { emoji: '🧮', label: 'Puan Hesaplama', href: '/puan-hesaplama' },
   { emoji: '📋', label: 'Ödevlerim', href: '/odevlerim' },
   { emoji: '❌', label: 'Yanlışlarım', href: '/dashboard?tab=mistakes' },
@@ -31,9 +31,10 @@ const MORE_TABS = [
   { emoji: '📝', label: 'Testlerim', href: '/dashboard?tab=tests' },
   { emoji: '🏆', label: 'Ligler', href: '/ligler' },
   { emoji: '🛍️', label: 'Mağaza', href: '/magaza' },
-  { emoji: '🎴', label: 'Kartlar', href: '/dashboard?tab=cards' },
+  { emoji: '🎴', label: 'Hafıza Kartları', href: '/dashboard?tab=cards' },
   { emoji: '🏫', label: 'Sınıfım', href: '/dashboard?tab=sinif' },
   { emoji: '👤', label: 'Profilim', href: '/dashboard?tab=profile' },
+  { emoji: '⚙️', label: 'Ayarlar', href: '/ayarlar' },
 ];
 
 const MAARIF_MAIN_TABS = [
@@ -51,6 +52,7 @@ const MAARIF_MORE_TABS = [
   { emoji: '⚔️', label: 'Bilgi Arenası', href: '/duello' },
   { emoji: '🏆', label: 'Ligler', href: '/ligler' },
   { emoji: '🛍️', label: 'Mağaza', href: '/magaza' },
+  { emoji: '👤', label: 'Profilim', href: '/maarif' },
   { emoji: '⚙️', label: 'Ayarlar', href: '/ayarlar' },
 ];
 
@@ -66,29 +68,33 @@ function MobileNavContent() {
     { emoji: '👥', label: 'Öğrenciler', href: '/ogretmen/dashboard?tab=ogrenciler' },
     { emoji: '📋', label: 'Ödevler', href: '/ogretmen/dashboard?tab=odevler' },
   ];
-  
+
   const TEACHER_MORE_TABS = [
     { emoji: '📊', label: 'Sınıf Analizi', href: '/ogretmen/dashboard?tab=analiz' },
     { emoji: '📚', label: 'Kaynaklar', href: '/ogretmen/dashboard?tab=kaynaklar' },
     { emoji: '📢', label: 'Duyurular', href: '/ogretmen/dashboard?tab=duyurular' },
     { emoji: '👤', label: 'Profilim', href: '/ogretmen/dashboard?tab=profil' },
+    { emoji: '⚙️', label: 'Ayarlar', href: '/ayarlar' },
   ];
-  
+
   const isMaarif =
     user?.curriculum_mode === 'maarif_v1' ||
     ['9', '10', '11'].includes(user?.sinif || '');
 
-  const currentMainTabs = user?.role === 'ogretmen'
-    ? TEACHER_MAIN_TABS
-    : isMaarif
-    ? MAARIF_MAIN_TABS
-    : MAIN_TABS;
+  const currentMainTabs =
+    user?.role === 'ogretmen'
+      ? TEACHER_MAIN_TABS
+      : isMaarif
+      ? MAARIF_MAIN_TABS
+      : MAIN_TABS;
 
-  const currentMoreTabs = user?.role === 'ogretmen'
-    ? TEACHER_MORE_TABS
-    : isMaarif
-    ? MAARIF_MORE_TABS
-    : MORE_TABS;
+  const currentMoreTabs =
+    user?.role === 'ogretmen'
+      ? TEACHER_MORE_TABS
+      : isMaarif
+      ? MAARIF_MORE_TABS
+      : MORE_TABS;
+
   const [unreadCount, setUnreadCount] = useState(0);
 
   // Unread notification listener
@@ -101,8 +107,10 @@ function MobileNavContent() {
     };
     window.addEventListener('yks:unread-count', handleCount);
     fetch('/api/notifications')
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d?.unreadCount !== undefined) setUnreadCount(d.unreadCount); })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.unreadCount !== undefined) setUnreadCount(d.unreadCount);
+      })
       .catch(() => {});
     return () => window.removeEventListener('yks:unread-count', handleCount);
   }, []);
@@ -126,8 +134,11 @@ function MobileNavContent() {
     return true;
   };
 
+  const accentColor = isMaarif ? '#10b981' : '#6366f1';
+
   return (
     <>
+      {/* ── Native Flutter-Style Bottom Navigation Bar ── */}
       <nav
         className="mobile-flex"
         style={{
@@ -135,17 +146,18 @@ function MobileNavContent() {
           bottom: 0,
           left: 0,
           right: 0,
-          height: 'calc(64px + env(safe-area-inset-bottom))',
-          backgroundColor: 'rgba(11, 15, 25, 0.92)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          borderTop: '1px solid rgba(167, 139, 250, 0.15)',
-          boxShadow: '0 -4px 20px rgba(168, 85, 247, 0.05)',
+          height: 'calc(60px + env(safe-area-inset-bottom))',
+          backgroundColor: 'rgba(8, 12, 20, 0.94)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+          boxShadow: '0 -4px 28px rgba(0, 0, 0, 0.6)',
           display: 'flex',
           justifyContent: 'space-around',
           alignItems: 'center',
           paddingBottom: 'env(safe-area-inset-bottom)',
           zIndex: 50,
+          touchAction: 'manipulation',
         }}
       >
         {currentMainTabs.map((tab) => {
@@ -170,30 +182,46 @@ function MobileNavContent() {
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '3px',
+                gap: '2px',
                 flex: 1,
                 height: '100%',
                 textDecoration: 'none',
+                position: 'relative',
+                WebkitTapHighlightColor: 'transparent',
               }}
             >
+              {active && (
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    width: '28px',
+                    height: '2px',
+                    borderRadius: '0 0 4px 4px',
+                    backgroundColor: accentColor,
+                    boxShadow: `0 0 10px ${accentColor}`,
+                  }}
+                />
+              )}
               <span
                 style={{
-                  fontSize: '21px',
+                  fontSize: '20px',
                   lineHeight: 1,
-                  filter: active ? 'drop-shadow(0 0 8px rgba(167,139,250,0.6))' : 'none',
-                  opacity: active ? 1 : 0.75,
-                  transform: active ? 'scale(1.1)' : 'scale(1)',
-                  transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                  opacity: active ? 1 : 0.65,
+                  transform: active ? 'scale(1.12)' : 'scale(1)',
+                  transition: 'all 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
+                  filter: active ? `drop-shadow(0 0 8px ${accentColor}80)` : 'none',
                 }}
               >
                 {tab.emoji}
               </span>
               <span
                 style={{
-                  fontSize: '10.5px',
+                  fontSize: '10px',
                   fontWeight: active ? 700 : 500,
-                  color: active ? '#a78bfa' : '#94a3b8',
-                  transition: 'color 0.2s',
+                  color: active ? '#ffffff' : '#8592a6',
+                  transition: 'color 0.18s ease',
+                  letterSpacing: '-0.01em',
                 }}
               >
                 {tab.label}
@@ -202,7 +230,7 @@ function MobileNavContent() {
           );
         })}
 
-        {/* Daha Fazla Button */}
+        {/* ── More (Menü) Button ── */}
         <button
           onClick={() => {
             triggerHaptic('medium');
@@ -213,7 +241,7 @@ function MobileNavContent() {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '3px',
+            gap: '2px',
             flex: 1,
             height: '100%',
             background: 'none',
@@ -221,17 +249,19 @@ function MobileNavContent() {
             cursor: 'pointer',
             padding: 0,
             touchAction: 'manipulation',
+            position: 'relative',
+            WebkitTapHighlightColor: 'transparent',
           }}
         >
           <div style={{ position: 'relative', display: 'inline-flex' }}>
             <span
               style={{
-                fontSize: '21px',
+                fontSize: '20px',
                 lineHeight: 1,
-                filter: isMoreOpen ? 'drop-shadow(0 0 8px rgba(167,139,250,0.6))' : 'none',
-                opacity: isMoreOpen ? 1 : 0.75,
-                transform: isMoreOpen ? 'scale(1.1)' : 'scale(1)',
-                transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                opacity: isMoreOpen ? 1 : 0.65,
+                transform: isMoreOpen ? 'scale(1.12)' : 'scale(1)',
+                transition: 'all 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
+                filter: isMoreOpen ? `drop-shadow(0 0 8px ${accentColor}80)` : 'none',
               }}
             >
               ✨
@@ -247,14 +277,14 @@ function MobileNavContent() {
                   padding: '0 3px',
                   borderRadius: '9999px',
                   backgroundColor: '#ef4444',
-                  color: '#fff',
+                  color: '#ffffff',
                   fontSize: '9px',
                   fontWeight: 800,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   boxShadow: '0 0 8px rgba(239, 68, 68, 0.8)',
-                  border: '1.5px solid #0b0f19',
+                  border: '1.5px solid #080c14',
                 }}
               >
                 {unreadCount > 9 ? '9+' : unreadCount}
@@ -263,10 +293,11 @@ function MobileNavContent() {
           </div>
           <span
             style={{
-              fontSize: '10.5px',
+              fontSize: '10px',
               fontWeight: isMoreOpen ? 700 : 500,
-              color: isMoreOpen ? '#a78bfa' : '#94a3b8',
-              transition: 'color 0.2s',
+              color: isMoreOpen ? '#ffffff' : '#8592a6',
+              transition: 'color 0.18s ease',
+              letterSpacing: '-0.01em',
             }}
           >
             Menü
@@ -274,11 +305,11 @@ function MobileNavContent() {
         </button>
       </nav>
 
-      {/* Slide-up Drawer */}
+      {/* ── Native Flutter Bottom Sheet Drawer ── */}
       <AnimatePresence>
         {isMoreOpen && (
           <>
-            {/* Backdrop */}
+            {/* Frosted Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -291,19 +322,20 @@ function MobileNavContent() {
               style={{
                 position: 'fixed',
                 inset: 0,
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                backdropFilter: 'blur(4px)',
+                backgroundColor: 'rgba(0, 0, 0, 0.65)',
+                backdropFilter: 'blur(6px)',
+                WebkitBackdropFilter: 'blur(6px)',
                 zIndex: 100,
               }}
             />
 
-            {/* Drawer */}
+            {/* Bottom Sheet Container */}
             <motion.div
               drag="y"
               dragConstraints={{ top: 0 }}
-              dragElastic={0.2}
+              dragElastic={0.16}
               onDragEnd={(e, info) => {
-                if (info.offset.y > 80 || info.velocity.y > 400) {
+                if (info.offset.y > 70 || info.velocity.y > 350) {
                   triggerHaptic('medium');
                   setIsMoreOpen(false);
                 }
@@ -311,70 +343,128 @@ function MobileNavContent() {
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              transition={{ type: 'spring', damping: 28, stiffness: 240 }}
               className="mobile-only"
               style={{
                 position: 'fixed',
                 bottom: 0,
                 left: 0,
                 right: 0,
-                backgroundColor: '#131827',
+                backgroundColor: '#0c101c',
                 borderTopLeftRadius: '24px',
                 borderTopRightRadius: '24px',
-                padding: '16px 20px',
+                padding: '12px 18px',
                 paddingBottom: 'calc(24px + env(safe-area-inset-bottom))',
                 zIndex: 101,
-                borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-                maxHeight: '82dvh',
+                borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                maxHeight: '84dvh',
                 overflowY: 'auto',
-                boxShadow: '0 -10px 40px rgba(0,0,0,0.5)',
+                boxShadow: '0 -12px 48px rgba(0, 0, 0, 0.75)',
                 touchAction: 'pan-y',
               }}
             >
               {/* Native Drag Handle */}
-              <div 
-                style={{ 
-                  width: '100%', 
-                  padding: '6px 0 16px 0', 
-                  display: 'flex', 
-                  justifyContent: 'center', 
+              <div
+                style={{
+                  width: '100%',
+                  padding: '4px 0 14px 0',
+                  display: 'flex',
+                  justifyContent: 'center',
                   cursor: 'grab',
-                  touchAction: 'none'
+                  touchAction: 'none',
                 }}
               >
-                <div className="modal-drag-handle" style={{ margin: 0 }} />
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#fff', margin: 0 }}>Menü</h2>
-                  <NotificationCenter />
-                </div>
-                <button
-                  onClick={() => {
-                    triggerHaptic('light');
-                    setIsMoreOpen(false);
-                  }}
-                  aria-label="Kapat"
+                <div
                   style={{
-                    background: 'rgba(255, 255, 255, 0.08)',
-                    border: 'none',
-                    borderRadius: '50%',
-                    width: '44px',
-                    height: '44px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#94a3b8',
-                    cursor: 'pointer',
-                    touchAction: 'manipulation',
+                    width: '38px',
+                    height: '4px',
+                    borderRadius: '999px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.22)',
                   }}
-                >
-                  <X size={20} />
-                </button>
+                />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
+              {/* Sheet Header */}
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '16px',
+                  paddingBottom: '12px',
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '9px',
+                      background: isMaarif
+                        ? 'linear-gradient(135deg, #10b981, #059669)'
+                        : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '15px',
+                    }}
+                  >
+                    {isMaarif ? '🌱' : '⭐'}
+                  </div>
+                  <div>
+                    <h2
+                      style={{
+                        fontSize: '15px',
+                        fontWeight: 700,
+                        color: '#ffffff',
+                        margin: 0,
+                        lineHeight: 1.2,
+                      }}
+                    >
+                      {user?.username?.toUpperCase() || 'ÖĞRENCİ MENÜSÜ'}
+                    </h2>
+                    <span style={{ fontSize: '11px', color: '#64748b' }}>
+                      {isMaarif ? 'Maarif Modeli Portalı' : 'YKS Hazırlık Merkezi'}
+                    </span>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <NotificationCenter />
+                  <button
+                    onClick={() => {
+                      triggerHaptic('light');
+                      setIsMoreOpen(false);
+                    }}
+                    aria-label="Kapat"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.06)',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      borderRadius: '50%',
+                      width: '36px',
+                      height: '36px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#94a3b8',
+                      cursor: 'pointer',
+                      touchAction: 'manipulation',
+                    }}
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+              </div>
+
+              {/* 2-Column Grid */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(2, 1fr)',
+                  gap: '8px',
+                }}
+              >
                 {currentMoreTabs.map((tab) => {
                   const active = checkIsActive(tab.href);
                   return (
@@ -384,49 +474,73 @@ function MobileNavContent() {
                       onClick={() => {
                         triggerHaptic('light');
                         setIsMoreOpen(false);
-                        const targetTab = tab.href.includes('?tab=') ? tab.href.split('?tab=')[1] : null;
+                        const targetTab = tab.href.includes('?tab=')
+                          ? tab.href.split('?tab=')[1]
+                          : null;
                         if (targetTab && typeof window !== 'undefined') {
                           if (user?.role === 'ogretmen') {
-                            window.dispatchEvent(new CustomEvent('yks:navigate-teacher-tab', { detail: targetTab }));
+                            window.dispatchEvent(
+                              new CustomEvent('yks:navigate-teacher-tab', { detail: targetTab })
+                            );
                           } else {
-                            window.dispatchEvent(new CustomEvent('yks:navigate-tab', { detail: targetTab }));
+                            window.dispatchEvent(
+                              new CustomEvent('yks:navigate-tab', { detail: targetTab })
+                            );
                           }
                         }
                       }}
                       style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '12px',
-                        padding: '16px',
-                        backgroundColor: active ? 'rgba(168, 85, 247, 0.1)' : 'rgba(255, 255, 255, 0.03)',
+                        gap: '10px',
+                        padding: '11px 12px',
+                        backgroundColor: active
+                          ? `${accentColor}18`
+                          : 'rgba(255, 255, 255, 0.03)',
                         borderRadius: '12px',
                         textDecoration: 'none',
-                        color: active ? '#a78bfa' : '#e2e8f0',
-                        fontWeight: active ? 600 : 500,
-                        border: active ? '1px solid rgba(168, 85, 247, 0.2)' : '1px solid transparent',
+                        color: active ? '#ffffff' : '#cbd5e1',
+                        fontWeight: active ? 700 : 500,
+                        border: active
+                          ? `1px solid ${accentColor}40`
+                          : '1px solid rgba(255, 255, 255, 0.05)',
+                        transition: 'all 0.16s ease',
                       }}
                     >
-                      <span style={{ 
-                        fontSize: '22px', 
-                        lineHeight: 1,
-                        width: '34px', 
-                        height: '34px', 
-                        borderRadius: '10px', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center',
-                        backgroundColor: active ? 'rgba(168, 85, 247, 0.25)' : 'rgba(255, 255, 255, 0.04)',
-                        flexShrink: 0 
-                      }}>
+                      <span
+                        style={{
+                          fontSize: '18px',
+                          lineHeight: 1,
+                          width: '30px',
+                          height: '30px',
+                          borderRadius: '8px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          backgroundColor: active
+                            ? `${accentColor}30`
+                            : 'rgba(255, 255, 255, 0.04)',
+                          flexShrink: 0,
+                        }}
+                      >
                         {tab.emoji}
                       </span>
-                      <span style={{ fontSize: '13.5px', fontWeight: active ? 700 : 500 }}>{tab.label}</span>
+                      <span
+                        style={{
+                          fontSize: '12.5px',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {tab.label}
+                      </span>
                     </Link>
                   );
                 })}
               </div>
 
-              {/* Logout Button in Mobile Drawer */}
+              {/* Logout Button */}
               <button
                 type="button"
                 onClick={() => {
@@ -440,20 +554,20 @@ function MobileNavContent() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '10px',
-                  padding: '14px',
-                  backgroundColor: 'rgba(239, 68, 68, 0.12)',
-                  border: '1px solid rgba(239, 68, 68, 0.3)',
-                  borderRadius: '14px',
+                  gap: '8px',
+                  padding: '12px',
+                  backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                  border: '1px solid rgba(239, 68, 68, 0.25)',
+                  borderRadius: '12px',
                   color: '#f87171',
-                  fontSize: '14px',
+                  fontSize: '13px',
                   fontWeight: 700,
                   cursor: 'pointer',
-                  transition: 'background 0.2s',
+                  transition: 'background 0.16s ease',
                 }}
               >
-                <LogOut size={18} />
-                <span>Çıkış Yap</span>
+                <LogOut size={16} />
+                <span>Oturumu Kapat</span>
               </button>
             </motion.div>
           </>

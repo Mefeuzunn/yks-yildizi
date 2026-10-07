@@ -114,9 +114,9 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
     <AuthProvider>
       <TimerProvider>
       <CurriculumBoundaryGuard />
-      <div style={{ minHeight: '100vh', backgroundColor: '#0b0f19', overflowX: 'hidden' }}>
+      <div style={{ minHeight: '100vh', backgroundColor: '#080c14', overflowX: 'hidden' }}>
         <MobileHeader />
-        <React.Suspense fallback={<div className="desktop-only" style={{ width: 230, borderRight: '1px solid #1f2937' }} />}>
+        <React.Suspense fallback={<div className="desktop-only" style={{ width: 228, borderRight: '1px solid rgba(255,255,255,0.06)' }} />}>
           <AppSidebar />
         </React.Suspense>
         <React.Suspense fallback={<div className="mobile-only" style={{ height: 60 }} />}>
@@ -126,7 +126,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
           className="dashboard-main-responsive"
           style={{
             minHeight: '100vh',
-            backgroundColor: '#0b0f19',
+            backgroundColor: '#080c14',
             boxSizing: 'border-box',
           }}
         >
