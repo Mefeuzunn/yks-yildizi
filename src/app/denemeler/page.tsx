@@ -481,85 +481,177 @@ export default function DenemelerPage() {
   const currentSubjects = activeTab === 'TYT' ? TYT_SUBJECTS : AYT_SUBJECTS[userAlan];
 
   return (
-    <div className="denemeler-page-wrap" style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
+    <div className="denemeler-page-wrap" style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem', fontFamily: 'var(--font-sans)' }}>
       
       {/* Header */}
-      <div className="denemeler-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '3rem', flexWrap: 'wrap', gap: '1rem' }}>
+      <div className="denemeler-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <BarChart2 size={24} color="#10b981" />
+          <div
+            style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '14px',
+              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.15))',
+              border: '1px solid rgba(16, 185, 129, 0.35)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 0 20px rgba(16, 185, 129, 0.2)',
+            }}
+          >
+            <BarChart2 size={24} color="#34d399" />
           </div>
           <div>
-            <h1 style={{ fontSize: '2rem', color: '#fff', marginBottom: '0.25rem' }}>Deneme Analizi</h1>
-            <p style={{ color: 'var(--text-secondary)' }}>TYT ve AYT netlerindeki gelişimi takip et, eksiklerini gör.</p>
+            <h1 style={{ fontSize: '1.85rem', color: '#ffffff', marginBottom: '0.25rem', fontWeight: 900, letterSpacing: '-0.02em' }}>Deneme Analizi</h1>
+            <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: 0 }}>TYT ve AYT netlerindeki gelişimi takip et, eksiklerini gör.</p>
           </div>
         </div>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ padding: '0.5rem 1rem', background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.2)', borderRadius: '8px', color: '#8b5cf6', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <GraduationCap size={18} /> {userAlan} Alanı
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <div
+            style={{
+              padding: '0.5rem 1rem',
+              backgroundColor: 'rgba(139, 92, 246, 0.14)',
+              border: '1px solid rgba(139, 92, 246, 0.3)',
+              borderRadius: '12px',
+              color: '#c084fc',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+            }}
+          >
+            <GraduationCap size={17} /> {userAlan} Alanı
           </div>
           <button 
             onClick={() => { setModalTab(activeTab); setIsModalOpen(true); }} 
-            className="btn-interactive" style={{ background: 'linear-gradient(135deg, #10b981, #047857)' }}
+            className="active:scale-[0.98]"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.6rem 1.25rem',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              color: '#ffffff',
+              fontSize: '0.875rem',
+              fontWeight: 800,
+              border: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
           >
-            <Plus size={18} style={{ marginRight: '0.5rem' }} /> Yeni Deneme Ekle
+            <Plus size={18} /> Yeni Deneme Ekle
           </button>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="denemeler-tabs" style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', padding: '4px', marginBottom: '2rem', width: 'fit-content' }}>
+      <div
+        className="denemeler-tabs"
+        style={{
+          display: 'flex',
+          backgroundColor: 'rgba(15, 21, 35, 0.75)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: '14px',
+          padding: '5px',
+          marginBottom: '2rem',
+          width: 'fit-content',
+          backdropFilter: 'blur(12px)',
+        }}
+      >
         <button 
           onClick={() => setActiveTab('TYT')}
-          style={{ padding: '0.5rem 2rem', borderRadius: '6px', fontSize: '0.875rem', fontWeight: 600, background: activeTab === 'TYT' ? 'rgba(16, 185, 129, 0.2)' : 'transparent', color: activeTab === 'TYT' ? '#fff' : 'var(--text-muted)', border: 'none', cursor: 'pointer', transition: 'all 0.2s' }}
-        >TYT (120 Soru)</button>
+          className="active:scale-[0.98]"
+          style={{
+            padding: '0.55rem 1.75rem',
+            borderRadius: '10px',
+            fontSize: '0.875rem',
+            fontWeight: 800,
+            background: activeTab === 'TYT' ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.15))' : 'transparent',
+            color: activeTab === 'TYT' ? '#34d399' : '#94a3b8',
+            border: activeTab === 'TYT' ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid transparent',
+            cursor: 'pointer',
+            transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+            boxShadow: activeTab === 'TYT' ? '0 2px 10px rgba(16, 185, 129, 0.25)' : 'none',
+          }}
+        >
+          TYT (120 Soru)
+        </button>
         <button 
           onClick={() => setActiveTab('AYT')}
-          style={{ padding: '0.5rem 2rem', borderRadius: '6px', fontSize: '0.875rem', fontWeight: 600, background: activeTab === 'AYT' ? 'rgba(56, 189, 248, 0.2)' : 'transparent', color: activeTab === 'AYT' ? '#fff' : 'var(--text-muted)', border: 'none', cursor: 'pointer', transition: 'all 0.2s' }}
-        >AYT (80 Soru)</button>
+          className="active:scale-[0.98]"
+          style={{
+            padding: '0.55rem 1.75rem',
+            borderRadius: '10px',
+            fontSize: '0.875rem',
+            fontWeight: 800,
+            background: activeTab === 'AYT' ? 'linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(6, 182, 212, 0.15))' : 'transparent',
+            color: activeTab === 'AYT' ? '#38bdf8' : '#94a3b8',
+            border: activeTab === 'AYT' ? '1px solid rgba(56, 189, 248, 0.4)' : '1px solid transparent',
+            cursor: 'pointer',
+            transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+            boxShadow: activeTab === 'AYT' ? '0 2px 10px rgba(56, 189, 248, 0.25)' : 'none',
+          }}
+        >
+          AYT (80 Soru)
+        </button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem' }}>
         {/* Grafik Alanı */}
-        <div className="premium-card table-responsive-container" style={{ padding: 'clamp(1rem, 3vw, 2rem)', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-          <h2 style={{ fontSize: '1.25rem', color: '#fff', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <LucideLineChart size={20} color={activeTab === 'TYT' ? '#10b981' : '#38bdf8'} /> {activeTab} Net Gelişimi Grafiği
+        <div
+          className="premium-card table-responsive-container"
+          style={{
+            backgroundColor: 'rgba(15, 21, 35, 0.75)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '20px',
+            backdropFilter: 'blur(16px)',
+            padding: 'clamp(1.25rem, 3vw, 2rem)',
+            overflowX: 'auto',
+            WebkitOverflowScrolling: 'touch',
+            boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)',
+          }}
+        >
+          <h2 style={{ fontSize: '1.25rem', color: '#fff', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 800 }}>
+            <LucideLineChart size={22} color={activeTab === 'TYT' ? '#34d399' : '#38bdf8'} /> {activeTab} Net Gelişimi Grafiği
           </h2>
           
           <div style={{ height: `${chartHeight}px`, minWidth: '600px', position: 'relative' }}>
             {filteredExams.length === 0 ? (
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>Henüz {activeTab} deneme verisi yok.</div>
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: '0.95rem' }}>Henüz {activeTab} deneme verisi yok.</div>
             ) : (
               <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                 <AreaChart data={filteredExams} margin={{ top: 20, right: 20, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorNet" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={activeTab === 'TYT' ? '#10b981' : '#38bdf8'} stopOpacity={0.3}/>
+                      <stop offset="5%" stopColor={activeTab === 'TYT' ? '#10b981' : '#38bdf8'} stopOpacity={0.35}/>
                       <stop offset="95%" stopColor={activeTab === 'TYT' ? '#10b981' : '#38bdf8'} stopOpacity={0}/>
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                   <XAxis 
                     dataKey="date" 
-                    stroke="var(--text-muted)" 
+                    stroke="#64748b" 
                     tickFormatter={(tick) => format(parseISO(tick), 'd MMM', { locale: tr })} 
                     axisLine={false}
                     tickLine={false}
                     fontSize={11}
                   />
                   <YAxis 
-                    stroke="var(--text-muted)" 
+                    stroke="#64748b" 
                     domain={[0, maxNet]} 
                     axisLine={false}
                     tickLine={false}
                     fontSize={11}
                   />
-                  <RechartsTooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 }} />
+                  <RechartsTooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(255,255,255,0.12)', strokeWidth: 1 }} />
                   <Area 
                     type="monotone" 
                     dataKey="totalNet" 
-                    stroke={activeTab === 'TYT' ? '#10b981' : '#38bdf8'} 
+                    stroke={activeTab === 'TYT' ? '#34d399' : '#38bdf8'} 
                     strokeWidth={3}
                     fillOpacity={1} 
                     fill="url(#colorNet)" 
@@ -574,15 +666,39 @@ export default function DenemelerPage() {
         <div className="denemeler-bottom-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>
           
           {/* Son Deneme Özeti */}
-          <motion.div className="premium-card" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} key={activeTab}>
-            <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Son {activeTab} Denemesi</div>
+          <motion.div
+            className="premium-card"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            key={activeTab}
+            style={{
+              backgroundColor: 'rgba(15, 21, 35, 0.75)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '20px',
+              padding: '1.75rem',
+              backdropFilter: 'blur(16px)',
+              boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)',
+            }}
+          >
+            <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.5rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Son {activeTab} Denemesi</div>
             
             {lastExam ? (
               <>
-                <div style={{ fontSize: '2.5rem', color: '#fff', fontWeight: 700, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{ fontSize: '2.5rem', color: '#fff', fontWeight: 900, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem', fontVariantNumeric: 'tabular-nums' }}>
                   {lastExam.totalNet}
                   {Number(netDiff) !== 0 && (
-                    <span style={{ fontSize: '1rem', color: Number(netDiff) > 0 ? '#10b981' : '#ef4444', fontWeight: 600, padding: '4px 8px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+                    <span
+                      style={{
+                        fontSize: '0.95rem',
+                        color: Number(netDiff) > 0 ? '#34d399' : '#f87171',
+                        fontWeight: 800,
+                        padding: '4px 10px',
+                        background: Number(netDiff) > 0 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                        border: Number(netDiff) > 0 ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
+                        borderRadius: '10px',
+                        fontVariantNumeric: 'tabular-nums',
+                      }}
+                    >
                       {Number(netDiff) > 0 ? '+' : ''}{netDiff}
                     </span>
                   )}
@@ -592,37 +708,37 @@ export default function DenemelerPage() {
                   {currentSubjects.map((sub, i) => {
                     const val = lastExam[sub.id as keyof MockExam];
                     return (
-                      <div key={sub.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', paddingBottom: '0.5rem', borderBottom: i < currentSubjects.length-1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
-                        <span style={{ color: 'var(--text-secondary)' }}>{sub.label}</span>
-                        <span style={{ color: '#fff', fontWeight: 600 }}>{val !== undefined ? val : 0} Net</span>
+                      <div key={sub.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.875rem', paddingBottom: '0.6rem', borderBottom: i < currentSubjects.length-1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+                        <span style={{ color: '#94a3b8', fontWeight: 600 }}>{sub.label}</span>
+                        <span style={{ color: '#fff', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>{val !== undefined ? val : 0} Net</span>
                       </div>
                     )
                   })}
                 </div>
 
                 {/* AI Analiz ve Reçete Butonu */}
-                <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                <div style={{ marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
                   <button
                     type="button"
                     onClick={() => handleOpenAiAnalysis(activeTab)}
                     disabled={isAiAnalyzing}
-                    className="ai-analysis-btn"
+                    className="ai-analysis-btn active:scale-[0.98]"
                     style={{
                       width: '100%',
-                      padding: '10px 14px',
+                      padding: '11px 16px',
                       borderRadius: '12px',
                       background: 'linear-gradient(135deg, rgba(99,102,241,0.25), rgba(168,85,247,0.25))',
-                      border: '1px solid rgba(139,92,246,0.4)',
+                      border: '1px solid rgba(139,92,246,0.45)',
                       color: '#c4b5fd',
                       fontSize: '0.875rem',
-                      fontWeight: 700,
+                      fontWeight: 800,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '0.5rem',
                       cursor: isAiAnalyzing ? 'not-allowed' : 'pointer',
-                      boxShadow: '0 4px 15px rgba(139,92,246,0.15)',
-                      transition: 'all 0.2s'
+                      boxShadow: '0 4px 16px rgba(139,92,246,0.2)',
+                      transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
                     }}
                   >
                     {isAiAnalyzing ? (
@@ -640,35 +756,74 @@ export default function DenemelerPage() {
                 </div>
               </>
             ) : (
-              <div style={{ color: 'var(--text-muted)' }}>Veri bulunamadı.</div>
+              <div style={{ color: '#64748b' }}>Veri bulunamadı.</div>
             )}
           </motion.div>
 
           {/* Deneme Geçmişi Listesi */}
-          <div className="premium-card">
-            <h3 style={{ fontSize: '1rem', color: '#fff', marginBottom: '1.5rem' }}>Tüm Deneme Geçmişi</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '250px', overflowY: 'auto', paddingRight: '0.5rem' }}>
-              {exams.length === 0 && <div style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Deneme bulunmuyor.</div>}
+          <div
+            className="premium-card"
+            style={{
+              backgroundColor: 'rgba(15, 21, 35, 0.75)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '20px',
+              padding: '1.75rem',
+              backdropFilter: 'blur(16px)',
+              boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)',
+            }}
+          >
+            <h3 style={{ fontSize: '1.1rem', color: '#fff', marginBottom: '1.5rem', fontWeight: 800 }}>Tüm Deneme Geçmişi</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', maxHeight: '280px', overflowY: 'auto', paddingRight: '0.5rem' }}>
+              {exams.length === 0 && <div style={{ color: '#64748b', fontSize: '0.875rem' }}>Deneme bulunmuyor.</div>}
               
               {[...exams].reverse().map(exam => (
-                <div key={exam.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <div
+                  key={exam.id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '0.85rem 1rem',
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    borderRadius: '12px',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                    transition: 'border-color 0.2s',
+                  }}
+                >
+                  <div style={{ display: 'flex', gap: '0.85rem', alignItems: 'center' }}>
                     <div style={{ 
-                      padding: '4px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700,
-                      background: exam.type === 'TYT' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(56, 189, 248, 0.2)',
-                      color: exam.type === 'TYT' ? '#10b981' : '#38bdf8'
+                      padding: '4px 10px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 800,
+                      background: exam.type === 'TYT' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(56, 189, 248, 0.15)',
+                      color: exam.type === 'TYT' ? '#34d399' : '#38bdf8',
+                      border: exam.type === 'TYT' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(56, 189, 248, 0.3)',
                     }}>
                       {exam.type}
                     </div>
                     <div>
-                      <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.875rem', marginBottom: '0.25rem' }}>Deneme Sınavı</div>
-                      <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>{format(parseISO(exam.date), 'd MMMM yyyy', { locale: tr })}</div>
+                      <div style={{ color: '#fff', fontWeight: 700, fontSize: '0.875rem', marginBottom: '0.15rem' }}>Deneme Sınavı</div>
+                      <div style={{ color: '#94a3b8', fontSize: '0.75rem' }}>{format(parseISO(exam.date), 'd MMMM yyyy', { locale: tr })}</div>
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <span style={{ color: exam.type === 'TYT' ? '#10b981' : '#38bdf8', fontWeight: 700 }}>{exam.totalNet} Net</span>
-                    <button onClick={() => deleteExam(exam.id)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.25rem' }}>
-                      <Trash2 size={16} />
+                    <span style={{ color: exam.type === 'TYT' ? '#34d399' : '#38bdf8', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>{exam.totalNet} Net</span>
+                    <button
+                      onClick={() => deleteExam(exam.id)}
+                      className="active:scale-[0.95]"
+                      style={{
+                        background: 'rgba(239, 68, 68, 0.1)',
+                        border: '1px solid rgba(239, 68, 68, 0.2)',
+                        borderRadius: '8px',
+                        color: '#f87171',
+                        cursor: 'pointer',
+                        padding: '0.4rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.2s',
+                      }}
+                      title="Sil"
+                    >
+                      <Trash2 size={15} />
                     </button>
                   </div>
                 </div>
@@ -682,61 +837,122 @@ export default function DenemelerPage() {
       {/* Modal */}
       <AnimatePresence>
         {isModalOpen && (
-          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backdropFilter: 'blur(8px)' }}>
             <motion.div 
               className="denemeler-modal-inner"
-              initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
-              style={{ background: '#1e293b', padding: '2rem', borderRadius: '16px', width: '100%', maxWidth: '600px', border: '1px solid rgba(255,255,255,0.1)', maxHeight: '90vh', overflowY: 'auto' }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              style={{
+                background: '#0f1523',
+                padding: '2rem',
+                borderRadius: '20px',
+                width: '100%',
+                maxWidth: '600px',
+                border: '1px solid rgba(255,255,255,0.1)',
+                maxHeight: '90vh',
+                overflowY: 'auto',
+                boxShadow: '0 25px 60px rgba(0, 0, 0, 0.7)',
+              }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <h2 style={{ fontSize: '1.5rem', color: '#fff' }}>Yeni Deneme Ekle</h2>
-                <button onClick={() => setIsModalOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
-                  <X size={24} />
+                <h2 style={{ fontSize: '1.4rem', color: '#fff', fontWeight: 800 }}>Yeni Deneme Ekle</h2>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  style={{
+                    background: 'rgba(255,255,255,0.06)',
+                    border: 'none',
+                    color: '#94a3b8',
+                    cursor: 'pointer',
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <X size={20} />
                 </button>
               </div>
 
               {/* Modal Tabs */}
-              <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', padding: '4px', marginBottom: '1.5rem' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: '12px',
+                  padding: '4px',
+                  marginBottom: '1.5rem',
+                }}
+              >
                 <button 
                   onClick={() => { setModalTab('TYT'); setNewExam({ date: newExam.date }); }}
-                  style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', fontSize: '0.875rem', fontWeight: 600, background: modalTab === 'TYT' ? 'rgba(16, 185, 129, 0.2)' : 'transparent', color: modalTab === 'TYT' ? '#fff' : 'var(--text-muted)', border: 'none', cursor: 'pointer', transition: 'all 0.2s' }}
-                >TYT</button>
+                  style={{
+                    flex: 1,
+                    padding: '0.55rem',
+                    borderRadius: '8px',
+                    fontSize: '0.875rem',
+                    fontWeight: 800,
+                    background: modalTab === 'TYT' ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.15))' : 'transparent',
+                    color: modalTab === 'TYT' ? '#34d399' : '#94a3b8',
+                    border: modalTab === 'TYT' ? '1px solid rgba(16, 185, 129, 0.35)' : 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  TYT (120 Soru)
+                </button>
                 <button 
                   onClick={() => { setModalTab('AYT'); setNewExam({ date: newExam.date }); }}
-                  style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', fontSize: '0.875rem', fontWeight: 600, background: modalTab === 'AYT' ? 'rgba(56, 189, 248, 0.2)' : 'transparent', color: modalTab === 'AYT' ? '#fff' : 'var(--text-muted)', border: 'none', cursor: 'pointer', transition: 'all 0.2s' }}
-                >AYT</button>
+                  style={{
+                    flex: 1,
+                    padding: '0.55rem',
+                    borderRadius: '8px',
+                    fontSize: '0.875rem',
+                    fontWeight: 800,
+                    background: modalTab === 'AYT' ? 'linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(6, 182, 212, 0.15))' : 'transparent',
+                    color: modalTab === 'AYT' ? '#38bdf8' : '#94a3b8',
+                    border: modalTab === 'AYT' ? '1px solid rgba(56, 189, 248, 0.35)' : 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  AYT (80 Soru)
+                </button>
               </div>
 
-               <form onSubmit={handleAddExam} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+               <form onSubmit={handleAddExam} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
                 {/* AI Optik / Sonuç Belgesi Okuyucu Panel */}
-                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.85rem', color: '#fff', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <Sparkles size={16} color="#a855f7" style={{ fill: '#a855f7' }} /> AI Optik Okuyucu & Deneme Analizör
+                    <span style={{ fontSize: '0.85rem', color: '#fff', fontWeight: 800, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <Sparkles size={16} color="#c084fc" /> AI Optik Okuyucu & Deneme Analizör
                     </span>
-                    <span style={{ fontSize: '0.75rem', color: '#a855f7', background: 'rgba(168, 85, 247, 0.1)', padding: '2px 8px', borderRadius: 20, fontWeight: 600 }}>PREMIUM</span>
+                    <span style={{ fontSize: '0.75rem', color: '#c084fc', background: 'rgba(168, 85, 247, 0.15)', border: '1px solid rgba(168, 85, 247, 0.3)', padding: '2px 8px', borderRadius: 20, fontWeight: 700 }}>PRO</span>
                   </div>
                   
                   {isScanning ? (
-                    <div style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.2)', borderRadius: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', position: 'relative', overflow: 'hidden' }}>
+                    <div style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.3)', borderRadius: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', position: 'relative', overflow: 'hidden' }}>
                       {/* Scanning laser effect */}
                       <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '4px', background: 'linear-gradient(90deg, transparent, #10b981, transparent)', animation: 'scanAnim 2s infinite ease-in-out' }} />
-                      <Loader2 size={24} color="#10b981" className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
-                      <span style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 600 }}>Optik form taranıyor ve hatalar çözümleniyor...</span>
+                      <Loader2 size={24} color="#34d399" className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
+                      <span style={{ fontSize: '0.8rem', color: '#34d399', fontWeight: 700 }}>Optik form taranıyor ve hatalar çözümleniyor...</span>
                     </div>
                   ) : scanDone ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      <div style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.15)', padding: '0.75rem', borderRadius: 8, color: '#10b981', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.25)', padding: '0.75rem', borderRadius: 10, color: '#34d399', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700 }}>
                         <Check size={16} />
                         <span>Başarılı! Optik veri okundu, netler forma dolduruldu.</span>
                       </div>
                       
                       {ocrMistakes.length > 0 && (
-                        <div style={{ background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.15)', padding: '0.75rem', borderRadius: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                          <span style={{ fontSize: '0.75rem', color: '#f59e0b', fontWeight: 700, textAlign: 'left' }}>Tespit Edilen ve Hata Defterine Eklenecek Konular:</span>
+                        <div style={{ background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.2)', padding: '0.75rem', borderRadius: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          <span style={{ fontSize: '0.75rem', color: '#fbbf24', fontWeight: 800, textAlign: 'left' }}>Tespit Edilen ve Hata Defterine Eklenecek Konular:</span>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: 2 }}>
                             {ocrMistakes.map((m, idx) => (
-                              <span key={idx} style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#fff', fontSize: '0.7rem', padding: '2px 6px', borderRadius: 4, border: '1px solid rgba(245, 158, 11, 0.2)' }}>
+                              <span key={idx} style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#fff', fontSize: '0.7rem', padding: '2px 8px', borderRadius: 6, border: '1px solid rgba(245, 158, 11, 0.3)', fontWeight: 600 }}>
                                 {m.topic}
                               </span>
                             ))}
@@ -748,8 +964,8 @@ export default function DenemelerPage() {
                     <button 
                       type="button" 
                       onClick={handleSimulateScan}
-                      className="btn-interactive"
-                      style={{ padding: '0.75rem', background: 'rgba(168, 85, 247, 0.1)', color: '#a855f7', border: '1px dashed rgba(168, 85, 247, 0.3)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                      className="active:scale-[0.98]"
+                      style={{ padding: '0.75rem', background: 'rgba(168, 85, 247, 0.1)', color: '#c084fc', border: '1px dashed rgba(168, 85, 247, 0.35)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}
                     >
                       <span>📸</span>
                       <span>Optik Form / Sonuç Belgesi Fotoğrafı Yükle</span>
@@ -758,33 +974,66 @@ export default function DenemelerPage() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Tarih</label>
-                  <input type="date" required value={newExam.date || ''} onChange={e => handleInputChange('date', e.target.value)} style={{ width: '100%', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff' }} />
+                  <label style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.5rem', fontWeight: 700 }}>Tarih</label>
+                  <input
+                    type="date"
+                    required
+                    value={newExam.date || ''}
+                    onChange={e => handleInputChange('date', e.target.value)}
+                    style={{ width: '100%', padding: '0.75rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff', outline: 'none' }}
+                  />
                 </div>
 
-                <div className="denemeler-subject-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '1rem' }}>
+                <div className="denemeler-subject-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.85rem' }}>
                   {(modalTab === 'TYT' ? TYT_SUBJECTS : AYT_SUBJECTS[userAlan]).map((sub) => (
                     <div key={sub.id}>
-                      <label style={{ display: 'block', fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>{sub.label} Net</label>
+                      <label style={{ display: 'block', fontSize: '0.82rem', color: '#94a3b8', marginBottom: '0.4rem', fontWeight: 700 }}>{sub.label} Net</label>
                       <input 
                         type="number" step="0.25" min="-20" max={sub.max} required 
                         value={newExam[sub.id] || ''} 
                         onChange={e => handleInputChange(sub.id, e.target.value)} 
-                        style={{ width: '100%', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff' }} 
+                        style={{ width: '100%', padding: '0.75rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff', outline: 'none', fontVariantNumeric: 'tabular-nums' }} 
                         placeholder={`Maks: ${sub.max}`} 
                       />
                     </div>
                   ))}
                 </div>
 
-                <div style={{ marginTop: '0.5rem', padding: '1rem', background: modalTab === 'TYT' ? 'rgba(16,185,129,0.1)' : 'rgba(56, 189, 248,0.1)', borderRadius: '8px', border: `1px dashed ${modalTab === 'TYT' ? '#10b981' : '#38bdf8'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ color: modalTab === 'TYT' ? '#10b981' : '#38bdf8', fontWeight: 600 }}>Toplam Net:</span>
-                  <span style={{ color: '#fff', fontSize: '1.25rem', fontWeight: 700 }}>
+                <div
+                  style={{
+                    marginTop: '0.5rem',
+                    padding: '0.85rem 1.1rem',
+                    background: modalTab === 'TYT' ? 'rgba(16,185,129,0.1)' : 'rgba(56, 189, 248,0.1)',
+                    borderRadius: '12px',
+                    border: `1px solid ${modalTab === 'TYT' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(56, 189, 248, 0.3)'}`,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}
+                >
+                  <span style={{ color: modalTab === 'TYT' ? '#34d399' : '#38bdf8', fontWeight: 700, fontSize: '0.9rem' }}>Toplam Net:</span>
+                  <span style={{ color: '#fff', fontSize: '1.35rem', fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}>
                     {calculateCurrentTotal().toFixed(2)}
                   </span>
                 </div>
 
-                <button type="submit" className="btn-interactive" style={{ background: modalTab === 'TYT' ? 'linear-gradient(135deg, #10b981, #047857)' : 'linear-gradient(135deg, #38bdf8, #0284c7)', marginTop: '0.5rem' }}>
+                <button
+                  type="submit"
+                  className="active:scale-[0.98]"
+                  style={{
+                    padding: '0.85rem',
+                    borderRadius: '12px',
+                    border: 'none',
+                    fontWeight: 800,
+                    fontSize: '0.95rem',
+                    cursor: 'pointer',
+                    color: '#ffffff',
+                    background: modalTab === 'TYT' ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #38bdf8, #0284c7)',
+                    boxShadow: modalTab === 'TYT' ? '0 4px 14px rgba(16, 185, 129, 0.35)' : '0 4px 14px rgba(56, 189, 248, 0.35)',
+                    marginTop: '0.5rem',
+                    transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                  }}
+                >
                   {modalTab} Denemesini Kaydet
                 </button>
               </form>

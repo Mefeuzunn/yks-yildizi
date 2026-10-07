@@ -112,16 +112,17 @@ function Scratchpad() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', height: '100%' }}>
       <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'space-between', padding: '0.25rem 0.5rem' }}>
         <div style={{ display: 'flex', gap: '0.4rem' }}>
-          {['#38bdf8', '#a855f7', '#ef4444', '#10b981', '#111827'].map(c => (
+          {['#38bdf8', '#a855f7', '#ef4444', '#10b981', '#f1f5f9'].map(c => (
             <button 
               key={c} 
               type="button"
               onClick={() => setColor(c)} 
+              className="active:scale-95"
               style={{ 
-                width: 32, height: 32, borderRadius: '50%', background: c, 
-                border: color === c ? '3px solid #fff' : '2px solid rgba(255,255,255,0.2)', 
-                boxShadow: color === c ? '0 0 10px rgba(255,255,255,0.4)' : 'none',
-                cursor: 'pointer', outline: 'none', transition: 'all 0.15s' 
+                width: 30, height: 30, borderRadius: '50%', background: c, 
+                border: color === c ? '2.5px solid #ffffff' : '2px solid rgba(255,255,255,0.15)', 
+                boxShadow: color === c ? `0 0 10px ${c}88` : 'none',
+                cursor: 'pointer', outline: 'none', transition: 'all 0.15s cubic-bezier(0.16, 1, 0.3, 1)' 
               }} 
             />
           ))}
@@ -131,8 +132,8 @@ function Scratchpad() {
             value={lineWidth} 
             onChange={e => setLineWidth(Number(e.target.value))} 
             style={{ 
-              background: 'var(--surface)', color: 'var(--text-primary)', border: '1px solid var(--border-strong)', 
-              borderRadius: 6, padding: '4px 8px', fontSize: '0.75rem', outline: 'none' 
+              background: 'rgba(15, 21, 35, 0.85)', color: '#f1f5f9', border: '1px solid rgba(255, 255, 255, 0.1)', 
+              borderRadius: 8, padding: '5px 10px', fontSize: '0.8rem', outline: 'none' 
             }}
           >
             <option value={2}>İnce</option>
@@ -142,10 +143,12 @@ function Scratchpad() {
           <button 
             type="button"
             onClick={clearCanvas} 
+            className="active:scale-95"
             style={{ 
-              background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', border: 'none', 
-              borderRadius: 8, padding: '6px 12px', fontSize: '0.75rem', fontWeight: 700, 
-              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 
+              background: 'rgba(239, 68, 68, 0.14)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.3)', 
+              borderRadius: 8, padding: '6px 12px', fontSize: '0.78rem', fontWeight: 700, 
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
+              transition: 'all 0.15s'
             }}
           >
             <Trash2 size={12} />
@@ -163,8 +166,9 @@ function Scratchpad() {
         onTouchMove={draw}
         onTouchEnd={stopDrawing}
         style={{ 
-          background: 'var(--surface)', borderRadius: 14, border: '1px solid var(--border-light)', 
-          cursor: 'crosshair', width: '100%', height: '420px', display: 'block' 
+          background: 'rgba(8, 12, 20, 0.95)', borderRadius: 16, border: '1px solid rgba(255, 255, 255, 0.08)', 
+          cursor: 'crosshair', width: '100%', height: '420px', display: 'block',
+          boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.5)'
         }}
       />
     </div>
@@ -295,25 +299,64 @@ export default function SoruCozPage() {
   };
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1.5rem 1rem calc(85px + env(safe-area-inset-bottom, 20px)) 1rem', minHeight: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}>
-      
+    <div
+      style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        padding: '1.5rem 1rem calc(85px + env(safe-area-inset-bottom, 20px)) 1rem',
+        minHeight: 'calc(100vh - 80px)',
+        display: 'flex',
+        flexDirection: 'column',
+        fontFamily: 'var(--font-sans)',
+      }}
+    >
       {/* Header bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--accent-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Brain size={24} color="var(--accent)" />
+          <div
+            style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '14px',
+              background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.15))',
+              border: '1px solid rgba(99, 102, 241, 0.35)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 0 20px rgba(99, 102, 241, 0.2)',
+            }}
+          >
+            <Brain size={24} color="#818cf8" />
           </div>
           <div>
-            <h1 style={{ fontSize: '1.5rem', color: 'var(--text-primary)', marginBottom: '0.25rem', fontWeight: 800 }}>Parametrik YKS Soru Çöz</h1>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Dinamik, formülleri değişen adaptif YKS soru bankası</p>
+            <h1 style={{ fontSize: '1.5rem', color: '#ffffff', marginBottom: '0.25rem', fontWeight: 900, letterSpacing: '-0.02em' }}>
+              Parametrik YKS Soru Çöz
+            </h1>
+            <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: 0 }}>
+              Dinamik, formülleri değişen adaptif YKS soru bankası
+            </p>
           </div>
         </div>
 
         {/* Action controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--surface)', padding: '0.5rem 0.85rem', borderRadius: '12px', border: '1px solid var(--border-light)', boxShadow: '0 1px 2px rgba(0,0,0,0.05)', minHeight: '40px' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              backgroundColor: 'rgba(15, 21, 35, 0.8)',
+              padding: '0.5rem 0.95rem',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+              minHeight: '40px',
+            }}
+          >
             <Star size={16} color="#f59e0b" fill="#f59e0b" />
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 700 }}>{user?.league_points || 0} Puan</span>
+            <span style={{ fontSize: '0.85rem', color: '#f8fafc', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>
+              {user?.league_points || 0} Puan
+            </span>
           </div>
 
           <button 
@@ -322,14 +365,29 @@ export default function SoruCozPage() {
               setIsSidebarOpen(!isSidebarOpen); 
               setSidebarTab('tutor'); 
             }}
-            className="btn-interactive"
+            className="active:scale-[0.97]"
             style={{ 
-              display: 'flex', alignItems: 'center', gap: 6, 
-              background: isSidebarOpen && sidebarTab === 'tutor' ? 'var(--accent)' : 'var(--surface)', 
-              color: isSidebarOpen && sidebarTab === 'tutor' ? '#fff' : 'var(--text-primary)', border: '1px solid var(--border-strong)', padding: '0.5rem 0.85rem', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 600, minHeight: '40px'
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6, 
+              background: isSidebarOpen && sidebarTab === 'tutor'
+                ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(139, 92, 246, 0.2))'
+                : 'rgba(15, 21, 35, 0.8)', 
+              color: isSidebarOpen && sidebarTab === 'tutor' ? '#c4b5fd' : '#94a3b8',
+              border: isSidebarOpen && sidebarTab === 'tutor'
+                ? '1px solid rgba(99, 102, 241, 0.45)'
+                : '1px solid rgba(255, 255, 255, 0.08)',
+              padding: '0.5rem 0.95rem',
+              borderRadius: '12px',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              minHeight: '40px',
+              cursor: 'pointer',
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+              boxShadow: isSidebarOpen && sidebarTab === 'tutor' ? '0 2px 10px rgba(99, 102, 241, 0.25)' : 'none',
             }}
           >
-            <MessageSquare size={16} color={isSidebarOpen && sidebarTab === 'tutor' ? '#fff' : 'var(--accent)'} /> 
+            <MessageSquare size={16} color={isSidebarOpen && sidebarTab === 'tutor' ? '#c4b5fd' : '#818cf8'} /> 
             AstraTutor AI
           </button>
 
@@ -339,33 +397,72 @@ export default function SoruCozPage() {
               setIsSidebarOpen(!isSidebarOpen); 
               setSidebarTab('scratchpad'); 
             }}
-            className="btn-interactive"
+            className="active:scale-[0.97]"
             style={{ 
-              display: 'flex', alignItems: 'center', gap: 6, 
-              background: isSidebarOpen && sidebarTab === 'scratchpad' ? 'var(--accent)' : 'var(--surface)', 
-              color: isSidebarOpen && sidebarTab === 'scratchpad' ? '#fff' : 'var(--text-primary)', border: '1px solid var(--border-strong)', padding: '0.5rem 0.85rem', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 600, minHeight: '40px'
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6, 
+              background: isSidebarOpen && sidebarTab === 'scratchpad'
+                ? 'linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(6, 182, 212, 0.2))'
+                : 'rgba(15, 21, 35, 0.8)', 
+              color: isSidebarOpen && sidebarTab === 'scratchpad' ? '#7dd3fc' : '#94a3b8',
+              border: isSidebarOpen && sidebarTab === 'scratchpad'
+                ? '1px solid rgba(56, 189, 248, 0.45)'
+                : '1px solid rgba(255, 255, 255, 0.08)',
+              padding: '0.5rem 0.95rem',
+              borderRadius: '12px',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              minHeight: '40px',
+              cursor: 'pointer',
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+              boxShadow: isSidebarOpen && sidebarTab === 'scratchpad' ? '0 2px 10px rgba(56, 189, 248, 0.25)' : 'none',
             }}
           >
-            <Edit3 size={16} color={isSidebarOpen && sidebarTab === 'scratchpad' ? '#fff' : 'var(--accent)'} /> 
+            <Edit3 size={16} color={isSidebarOpen && sidebarTab === 'scratchpad' ? '#7dd3fc' : '#38bdf8'} /> 
             Karalama Defteri
           </button>
         </div>
       </div>
 
       {/* Filter Options Bar */}
-      <div className="premium-card" style={{ padding: '0.85rem 1.25rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.85rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600 }}>
-          <SlidersHorizontal size={16} /> Hızlı Filtrele:
+      <div
+        style={{
+          padding: '0.85rem 1.25rem',
+          marginBottom: '1.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '0.85rem',
+          backgroundColor: 'rgba(15, 21, 35, 0.75)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: '16px',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.25)',
+          backdropFilter: 'blur(16px)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#cbd5e1', fontSize: '0.85rem', fontWeight: 700 }}>
+          <SlidersHorizontal size={16} color="#818cf8" /> Hızlı Filtrele:
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
           {/* Subject Filter */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Ders:</span>
+            <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Ders:</span>
             <select 
               value={filterSubject}
               onChange={e => setFilterSubject(e.target.value)}
-              className="premium-input"
-              style={{ width: 'auto', padding: '0.35rem 1.75rem 0.35rem 0.65rem', fontSize: '0.8rem' }}
+              style={{
+                width: 'auto',
+                padding: '0.4rem 1.8rem 0.4rem 0.75rem',
+                fontSize: '14px',
+                backgroundColor: 'rgba(8, 12, 20, 0.85)',
+                color: '#f8fafc',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '10px',
+                outline: 'none',
+                cursor: 'pointer',
+              }}
             >
               <option value="all">Tüm Dersler</option>
               <option value="Matematik">Matematik</option>
@@ -377,12 +474,21 @@ export default function SoruCozPage() {
 
           {/* Difficulty Filter */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Zorluk:</span>
+            <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Zorluk:</span>
             <select 
               value={filterDifficulty}
               onChange={e => setFilterDifficulty(e.target.value)}
-              className="premium-input"
-              style={{ width: 'auto', padding: '0.35rem 1.75rem 0.35rem 0.65rem', fontSize: '0.8rem' }}
+              style={{
+                width: 'auto',
+                padding: '0.4rem 1.8rem 0.4rem 0.75rem',
+                fontSize: '14px',
+                backgroundColor: 'rgba(8, 12, 20, 0.85)',
+                color: '#f8fafc',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '10px',
+                outline: 'none',
+                cursor: 'pointer',
+              }}
             >
               <option value="all">Tüm Seviyeler</option>
               <option value="2">Kolay</option>
@@ -410,90 +516,171 @@ export default function SoruCozPage() {
             </div>
           ) : (
             <motion.div 
-              className="premium-card"
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               key={question.template_id + JSON.stringify(question.parametreler)}
-              style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', flex: 1 }}
+              style={{
+                backgroundColor: 'rgba(15, 21, 35, 0.75)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '22px',
+                padding: 'clamp(1.25rem, 3vw, 2.25rem)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1.5rem',
+                flex: 1,
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                backdropFilter: 'blur(16px)',
+              }}
             >
               {/* Question metadata row */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: '#8b5cf6', background: 'rgba(139, 92, 246, 0.1)', padding: '2px 8px', borderRadius: 6 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '1rem', flexWrap: 'wrap', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span
+                    style={{
+                      fontSize: '0.75rem',
+                      fontWeight: 800,
+                      textTransform: 'uppercase',
+                      color: question.subject === 'Matematik' ? '#60a5fa' : question.subject === 'Fizik' ? '#c084fc' : question.subject === 'Kimya' ? '#38bdf8' : '#fbbf24',
+                      background: question.subject === 'Matematik' ? 'rgba(59, 130, 246, 0.15)' : question.subject === 'Fizik' ? 'rgba(139, 92, 246, 0.15)' : question.subject === 'Kimya' ? 'rgba(6, 182, 212, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+                      border: `1px solid ${question.subject === 'Matematik' ? 'rgba(59, 130, 246, 0.3)' : question.subject === 'Fizik' ? 'rgba(139, 92, 246, 0.3)' : question.subject === 'Kimya' ? 'rgba(6, 182, 212, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`,
+                      padding: '3px 10px',
+                      borderRadius: '8px',
+                      letterSpacing: '0.04em',
+                    }}
+                  >
                     {question.subject}
                   </span>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8' }}>
                     • {question.topic}
                   </span>
                 </div>
                 
                 {/* Stopwatch indicator */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: isAnswered ? 'var(--text-muted)' : '#38bdf8', fontSize: '0.85rem', fontWeight: 700 }}>
-                  <Timer size={16} />
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    color: isAnswered ? '#64748b' : '#38bdf8',
+                    backgroundColor: 'rgba(8, 12, 20, 0.65)',
+                    border: '1px solid rgba(255, 255, 255, 0.06)',
+                    padding: '4px 12px',
+                    borderRadius: '10px',
+                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    fontVariantNumeric: 'tabular-nums',
+                  }}
+                >
+                  <Timer size={15} />
                   <span>{formatTime(timerSeconds)}</span>
                 </div>
               </div>
 
               {/* Question Content */}
-              <div style={{ fontSize: '1.2rem', color: '#fff', lineHeight: 1.7, fontWeight: 500, textAlign: 'left', minHeight: '80px' }}>
+              <div
+                style={{
+                  fontSize: 'clamp(1.05rem, 2vw, 1.22rem)',
+                  color: '#ffffff',
+                  lineHeight: 1.75,
+                  fontWeight: 500,
+                  textAlign: 'left',
+                  minHeight: '80px',
+                  letterSpacing: '-0.01em',
+                }}
+              >
                 {question.icerik}
               </div>
 
               {/* Options */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.5rem' }}>
                 {question.secenekler.map((opt: string, index: number) => {
                   const labels = ['A', 'B', 'C', 'D', 'E'];
-                  let bg = 'rgba(255,255,255,0.03)';
-                  let border = '1px solid rgba(255,255,255,0.06)';
-                  let textColor = '#fff';
+                  let bg = 'rgba(22, 32, 53, 0.45)';
+                  let border = '1px solid rgba(255, 255, 255, 0.07)';
+                  let textColor = '#f1f5f9';
+                  let pillBg = 'rgba(255, 255, 255, 0.06)';
+                  let pillBorder = '1px solid rgba(255, 255, 255, 0.1)';
+                  let pillColor = '#94a3b8';
 
                   if (isAnswered) {
                     if (opt === question.dogruCevap) {
-                      bg = 'rgba(16, 185, 129, 0.1)';
-                      border = '1px solid rgba(16, 185, 129, 0.3)';
-                      textColor = '#10b981';
+                      bg = 'rgba(16, 185, 129, 0.14)';
+                      border = '1px solid rgba(16, 185, 129, 0.45)';
+                      textColor = '#34d399';
+                      pillBg = '#10b981';
+                      pillBorder = '1px solid #10b981';
+                      pillColor = '#ffffff';
                     } else if (opt === selectedOption) {
-                      bg = 'rgba(239, 68, 68, 0.1)';
-                      border = '1px solid rgba(239, 68, 68, 0.3)';
-                      textColor = '#ef4444';
+                      bg = 'rgba(239, 68, 68, 0.14)';
+                      border = '1px solid rgba(239, 68, 68, 0.45)';
+                      textColor = '#f87171';
+                      pillBg = '#ef4444';
+                      pillBorder = '1px solid #ef4444';
+                      pillColor = '#ffffff';
                     } else {
-                      bg = 'rgba(255,255,255,0.01)';
-                      textColor = 'var(--text-muted)';
+                      bg = 'rgba(255, 255, 255, 0.02)';
+                      border = '1px solid rgba(255, 255, 255, 0.04)';
+                      textColor = '#64748b';
+                      pillColor = '#64748b';
                     }
                   } else if (opt === selectedOption) {
-                    bg = 'rgba(139, 92, 246, 0.15)';
-                    border = '1px solid rgba(139, 92, 246, 0.4)';
+                    bg = 'rgba(99, 102, 241, 0.18)';
+                    border = '1px solid rgba(99, 102, 241, 0.45)';
+                    pillBg = '#6366f1';
+                    pillBorder = '1px solid #6366f1';
+                    pillColor = '#ffffff';
                   }
 
                   return (
                     <motion.button
                       key={index}
-                      whileHover={!isAnswered ? { scale: 1.005, backgroundColor: 'rgba(255,255,255,0.06)' } : {}}
-                      whileTap={!isAnswered ? { scale: 0.995 } : {}}
+                      whileHover={!isAnswered ? { scale: 1.006, backgroundColor: 'rgba(22, 32, 53, 0.7)' } : {}}
+                      whileTap={!isAnswered ? { scale: 0.992 } : {}}
                       onClick={() => handleAnswer(opt)}
                       disabled={isAnswered}
                       style={{ 
-                        display: 'flex', alignItems: 'center', padding: '0.9rem 1.25rem',
-                        background: bg, border, borderRadius: '12px',
-                        color: textColor, cursor: isAnswered ? 'default' : 'pointer',
-                        transition: 'all 0.2s', fontSize: '0.95rem', textAlign: 'left', width: '100%'
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '1rem 1.25rem',
+                        background: bg,
+                        border,
+                        borderRadius: '14px',
+                        color: textColor,
+                        cursor: isAnswered ? 'default' : 'pointer',
+                        transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                        fontSize: '0.98rem',
+                        textAlign: 'left',
+                        width: '100%',
+                        boxShadow: isAnswered && opt === question.dogruCevap ? '0 0 20px rgba(16, 185, 129, 0.2)' : 'none',
                       }}
                     >
-                      <span style={{ 
-                        width: '28px', height: '28px', borderRadius: '8px', 
-                        background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        marginRight: '1rem', fontWeight: 800, fontSize: '0.8rem',
-                        color: textColor, flexShrink: 0
-                      }}>
+                      <span
+                        style={{ 
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '9px', 
+                          background: pillBg,
+                          border: pillBorder,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          marginRight: '1rem',
+                          fontWeight: 800,
+                          fontSize: '0.85rem',
+                          color: pillColor,
+                          flexShrink: 0,
+                          transition: 'all 0.2s',
+                        }}
+                      >
                         {labels[index]}
                       </span>
-                      <span style={{ flex: 1 }}>{opt}</span>
+                      <span style={{ flex: 1, lineHeight: 1.5 }}>{opt}</span>
                       
                       {isAnswered && opt === question.dogruCevap && (
-                        <CheckCircle2 size={18} color="#10b981" style={{ marginLeft: 'auto', flexShrink: 0 }} />
+                        <CheckCircle2 size={20} color="#10b981" style={{ marginLeft: 'auto', flexShrink: 0 }} />
                       )}
                       {isAnswered && opt === selectedOption && !isCorrect && (
-                        <XCircle size={18} color="#ef4444" style={{ marginLeft: 'auto', flexShrink: 0 }} />
+                        <XCircle size={20} color="#ef4444" style={{ marginLeft: 'auto', flexShrink: 0 }} />
                       )}
                     </motion.button>
                   );
@@ -507,13 +694,27 @@ export default function SoruCozPage() {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
-                    style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.06)', overflow: 'hidden' }}
+                    style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden' }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.15)', padding: '1.25rem', borderRadius: '12px', marginBottom: '1.5rem' }}>
-                      <Lightbulb size={22} color="#38bdf8" style={{ flexShrink: 0, marginTop: 2 }} />
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '1rem',
+                        background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.08) 0%, rgba(15, 21, 35, 0.85) 100%)',
+                        border: '1px solid rgba(56, 189, 248, 0.22)',
+                        padding: '1.35rem',
+                        borderRadius: '16px',
+                        marginBottom: '1.5rem',
+                        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+                      }}
+                    >
+                      <Lightbulb size={24} color="#38bdf8" style={{ flexShrink: 0, marginTop: 2 }} />
                       <div style={{ textAlign: 'left' }}>
-                        <h3 style={{ fontSize: '0.95rem', color: '#38bdf8', marginBottom: '0.35rem', fontWeight: 700 }}>AI Çözüm Açıklaması</h3>
-                        <p style={{ color: '#e0f2fe', lineHeight: 1.6, fontSize: '0.875rem', whiteSpace: 'pre-wrap', margin: 0 }}>
+                        <h3 style={{ fontSize: '0.98rem', color: '#38bdf8', marginBottom: '0.35rem', fontWeight: 800 }}>
+                          AI Çözüm Açıklaması
+                        </h3>
+                        <p style={{ color: '#e0f2fe', lineHeight: 1.65, fontSize: '0.9rem', whiteSpace: 'pre-wrap', margin: 0 }}>
                           {question.cozum}
                         </p>
                       </div>
@@ -521,13 +722,27 @@ export default function SoruCozPage() {
 
                     <button 
                       onClick={fetchQuestion}
-                      className="btn-interactive"
+                      className="active:scale-[0.98]"
                       style={{ 
-                        width: '100%', padding: '0.9rem', background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: '1rem', fontWeight: 700
+                        width: '100%',
+                        padding: '1rem',
+                        background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                        fontSize: '1rem',
+                        fontWeight: 800,
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: '14px',
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 18px rgba(99, 102, 241, 0.35)',
+                        transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
                       }}
                     >
-                      Sıradaki Soruya Geç <ArrowRight size={18} />
+                      <span>Sıradaki Soruya Geç</span>
+                      <ArrowRight size={18} />
                     </button>
                   </motion.div>
                 )}
@@ -550,22 +765,30 @@ export default function SoruCozPage() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 30 }}
-                className="premium-card soru-sidebar-mobile-drawer"
+                className="soru-sidebar-mobile-drawer"
                 style={{ 
-                  display: 'flex', flexDirection: 'column', height: '100%', 
-                  border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden', padding: 0
+                  display: 'flex',
+                  flexDirection: 'column',
+                  height: '100%', 
+                  backgroundColor: 'rgba(15, 21, 35, 0.95)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: '20px',
+                  boxShadow: '0 12px 40px rgba(0, 0, 0, 0.4)',
+                  backdropFilter: 'blur(20px)',
+                  overflow: 'hidden',
+                  padding: 0
                 }}
               >
                 {/* Drag Handle for mobile */}
-                <div className="mobile-only modal-drag-handle" style={{ width: 40, height: 4, background: 'rgba(255,255,255,0.2)', borderRadius: 2, margin: '8px auto 4px' }} />
+                <div className="mobile-only modal-drag-handle" style={{ width: 44, height: 4, background: 'rgba(255,255,255,0.25)', borderRadius: 2, margin: '10px auto 6px' }} />
 
                 {/* Tab Header Selector */}
-                <div style={{ display: 'flex', background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.08)', alignItems: 'center' }}>
+                <div style={{ display: 'flex', background: 'rgba(8, 12, 20, 0.6)', borderBottom: '1px solid rgba(255,255,255,0.08)', alignItems: 'center' }}>
                   <button
                     onClick={() => { haptics.selection(); setSidebarTab('tutor'); }}
                     style={{
-                      flex: 1, padding: '0.85rem', border: 'none', background: sidebarTab === 'tutor' ? 'rgba(168, 85, 247, 0.1)' : 'transparent',
-                      color: sidebarTab === 'tutor' ? '#c084fc' : 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 700,
+                      flex: 1, padding: '0.85rem', border: 'none', background: sidebarTab === 'tutor' ? 'rgba(168, 85, 247, 0.12)' : 'transparent',
+                      color: sidebarTab === 'tutor' ? '#c084fc' : '#94a3b8', fontSize: '0.85rem', fontWeight: 800,
                       cursor: 'pointer', borderBottom: sidebarTab === 'tutor' ? '2px solid #a855f7' : '2px solid transparent',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all 0.2s'
                     }}
@@ -575,8 +798,8 @@ export default function SoruCozPage() {
                   <button
                     onClick={() => { haptics.selection(); setSidebarTab('scratchpad'); }}
                     style={{
-                      flex: 1, padding: '0.85rem', border: 'none', background: sidebarTab === 'scratchpad' ? 'rgba(56, 189, 248, 0.1)' : 'transparent',
-                      color: sidebarTab === 'scratchpad' ? '#38bdf8' : 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 700,
+                      flex: 1, padding: '0.85rem', border: 'none', background: sidebarTab === 'scratchpad' ? 'rgba(56, 189, 248, 0.12)' : 'transparent',
+                      color: sidebarTab === 'scratchpad' ? '#38bdf8' : '#94a3b8', fontSize: '0.85rem', fontWeight: 800,
                       cursor: 'pointer', borderBottom: sidebarTab === 'scratchpad' ? '2px solid #38bdf8' : '2px solid transparent',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all 0.2s'
                     }}
@@ -585,7 +808,7 @@ export default function SoruCozPage() {
                   </button>
                   <button 
                     onClick={() => setIsSidebarOpen(false)}
-                    style={{ padding: '0.75rem 1rem', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                    style={{ padding: '0.75rem 1rem', background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                   >
                     <X size={20} />
                   </button>
