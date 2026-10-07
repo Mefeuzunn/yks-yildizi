@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -9,28 +9,6 @@ import NotificationCenter from '@/components/NotificationCenter';
 export default function MobileHeader() {
   const pathname = usePathname();
   const { user } = useAuth();
-
-  // Rozet modu: Varsayılan 'PRO'. 345 seçeneği de kod tabanında ve tercihlerde aktif olarak tutulur.
-  const [badgeMode, setBadgeMode] = useState<'PRO' | '345' | 'PLUS'>('PRO');
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('yks_brand_badge') as 'PRO' | '345' | 'PLUS';
-      if (saved && ['PRO', '345', 'PLUS'].includes(saved)) {
-        setBadgeMode(saved);
-      }
-    }
-  }, []);
-
-  // Rozete dokunulduğunda opsiyonel olarak PRO / 345 / PLUS arasında geçiş yapılabilir
-  const toggleBadgeMode = () => {
-    const nextMode = badgeMode === 'PRO' ? '345' : badgeMode === '345' ? 'PLUS' : 'PRO';
-    setBadgeMode(nextMode);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('yks_brand_badge', nextMode);
-      window.dispatchEvent(new CustomEvent('yks:badge-mode-change', { detail: nextMode }));
-    }
-  };
 
   // Login, register ve ana sayfada mobile header render edilmez
   if (pathname === '/' || pathname === '/login' || pathname === '/register') {
@@ -48,7 +26,7 @@ export default function MobileHeader() {
       ? '/maarif'
       : '/dashboard?tab=home';
 
-  const badgeDisplay = isMaarif ? 'MAARİF' : badgeMode;
+  const badgeText = isMaarif ? 'MAARİF' : 'PRO';
 
   return (
     <header
@@ -79,7 +57,7 @@ export default function MobileHeader() {
           justifyContent: 'space-between',
         }}
       >
-        {/* Brand Logo & Edition */}
+        {/* Brand Logo & Badge */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Link
             href={homeHref}
@@ -122,38 +100,24 @@ export default function MobileHeader() {
             </span>
           </Link>
 
-          {/* Rozet - Varsayılan PRO, tıklanarak 345 veya PLUS seçeneğine geçebilir */}
-          <button
-            type="button"
-            onClick={toggleBadgeMode}
-            title="Rozet Modu (Dokunarak Değiştir: PRO / 345 / PLUS)"
+          {/* Clean Pro / Maarif Badge */}
+          <span
             style={{
               fontSize: '9.5px',
               fontWeight: 700,
-              color: isMaarif ? '#34d399' : badgeMode === '345' ? '#f59e0b' : '#a5b4fc',
-              backgroundColor: isMaarif
-                ? 'rgba(16, 185, 129, 0.12)'
-                : badgeMode === '345'
-                ? 'rgba(245, 158, 11, 0.12)'
-                : 'rgba(99, 102, 241, 0.12)',
+              color: isMaarif ? '#34d399' : '#a5b4fc',
+              backgroundColor: isMaarif ? 'rgba(16, 185, 129, 0.12)' : 'rgba(99, 102, 241, 0.12)',
               border: `1px solid ${
-                isMaarif
-                  ? 'rgba(16, 185, 129, 0.25)'
-                  : badgeMode === '345'
-                  ? 'rgba(245, 158, 11, 0.25)'
-                  : 'rgba(99, 102, 241, 0.25)'
+                isMaarif ? 'rgba(16, 185, 129, 0.25)' : 'rgba(99, 102, 241, 0.25)'
               }`,
               padding: '1px 6px',
               borderRadius: '5px',
-              letterSpacing: '0.03em',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
+              letterSpacing: '0.04em',
               lineHeight: 1.3,
             }}
           >
-            {badgeDisplay}
-          </button>
+            {badgeText}
+          </span>
         </div>
 
         {/* Action icons: Bildirim Çanı */}

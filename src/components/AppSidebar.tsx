@@ -447,23 +447,6 @@ function FooterLink({ icon, emoji, label, href, onClick, danger }: any) {
 export default function AppSidebar() {
   const { user, logout } = useAuth();
   const navScrollRef = useRef<HTMLDivElement>(null);
-  const [badgeMode, setBadgeMode] = useState<'PRO' | '345' | 'PLUS'>('PRO');
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('yks_brand_badge') as 'PRO' | '345' | 'PLUS';
-      if (saved && ['PRO', '345', 'PLUS'].includes(saved)) {
-        setBadgeMode(saved);
-      }
-      const handleBadgeChange = (e: any) => {
-        if (e.detail && ['PRO', '345', 'PLUS'].includes(e.detail)) {
-          setBadgeMode(e.detail);
-        }
-      };
-      window.addEventListener('yks:badge-mode-change', handleBadgeChange);
-      return () => window.removeEventListener('yks:badge-mode-change', handleBadgeChange);
-    }
-  }, []);
 
   const isMaarif =
     user?.curriculum_mode === 'maarif_v1' ||
@@ -591,12 +574,12 @@ export default function AppSidebar() {
               style={{
                 fontSize: '9.5px',
                 fontWeight: 700,
-                color: isMaarif ? '#34d399' : badgeMode === '345' ? '#f59e0b' : '#94a3b8',
+                color: isMaarif ? '#34d399' : '#94a3b8',
                 letterSpacing: '0.04em',
                 textTransform: 'uppercase',
               }}
             >
-              {isMaarif ? 'Maarif Pro' : badgeMode === '345' ? '345 Edition' : `${badgeMode} Edition`}
+              {isMaarif ? 'Maarif Portalı' : 'Hazırlık Portalı'}
             </span>
           </div>
         </Link>
