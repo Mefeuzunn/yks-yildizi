@@ -14,11 +14,13 @@ import {
   Pencil, UserMinus, MessageSquare, Share2, Download, Printer, Rocket, LogOut
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { triggerHaptic } from '@/lib/haptics';
+import TeacherMaarifTab from '@/components/ogretmen/TeacherMaarifTab';
 
 // ─────────────────────────────────────────────
 // TYPES
 // ─────────────────────────────────────────────
-type Tab = 'genel' | 'siniflar' | 'ogrenciler' | 'odevler' | 'analiz' | 'kaynaklar' | 'duyurular' | 'profil';
+type Tab = 'genel' | 'siniflar' | 'ogrenciler' | 'odevler' | 'analiz' | 'kaynaklar' | 'duyurular' | 'profil' | 'maarif';
 
 interface ClassItem { id: string; class_name: string; class_code: string; student_count: number; avg_success: number; created_at: string; }
 interface StudentItem {
@@ -2045,6 +2047,7 @@ function TeacherDashboardContent() {
   const tabParam = searchParams?.get('tab') as Tab | null;
   
   const [activeTab, setActiveTab] = useState<Tab>('genel');
+  const [curriculumMode, setCurriculumMode] = useState<'legacy_yks' | 'maarif_v1'>('legacy_yks');
 
   useEffect(() => {
     if (tabParam) {
@@ -2759,6 +2762,7 @@ function TeacherDashboardContent() {
   // ── Tab config ──
   const TABS: { key: Tab; label: string; icon: any; color: string }[] = [
     { key: 'genel', label: 'Genel Bakış', icon: LayoutDashboard, color: '#38bdf8' },
+    { key: 'maarif', label: '🌱 Maarif Modeli', icon: Award, color: '#10b981' },
     { key: 'siniflar', label: 'Sınıflarım', icon: GraduationCap, color: '#10b981' },
     { key: 'ogrenciler', label: 'Öğrenciler', icon: Users, color: '#a855f7' },
     { key: 'odevler', label: 'Ödevler', icon: ClipboardList, color: '#f59e0b' },
@@ -2814,6 +2818,71 @@ function TeacherDashboardContent() {
             <LogOut size={16} /> Çıkış
           </button>
         </div>
+      </div>
+
+      {/* ── MÜFREDAT DUAL-MODE SEÇİCİ (12. Sınıf YKS vs 9-11 Maarif Modeli) ── */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          marginBottom: '1.25rem',
+          backgroundColor: 'rgba(255, 255, 255, 0.03)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          padding: '6px 8px',
+          borderRadius: '16px',
+          width: 'fit-content',
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => {
+            triggerHaptic('light');
+            setCurriculumMode('legacy_yks');
+            if (activeTab === 'maarif') handleTabChange('genel');
+          }}
+          style={{
+            padding: '7px 16px',
+            borderRadius: '10px',
+            border: 'none',
+            backgroundColor: curriculumMode === 'legacy_yks' ? '#3b82f6' : 'transparent',
+            color: curriculumMode === 'legacy_yks' ? '#fff' : '#94a3b8',
+            fontSize: '12.5px',
+            fontWeight: curriculumMode === 'legacy_yks' ? 800 : 600,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            transition: 'all 0.2s',
+          }}
+        >
+          <span>🎓 12. Sınıf / YKS (TYT-AYT) Modu</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            triggerHaptic('light');
+            setCurriculumMode('maarif_v1');
+            handleTabChange('maarif');
+          }}
+          style={{
+            padding: '7px 16px',
+            borderRadius: '10px',
+            border: 'none',
+            backgroundColor: curriculumMode === 'maarif_v1' ? '#10b981' : 'transparent',
+            color: curriculumMode === 'maarif_v1' ? '#fff' : '#94a3b8',
+            fontSize: '12.5px',
+            fontWeight: curriculumMode === 'maarif_v1' ? 800 : 600,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            transition: 'all 0.2s',
+          }}
+        >
+          <span>🌱 9-11. Sınıf Maarif Modeli Modu</span>
+        </button>
       </div>
 
       {/* ── TAB NAV ── */}
@@ -4382,6 +4451,12 @@ function TeacherDashboardContent() {
         {activeTab === 'profil' && (
           <motion.div key="profil" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.25 }}>
             <TeacherProfileTab />
+          </motion.div>
+        )}
+
+        {activeTab === 'maarif' && (
+          <motion.div key="maarif" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.25 }}>
+            <TeacherMaarifTab classes={classes} />
           </motion.div>
         )}
       </AnimatePresence>

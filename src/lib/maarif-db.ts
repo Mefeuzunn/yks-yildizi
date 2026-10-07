@@ -27,6 +27,27 @@ export async function initMaarifDatabase(): Promise<{ success: boolean; message:
         AND (curriculum_mode IS NULL OR curriculum_mode = 'legacy_yks')
     `).run();
 
+    // 1b. teacher_classes tablosuna curriculum_mode ve grade ekleme
+    await db.prepare(`
+      ALTER TABLE teacher_classes ADD COLUMN IF NOT EXISTS curriculum_mode TEXT DEFAULT 'legacy_yks'
+    `).run();
+    await db.prepare(`
+      ALTER TABLE teacher_classes ADD COLUMN IF NOT EXISTS grade INTEGER DEFAULT 12
+    `).run();
+
+    await db.prepare(`
+      UPDATE teacher_classes
+      SET curriculum_mode = 'maarif_v1',
+          grade = CASE
+            WHEN class_name LIKE '9%' THEN 9
+            WHEN class_name LIKE '10%' THEN 10
+            WHEN class_name LIKE '11%' THEN 11
+            ELSE 9
+          END
+      WHERE (class_name LIKE '9%' OR class_name LIKE '10%' OR class_name LIKE '11%')
+        AND (curriculum_mode IS NULL OR curriculum_mode = 'legacy_yks')
+    `).run();
+
     // 2. Maarif Müfredat Düğümleri (Temalar ve Öğrenme Çıktıları)
     await db.prepare(`
       CREATE TABLE IF NOT EXISTS maarif_curriculum_nodes (
