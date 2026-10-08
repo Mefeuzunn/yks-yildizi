@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Clock, ChevronRight, ChevronLeft, Flag } from 'lucide-react';
+import { X, Clock, ChevronRight, ChevronLeft, Flag, Loader2 } from 'lucide-react';
+
+export interface TestQuestion {
+  id: number | string;
+  subject: string;
+  topic: string;
+  text: string;
+  options: Record<string, string>;
+  correctOption: string;
+  difficulty?: number;
+}
 
 interface ActiveTestModalProps {
   isOpen: boolean;
@@ -11,6 +21,7 @@ interface ActiveTestModalProps {
     subject: string;
     questions: number;
     time: string; // e.g. "40 Dk"
+    questionList?: TestQuestion[];
   } | null;
   onFinish: (score: number, accuracy: number, timeSpent: string) => void;
 }
@@ -21,6 +32,9 @@ export default function ActiveTestModal({ isOpen, onClose, testData, onFinish }:
   const [flaggedQuestions, setFlaggedQuestions] = useState<Record<number, boolean>>({});
   const [showMobileOptic, setShowMobileOptic] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
+  const [questions, setQuestions] = useState<TestQuestion[]>([]);
+  const [loadingQuestions, setLoadingQuestions] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const toggleFlag = (qNum: number) => setFlaggedQuestions(p => ({ ...p, [qNum]: !p[qNum] }));
 
@@ -30,9 +44,28 @@ export default function ActiveTestModal({ isOpen, onClose, testData, onFinish }:
       setAnswers({});
       setFlaggedQuestions({});
       setShowMobileOptic(false);
-      // Parse time
-      const minutes = parseInt(testData.time.split(' ')[0]);
+      const minutes = parseInt(testData.time.split(' ')[0]) || 20;
       setTimeLeft(minutes * 60);
+
+      // Gerçek soruları yükle (varsa testData içinden, yoksa API'den)
+      if (testData.questionList && testData.questionList.length > 0) {
+        setQuestions(testData.questionList);
+      } else {
+        setLoadingQuestions(true);
+        fetch(`/api/questions?subject=${encodeURIComponent(testData.subject || '')}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.success && Array.isArray(data.questions) && data.questions.length > 0) {
+              setQuestions(data.questions);
+            } else {
+              setQuestions([]);
+            }
+          })
+          .catch(err => {
+            console.error('Questions fetch error:', err);
+          })
+          .finally(() => setLoadingQuestions(false));
+      }
     }
   }, [isOpen, testData]);
 
@@ -43,12 +76,14 @@ export default function ActiveTestModal({ isOpen, onClose, testData, onFinish }:
         setTimeLeft((prev) => prev - 1);
       }, 1000);
     } else if (timeLeft === 0 && isOpen) {
-      handleFinish(); // Auto finish if time is up
+      handleFinish(); // Süre bitince otomatik sonlandır
     }
     return () => clearInterval(interval);
   }, [isOpen, timeLeft]);
 
   if (!isOpen || !testData) return null;
+
+  const totalQuestionsCount = Math.max(questions.length, testData.questions || 10);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -63,19 +98,60 @@ export default function ActiveTestModal({ isOpen, onClose, testData, onFinish }:
     }
   };
 
-  const handleFinish = () => {
-    // Mock logic to calculate score
-    const answeredCount = Object.keys(answers).length;
-    const mockCorrect = Math.floor(answeredCount * 0.8); // 80% accuracy mock
-    const score = mockCorrect;
-    const accuracy = answeredCount === 0 ? 0 : Math.round((mockCorrect / answeredCount) * 100);
-    
-    // Time spent calculation
+  const handleFinish = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+
+    let correctCount = 0;
+    let wrongCount = 0;
+    let blankCount = 0;
+
+    for (let i = 1; i <= totalQuestionsCount; i++) {
+      const q = questions[i - 1];
+      const ans = answers[i];
+      if (!ans) {
+        blankCount++;
+      } else if (q && ans === q.correctOption) {
+        correctCount++;
+      } else {
+        wrongCount++;
+      }
+    }
+
+    // YKS Net Hesaplama: 4 Yanlış 1 Doğruyu Götürür
+    const netScore = Math.max(0, +(correctCount - wrongCount * 0.25).toFixed(2));
+    const answeredCount = correctCount + wrongCount;
+    const accuracy = answeredCount === 0 ? 0 : Math.round((correctCount / answeredCount) * 100);
+
     const totalSeconds = parseInt(testData.time.split(' ')[0]) * 60;
-    const spentSeconds = totalSeconds - timeLeft;
+    const spentSeconds = Math.max(0, totalSeconds - timeLeft);
     const spentMins = Math.floor(spentSeconds / 60);
-    
-    onFinish(score, accuracy, `${spentMins} Dk`);
+
+    // Sonucu veritabanına kaydet
+    try {
+      await fetch('/api/user/tests/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          test_type: testData.name,
+          score: netScore,
+          correct_count: correctCount,
+          wrong_count: wrongCount,
+          blank_count: blankCount,
+          duration: spentMins,
+          details: {
+            subject: testData.subject,
+            accuracy,
+            answers
+          }
+        })
+      });
+    } catch (err) {
+      console.error('Test sonucu kaydedilemedi:', err);
+    } finally {
+      setSubmitting(false);
+      onFinish(netScore, accuracy, `${spentMins} Dk`);
+    }
   };
 
   return (
@@ -195,12 +271,25 @@ export default function ActiveTestModal({ isOpen, onClose, testData, onFinish }:
                  </button>
                </div>
                
-               <h3 style={{ color: '#fff', fontSize: '1.2rem', marginBottom: '1.5rem' }}>Soru {currentQuestion}</h3>
-               <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1.05rem', lineHeight: '1.8', marginBottom: '2rem' }}>
-                 Yapay Zeka tarafından oluşturulmuş mock soru metni burada yer alacak. Gerçek sistemde bu alanda PDF veya görsel render edilebilir. 
-                 <br/><br/>
-                 Buna göre aşağıdakilerden hangisi yanlıştır?
-               </p>
+               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '8px' }}>
+                 <h3 style={{ color: '#fff', fontSize: '1.2rem', margin: 0 }}>Soru {currentQuestion}</h3>
+                 {questions[currentQuestion - 1]?.topic && (
+                   <span style={{ fontSize: '0.8rem', color: '#38bdf8', background: 'rgba(56,189,248,0.1)', padding: '3px 10px', borderRadius: '8px', border: '1px solid rgba(56,189,248,0.2)' }}>
+                     {questions[currentQuestion - 1]?.topic}
+                   </span>
+                 )}
+               </div>
+
+               {loadingQuestions ? (
+                 <div style={{ padding: '2rem 0', display: 'flex', alignItems: 'center', gap: '10px', color: '#94a3b8' }}>
+                   <Loader2 size={24} className="animate-spin text-blue-500" />
+                   <span>Sorular yükleniyor...</span>
+                 </div>
+               ) : (
+                 <p style={{ color: 'rgba(255,255,255,0.92)', fontSize: '1.05rem', lineHeight: '1.8', marginBottom: '2rem', whiteSpace: 'pre-wrap' }}>
+                   {questions[currentQuestion - 1]?.text || 'Soru yükleniyor...'}
+                 </p>
+               )}
 
                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                   {['A', 'B', 'C', 'D', 'E'].map(opt => (
@@ -236,7 +325,7 @@ export default function ActiveTestModal({ isOpen, onClose, testData, onFinish }:
                       }}>
                         {opt}
                       </div>
-                      <span style={{ fontSize: '0.95rem' }}>Mock şık açıklaması {opt}.</span>
+                      <span style={{ fontSize: '0.95rem' }}>{questions[currentQuestion - 1]?.options?.[opt] || (`Seçenek ${opt}`)}</span>
                     </button>
                   ))}
                </div>

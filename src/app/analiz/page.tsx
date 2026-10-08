@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Stars, Html } from '@react-three/drei';
 import * as THREE from 'three';
@@ -32,14 +32,14 @@ function Planet({ position, size, color, speed, name, progress }: any) {
       <meshStandardMaterial 
         color={color} 
         emissive={color}
-        emissiveIntensity={hovered ? 0.8 : 0.2}
+        emissiveIntensity={hovered ? 0.9 : 0.25}
         roughness={0.4}
         metalness={0.8}
       />
       {/* HTML Label */}
       <Html distanceFactor={15} center>
         <div style={{
-          background: 'rgba(15, 23, 42, 0.8)',
+          background: 'rgba(15, 23, 42, 0.85)',
           backdropFilter: 'blur(10px)',
           padding: '0.5rem 1rem',
           borderRadius: '8px',
@@ -50,48 +50,52 @@ function Planet({ position, size, color, speed, name, progress }: any) {
           opacity: hovered ? 1 : 0,
           transition: 'opacity 0.2s',
           whiteSpace: 'nowrap',
-          textAlign: 'center'
+          textAlign: 'center',
+          boxShadow: `0 4px 16px ${color}33`
         }}>
-          <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>{name}</div>
-          <div style={{ color: color }}>%{progress} Tamamlandı</div>
+          <div style={{ fontWeight: 'bold', marginBottom: '2px' }}>{name}</div>
+          <div style={{ color: color, fontWeight: 700 }}>%{progress} Yetkinlik</div>
         </div>
       </Html>
     </mesh>
   );
 }
 
-function SolarSystem() {
+function SolarSystem({ planets }: { planets: any[] }) {
   return (
     <>
-      <ambientLight intensity={0.1} />
-      <pointLight position={[0, 0, 0]} intensity={2} color="#f59e0b" distance={50} />
+      <ambientLight intensity={0.15} />
+      <pointLight position={[0, 0, 0]} intensity={2.5} color="#f59e0b" distance={60} />
       
       {/* Central Sun (Student Core) */}
       <mesh>
         <sphereGeometry args={[1.5, 32, 32]} />
         <meshBasicMaterial color="#f59e0b" />
         <Html distanceFactor={15} center>
-          <div style={{ color: '#fff', fontWeight: 'bold', fontSize: '1rem', textShadow: '0 0 10px #f59e0b', pointerEvents: 'none', transform: 'translateY(-30px)' }}>
-            Öğrenci Özü
+          <div style={{ color: '#fff', fontWeight: 'bold', fontSize: '1rem', textShadow: '0 0 12px #f59e0b', pointerEvents: 'none', transform: 'translateY(-32px)', whiteSpace: 'nowrap' }}>
+            ☀️ Öğrenci Özü
           </div>
         </Html>
       </mesh>
 
-      {/* Planets */}
-      {/* Matematik */}
-      <Planet position={[4, 0, 0]} size={0.6} color="#38bdf8" speed={0.5} name="Matematik" progress={65} />
-      {/* Fizik */}
-      <Planet position={[6.5, 0, 0]} size={0.5} color="#8b5cf6" speed={0.3} name="Fizik" progress={42} />
-      {/* Kimya */}
-      <Planet position={[8.5, 0, 0]} size={0.45} color="#10b981" speed={0.2} name="Kimya" progress={80} />
-      {/* Biyoloji */}
-      <Planet position={[10.5, 0, 0]} size={0.55} color="#ec4899" speed={0.15} name="Biyoloji" progress={55} />
+      {/* Dynamic Planets */}
+      {planets.map((planet) => (
+        <Planet 
+          key={planet.name}
+          position={[planet.distance, 0, 0]} 
+          size={planet.size} 
+          color={planet.color} 
+          speed={planet.speed} 
+          name={planet.name} 
+          progress={planet.progress} 
+        />
+      ))}
 
       {/* Orbit Rings */}
-      {[4, 6.5, 8.5, 10.5].map((radius, i) => (
+      {planets.map((planet, i) => (
         <mesh key={i} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[radius - 0.02, radius + 0.02, 64]} />
-          <meshBasicMaterial color="#ffffff" opacity={0.1} transparent side={THREE.DoubleSide} />
+          <ringGeometry args={[planet.distance - 0.02, planet.distance + 0.02, 64]} />
+          <meshBasicMaterial color="#ffffff" opacity={0.08} transparent side={THREE.DoubleSide} />
         </mesh>
       ))}
     </>
@@ -99,22 +103,95 @@ function SolarSystem() {
 }
 
 export default function AnalizPage() {
+  const [planets, setPlanets] = useState<any[]>([
+    { name: 'Matematik', color: '#38bdf8', distance: 4.5, size: 0.6, speed: 0.45, progress: 65 },
+    { name: 'Fizik', color: '#8b5cf6', distance: 7.0, size: 0.5, speed: 0.35, progress: 42 },
+    { name: 'Kimya', color: '#10b981', distance: 9.5, size: 0.55, speed: 0.28, progress: 80 },
+    { name: 'Biyoloji', color: '#ec4899', distance: 12.0, size: 0.52, speed: 0.22, progress: 55 },
+    { name: 'Türkçe', color: '#f43f5e', distance: 14.5, size: 0.58, speed: 0.18, progress: 70 },
+  ]);
+
+  useEffect(() => {
+    async function fetchLiveProgress() {
+      try {
+        const res = await fetch('/api/user/subjects');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.subjects && Array.isArray(data.subjects) && data.subjects.length > 0) {
+            const colorMap: Record<string, { color: string; distance: number }> = {
+              'Matematik': { color: '#38bdf8', distance: 4.5 },
+              'Fizik': { color: '#8b5cf6', distance: 7.0 },
+              'Kimya': { color: '#10b981', distance: 9.5 },
+              'Biyoloji': { color: '#ec4899', distance: 12.0 },
+              'Türkçe': { color: '#f43f5e', distance: 14.5 },
+              'Edebiyat': { color: '#f43f5e', distance: 14.5 },
+              'Geometri': { color: '#f59e0b', distance: 17.0 },
+              'Tarih': { color: '#fb923c', distance: 19.5 },
+              'Coğrafya': { color: '#34d399', distance: 22.0 },
+              'Felsefe': { color: '#a78bfa', distance: 24.5 },
+            };
+
+            const mapped = data.subjects.slice(0, 6).map((s: any, idx: number) => {
+              const info = colorMap[s.name] || { color: '#06b6d4', distance: 4.5 + idx * 2.5 };
+              const prog = Math.min(100, Math.max(10, s.percentage || 15));
+              return {
+                name: s.name,
+                color: info.color,
+                distance: info.distance,
+                size: 0.35 + (prog / 100) * 0.4,
+                speed: 0.12 + (prog / 100) * 0.35,
+                progress: prog,
+              };
+            });
+
+            if (mapped.length > 0) setPlanets(mapped);
+          }
+        }
+      } catch (err) {
+        console.error('3D Galaksi veri hatası:', err);
+      }
+    }
+    fetchLiveProgress();
+  }, []);
+
   return (
     <div style={{ width: '100%', height: 'calc(100vh - 80px)', position: 'relative', overflow: 'hidden' }}>
       
-      {/* Overlay UI */}
+      {/* Overlay UI - Left */}
       <div style={{ position: 'absolute', top: '2rem', left: '2rem', zIndex: 10, pointerEvents: 'none' }}>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: 800, color: '#fff', textShadow: '0 0 20px rgba(255,255,255,0.5)' }}>3D Gelişim Galaksisi</h1>
-        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem', maxWidth: '400px', marginTop: '0.5rem' }}>
-          Gezegenlerin büyüklüğü ve hızı derslerdeki yetkinliğinizi temsil eder. Daha yakından incelemek için farenizi sürükleyerek kamerayı çevirebilir veya gezegenlerin üzerine gelebilirsiniz.
+        <h1 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 800, color: '#fff', textShadow: '0 0 20px rgba(255,255,255,0.5)', margin: 0 }}>
+          3D Gelişim Galaksisi
+        </h1>
+        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem', maxWidth: '380px', marginTop: '0.5rem', lineHeight: 1.6 }}>
+          Gezegenlerin büyüklüğü ve hızı derslerdeki gerçek başarı yüzdenizi temsil eder. Farenizi veya parmağınızı sürükleyerek galakside gezinebilirsiniz.
         </p>
+      </div>
+
+      {/* Overlay UI - Right (Live HUD Card) */}
+      <div className="mobile-hidden" style={{ position: 'absolute', top: '2rem', right: '2rem', zIndex: 10, backgroundColor: 'rgba(15, 21, 35, 0.75)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '16px 20px', minWidth: '240px', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
+        <h4 style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 700, margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          🪐 Gezegen Yetkinlikleri
+        </h4>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {planets.map(p => (
+            <div key={p.name} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem' }}>
+                <span style={{ color: 'rgba(255,255,255,0.85)', fontWeight: 600 }}>{p.name}</span>
+                <span style={{ color: p.color, fontWeight: 700 }}>%{p.progress}</span>
+              </div>
+              <div style={{ height: '4px', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: '99px', overflow: 'hidden' }}>
+                <div style={{ width: `${p.progress}%`, height: '100%', backgroundColor: p.color, borderRadius: '99px', transition: 'width 0.8s ease' }} />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <Canvas camera={{ position: [0, 8, 15], fov: 60 }}>
         <color attach="background" args={['#050510']} />
         <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-        <OrbitControls enablePan={false} maxDistance={30} minDistance={5} />
-        <SolarSystem />
+        <OrbitControls enablePan={false} maxDistance={35} minDistance={5} />
+        <SolarSystem planets={planets} />
       </Canvas>
     </div>
   );

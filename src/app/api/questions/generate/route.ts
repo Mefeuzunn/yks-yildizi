@@ -244,7 +244,59 @@ export async function GET(req: Request) {
     const templateRow = stmt.get(...params) as unknown as QuestionTemplate;
 
     if (!templateRow) {
-      return NextResponse.json({ error: 'Filtrelere uygun soru şablonu bulunamadı.' }, { status: 404 });
+      // Akıllı Fallback: Şablon bulunamazsa 8.800 soruluk gerçek statik soru bankasından getir
+      let qQuery = `SELECT * FROM questions`;
+      const qParams: any[] = [];
+      const qConds: string[] = [];
+
+      if (subject && subject !== 'all') {
+        qConds.push(`LOWER(subject) = LOWER(?)`);
+        qParams.push(subject);
+      }
+      if (zorluk && zorluk !== 'all') {
+        qConds.push(`difficulty = ?`);
+        qParams.push(parseInt(zorluk));
+      }
+      if (qConds.length > 0) {
+        qQuery += ` WHERE ` + qConds.join(' AND ');
+      }
+      qQuery += ` ORDER BY RANDOM() LIMIT 1`;
+
+      const staticStmt = await db.prepare(qQuery);
+      let staticQ = staticStmt.get(...qParams) as any;
+
+      if (!staticQ && subject && subject !== 'all') {
+        // Zorluk kısıtı olmadan o branştan getir
+        staticQ = await db.prepare(`SELECT * FROM questions WHERE LOWER(subject) = LOWER(?) ORDER BY RANDOM() LIMIT 1`).get(subject) as any;
+      }
+      if (!staticQ) {
+        // En son çare: Soru bankasından herhangi rastgele bir soru getir
+        staticQ = await db.prepare(`SELECT * FROM questions ORDER BY RANDOM() LIMIT 1`).get() as any;
+      }
+
+      if (staticQ) {
+        let optionsObj: Record<string, string> = {};
+        try {
+          optionsObj = typeof staticQ.options_json === 'string' ? JSON.parse(staticQ.options_json) : (staticQ.options_json || {});
+        } catch (_) {}
+
+        const secenekler = Object.values(optionsObj);
+        const correctLetter = staticQ.correct_option || 'A';
+        const dogruCevap = optionsObj[correctLetter] || secenekler[0] || 'A';
+
+        return NextResponse.json({
+          template_id: `static_${staticQ.id}`,
+          icerik: staticQ.text,
+          cozum: `Doğru Seçenek: ${correctLetter} (${dogruCevap}).`,
+          secenekler: secenekler.length > 0 ? secenekler : ['A', 'B', 'C', 'D', 'E'],
+          dogruCevap,
+          parametreler: { static_id: staticQ.id, correct_letter: correctLetter },
+          subject: staticQ.subject || 'Genel',
+          topic: staticQ.topic || 'Genel Soru'
+        });
+      }
+
+      return NextResponse.json({ error: 'Filtrelere uygun soru bulunamadı.' }, { status: 404 });
     }
 
     // AI Motoru: Şablondan eşsiz parametrelerle yeni soru üret
