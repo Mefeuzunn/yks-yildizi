@@ -693,78 +693,6 @@ function EditSessionModal({
   );
 }
 
-// ─── Zen Mode Overlay ──────────────────────────────────────────────────────────
-function ZenModeOverlay({ timeLeft, totalSec, cfg, isRunning, pomodoroCount, onToggle, onFinish, onExit }: {
-  timeLeft: number; totalSec: number; cfg: typeof MODE_CONFIG.pomodoro;
-  isRunning: boolean; pomodoroCount: number; onToggle: () => void; onFinish: () => void; onExit: () => void;
-}) {
-  const progress = ((totalSec - timeLeft) / totalSec) * 100;
-  const dashOffset = CIRC - (CIRC * progress) / 100;
-  const [quote] = useState(() => MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)]);
-  const fmt = (s: number) => `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}
-      style={{ position: 'fixed', inset: 0, zIndex: 9000, background: `radial-gradient(ellipse at center, ${cfg.color}15 0%, #050810 70%)`,
-               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
-    >
-      <button onClick={() => { triggerHaptic('light'); onExit(); }}
-        style={{ position: 'absolute', top: 'calc(16px + env(safe-area-inset-top, 16px))', right: '16px', background: 'rgba(255,255,255,0.05)',
-                 border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '8px 16px',
-                 color: '#9ca3af', cursor: 'pointer', fontSize: '13px', fontWeight: 600,
-                 display: 'flex', alignItems: 'center', gap: '6px', zIndex: 50, backdropFilter: 'blur(8px)' }}>
-        <Minimize size={16}/> Zen Modundan Çık
-      </button>
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '36px' }}>
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} style={{ width: '10px', height: '10px', borderRadius: '50%',
-               background: i < pomodoroCount % 4 ? cfg.color : 'rgba(255,255,255,0.1)',
-               boxShadow: i < pomodoroCount % 4 ? `0 0 8px ${cfg.color}` : 'none' }}/>
-        ))}
-      </div>
-      <div style={{ position: 'relative', width: 'min(320px, 68vw)', height: 'min(320px, 68vw)', marginBottom: '36px' }}>
-        <svg viewBox="0 0 300 300" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
-          <circle cx="150" cy="150" r={R} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="10"/>
-          <motion.circle cx="150" cy="150" r={R} fill="none" stroke={cfg.color} strokeWidth="12"
-            strokeDasharray={CIRC} strokeDashoffset={dashOffset} strokeLinecap="round"
-            style={{ filter: `drop-shadow(0 0 20px ${cfg.color})` }} transition={{ duration: 0.8, ease: 'linear' }}/>
-        </svg>
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ fontSize: 'min(64px, 14vw)', fontWeight: 800, color: '#fff', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.03em', lineHeight: 1 }}>
-            {fmt(timeLeft)}
-          </div>
-          <div style={{ fontSize: '14px', color: cfg.color, fontWeight: 700, marginTop: '8px', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
-            {cfg.label}
-          </div>
-        </div>
-      </div>
-      <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
-        <button onClick={() => { triggerHaptic('medium'); onToggle(); }}
-          style={{ width: '74px', height: '74px', borderRadius: '50%',
-                   background: `linear-gradient(135deg, ${cfg.color}, ${cfg.color}bb)`,
-                   border: 'none', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                   cursor: 'pointer', boxShadow: `0 10px 30px ${cfg.glow}` }}>
-          {isRunning ? <Pause size={30} fill="currentColor"/> : <Play size={30} fill="currentColor" style={{ marginLeft: '4px' }}/>}
-        </button>
-        {cfg.label === 'Odak' && (
-          <button onClick={() => { triggerHaptic('success'); onFinish(); onExit(); }} title="Oturumu Bitir & Ders/Konu Kaydet"
-            style={{ padding: '12px 20px', borderRadius: '20px', minHeight: '48px',
-                     background: 'rgba(16, 185, 129, 0.2)', border: '1.5px solid rgba(16, 185, 129, 0.5)',
-                     color: '#34d399', fontWeight: 700, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer',
-                     boxShadow: '0 8px 24px rgba(16, 185, 129, 0.25)' }}>
-            <CheckCircle2 size={18} /> Oturumu Bitir
-          </button>
-        )}
-      </div>
-      <div style={{ position: 'absolute', bottom: 'calc(24px + env(safe-area-inset-bottom, 24px))', color: '#64748b', fontSize: 'clamp(12px, 3.4vw, 14px)',
-                    fontStyle: 'italic', maxWidth: '520px', textAlign: 'center', padding: '0 24px', lineHeight: 1.6 }}>
-        "{quote}"
-      </div>
-    </motion.div>
-  );
-}
-
 // ─── Main Component ────────────────────────────────────────────────────────────
 export default function FocusTab() {
   const timer = useTimer();
@@ -775,7 +703,6 @@ export default function FocusTab() {
 
   const [showSettings, setShowSettings] = useState(false);
   const [showSubjectPicker, setShowSubjectPicker] = useState(false);
-  const [isZenMode, setIsZenMode] = useState(false);
   const [soundsExpanded, setSoundsExpanded] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<string>('pomodoro');
   const [editingSession, setEditingSession] = useState<any | null>(null);
@@ -850,15 +777,6 @@ export default function FocusTab() {
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
       style={{ display: 'flex', flexDirection: 'column', gap: '24px',
                maxWidth: '1280px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
-
-      {/* Zen Mode */}
-      <AnimatePresence>
-        {isZenMode && (
-          <ZenModeOverlay timeLeft={timeLeft} totalSec={totalSec} cfg={cfg}
-            isRunning={isRunning} pomodoroCount={pomodoroCount}
-            onToggle={toggle} onFinish={finishSession} onExit={() => setIsZenMode(false)} />
-        )}
-      </AnimatePresence>
 
       {/* Modals */}
       <AnimatePresence>
@@ -938,7 +856,12 @@ export default function FocusTab() {
                        color: '#9ca3af', cursor: 'pointer' }}>
               <Settings size={16}/>
             </button>
-            <button onClick={() => { triggerHaptic('medium'); setIsZenMode(true); }} title="Zen Modu"
+            <button onClick={() => {
+              triggerHaptic('medium');
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('yks:open-fullscreen-focus'));
+              }
+            }} title="Tam Ekran Odak Modu"
               style={{ background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: '10px',
                        width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center',
                        color: '#9ca3af', cursor: 'pointer' }}>
@@ -1089,6 +1012,42 @@ export default function FocusTab() {
               Oturumu Bitir & Ders/Konu Kaydet
             </motion.button>
           )}
+
+          {/* Tam Ekran Odak Modu Butonu */}
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => {
+              triggerHaptic('medium');
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('yks:open-fullscreen-focus'));
+              }
+            }}
+            style={{
+              marginTop: '12px',
+              width: '100%',
+              maxWidth: '320px',
+              minHeight: '44px',
+              padding: '10px 18px',
+              borderRadius: '16px',
+              background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.16), rgba(56, 189, 248, 0.12))',
+              border: '1.5px solid rgba(139, 92, 246, 0.4)',
+              color: '#c4b5fd',
+              fontSize: '13px',
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              cursor: 'pointer',
+              boxShadow: '0 4px 16px rgba(139, 92, 246, 0.15)',
+              transition: 'all 0.2s',
+              touchAction: 'manipulation'
+            }}
+          >
+            <Maximize size={16} />
+            Tam Ekran Odak Modu
+          </motion.button>
 
           {/* ── Entegre Hızlı Çalışma & Deneme Durumları ── */}
           {mode === 'pomodoro' ? (

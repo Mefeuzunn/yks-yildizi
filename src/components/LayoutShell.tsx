@@ -12,6 +12,25 @@ import { PWAInstallBanner, OfflineStatusBanner, OfflineFocusNotification } from 
 import SessionLogModal from '@/components/dashboard/SessionLogModal';
 import ThemeEngine from '@/components/ThemeEngine';
 import BatteryOptimizer from '@/components/BatteryOptimizer';
+import FullscreenFocusOverlay from '@/components/dashboard/FullscreenFocusOverlay';
+
+function GlobalFullscreenFocusHost() {
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  useEffect(() => {
+    const handleOpen = () => setIsOpen(true);
+    const handleClose = () => setIsOpen(false);
+    window.addEventListener('yks:open-fullscreen-focus', handleOpen);
+    window.addEventListener('yks:close-fullscreen-focus', handleClose);
+    return () => {
+      window.removeEventListener('yks:open-fullscreen-focus', handleOpen);
+      window.removeEventListener('yks:close-fullscreen-focus', handleClose);
+    };
+  }, []);
+
+  if (!isOpen) return null;
+  return <FullscreenFocusOverlay isOpen={isOpen} onClose={() => setIsOpen(false)} />;
+}
 
 function ServiceWorkerRegistrar() {
   useEffect(() => {
@@ -104,6 +123,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
           <React.Suspense fallback={null}>
             <GlobalTimerWidget />
           </React.Suspense>
+          <GlobalFullscreenFocusHost />
           <SessionLogModal />
           <OfflineStatusBanner />
           <OfflineFocusNotification />
@@ -141,6 +161,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
         <React.Suspense fallback={null}>
           <GlobalTimerWidget />
         </React.Suspense>
+        <GlobalFullscreenFocusHost />
         <SessionLogModal />
         <ServiceWorkerRegistrar />
         <PWAInstallBanner />

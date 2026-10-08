@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, X, Zap, CheckCircle2 } from 'lucide-react';
+import { Play, Pause, X, Zap, CheckCircle2, Maximize } from 'lucide-react';
 import { useTimer } from '@/context/TimerContext';
 import { usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -105,6 +105,23 @@ export default function GlobalTimerWidget() {
               <CheckCircle2 size={18} />
             </button>
           )}
+
+          <button
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('yks:open-fullscreen-focus'));
+              }
+            }}
+            title="Tam Ekran Odak Modu"
+            aria-label="Tam Ekran Odak Modu"
+            style={{
+              width: '34px', height: '34px', borderRadius: '50%', background: 'rgba(255,255,255,0.06)',
+              color: '#cbd5e1', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+              touchAction: 'manipulation'
+            }}
+          >
+            <Maximize size={15} />
+          </button>
 
           <button
             onClick={timer.reset}
