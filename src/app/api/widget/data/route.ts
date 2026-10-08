@@ -54,17 +54,6 @@ export async function GET(req: Request) {
           if (statsRow.league) currentLeague = statsRow.league;
         }
       } catch (_) {}
-    }
-
-    // Dinamik Hedef YKS Tarihi (Öğrencinin sınıfına göre 2026/2027)
-    const targetDateObj = getYksTargetDate(userSinif);
-    const countdown = calculateYksCountdown(targetDateObj);
-    const daysRemaining = countdown.days;
-
-    // Günün motivasyon sözü (günün indeksine göre döner)
-    const now = Date.now();
-    const dayOfYear = Math.floor((now - new Date(new Date().getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
-    const motivationalQuote = MOTIVATIONAL_QUOTES[dayOfYear % MOTIVATIONAL_QUOTES.length];
 
       // 3. Bugünün odak oturumu & soru sayısı
       try {
@@ -97,6 +86,16 @@ export async function GET(req: Request) {
         } catch (_) {}
       }
     }
+
+    // Dinamik Hedef YKS Tarihi (Öğrencinin sınıfına göre 2026/2027)
+    const targetDateObj = getYksTargetDate(userSinif);
+    const countdown = calculateYksCountdown(targetDateObj);
+    const daysRemaining = countdown.days;
+
+    // Günün motivasyon sözü (günün indeksine göre döner)
+    const now = Date.now();
+    const dayOfYear = Math.floor((now - new Date(new Date().getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
+    const motivationalQuote = MOTIVATIONAL_QUOTES[dayOfYear % MOTIVATIONAL_QUOTES.length];
 
     const progressPercent = Math.min(100, Math.round((todayQuestions / Math.max(1, dailyGoal)) * 100));
 
