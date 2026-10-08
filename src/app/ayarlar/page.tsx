@@ -2,12 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, User, Bell, Palette, Shield, Save, Loader2, CheckCircle2, AlertCircle, CreditCard, Trash2, Smartphone, ExternalLink, Trophy, Flame, Moon, Clock } from 'lucide-react';
+import { Settings, User, Bell, Palette, Shield, Save, Loader2, CheckCircle2, AlertCircle, CreditCard, Trash2, Smartphone, ExternalLink, Trophy, Flame, Moon, Clock, Zap, Battery, BatteryCharging, Cpu, Sparkles } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { PushNotificationToggle } from '@/components/PWAComponents';
+import { usePowerState, toggleBatterySaver } from '@/components/BatteryOptimizer';
 
 export default function AyarlarPage() {
   const { user } = useAuth();
+  const powerState = usePowerState();
+  const [batteryLevel, setBatteryLevel] = useState<number | null>(null);
+  const [isCharging, setIsCharging] = useState<boolean | null>(null);
   const [activeTab, setActiveTab] = useState('profil');
   const [avatarSeed, setAvatarSeed] = useState('Felix');
   const [theme, setTheme] = useState('dark');
@@ -71,6 +75,17 @@ export default function AyarlarPage() {
         }
       })
       .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (typeof navigator !== 'undefined' && 'getBattery' in navigator) {
+      (navigator as any).getBattery().then((b: any) => {
+        setBatteryLevel(Math.round(b.level * 100));
+        setIsCharging(b.charging);
+        b.addEventListener('levelchange', () => setBatteryLevel(Math.round(b.level * 100)));
+        b.addEventListener('chargingchange', () => setIsCharging(b.charging));
+      }).catch(() => {});
+    }
   }, []);
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
@@ -172,6 +187,7 @@ export default function AyarlarPage() {
           { id: 'profil', icon: User, label: 'Profil & Avatar' },
           { id: 'hesap', icon: CreditCard, label: 'Hesap' },
           { id: 'tema', icon: Palette, label: 'Görünüm (Tema)' },
+          { id: 'performans', icon: Zap, label: 'Pil & Performans' },
           { id: 'bildirim', icon: Bell, label: 'Bildirimler' },
           { id: 'guvenlik', icon: Shield, label: 'Güvenlik' }
         ].map(tab => (
@@ -336,6 +352,126 @@ export default function AyarlarPage() {
                     />
                   ))}
                 </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'performans' && (
+            <div>
+              <div style={{ marginBottom: '2rem' }}>
+                <h2 style={{ fontSize: '1.5rem', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                  <Zap size={24} color="#f59e0b" /> Pil, Güç & Performans Motoru
+                </h2>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: 6, lineHeight: 1.5 }}>
+                  Mobil ve web deneyiminizde cihazınızın aşırı ısınmasını ve pilinin tükenmesini önleyen akıllı donanım kalkanı.
+                </p>
+              </div>
+
+              {/* Canlı Pil & Donanım Durumu */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+                <div style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.07)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Cihaz Bataryası</span>
+                    {isCharging ? <BatteryCharging size={18} color="#10b981" /> : <Battery size={18} color={powerState.eco ? '#f59e0b' : '#38bdf8'} />}
+                  </div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff' }}>
+                    {batteryLevel !== null ? `%${batteryLevel}` : 'Optimizasyon Aktif'}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: isCharging ? '#34d399' : 'var(--text-muted)', marginTop: 4 }}>
+                    {isCharging ? '⚡ Şarj Cihazına Bağlı' : (batteryLevel !== null ? '🔋 Batarya Gücüyle Çalışıyor' : 'Akıllı Güç Denetleyicisi Devrede')}
+                  </div>
+                </div>
+
+                <div style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.07)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Güç Profili</span>
+                    <Cpu size={18} color={powerState.eco ? '#10b981' : '#a855f7'} />
+                  </div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: powerState.eco ? '#10b981' : '#fff' }}>
+                    {powerState.eco ? 'Eko Mod (Tasarruf)' : 'Dinamik Standart'}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: powerState.eco ? '#6ee7b7' : 'var(--text-muted)', marginTop: 4 }}>
+                    {powerState.eco ? '✓ GPU & Arka Plan Koruması Aktif' : 'Standart Efektler Devrede'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Ana Eko Mod Anahtarı */}
+              <div style={{ padding: '1.5rem', background: powerState.eco ? 'rgba(16, 185, 129, 0.08)' : 'rgba(255,255,255,0.03)', borderRadius: '16px', border: powerState.eco ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(255,255,255,0.08)', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                <div style={{ flex: '1 1 300px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                    <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#fff' }}>Pil Tasarruf Modunu (Eco Mode) Aç</span>
+                    {powerState.eco && (
+                      <span style={{ fontSize: '0.7rem', padding: '2px 8px', borderRadius: '20px', background: 'rgba(16,185,129,0.2)', color: '#34d399', fontWeight: 700 }}>
+                        AKTİF
+                      </span>
+                    )}
+                  </div>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0, lineHeight: 1.45 }}>
+                    Gereksiz GPU gölgelerini kapatır, 3D simülasyonları 1x DPR pil moduna alır ve arka plan işlem yükünü sıfıra indirir. Pil seviyesi %20 altına düştüğünde de otomatik devreye girer.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newState = toggleBatterySaver();
+                    showToast(newState ? 'Pil Tasarruf Modu (Eco) Aktifleştirildi' : 'Standart Performans Moduna Geçildi');
+                  }}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    borderRadius: '12px',
+                    fontWeight: 700,
+                    fontSize: '0.9rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    background: powerState.eco ? 'linear-gradient(135deg, #10b981, #059669)' : 'rgba(255,255,255,0.08)',
+                    color: '#fff',
+                    border: powerState.eco ? 'none' : '1px solid rgba(255,255,255,0.15)',
+                    transition: 'all 0.2s',
+                    boxShadow: powerState.eco ? '0 4px 14px rgba(16,185,129,0.3)' : 'none'
+                  }}
+                >
+                  <Zap size={18} fill={powerState.eco ? '#fff' : 'none'} />
+                  {powerState.eco ? 'Eko Modu Kapat' : 'Eko Modu Aç'}
+                </button>
+              </div>
+
+              {/* Akıllı Optimizasyon Detayları */}
+              <h3 style={{ fontSize: '1rem', color: '#fff', marginBottom: '1rem' }}>Mevcut Pil Tasarruf Korumaları</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {[
+                  {
+                    icon: '🧊',
+                    title: 'Akıllı Arka Plan Dondurucu (Background Guardian)',
+                    desc: 'Uygulama arka plana atıldığında veya ekran kilitlendiğinde tüm CSS animasyonları, Three.js 3D döngüleri ve zamanlayıcılar anında dondurularak 0 CPU tüketimi sağlanır.'
+                  },
+                  {
+                    icon: '🚀',
+                    title: 'Mobil GPU & Backdrop-Blur Kısıtlayıcı',
+                    desc: 'Mobil tarayıcılarda telefonun ısınmasına yol açan ağır çok katmanlı bulanıklık efektleri (backdrop-filter) hafifletilerek grafik işlemcinin yükü hafifletilir.'
+                  },
+                  {
+                    icon: '🌌',
+                    title: '3D Galaksi & Simülasyon Ölçekleme',
+                    desc: 'Beceri Galaksisi ve PhET simülasyonlarında 5,000 partikül yerine hafifletilmiş 1,600 partiküllü sahne kullanılır ve ekran yenileme sıklığı optimize edilir.'
+                  },
+                  {
+                    icon: '📴',
+                    title: 'Ağ Telsizi & Heartbeat Uyku Modu',
+                    desc: 'Ders sayacı duraklatıldığında veya oturum bittiğinde sunucuya yapılan tüm periyodik kalp atışları kesilir; mobil Wi-Fi/Hücresel çipinin uyku moduna geçmesine izin verilir.'
+                  }
+                ].map((item, idx) => (
+                  <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', padding: '1rem 1.25rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <span style={{ fontSize: '1.4rem' }}>{item.icon}</span>
+                    <div>
+                      <div style={{ color: '#e2e8f0', fontWeight: 600, fontSize: '0.9rem', marginBottom: 2 }}>{item.title}</div>
+                      <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', lineHeight: 1.4 }}>{item.desc}</div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}

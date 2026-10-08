@@ -31,18 +31,28 @@ export default function MobileLiveActivityWidget({
   const { permission, subscription, isSubscribing, subscribe } = usePushNotifications();
   const isSubscribed = !!subscription && permission === 'granted';
 
-  // Live countdown to YKS (Dynamic target)
+  // Live countdown to YKS (Dynamic target & Battery Optimized)
   useEffect(() => {
     const targetDate = getYksTargetDate();
 
     const updateTimer = () => {
+      if (typeof document !== 'undefined' && document.hidden) return;
       const { days, hours, minutes, seconds } = calculateYksCountdown(targetDate);
       setTimeLeft({ days, hours, minutes, seconds });
     };
 
     updateTimer();
     const interval = setInterval(updateTimer, 1000);
-    return () => clearInterval(interval);
+
+    const handleVisibility = () => {
+      if (!document.hidden) updateTimer();
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, []);
 
   const progressPercent = Math.min(100, Math.round((solvedQuestions / Math.max(1, dailyGoal)) * 100));

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Clock, ChevronRight, ChevronLeft, Flag, Loader2 } from 'lucide-react';
 
@@ -36,6 +36,7 @@ export default function ActiveTestModal({ isOpen, onClose, testData, onFinish }:
   const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  const endTimeRef = useRef<number>(0);
   const toggleFlag = (qNum: number) => setFlaggedQuestions(p => ({ ...p, [qNum]: !p[qNum] }));
 
   useEffect(() => {
@@ -45,7 +46,9 @@ export default function ActiveTestModal({ isOpen, onClose, testData, onFinish }:
       setFlaggedQuestions({});
       setShowMobileOptic(false);
       const minutes = parseInt(testData.time.split(' ')[0]) || 20;
-      setTimeLeft(minutes * 60);
+      const totalSec = minutes * 60;
+      endTimeRef.current = Date.now() + totalSec * 1000;
+      setTimeLeft(totalSec);
 
       // Gerçek soruları yükle (varsa testData içinden, yoksa API'den)
       if (testData.questionList && testData.questionList.length > 0) {
@@ -73,7 +76,12 @@ export default function ActiveTestModal({ isOpen, onClose, testData, onFinish }:
     let interval: NodeJS.Timeout;
     if (isOpen && timeLeft > 0) {
       interval = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
+        if (document.hidden) return;
+        const remaining = Math.max(0, Math.round((endTimeRef.current - Date.now()) / 1000));
+        setTimeLeft(remaining);
+        if (remaining === 0) {
+          handleFinish();
+        }
       }, 1000);
     } else if (timeLeft === 0 && isOpen) {
       handleFinish(); // Süre bitince otomatik sonlandır

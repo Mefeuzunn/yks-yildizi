@@ -52,7 +52,10 @@ export default function NotificationCenter({ align = 'right', className = '' }: 
 
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 60000); // 1 minute auto refresh
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) return;
+      fetchNotifications();
+    }, 90000); // 90s interval, skipped when tab is hidden
     return () => clearInterval(interval);
   }, [fetchNotifications]);
 

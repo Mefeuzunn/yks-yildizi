@@ -183,8 +183,9 @@ export function setupOfflineFocusSync(): () => void {
 
   window.addEventListener('online', handleOnline);
 
-  // Also check periodically when online every 90 seconds
+  // Also check periodically when online every 90 seconds (pauses when hidden)
   const interval = setInterval(() => {
+    if (typeof document !== 'undefined' && document.hidden) return;
     if (navigator.onLine && getOfflineFocusQueue().length > 0) {
       syncOfflineFocusQueue().catch(() => {});
     }

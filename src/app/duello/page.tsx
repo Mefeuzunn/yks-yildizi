@@ -235,11 +235,15 @@ export default function DuelloPage() {
     }
   }, [startCountdown, phase]);
 
-  // Timer update
+  // Timer update (only runs when starting or active, pauses when hidden)
   useEffect(() => {
     if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+    if (!roundEndTime || (phase !== 'starting' && phase !== 'active')) {
+      return;
+    }
     
     timerIntervalRef.current = setInterval(() => {
+      if (document.hidden) return;
       if (roundEndTime) {
         const diff = roundEndTime.getTime() - Date.now();
         if (phase === 'starting') {
@@ -252,6 +256,10 @@ export default function DuelloPage() {
         }
       }
     }, 100);
+
+    return () => {
+      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+    };
   }, [roundEndTime, phase]);
 
   const startMatchmaking = async () => {

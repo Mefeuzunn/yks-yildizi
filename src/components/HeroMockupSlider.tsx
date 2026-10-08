@@ -8,10 +8,30 @@ export default function HeroMockupSlider() {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % 4);
-    }, 5500);
-    return () => clearInterval(timer);
+    let timer: NodeJS.Timeout | null = null;
+    const start = () => {
+      if (timer) clearInterval(timer);
+      timer = setInterval(() => {
+        if (!document.hidden) {
+          setCurrentSlide((prev) => (prev + 1) % 4);
+        }
+      }, 5500);
+    };
+
+    const handleVisibility = () => {
+      if (document.hidden) {
+        if (timer) clearInterval(timer);
+      } else {
+        start();
+      }
+    };
+
+    start();
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      if (timer) clearInterval(timer);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, []);
 
   // --- SLAYT 0: 🔬 3D Simülasyonlar (Doppler & Dalga Fiziği) ---

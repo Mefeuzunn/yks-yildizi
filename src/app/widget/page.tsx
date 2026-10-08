@@ -173,7 +173,10 @@ function WidgetContent() {
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 60000);
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) return;
+      fetchData();
+    }, 90000);
     return () => clearInterval(interval);
   }, [fetchData]);
 
@@ -181,6 +184,7 @@ function WidgetContent() {
     const target = new Date(data.yksTargetDate || '2027-06-19T10:15:00+03:00').getTime();
 
     const tick = () => {
+      if (typeof document !== 'undefined' && document.hidden) return;
       const now = Date.now();
       const diff = target - now;
 
@@ -199,7 +203,16 @@ function WidgetContent() {
 
     tick();
     const timer = setInterval(tick, 1000);
-    return () => clearInterval(timer);
+
+    const handleVis = () => {
+      if (!document.hidden) tick();
+    };
+    document.addEventListener('visibilitychange', handleVis);
+
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', handleVis);
+    };
   }, [data.yksTargetDate]);
 
   const progress = Math.min(100, Math.round((data.todayQuestions / Math.max(1, data.dailyGoal)) * 100));

@@ -228,6 +228,7 @@ export default function SoruCozPage() {
     let interval: any = null;
     if (!loading && !isAnswered && question) {
       interval = setInterval(() => {
+        if (document.hidden) return;
         setTimerSeconds(prev => prev + 1);
       }, 1000);
     }

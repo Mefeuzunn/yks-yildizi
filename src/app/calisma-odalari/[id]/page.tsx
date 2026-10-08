@@ -240,8 +240,9 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
       } catch (_) {}
     };
 
-    // 4. Presence Heartbeat
+    // 4. Presence Heartbeat (Battery Optimized: relaxed interval and paused when hidden)
     const pingInterval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) return;
       fetch(`/api/rooms/${id}/join`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -254,7 +255,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
           }
         })
         .catch(() => {});
-    }, 25000);
+    }, 40000);
 
     return () => {
       isMounted = false;

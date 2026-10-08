@@ -515,6 +515,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     }
 
     const sendHeartbeat = () => {
+      if (typeof document !== 'undefined' && document.hidden) return;
       fetch('/api/user/focus/live', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -530,8 +531,15 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
       }).catch(() => {});
     };
 
+    // If paused, send single notification once without scheduling background interval
+    if (!isRunning) {
+      sendHeartbeat();
+      return;
+    }
+
+    // Active session: send heartbeat every 60s (relaxed to maximize battery life)
     sendHeartbeat();
-    const interval = setInterval(sendHeartbeat, isRunning ? 20000 : 35000);
+    const interval = setInterval(sendHeartbeat, 60000);
 
     return () => {
       clearInterval(interval);

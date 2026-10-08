@@ -649,3 +649,52 @@ button:active {
   .premium-card { border: 1px solid #ccc !important; box-shadow: none !important; break-inside: avoid; }
   h1, h2, h3, p, span { color: black !important; }
 }
+
+/* ========================================================= */
+/* BATTERY & HARDWARE ACCELERATION OPTIMIZATIONS (ECO ENGINE)*/
+/* ========================================================= */
+
+/* Freeze all heavy animations when the tab/app is minimized or in background */
+body.app-backgrounded *,
+body.app-backgrounded *::before,
+body.app-backgrounded *::after {
+  animation-play-state: paused !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* Low Power / Battery Saver Mode */
+[data-battery-saver="true"] {
+  --shadow-glow-indigo: none;
+  --shadow-glow-maarif: none;
+  --accent-glow: transparent;
+}
+
+[data-battery-saver="true"] *,
+[data-battery-saver="true"] *::before,
+[data-battery-saver="true"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  filter: none !important;
+}
+
+/* Mobile GPU battery saver: reduce multi-layer backdrop-filter compositing */
+@media (max-width: 768px) {
+  .premium-card, .nav-link, .tab-segmented-container {
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+  }
+}
+
+/* System-level reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

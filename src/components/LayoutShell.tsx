@@ -11,6 +11,7 @@ import MobileHeader from '@/components/MobileHeader';
 import { PWAInstallBanner, OfflineStatusBanner, OfflineFocusNotification } from '@/components/PWAComponents';
 import SessionLogModal from '@/components/dashboard/SessionLogModal';
 import ThemeEngine from '@/components/ThemeEngine';
+import BatteryOptimizer from '@/components/BatteryOptimizer';
 
 function ServiceWorkerRegistrar() {
   useEffect(() => {
@@ -98,6 +99,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
       <AuthProvider>
         <TimerProvider>
           <ThemeEngine />
+          <BatteryOptimizer />
           {children}
           <React.Suspense fallback={null}>
             <GlobalTimerWidget />
@@ -117,6 +119,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
       <TimerProvider>
       <CurriculumBoundaryGuard />
       <ThemeEngine />
+      <BatteryOptimizer />
       <div style={{ minHeight: '100vh', backgroundColor: '#080c14', overflowX: 'hidden' }}>
         <MobileHeader />
         <React.Suspense fallback={<div className="desktop-only" style={{ width: 228, borderRight: '1px solid rgba(255,255,255,0.06)' }} />}>

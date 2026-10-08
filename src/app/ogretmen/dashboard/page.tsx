@@ -894,10 +894,11 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
   React.useEffect(() => {
     fetchDetail(true);
     fetchNotes();
-    // Real-time live status polling every 12 seconds while modal is open
+    // Real-time live status polling every 15 seconds while modal is open, pauses when tab is hidden
     const pollInterval = setInterval(() => {
+      if (document.hidden) return;
       fetchDetail(false);
-    }, 12000);
+    }, 15000);
     return () => clearInterval(pollInterval);
   }, [fetchDetail, fetchNotes]);
 
@@ -2523,12 +2524,13 @@ function TeacherDashboardContent() {
     if (activeTab === 'ogrenciler') fetchStudents();
   }, [selectedClassId]);
 
-  // Live polling for student focus activity
+  // Live polling for student focus activity (pauses when tab hidden)
   useEffect(() => {
     if (!user || user.role !== 'ogretmen' || activeTab !== 'ogrenciler') return;
     const interval = setInterval(() => {
+      if (document.hidden) return;
       fetchStudents();
-    }, 20000);
+    }, 30000);
     return () => clearInterval(interval);
   }, [user, activeTab, fetchStudents]);
 
