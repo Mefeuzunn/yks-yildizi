@@ -29,13 +29,11 @@ export interface StudentMemory {
   leaguePoints: number;
 }
 
-// 2026 YKS Tarihi (20 Haziran 2026)
-const YKS_2026_DATE = new Date('2026-06-20T10:15:00+03:00');
+import { getYksTargetDate, calculateYksCountdown } from '@/lib/yks-countdown';
 
-export function calculateDaysToYKS(): number {
-  const now = new Date();
-  const diffTime = YKS_2026_DATE.getTime() - now.getTime();
-  return Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+export function calculateDaysToYKS(sinif?: string | number): number {
+  const targetDate = getYksTargetDate(sinif);
+  return calculateYksCountdown(targetDate).days;
 }
 
 export async function getStudentMemory(userId: string): Promise<StudentMemory | null> {
@@ -117,7 +115,7 @@ export async function getStudentMemory(userId: string): Promise<StudentMemory | 
       sinif: user.sinif || '12. Sınıf',
       targetUniversity: user.target_university || null,
       targetDepartment: user.target_department || null,
-      daysToYKS: calculateDaysToYKS(),
+      daysToYKS: calculateDaysToYKS(user.sinif),
       recentExams: mappedExams,
       avgTytNet,
       avgAytNet,

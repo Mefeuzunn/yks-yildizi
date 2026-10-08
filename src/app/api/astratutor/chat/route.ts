@@ -156,8 +156,8 @@ GÖREVLERİN:
 Gerektiğinde matematik veya fen formüllerini KaTeX ($ veya $$) formatında yaz.
 Öğrenciyi motive eden, anlaşılır ve eğitici bir dille kısa ve öz yanıt ver.`;
 
-        // Start with stable tested models (gemini-3.5-flash, gemini-3.8-flash), with 2048 token ceiling for thoughts + output
-        const models = ['gemini-3.5-flash', 'gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-flash-latest'];
+        // Official supported Google Gemini models with fallback ladder
+        const models = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-pro'];
         for (const model of models) {
           try {
             const apiRes = await fetch(

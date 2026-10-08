@@ -35,7 +35,10 @@ export default function StorePage() {
         const invData = await invRes.json();
 
         if (dashData?.stats) {
-          setUserXP(dashData.stats.league_points || 0);
+          const coins = dashData.stats.coins !== undefined && dashData.stats.coins !== null && Number(dashData.stats.coins) > 0
+            ? Number(dashData.stats.coins)
+            : Math.max(Number(dashData.stats.league_points || 0), Number(dashData.stats.xp || 0));
+          setUserXP(coins);
         }
         
         if (invData?.success) {
@@ -72,8 +75,12 @@ export default function StorePage() {
         
         if (data.success) {
           haptics.notification('success');
-          // Deduct XP visually
-          setUserXP(prev => prev - item.price);
+          // Deduct coins visually
+          if (typeof data.newCoins === 'number') {
+            setUserXP(data.newCoins);
+          } else {
+            setUserXP(prev => Math.max(0, prev - item.price));
+          }
           // Update item to purchased visually
           setShopItems(prev => prev.map(i => i.id === item.id ? { ...i, purchased: true } : i));
           // Confetti celebration
@@ -154,14 +161,14 @@ export default function StorePage() {
               Yıldız Mağazası
             </h1>
             <p style={{ fontSize: '14px', color: '#9ca3af', margin: 0 }}>
-              Kazandığın XP'leri harca, profilini ve unvanlarını özelleştir.
+              Kazandığın Yıldız Altınlarını (Coin) harca, profilini ve unvanlarını özelleştir.
             </p>
           </div>
         </div>
         
         {/* User Balance */}
         <div className="shop-balance" style={{ backgroundColor: 'rgba(15, 21, 35, 0.85)', border: '1px solid rgba(255,255,255,0.08)', padding: '12px 20px', borderRadius: '18px', display: 'flex', alignItems: 'center', gap: '12px', backdropFilter: 'blur(16px)', boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }}>
-          <span style={{ fontSize: '13px', color: '#94a3b8', fontWeight: 700 }}>Bakiye:</span>
+          <span style={{ fontSize: '13px', color: '#94a3b8', fontWeight: 700 }}>Yıldız Altını:</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Star size={20} color="#facc15" fill="#facc15" />
             <span style={{ fontSize: '22px', fontWeight: 900, color: '#fff', fontVariantNumeric: 'tabular-nums' }}>{userXP.toLocaleString('tr-TR')}</span>

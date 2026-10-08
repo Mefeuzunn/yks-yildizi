@@ -5,16 +5,10 @@ import { useAuth } from '@/context/AuthContext';
 import { Shield, Users, Zap, Trophy, Plus, Crown, LogOut, Search, Star, Loader2, X, Mail, Check, AlertCircle, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Seviye sistemi: her 200 XP = 1 seviye
-function getLevel(xp: number) {
-  return Math.floor(xp / 200) + 1;
-}
-function getLevelProgress(xp: number) {
-  return xp % 200;
-}
+import { getLevel, getLevelProgress, XP_PER_LEVEL } from '@/lib/level-system';
 
-const CLAN_CREATE_MIN_XP = 1000; // Level 5
-const CLAN_CREATE_MIN_LEVEL = 5;
+const CLAN_CREATE_MIN_XP = 1000; // Level 3 (1000 XP)
+const CLAN_CREATE_MIN_LEVEL = 3;
 
 const ICON_OPTIONS = ['⚔️', '🛡️', '🔥', '⚡', '🌟', '🏆', '🦅', '🐉', '🎯', '💎', '🧠', '🚀'];
 const COLOR_OPTIONS = ['#8b5cf6', '#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#ec4899', '#06b6d4', '#f97316'];
@@ -188,7 +182,8 @@ export default function KlanlarPage() {
   };
 
   const canCreateClan = myXp >= CLAN_CREATE_MIN_XP;
-  const levelProgressPct = (getLevelProgress(myXp) / 200) * 100;
+  const levelProgressInfo = getLevelProgress(myXp);
+  const levelProgressPct = levelProgressInfo.progressPercent;
 
   if (loading) {
     return (
@@ -222,7 +217,7 @@ export default function KlanlarPage() {
           <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '99px', height: '6px', overflow: 'hidden' }}>
             <div style={{ width: `${levelProgressPct}%`, height: '100%', background: 'linear-gradient(90deg, #8b5cf6, #ec4899)', borderRadius: '99px', transition: 'width 0.5s ease' }} />
           </div>
-          <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '0.25rem' }}>{getLevelProgress(myXp)}/200 XP → Seviye {myLevel + 1}</div>
+          <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '0.25rem' }}>{levelProgressInfo.currentLevelXp}/{XP_PER_LEVEL} XP → Seviye {myLevel + 1}</div>
         </div>
       </div>
 

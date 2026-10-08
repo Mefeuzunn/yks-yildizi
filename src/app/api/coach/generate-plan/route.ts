@@ -104,7 +104,8 @@ Renk Kuralları:
 - Sosyal/Tarih/Coğrafya/Felsefe için "#f59e0b"
 - Deneme/Tekrar/Genel için "#8b5cf6"`;
 
-        const models = ['gemini-3.5-flash', 'gemini-3.8-flash', 'gemini-3.5-flash-lite'];
+        // Official supported Google Gemini models with fallback ladder
+        const models = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-pro'];
         for (const model of models) {
           try {
             const apiRes = await fetch(

@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
 import { getAuthenticatedUserId } from '@/lib/auth-utils';
 
+import { getYksTargetDate, calculateYksCountdown } from '@/lib/yks-countdown';
+
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
@@ -26,16 +28,7 @@ export async function GET(req: Request) {
   try {
     const userId = await getAuthenticatedUserId(req);
 
-    // Hedef YKS Tarihi (2027-06-19 10:15:00 TSİ)
-    const targetDate = new Date('2027-06-19T10:15:00+03:00').getTime();
-    const now = Date.now();
-    const diffMs = targetDate - now;
-    const daysRemaining = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
-
-    // Günün motivasyon sözü (günün indeksine göre döner)
-    const dayOfYear = Math.floor((now - new Date(new Date().getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
-    const motivationalQuote = MOTIVATIONAL_QUOTES[dayOfYear % MOTIVATIONAL_QUOTES.length];
-
+    let userSinif: string | null = null;
     let username = 'YKS Şampiyonu';
     let streak = 1;
     let currentLeague = 'Bronz';
@@ -44,10 +37,11 @@ export async function GET(req: Request) {
     let dailyGoal = 50;
 
     if (userId) {
-      // 1. Kullanıcı bilgisi
+      // 1. Kullanıcı bilgisi & Sınıf düzeyi
       try {
-        const userRow = await db.prepare('SELECT username FROM users WHERE id = ?').get(userId) as any;
+        const userRow = await db.prepare('SELECT username, sinif FROM users WHERE id = ?').get(userId) as any;
         if (userRow?.username) username = userRow.username;
+        if (userRow?.sinif) userSinif = userRow.sinif;
       } catch (_) {}
 
       // 2. İstatistikler & Seri
@@ -60,6 +54,17 @@ export async function GET(req: Request) {
           if (statsRow.league) currentLeague = statsRow.league;
         }
       } catch (_) {}
+    }
+
+    // Dinamik Hedef YKS Tarihi (Öğrencinin sınıfına göre 2026/2027)
+    const targetDateObj = getYksTargetDate(userSinif);
+    const countdown = calculateYksCountdown(targetDateObj);
+    const daysRemaining = countdown.days;
+
+    // Günün motivasyon sözü (günün indeksine göre döner)
+    const now = Date.now();
+    const dayOfYear = Math.floor((now - new Date(new Date().getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
+    const motivationalQuote = MOTIVATIONAL_QUOTES[dayOfYear % MOTIVATIONAL_QUOTES.length];
 
       // 3. Bugünün odak oturumu & soru sayısı
       try {
@@ -105,7 +110,7 @@ export async function GET(req: Request) {
       username,
       focusMinutesToday,
       progressPercent,
-      yksTargetDate: '2027-06-19T10:15:00',
+      yksTargetDate: targetDateObj.toISOString(),
       updatedAt: new Date().toISOString(),
       status: 'success'
     };

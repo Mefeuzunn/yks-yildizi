@@ -139,8 +139,8 @@ Lütfen bu verileri analiz ederek öğrenciye şu JSON formatında yanıt üret 
   "motivationalQuote": "Öğrenciyi harekete geçirecek samimi bir koçluk cümlesi."
 }`;
 
-        // Prioritize stable tested model with sufficient token ceiling
-        const models = ['gemini-3.5-flash', 'gemini-3.8-flash', 'gemini-3.5-flash-lite'];
+        // Official supported Google Gemini models with fallback ladder
+        const models = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-pro'];
         for (const model of models) {
           try {
             const apiRes = await fetch(

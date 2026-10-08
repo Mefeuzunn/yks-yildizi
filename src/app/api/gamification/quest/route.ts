@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
 import { getAuthenticatedUserId } from '@/lib/auth-utils';
+import { getLevel } from '@/lib/level-system';
 
 export const dynamic = 'force-dynamic';
 
@@ -60,7 +61,7 @@ export async function POST(req: Request) {
 
     const newXp = (stats.xp || 0) + xpReward;
     const newCoins = (stats.coins || 0) + coinsReward;
-    const newLevel = Math.floor(newXp / 500) + 1;
+    const newLevel = getLevel(newXp);
     const newHappiness = Math.min((stats.pofuduk_happiness || 100) + 10, 100);
 
     await db.prepare(`

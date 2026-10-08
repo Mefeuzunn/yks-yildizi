@@ -7,6 +7,7 @@ import { Bell, Flame, Zap, Timer, Sparkles, CheckCircle2, Play, Pause, RotateCcw
 import { triggerHaptic } from '@/lib/haptics';
 import { usePushNotifications } from '@/components/PWAComponents';
 import { useTimer } from '@/context/TimerContext';
+import { getYksTargetDate, calculateYksCountdown } from '@/lib/yks-countdown';
 
 interface MobileLiveActivityWidgetProps {
   streak?: number;
@@ -30,25 +31,13 @@ export default function MobileLiveActivityWidget({
   const { permission, subscription, isSubscribing, subscribe } = usePushNotifications();
   const isSubscribed = !!subscription && permission === 'granted';
 
-  // Live countdown to YKS (Next YKS: June 2027)
+  // Live countdown to YKS (Dynamic target)
   useEffect(() => {
-    const targetDate = new Date('2027-06-19T10:15:00').getTime();
+    const targetDate = getYksTargetDate();
 
     const updateTimer = () => {
-      const now = new Date().getTime();
-      const distance = targetDate - now;
-
-      if (distance <= 0) {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-        return;
-      }
-
-      setTimeLeft({
-        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-        seconds: Math.floor((distance % (1000 * 60)) / 1000),
-      });
+      const { days, hours, minutes, seconds } = calculateYksCountdown(targetDate);
+      setTimeLeft({ days, hours, minutes, seconds });
     };
 
     updateTimer();

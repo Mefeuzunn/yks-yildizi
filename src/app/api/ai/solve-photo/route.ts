@@ -91,8 +91,8 @@ Lütfen görseldeki soruyu detaylıca incele ve aşağıdaki şablona göre eksi
 
 Samimi, anlaşılır ve motive edici bir Türkçe kullan.`;
 
-        // First try Gemini 3.5 Flash, then fallback to 3.5 Flash Lite and other supported versions
-        const models = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.8-flash', 'gemini-flash-latest'];
+        // Official supported Google Gemini models with fallback ladder
+        const models = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-pro'];
         let geminiResponseText = '';
         let usedModel = '';
 

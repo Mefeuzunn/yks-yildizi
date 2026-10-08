@@ -17,12 +17,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Geçersiz istek' }, { status: 400 });
     }
 
-    // Check user points
-    const stats = await db.prepare('SELECT league_points FROM user_stats WHERE user_id = ?').get(userId) as any;
+    // Check user coins balance
+    const stats = await db.prepare('SELECT coins, league_points, xp FROM user_stats WHERE user_id = ?').get(userId) as any;
     if (!stats) return NextResponse.json({ error: 'İstatistik bulunamadı' }, { status: 404 });
 
-    if (stats.league_points < price) {
-      return NextResponse.json({ error: 'Yetersiz Yıldız Puanı (XP)' }, { status: 400 });
+    // Ensure user has coins (gracefully grant legacy coins from XP/league_points if coins is 0 or null)
+    let currentCoins = Number(stats.coins ?? 0);
+    if (currentCoins === 0 && (Number(stats.league_points || 0) > 0 || Number(stats.xp || 0) > 0)) {
+      currentCoins = Math.max(Number(stats.league_points || 0), Number(stats.xp || 0));
+      await db.prepare('UPDATE user_stats SET coins = ? WHERE user_id = ?').run(currentCoins, userId);
+    }
+
+    if (currentCoins < price) {
+      return NextResponse.json({ error: 'Yetersiz Yıldız Altını (Coin)' }, { status: 400 });
     }
 
     // Check if already owns
@@ -35,14 +42,14 @@ export async function POST(req: Request) {
     const itemType = itemDef?.category || 'avatars';
     const invId = uuidv4();
 
-    // Transaction to deduct points and add item (is_equipped defaults to 0)
+    // Deduct coins only, preserving competitive league_points
     await db.transaction(async () => {
-      await db.prepare('UPDATE user_stats SET league_points = league_points - ? WHERE user_id = ?').run(price, userId);
+      await db.prepare('UPDATE user_stats SET coins = coins - ? WHERE user_id = ?').run(price, userId);
       await db.prepare('INSERT INTO user_inventory (id, user_id, item_id, item_type, is_equipped) VALUES (?, ?, ?, ?, 0)')
         .run(invId, userId, itemId, itemType);
     })();
 
-    return NextResponse.json({ success: true, newPoints: stats.league_points - price, itemId });
+    return NextResponse.json({ success: true, newCoins: currentCoins - price, itemId });
   } catch (error) {
     console.error('Buy Item POST Error:', error);
     return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });

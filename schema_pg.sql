@@ -379,3 +379,293 @@ CREATE INDEX idx_focus_sessions_user_date ON focus_sessions(user_id, started_at)
 CREATE INDEX idx_user_stats_league_points ON user_stats(league_points DESC);
 CREATE INDEX idx_users_username ON users(username);
 CREATE INDEX idx_users_parent_code ON users(parent_code);
+
+-- =========================================================================
+-- KLANLAR (CLANS) SİSTEMİ
+-- =========================================================================
+CREATE TABLE IF NOT EXISTS clans (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    icon TEXT DEFAULT '⚔️',
+    color TEXT DEFAULT '#8b5cf6',
+    leader_id TEXT NOT NULL,
+    weekly_xp INTEGER DEFAULT 0,
+    total_xp INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(leader_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS clan_members (
+    clan_id TEXT NOT NULL,
+    user_id TEXT NOT NULL,
+    role TEXT DEFAULT 'member',
+    weekly_contribution INTEGER DEFAULT 0,
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY(clan_id, user_id),
+    FOREIGN KEY(clan_id) REFERENCES clans(id) ON DELETE CASCADE,
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS clan_invites (
+    id TEXT PRIMARY KEY,
+    clan_id TEXT NOT NULL,
+    invited_by TEXT NOT NULL,
+    invited_user_id TEXT NOT NULL,
+    status TEXT DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(clan_id) REFERENCES clans(id) ON DELETE CASCADE,
+    FOREIGN KEY(invited_by) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY(invited_user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS clan_weekly_log (
+    id SERIAL PRIMARY KEY,
+    clan_id TEXT NOT NULL,
+    user_id TEXT NOT NULL,
+    xp_amount INTEGER NOT NULL,
+    action TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(clan_id) REFERENCES clans(id) ON DELETE CASCADE,
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- =========================================================================
+-- PhET İNTERAKTİF SİMÜLASYONLAR
+-- =========================================================================
+CREATE TABLE IF NOT EXISTS simulations (
+    id SERIAL PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT,
+    source_url TEXT NOT NULL,
+    category TEXT NOT NULL,
+    subject TEXT NOT NULL,
+    topic TEXT NOT NULL,
+    difficulty_level INTEGER DEFAULT 2 NOT NULL,
+    related_yks_topics TEXT[] DEFAULT '{}',
+    thumbnail_url TEXT,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS user_simulation_progress (
+    id SERIAL PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    simulation_id INTEGER NOT NULL,
+    time_spent_seconds INTEGER DEFAULT 0,
+    last_accessed TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_completed BOOLEAN DEFAULT false,
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY(simulation_id) REFERENCES simulations(id) ON DELETE CASCADE
+);
+
+-- =========================================================================
+-- ÖĞRETMEN PORTALI & SINIF DAVET SİSTEMİ
+-- =========================================================================
+CREATE TABLE IF NOT EXISTS class_invite_codes (
+    id TEXT PRIMARY KEY,
+    class_id TEXT NOT NULL,
+    teacher_id TEXT NOT NULL,
+    code TEXT NOT NULL UNIQUE,
+    max_uses INTEGER DEFAULT 0,
+    use_count INTEGER DEFAULT 0,
+    expires_at TIMESTAMP,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(teacher_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS teacher_profiles (
+    user_id TEXT PRIMARY KEY,
+    brans TEXT DEFAULT '',
+    bio TEXT DEFAULT '',
+    phone TEXT DEFAULT '',
+    email TEXT DEFAULT '',
+    website TEXT DEFAULT '',
+    avatar_url TEXT DEFAULT '',
+    social_twitter TEXT DEFAULT '',
+    social_linkedin TEXT DEFAULT '',
+    experience_years INTEGER DEFAULT 0,
+    specialties JSONB DEFAULT '[]',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS teacher_students (
+    teacher_id TEXT NOT NULL,
+    student_id TEXT NOT NULL,
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY(teacher_id, student_id),
+    FOREIGN KEY(teacher_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY(student_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS teacher_student_notes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    teacher_id TEXT NOT NULL,
+    student_id TEXT NOT NULL,
+    note TEXT NOT NULL,
+    category TEXT DEFAULT 'genel',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(teacher_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY(student_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- =========================================================================
+-- BİLDİRİMLER & PUSH SUBSCRIPTIONS
+-- =========================================================================
+CREATE TABLE IF NOT EXISTS user_notifications (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    body TEXT NOT NULL,
+    type TEXT DEFAULT 'general',
+    icon TEXT DEFAULT '🔔',
+    url TEXT DEFAULT '/dashboard',
+    is_read BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_automated BOOLEAN DEFAULT false,
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS user_notification_settings (
+    user_id TEXT PRIMARY KEY,
+    notif_focus BOOLEAN DEFAULT true,
+    notif_homework BOOLEAN DEFAULT true,
+    notif_lessons BOOLEAN DEFAULT true,
+    notif_daily_reminder BOOLEAN DEFAULT true,
+    notif_reminder_time TEXT DEFAULT '08:30',
+    notif_streak_warning BOOLEAN DEFAULT true,
+    notif_streak_time TEXT DEFAULT '20:30',
+    notif_duel BOOLEAN DEFAULT true,
+    notif_sound BOOLEAN DEFAULT true,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    quiet_hours_enabled BOOLEAN DEFAULT true,
+    quiet_hours_start TEXT DEFAULT '23:00',
+    quiet_hours_end TEXT DEFAULT '08:00',
+    max_daily_notifs INTEGER DEFAULT 2,
+    frequency_limit TEXT DEFAULT 'smart',
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS user_push_subscriptions (
+    id SERIAL PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    endpoint TEXT NOT NULL,
+    p256dh TEXT NOT NULL,
+    auth TEXT NOT NULL,
+    user_agent TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_used TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- =========================================================================
+-- TÜRKİYE YÜZYILI MAARİF MODELİ
+-- =========================================================================
+CREATE TABLE IF NOT EXISTS maarif_curriculum_nodes (
+    id TEXT PRIMARY KEY,
+    grade INTEGER NOT NULL,
+    subject TEXT NOT NULL,
+    theme_name TEXT NOT NULL,
+    code TEXT NOT NULL,
+    outcome_title TEXT NOT NULL,
+    outcome_description TEXT NOT NULL,
+    skill_domain TEXT NOT NULL,
+    has_phet_sim BOOLEAN DEFAULT false,
+    related_sim_slug TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS maarif_exam_scenarios (
+    id TEXT PRIMARY KEY,
+    grade INTEGER NOT NULL,
+    subject TEXT NOT NULL,
+    term INTEGER NOT NULL,
+    exam_number INTEGER NOT NULL,
+    scenario_name TEXT NOT NULL,
+    description TEXT,
+    question_distribution JSONB DEFAULT '[]' NOT NULL,
+    total_points INTEGER DEFAULT 100,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS maarif_open_ended_questions (
+    id TEXT PRIMARY KEY,
+    curriculum_node_code TEXT NOT NULL,
+    grade INTEGER NOT NULL,
+    subject TEXT NOT NULL,
+    scenario_id TEXT,
+    context_story TEXT NOT NULL,
+    image_url TEXT,
+    question_text TEXT NOT NULL,
+    max_score INTEGER DEFAULT 10 NOT NULL,
+    rubric_criteria JSONB DEFAULT '[]' NOT NULL,
+    sample_solutions JSONB DEFAULT '[]' NOT NULL,
+    difficulty_level INTEGER DEFAULT 3,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS maarif_student_evaluations (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    question_id TEXT NOT NULL,
+    student_answer_text TEXT NOT NULL,
+    ai_score INTEGER,
+    ai_feedback TEXT,
+    teacher_score INTEGER,
+    teacher_feedback TEXT,
+    rubric_breakdown JSONB DEFAULT '{}',
+    mastery_level TEXT DEFAULT 'Geliştirilmeli',
+    evaluated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- =========================================================================
+-- SİSTEM, AI ÖNBELLEK & BAŞARIMLAR
+-- =========================================================================
+CREATE TABLE IF NOT EXISTS ai_cache (
+    id TEXT PRIMARY KEY,
+    cache_type TEXT NOT NULL,
+    prompt_hash TEXT,
+    response_data JSONB NOT NULL,
+    hit_count INTEGER DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS profiles (
+    id UUID PRIMARY KEY,
+    full_name TEXT,
+    role TEXT,
+    grade TEXT,
+    field TEXT,
+    class_code TEXT,
+    branch TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS active_focus_sessions (
+    user_id TEXT PRIMARY KEY,
+    subject TEXT,
+    topic TEXT,
+    mode TEXT DEFAULT 'pomodoro',
+    duration_min INTEGER DEFAULT 25,
+    time_left_sec INTEGER,
+    started_at TIMESTAMPTZ DEFAULT NOW(),
+    last_heartbeat TIMESTAMPTZ DEFAULT NOW(),
+    status VARCHAR DEFAULT 'focusing',
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS user_achievements (
+    id SERIAL PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    achievement_id TEXT NOT NULL,
+    achievement_name TEXT NOT NULL,
+    achievement_icon TEXT NOT NULL,
+    achievement_desc TEXT NOT NULL,
+    unlocked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+);
