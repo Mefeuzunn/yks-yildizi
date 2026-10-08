@@ -695,6 +695,7 @@ function EditSessionModal({
 
 // ─── Main Component ────────────────────────────────────────────────────────────
 export default function FocusTab() {
+  const router = useRouter();
   const timer = useTimer();
   const { mode, timeLeft, totalSec, isRunning, pomodoroCount, selectedSubject,
           durations, activeSound, volume, toggle, reset, skip, switchMode,
@@ -858,9 +859,7 @@ export default function FocusTab() {
             </button>
             <button onClick={() => {
               triggerHaptic('medium');
-              if (typeof window !== 'undefined') {
-                window.dispatchEvent(new CustomEvent('yks:open-fullscreen-focus'));
-              }
+              router.push('/odak');
             }} title="Tam Ekran Odak Modu"
               style={{ background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: '10px',
                        width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -1019,9 +1018,7 @@ export default function FocusTab() {
             whileTap={{ scale: 0.98 }}
             onClick={() => {
               triggerHaptic('medium');
-              if (typeof window !== 'undefined') {
-                window.dispatchEvent(new CustomEvent('yks:open-fullscreen-focus'));
-              }
+              router.push('/odak');
             }}
             style={{
               marginTop: '12px',

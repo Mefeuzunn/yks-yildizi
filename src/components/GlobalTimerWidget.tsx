@@ -3,10 +3,11 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, X, Zap, CheckCircle2, Maximize } from 'lucide-react';
 import { useTimer } from '@/context/TimerContext';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function GlobalTimerWidget() {
+  const router = useRouter();
   const timer = useTimer();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -108,9 +109,7 @@ export default function GlobalTimerWidget() {
 
           <button
             onClick={() => {
-              if (typeof window !== 'undefined') {
-                window.dispatchEvent(new CustomEvent('yks:open-fullscreen-focus'));
-              }
+              router.push('/odak');
             }}
             title="Tam Ekran Odak Modu"
             aria-label="Tam Ekran Odak Modu"

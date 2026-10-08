@@ -15,21 +15,19 @@ import BatteryOptimizer from '@/components/BatteryOptimizer';
 import FullscreenFocusOverlay from '@/components/dashboard/FullscreenFocusOverlay';
 
 function GlobalFullscreenFocusHost() {
-  const [isOpen, setIsOpen] = React.useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    const handleOpen = () => setIsOpen(true);
-    const handleClose = () => setIsOpen(false);
+    const handleOpen = () => {
+      router.push('/odak');
+    };
     window.addEventListener('yks:open-fullscreen-focus', handleOpen);
-    window.addEventListener('yks:close-fullscreen-focus', handleClose);
     return () => {
       window.removeEventListener('yks:open-fullscreen-focus', handleOpen);
-      window.removeEventListener('yks:close-fullscreen-focus', handleClose);
     };
-  }, []);
+  }, [router]);
 
-  if (!isOpen) return null;
-  return <FullscreenFocusOverlay isOpen={isOpen} onClose={() => setIsOpen(false)} />;
+  return null;
 }
 
 function ServiceWorkerRegistrar() {
@@ -98,12 +96,14 @@ function CurriculumBoundaryGuard() {
 export default function LayoutShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  // Pages that use their own self-contained layout (no sidebar)
-  const isWidgetPage = pathname?.startsWith('/widget');
-  if (isWidgetPage) {
+  // Standalone pages that use their own completely self-contained layout (no sidebar, no headers, no dashboard)
+  const isStandalonePage = pathname?.startsWith('/widget') || pathname === '/odak';
+  if (isStandalonePage) {
     return (
       <AuthProvider>
         <TimerProvider>
+          <ThemeEngine />
+          <BatteryOptimizer />
           {children}
           <ServiceWorkerRegistrar />
         </TimerProvider>

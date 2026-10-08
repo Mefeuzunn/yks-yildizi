@@ -48,11 +48,12 @@ const MOTIVATIONAL_QUOTES = [
 interface FullscreenFocusOverlayProps {
   isOpen: boolean;
   onClose: () => void;
+  isStandalonePage?: boolean;
 }
 
 type OrientationMode = 'desktop' | 'mobile-portrait' | 'mobile-landscape';
 
-export default function FullscreenFocusOverlay({ isOpen, onClose }: FullscreenFocusOverlayProps) {
+export default function FullscreenFocusOverlay({ isOpen, onClose, isStandalonePage = false }: FullscreenFocusOverlayProps) {
   const timer = useTimer();
   const {
     mode,
@@ -189,10 +190,11 @@ export default function FullscreenFocusOverlay({ isOpen, onClose }: FullscreenFo
         exit={{ opacity: 0, scale: 0.98 }}
         transition={{ duration: 0.25, ease: 'easeOut' }}
         style={{
-          position: 'fixed',
+          position: isStandalonePage ? 'relative' : 'fixed',
           inset: 0,
           zIndex: 99999,
-          background: `radial-gradient(ellipse at 50% 40%, ${cfg.color}15 0%, #070a13 65%, #030509 100%)`,
+          backgroundColor: '#040711',
+          background: `radial-gradient(ellipse at 50% 40%, ${mode === 'pomodoro' ? '#18122c' : mode === 'shortBreak' ? '#091d30' : '#08231a'} 0%, #060914 60%, #030408 100%)`,
           color: '#f8fafc',
           userSelect: 'none',
           WebkitUserSelect: 'none',
@@ -202,6 +204,7 @@ export default function FullscreenFocusOverlay({ isOpen, onClose }: FullscreenFo
           height: '100dvh',
           maxHeight: '100dvh',
           boxSizing: 'border-box',
+          opacity: 1,
         }}
       >
         {/* ========================================================= */}
