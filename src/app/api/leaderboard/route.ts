@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
 import { getAuthenticatedUserId } from '@/lib/auth-utils';
 import { getShopItem } from '@/lib/shop-items';
+import { getLeagueInfo } from '@/lib/league-system';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,10 +24,8 @@ export async function GET(req: Request) {
 
     // Add rank and resolve equipped vanity items
     const formattedBoard = leaderboard.map((user, index) => {
-      let color = '#94a3b8'; // Bronz/Gümüş default
-      if (user.league === 'Altın') color = '#fbbf24';
-      if (user.league === 'Platin') color = '#e2e8f0';
-      if (user.league === 'Şampiyon') color = '#f59e0b';
+      const tierInfo = getLeagueInfo(user.league || 'Bronz');
+      const color = tierInfo.color;
 
       const avatarItem = user.equipped_avatar ? getShopItem(user.equipped_avatar) : null;
       const badgeItem = user.equipped_badge ? getShopItem(user.equipped_badge) : null;

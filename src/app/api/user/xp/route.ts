@@ -1,16 +1,9 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
 import { getAuthenticatedUserId } from '@/lib/auth-utils';
+import { calculateLeague } from '@/lib/league-system';
 
 export const dynamic = 'force-dynamic';
-
-function calculateLeague(points: number): string {
-  if (points < 100) return 'Bronz';
-  if (points < 500) return 'Gümüş';
-  if (points < 1000) return 'Altın';
-  if (points < 3000) return 'Platin';
-  return 'Şampiyon';
-}
 
 export async function POST(req: Request) {
   try {

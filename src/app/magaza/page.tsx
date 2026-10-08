@@ -123,6 +123,9 @@ export default function StorePage() {
           // Remove other items in same category, add this one
           const categoryItemIds = shopItems.filter(i => i.category === item.category).map(i => i.id);
           setEquippedIds(prev => [...prev.filter(id => !categoryItemIds.includes(id)), item.id]);
+          if (item.category === 'themes') {
+            window.dispatchEvent(new CustomEvent('themeChanged', { detail: item.id }));
+          }
           confetti({
             particleCount: 80,
             spread: 60,
@@ -131,6 +134,9 @@ export default function StorePage() {
           });
         } else {
           setEquippedIds(prev => prev.filter(id => id !== item.id));
+          if (item.category === 'themes') {
+            window.dispatchEvent(new CustomEvent('themeChanged', { detail: 'default' }));
+          }
         }
       }
     } catch (e) {

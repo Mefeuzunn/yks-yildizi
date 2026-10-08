@@ -85,6 +85,46 @@
   --border-light: var(--border-default);
 }
 
+/* ========================================= */
+/* THEME ENGINE: NEON CYBERPUNK (t1)         */
+/* ========================================= */
+[data-theme="t1"] {
+  --bg-canvas: #090514;
+  --bg-card: #150d2a;
+  --bg-card-hover: #1e133c;
+  --bg-elevated: #28194e;
+  --bg-inset: #0d061c;
+  --surface-overlay: rgba(9, 5, 20, 0.9);
+  --accent-primary: #d946ef;
+  --accent-primary-hover: #c026d3;
+  --accent-glow: rgba(217, 70, 239, 0.35);
+  --border-subtle: rgba(217, 70, 239, 0.15);
+  --border-default: rgba(217, 70, 239, 0.25);
+  --border-strong: rgba(217, 70, 239, 0.45);
+  --border-focus: rgba(217, 70, 239, 0.7);
+  --shadow-glow-indigo: 0 0 24px -4px rgba(217, 70, 239, 0.4);
+}
+
+/* ========================================= */
+/* THEME ENGINE: KARANLIK ORMAN (t2)         */
+/* ========================================= */
+[data-theme="t2"] {
+  --bg-canvas: #040d0a;
+  --bg-card: #091a14;
+  --bg-card-hover: #0f271f;
+  --bg-elevated: #15352a;
+  --bg-inset: #030a07;
+  --surface-overlay: rgba(4, 13, 10, 0.9);
+  --accent-primary: #10b981;
+  --accent-primary-hover: #059669;
+  --accent-glow: rgba(16, 185, 129, 0.35);
+  --border-subtle: rgba(16, 185, 129, 0.15);
+  --border-default: rgba(16, 185, 129, 0.25);
+  --border-strong: rgba(16, 185, 129, 0.45);
+  --border-focus: rgba(16, 185, 129, 0.7);
+  --shadow-glow-indigo: 0 0 24px -4px rgba(16, 185, 129, 0.4);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;

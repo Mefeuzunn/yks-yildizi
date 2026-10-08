@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
 import { getAuthenticatedUserId } from '@/lib/auth-utils';
+import { calculateLeague } from '@/lib/league-system';
 import { v4 as uuidv4 } from 'uuid';
 
 export const dynamic = 'force-dynamic';
@@ -25,23 +26,38 @@ export async function POST(req: Request) {
       `);
       insertSession.run(sessionId, userId, test_type, score, correct_count, wrong_count, blank_count, duration, JSON.stringify(details || {}));
 
-      // 2. Update user_stats (XP, Solved Questions, Success Rate)
+      // 2. Fetch current stats
+      const currentStats = await db.prepare('SELECT league_points, solved_questions, success_rate, coins, xp FROM user_stats WHERE user_id = ?').get(userId) as any;
+      const curPoints = Number(currentStats?.league_points || 0);
+      const curSolved = Number(currentStats?.solved_questions || 0);
+      const curRate = Number(currentStats?.success_rate || 0);
+
       const xpGained = (correct_count * 10) + (score > 80 ? 50 : 0);
-      const updateStats = await db.prepare(`
+      const newPoints = curPoints + xpGained;
+      const newLeague = calculateLeague(newPoints);
+      const addedQuestions = correct_count + wrong_count + blank_count;
+      const newSolved = curSolved + addedQuestions;
+      const testSuccessRate = addedQuestions > 0 ? (correct_count / addedQuestions) * 100 : 0;
+      const newSuccessRate = newSolved > 0 ? Math.round(((curRate * curSolved) + (testSuccessRate * addedQuestions)) / newSolved) : 0;
+
+      // 3. Update user_stats with new league tier and awarded coins
+      await db.prepare(`
         UPDATE user_stats 
         SET 
-          solved_questions = solved_questions + ?,
-          league_points = league_points + ?,
-          success_rate = ((success_rate * solved_questions) + (? * 100)) / (solved_questions + ?)
+          solved_questions = ?,
+          league_points = ?,
+          league = ?,
+          xp = COALESCE(xp, 0) + ?,
+          coins = COALESCE(coins, 0) + ?,
+          success_rate = ?
         WHERE user_id = ?
-      `);
-      
-      const successPercent = (correct_count / (correct_count + wrong_count + blank_count || 1));
-      updateStats.run(
-        correct_count + wrong_count + blank_count, // added to solved_questions (total questions tried)
-        xpGained, // added to league_points
-        successPercent, // rate to merge
-        correct_count + wrong_count + blank_count, // weight
+      `).run(
+        newSolved,
+        newPoints,
+        newLeague,
+        xpGained,
+        xpGained,
+        newSuccessRate,
         userId
       );
     })();

@@ -6,6 +6,8 @@ import { Trophy, Crown, Medal, Flame, TrendingUp, Loader2, Sparkles, ChevronRigh
 import { motion } from 'framer-motion';
 import { Card, Badge } from '@/components/ui';
 
+import { LEAGUE_TIERS, LEAGUE_MAP as BASE_LEAGUE_MAP, getNextLeagueThreshold } from '@/lib/league-system';
+
 interface LeagueInfo {
   name: string;
   minXp: number;
@@ -17,25 +19,23 @@ interface LeagueInfo {
   icon: React.ReactNode;
 }
 
-const LEAGUES: LeagueInfo[] = [
-  { name: 'Bronz', minXp: 0, color: '#d97706', bg: 'rgba(180, 83, 9, 0.15)', border: 'rgba(217, 119, 6, 0.3)', glow: 'rgba(217, 119, 6, 0.25)', emoji: '🥉', icon: <Medal size={16} /> },
-  { name: 'Gümüş', minXp: 100, color: '#9ca3af', bg: 'rgba(156, 163, 175, 0.15)', border: 'rgba(156, 163, 175, 0.3)', glow: 'rgba(156, 163, 175, 0.25)', emoji: '🥈', icon: <Medal size={16} /> },
-  { name: 'Altın', minXp: 500, color: '#facc15', bg: 'rgba(250, 204, 21, 0.15)', border: 'rgba(250, 204, 21, 0.35)', glow: 'rgba(250, 204, 21, 0.35)', emoji: '🥇', icon: <Trophy size={16} /> },
-  { name: 'Platin', minXp: 1000, color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.15)', border: 'rgba(56, 189, 248, 0.35)', glow: 'rgba(56, 189, 248, 0.35)', emoji: '💠', icon: <Trophy size={16} /> },
-  { name: 'Elmas', minXp: 2000, color: '#818cf8', bg: 'rgba(99, 102, 241, 0.15)', border: 'rgba(99, 102, 241, 0.4)', glow: 'rgba(99, 102, 241, 0.35)', emoji: '💎', icon: <Crown size={16} /> },
-  { name: 'Şampiyon', minXp: 3000, color: '#c084fc', bg: 'rgba(168, 85, 247, 0.2)', border: 'rgba(168, 85, 247, 0.5)', glow: 'rgba(168, 85, 247, 0.45)', emoji: '👑', icon: <Crown size={16} /> },
-];
+const TIER_ICONS: Record<string, React.ReactNode> = {
+  'Bronz': <Medal size={16} />,
+  'Gümüş': <Medal size={16} />,
+  'Altın': <Trophy size={16} />,
+  'Platin': <Trophy size={16} />,
+  'Elmas': <Crown size={16} />,
+  'Şampiyon': <Crown size={16} />,
+  'Üstat': <Flame size={16} />,
+  'Kozmik Efsane': <Sparkles size={16} />,
+};
+
+const LEAGUES: LeagueInfo[] = LEAGUE_TIERS.map(tier => ({
+  ...tier,
+  icon: TIER_ICONS[tier.name] || <Medal size={16} />
+}));
 
 const LEAGUE_MAP: Record<string, LeagueInfo> = LEAGUES.reduce((acc, l) => ({ ...acc, [l.name]: l }), {});
-
-const NEXT_LEAGUE_THRESHOLDS: Record<string, { next: string; xp: number }> = {
-  'Bronz': { next: 'Gümüş', xp: 100 },
-  'Gümüş': { next: 'Altın', xp: 500 },
-  'Altın': { next: 'Platin', xp: 1000 },
-  'Platin': { next: 'Elmas', xp: 2000 },
-  'Elmas': { next: 'Şampiyon', xp: 3000 },
-  'Şampiyon': { next: 'Maksimum Lig', xp: 3000 }
-};
 
 export default function LeaderboardPage() {
   const { user } = useAuth();
@@ -78,8 +78,9 @@ export default function LeaderboardPage() {
   const userLeague = currentUserStats.league || 'Bronz';
   const userScore = currentUserStats.league_points || 0;
   const currentLeagueInfo = LEAGUE_MAP[userLeague] || LEAGUE_MAP['Bronz'];
-  const nextTarget = NEXT_LEAGUE_THRESHOLDS[userLeague] || NEXT_LEAGUE_THRESHOLDS['Bronz'];
-  const progressPercent = userLeague === 'Şampiyon' ? 100 : Math.min(100, Math.max(0, (userScore / nextTarget.xp) * 100));
+  const nextTarget = getNextLeagueThreshold(userLeague);
+  const isMaxLeague = userLeague === 'Kozmik Efsane';
+  const progressPercent = isMaxLeague ? 100 : Math.min(100, Math.max(0, (userScore / nextTarget.xp) * 100));
 
   // Filtered leaderboard
   const filteredLeaderboard = selectedTierFilter === 'Hepsi'
@@ -266,7 +267,7 @@ export default function LeaderboardPage() {
               </div>
               <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748b' }}>
                 <span>%{progressPercent.toFixed(0)} tamamlandı</span>
-                {userLeague !== 'Şampiyon' && (
+                {!isMaxLeague && (
                   <span>{(nextTarget.xp - userScore > 0 ? nextTarget.xp - userScore : 0).toLocaleString('tr-TR')} XP kaldı</span>
                 )}
               </div>
