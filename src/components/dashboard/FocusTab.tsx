@@ -740,7 +740,6 @@ export default function FocusTab() {
 
   const { pendingSession } = useTimer();
   const prevPendingRef = React.useRef(pendingSession);
-  const router = useRouter(); // We must import useRouter from next/navigation
 
   useEffect(() => {
     if (prevPendingRef.current !== null && pendingSession === null) {
