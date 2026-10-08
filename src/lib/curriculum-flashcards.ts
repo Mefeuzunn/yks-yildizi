@@ -21,6 +21,58 @@ export const SUBJECT_LIST = [
   'Felsefe & Din'
 ] as const;
 
+export function normalizeAlan(alan?: string | null): 'Sayisal' | 'EsitAgirlik' | 'Sozel' | 'Dil' | 'Genel' {
+  if (!alan) return 'Sayisal';
+  const a = alan.toLowerCase().trim();
+  if (a.includes('say') || a.includes('mf') || a.includes('sayisal') || a.includes('sayısal')) return 'Sayisal';
+  if (a.includes('esit') || a.includes('eşit') || a.includes('tm') || a.includes('ea')) return 'EsitAgirlik';
+  if (a.includes('soz') || a.includes('söz') || a.includes('ts')) return 'Sozel';
+  if (a.includes('dil') || a.includes('ydt') || a.includes('ing')) return 'Dil';
+  return 'Genel';
+}
+
+export function isCardAllowedForAlan(card: { subject: string; category?: string }, alan?: string | null): boolean {
+  if (!alan || alan === 'all' || alan === 'Tümü') return true;
+  const norm = normalizeAlan(alan);
+  if (norm === 'Genel') return true;
+
+  if (norm === 'Sayisal') {
+    // Sayısal ASLA Türk Dili ve Edebiyatı görmez!
+    if (card.subject === 'Türk Dili ve Edebiyatı') return false;
+    // Sayısal için Tarih, Coğrafya ve Felsefe yalnızca TYT kapsamındadır (AYT Tarih/Coğrafya yok)
+    if (['Tarih', 'Coğrafya', 'Felsefe & Din'].includes(card.subject) && card.category === 'AYT') {
+      return false;
+    }
+    return true;
+  }
+
+  if (norm === 'EsitAgirlik') {
+    // Eşit Ağırlık için AYT Fen (Fizik, Kimya, Biyoloji) YASAKTIR!
+    if (['Fizik', 'Kimya', 'Biyoloji'].includes(card.subject) && card.category === 'AYT') {
+      return false;
+    }
+    return true;
+  }
+
+  if (norm === 'Sozel') {
+    // Sözel için AYT Matematik ve AYT Fen YASAKTIR!
+    if (['Matematik', 'Geometri', 'Fizik', 'Kimya', 'Biyoloji'].includes(card.subject) && card.category === 'AYT') {
+      return false;
+    }
+    return true;
+  }
+
+  if (norm === 'Dil') {
+    // Dil için AYT Fen ve AYT Edebiyat/Matematik YASAKTIR!
+    if (['Matematik', 'Geometri', 'Fizik', 'Kimya', 'Biyoloji', 'Türk Dili ve Edebiyatı'].includes(card.subject) && card.category === 'AYT') {
+      return false;
+    }
+    return true;
+  }
+
+  return true;
+}
+
 export const CURRICULUM_FLASHCARDS: CurriculumFlashcard[] = [
   // ══════════════════════════════════════════════════════════════════════════
   // ── MATEMATİK (TYT & AYT) ────────────────────────────────────────────────

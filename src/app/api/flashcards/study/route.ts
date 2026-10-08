@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
 import { getAuthenticatedUserId } from '@/lib/auth-utils';
+import { isCardAllowedForAlan } from '@/lib/curriculum-flashcards';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,6 +14,11 @@ export async function GET(req: Request) {
     const subject = searchParams.get('subject');
     const topic = searchParams.get('topic');
     const mode = searchParams.get('mode') || 'due'; // 'due' | 'all' | 'learning' | 'mastered'
+    const alanParam = searchParams.get('alan');
+
+    const userRow = await db.prepare('SELECT alan FROM users WHERE id = ?').get(userId) as any;
+    const userAlan = userRow?.alan || 'Sayisal';
+    const effectiveAlan = alanParam !== null ? alanParam : userAlan;
 
     let query = `
       SELECT 
@@ -49,7 +55,10 @@ export async function GET(req: Request) {
 
     query += ` ORDER BY p.next_review_date ASC NULLS FIRST, f.id ASC`;
 
-    const allCards = await db.prepare(query).all(...params) as any[];
+    const rawCards = await db.prepare(query).all(...params) as any[];
+
+    // Enforce Field curriculum (Sayısal students will NEVER get Edebiyat cards!)
+    const allCards = rawCards.filter(c => isCardAllowedForAlan(c, effectiveAlan));
 
     const now = new Date();
     let filteredCards = allCards;
@@ -71,7 +80,8 @@ export async function GET(req: Request) {
       success: true,
       cards: filteredCards,
       totalSubjectCards: allCards.length,
-      mode
+      mode,
+      appliedAlan: effectiveAlan
     }, { status: 200 });
   } catch (error) {
     console.error('Flashcards Study GET Error:', error);

@@ -17,6 +17,7 @@ function StudyContent() {
   const subject = searchParams.get('subject') || 'all';
   const topic = searchParams.get('topic');
   const mode = searchParams.get('mode') || 'due';
+  const alanParam = searchParams.get('alan') || user?.alan || 'Sayisal';
 
   const [cards, setCards] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,7 +29,7 @@ function StudyContent() {
 
   useEffect(() => {
     fetchCards();
-  }, [subject, topic, mode, user]);
+  }, [subject, topic, mode, alanParam, user]);
 
   // OFFLINE SYNC LOGIC
   useEffect(() => {
@@ -57,7 +58,7 @@ function StudyContent() {
       return;
     }
     
-    let url = `/api/flashcards/study?mode=${mode}`;
+    let url = `/api/flashcards/study?mode=${mode}&alan=${encodeURIComponent(alanParam)}`;
     if (subject && subject !== 'all' && subject !== 'Tümü') {
       url += `&subject=${encodeURIComponent(subject)}`;
     }

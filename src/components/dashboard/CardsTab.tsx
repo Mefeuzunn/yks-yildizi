@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/context/AuthContext';
 import { 
   RefreshCcw, 
   Plus, 
@@ -65,6 +66,7 @@ const SUBJECT_COLORS: Record<string, { bg: string; text: string; border: string;
 const DEFAULT_SUBJECT_COLOR = { bg: 'rgba(148, 163, 184, 0.12)', text: '#cbd5e1', border: 'rgba(148, 163, 184, 0.3)', gradient: 'linear-gradient(135deg, #64748b, #475569)' };
 
 export default function CardsTab() {
+  const { user } = useAuth();
   const [flipped, setFlipped] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -87,16 +89,17 @@ export default function CardsTab() {
   const [newTip, setNewTip] = useState('');
   const [creating, setCreating] = useState(false);
 
-  const subjectsList = [
-    'Matematik', 'Geometri', 'Fizik', 'Kimya', 'Biyoloji', 
-    'Türkçe', 'Türk Dili ve Edebiyatı', 'Tarih', 'Coğrafya', 'Felsefe & Din'
-  ];
+  const userAlan = user?.alan || 'Sayisal';
+  const isSayisal = userAlan.toLowerCase().includes('say') || userAlan.toLowerCase().includes('mf');
+  const subjectsList = isSayisal
+    ? ['Matematik', 'Geometri', 'Fizik', 'Kimya', 'Biyoloji', 'Türkçe', 'Tarih', 'Coğrafya', 'Felsefe & Din']
+    : ['Matematik', 'Geometri', 'Fizik', 'Kimya', 'Biyoloji', 'Türkçe', 'Türk Dili ve Edebiyatı', 'Tarih', 'Coğrafya', 'Felsefe & Din'];
 
   // Fetch flashcard library and stats
   const fetchFlashcards = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/flashcards');
+      const res = await fetch(`/api/flashcards?alan=${encodeURIComponent(userAlan)}`);
       if (res.ok) {
         const data = await res.json();
         setGrouped(data.grouped || {});
@@ -109,7 +112,7 @@ export default function CardsTab() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [userAlan]);
 
   useEffect(() => {
     fetchFlashcards();
@@ -137,7 +140,7 @@ export default function CardsTab() {
     setSessionStats({ reviewed: 0, easy: 0, good: 0, hard: 0, again: 0, xp: 0 });
 
     try {
-      let url = `/api/flashcards/study?mode=${mode}`;
+      let url = `/api/flashcards/study?mode=${mode}&alan=${encodeURIComponent(userAlan)}`;
       if (subject && subject !== 'Tümü') {
         url += `&subject=${encodeURIComponent(subject)}`;
       }

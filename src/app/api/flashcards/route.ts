@@ -3,6 +3,8 @@ import db from '@/lib/yks-db-async';
 import { v4 as uuidv4 } from 'uuid';
 import { getAuthenticatedUserId } from '@/lib/auth-utils';
 
+import { isCardAllowedForAlan, normalizeAlan } from '@/lib/curriculum-flashcards';
+
 export const dynamic = 'force-dynamic';
 
 // GET all flashcards grouped by subject and topic with Spaced Repetition stats
@@ -10,6 +12,13 @@ export async function GET(req: Request) {
   try {
     const userId = await getAuthenticatedUserId(req);
     if (!userId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
+
+    const { searchParams } = new URL(req.url);
+    const alanParam = searchParams.get('alan');
+
+    const userRow = await db.prepare('SELECT alan FROM users WHERE id = ?').get(userId) as any;
+    const userAlan = userRow?.alan || 'Sayisal';
+    const effectiveAlan = alanParam !== null ? alanParam : userAlan;
 
     const cards = await db.prepare(`
       SELECT 
@@ -32,6 +41,9 @@ export async function GET(req: Request) {
       ORDER BY f.subject, f.topic, f.id
     `).all(userId, userId) as any[];
 
+    // Filter cards by student's field (e.g. Sayisal never sees Türk Dili ve Edebiyatı)
+    const filteredCards = cards.filter(c => isCardAllowedForAlan(c, effectiveAlan));
+
     const now = new Date();
 
     // Grouping by Subject -> Topic
@@ -41,7 +53,7 @@ export async function GET(req: Request) {
     let totalMastered = 0;
     let totalLearning = 0;
 
-    for (const c of cards) {
+    for (const c of filteredCards) {
       const subject = c.subject || 'Genel';
       const topic = c.topic || 'Genel';
       
@@ -78,7 +90,9 @@ export async function GET(req: Request) {
         totalDue,
         totalMastered,
         totalLearning
-      }
+      },
+      userAlan,
+      appliedAlan: effectiveAlan
     }, { status: 200 });
   } catch (error) {
     console.error('Flashcards GET Error:', error);

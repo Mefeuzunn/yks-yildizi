@@ -6,38 +6,13 @@ import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import { ScheduleProvider } from '@/context/ScheduleContext';
-import { FileText, BarChart3, BookOpen, Flame, Check, Heart, Sparkles, TrendingUp, ChevronRight } from 'lucide-react';
+import { FileText, BarChart3, BookOpen, Flame, Check, Heart, Sparkles, TrendingUp, ChevronRight, X, Lock, Shield, Award } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import confetti from 'canvas-confetti';
 import { haptics } from '@/lib/haptics';
 import MobileLiveActivityWidget from '@/components/MobileLiveActivityWidget';
 import PullToRefresh from '@/components/mobile/PullToRefresh';
-
-// ─── Pofuduk Evolution System ──────────────────────────────────────────────
-const POFUDUK_STAGES = [
-  { minLevel: 1,  emoji: '🥚', name: 'Yumurta',        title: 'Yeni Doğmuş',      color: '#9ca3af', glow: 'rgba(156,163,175,0.3)' },
-  { minLevel: 3,  emoji: '🐣', name: 'Civciv',          title: 'Meraklı Kaşif',     color: '#fcd34d', glow: 'rgba(252,211,77,0.3)' },
-  { minLevel: 5,  emoji: '🦊', name: 'Pofuduk',         title: 'Azimli Öğrenci',    color: '#f97316', glow: 'rgba(249,115,22,0.3)' },
-  { minLevel: 10, emoji: '🐺', name: 'Kurt Pofuduk',    title: 'Odaklanmış Savaşçı',color: '#6366f1', glow: 'rgba(99,102,241,0.3)' },
-  { minLevel: 15, emoji: '🦁', name: 'Aslan Pofuduk',   title: 'Lider',             color: '#eab308', glow: 'rgba(234,179,8,0.3)' },
-  { minLevel: 20, emoji: '🐉', name: 'Ejderha Pofuduk', title: 'Efsanevi',          color: '#ef4444', glow: 'rgba(239,68,68,0.3)' },
-  { minLevel: 30, emoji: '⭐', name: 'Yıldız Pofuduk',  title: 'YKS Yıldızı',       color: '#a855f7', glow: 'rgba(168,85,247,0.4)' },
-];
-
-function getPofudukStage(level: number) {
-  let stage = POFUDUK_STAGES[0];
-  for (const s of POFUDUK_STAGES) {
-    if (level >= s.minLevel) stage = s;
-  }
-  return stage;
-}
-
-function getNextStage(level: number) {
-  for (const s of POFUDUK_STAGES) {
-    if (level < s.minLevel) return s;
-  }
-  return null;
-}
+import { MASCOTS, getEquippedMascot, getNextMascot, getUnlockedMascots, getMascotById, type Mascot } from '@/lib/mascots';
 
 const MistakesTab = dynamic(() => import('@/components/dashboard/MistakesTab'), { loading: () => _renderSkeleton() });
 const TopicsTab = dynamic(() => import('@/components/dashboard/TopicsTab'), { loading: () => _renderSkeleton() });
@@ -89,6 +64,7 @@ interface GamificationStats {
   pofuduk_level: number;
   pofuduk_energy: number;
   pofuduk_happiness: number;
+  active_mascot?: string;
   solved_questions?: number;
   success_rate?: number;
   streak_days?: number;
@@ -110,6 +86,455 @@ interface Achievement {
   icon: string;
 }
 
+interface MascotVillageModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  currentXp: number;
+  equippedMascot: Mascot;
+  unlockedMascots: Mascot[];
+  onEquip: (mascot: Mascot) => Promise<void>;
+  equippingId: string | null;
+}
+
+function MascotVillageModal({
+  isOpen,
+  onClose,
+  currentXp,
+  equippedMascot,
+  unlockedMascots,
+  onEquip,
+  equippingId,
+}: MascotVillageModalProps) {
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        backgroundColor: 'rgba(5, 8, 16, 0.82)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        zIndex: 9999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '16px',
+      }}
+    >
+      <motion.div
+        initial={{ scale: 0.94, opacity: 0, y: 16 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.94, opacity: 0, y: 16 }}
+        transition={{ type: 'spring', damping: 26, stiffness: 320 }}
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: '100%',
+          maxWidth: '1000px',
+          maxHeight: '90vh',
+          backgroundColor: '#0c111d',
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          borderRadius: '24px',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 40px rgba(168, 85, 247, 0.15)',
+        }}
+      >
+        {/* Header */}
+        <div
+          style={{
+            padding: '20px 24px',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 100%)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div
+              style={{
+                width: '44px',
+                height: '44px',
+                borderRadius: '14px',
+                background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(99, 102, 241, 0.25))',
+                border: '1px solid rgba(168, 85, 247, 0.4)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '22px',
+              }}
+            >
+              🐾
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h2 style={{ fontSize: '19px', fontWeight: 800, color: '#ffffff', margin: 0 }}>
+                  Maskot Köyü & Çalışma Yoldaşların
+                </h2>
+                <span
+                  style={{
+                    backgroundColor: 'rgba(234, 179, 8, 0.15)',
+                    color: '#facc15',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    padding: '2px 8px',
+                    borderRadius: '20px',
+                    border: '1px solid rgba(234, 179, 8, 0.3)',
+                  }}
+                >
+                  XP İlerlemesi
+                </span>
+              </div>
+              <p style={{ fontSize: '12px', color: '#94a3b8', margin: '3px 0 0' }}>
+                Soru çözüp XP kazandıkça yeni sevimli dostlarının kilitleri açılır. İstediğin yoldaşı seç ve yanında taşı!
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={onClose}
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              background: 'rgba(255, 255, 255, 0.06)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#94a3b8',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+            title="Kapat"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Player Stats Bar */}
+        <div
+          style={{
+            padding: '12px 24px',
+            backgroundColor: 'rgba(0, 0, 0, 0.3)',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ fontSize: '14px' }}>⚡</span>
+              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Mevcut XP:</span>
+              <span style={{ fontSize: '13px', color: '#38bdf8', fontWeight: 800 }}>
+                {currentXp.toLocaleString('tr-TR')} XP
+              </span>
+            </div>
+            <div style={{ width: '1px', height: '14px', backgroundColor: 'rgba(255,255,255,0.1)' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ fontSize: '14px' }}>🔓</span>
+              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Keşfedilen:</span>
+              <span style={{ fontSize: '13px', color: '#4ade80', fontWeight: 800 }}>
+                {unlockedMascots.length} / {MASCOTS.length} Maskot
+              </span>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '12px', color: '#94a3b8' }}>Aktif Yoldaşın:</span>
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '3px 10px',
+                borderRadius: '16px',
+                backgroundColor: `${equippedMascot.color}20`,
+                border: `1px solid ${equippedMascot.color}50`,
+                color: equippedMascot.color,
+                fontSize: '12px',
+                fontWeight: 800,
+              }}
+            >
+              <span>{equippedMascot.emoji}</span>
+              <span>{equippedMascot.name}</span>
+            </span>
+          </div>
+        </div>
+
+        {/* Mascot Cards Scroll Area */}
+        <div
+          style={{
+            padding: '20px 24px',
+            overflowY: 'auto',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+            gap: '16px',
+          }}
+        >
+          {MASCOTS.map((m) => {
+            const isUnlocked = currentXp >= m.requiredXp;
+            const isEquipped = equippedMascot.id === m.id;
+            const isEquipping = equippingId === m.id;
+            const progressPct = m.requiredXp === 0 ? 100 : Math.min(100, Math.round((currentXp / m.requiredXp) * 100));
+            const remainingXp = Math.max(0, m.requiredXp - currentXp);
+
+            return (
+              <div
+                key={m.id}
+                style={{
+                  backgroundColor: isEquipped
+                    ? 'rgba(15, 23, 42, 0.95)'
+                    : isUnlocked
+                    ? '#111827'
+                    : 'rgba(15, 23, 42, 0.5)',
+                  border: isEquipped
+                    ? `2px solid ${m.color}`
+                    : isUnlocked
+                    ? '1px solid rgba(255, 255, 255, 0.1)'
+                    : '1px solid rgba(255, 255, 255, 0.05)',
+                  borderRadius: '18px',
+                  padding: '18px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  opacity: isUnlocked ? 1 : 0.72,
+                  transition: 'all 0.2s ease',
+                  boxShadow: isEquipped ? `0 0 25px ${m.glow}` : 'none',
+                }}
+              >
+                {/* Top aura on equipped or unlocked */}
+                {isUnlocked && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: '20%',
+                      right: '20%',
+                      height: '2px',
+                      background: `linear-gradient(90deg, transparent, ${m.color}, transparent)`,
+                    }}
+                  />
+                )}
+
+                {/* Header row: Level & Required XP Badge */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <span
+                    style={{
+                      fontSize: '10.5px',
+                      fontWeight: 800,
+                      color: isUnlocked ? m.color : '#64748b',
+                      backgroundColor: isUnlocked ? `${m.color}15` : 'rgba(255,255,255,0.04)',
+                      border: `1px solid ${isUnlocked ? m.color + '30' : 'rgba(255,255,255,0.06)'}`,
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      letterSpacing: '0.04em',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Seviye {m.level}
+                  </span>
+
+                  <span
+                    style={{
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      color: isUnlocked ? '#94a3b8' : '#eab308',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                  >
+                    {!isUnlocked && <Lock size={12} />}
+                    {m.requiredXp === 0 ? '0 XP (Başlangıç)' : `${m.requiredXp.toLocaleString('tr-TR')} XP`}
+                  </span>
+                </div>
+
+                {/* Mascot visual avatar & name */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '12px' }}>
+                  <div
+                    style={{
+                      width: '64px',
+                      height: '64px',
+                      borderRadius: '16px',
+                      background: isUnlocked ? m.bgGradient : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${isUnlocked ? m.color + '40' : 'rgba(255,255,255,0.06)'}`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '34px',
+                      filter: isUnlocked ? `drop-shadow(0 0 10px ${m.glow})` : 'grayscale(0.8)',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {m.emoji}
+                  </div>
+
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                      <h4 style={{ fontSize: '16px', fontWeight: 800, color: '#ffffff', margin: 0 }}>
+                        {m.name}
+                      </h4>
+                      <span style={{ fontSize: '12px', fontWeight: 700, color: m.color }}>
+                        ({m.nickname})
+                      </span>
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px', fontWeight: 600 }}>
+                      {m.title}
+                    </div>
+                    <div
+                      style={{
+                        display: 'inline-block',
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        color: '#c084fc',
+                        backgroundColor: 'rgba(168, 85, 247, 0.12)',
+                        padding: '1px 6px',
+                        borderRadius: '6px',
+                        marginTop: '4px',
+                      }}
+                    >
+                      🎯 {m.specialty}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <p style={{ fontSize: '11.5px', color: '#cbd5e1', lineHeight: 1.5, margin: '0 0 10px', flex: 1 }}>
+                  {m.description}
+                </p>
+
+                {/* Sample Quote */}
+                <div
+                  style={{
+                    padding: '6px 10px',
+                    borderRadius: '8px',
+                    backgroundColor: 'rgba(0,0,0,0.25)',
+                    border: '1px dashed rgba(255,255,255,0.07)',
+                    fontSize: '10.5px',
+                    color: '#94a3b8',
+                    fontStyle: 'italic',
+                    marginBottom: '14px',
+                  }}
+                >
+                  "{m.quotes[0]}"
+                </div>
+
+                {/* Bottom Action Area */}
+                <div>
+                  {isEquipped ? (
+                    <div
+                      style={{
+                        width: '100%',
+                        padding: '8px',
+                        borderRadius: '12px',
+                        backgroundColor: 'rgba(34, 197, 94, 0.15)',
+                        border: '1px solid rgba(34, 197, 94, 0.35)',
+                        color: '#4ade80',
+                        fontSize: '12px',
+                        fontWeight: 800,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                      }}
+                    >
+                      <Check size={14} /> Aktif Yoldaşın
+                    </div>
+                  ) : isUnlocked ? (
+                    <button
+                      onClick={() => onEquip(m)}
+                      disabled={isEquipping}
+                      style={{
+                        width: '100%',
+                        padding: '8px',
+                        borderRadius: '12px',
+                        background: `linear-gradient(135deg, ${m.color}, #6366f1)`,
+                        border: 'none',
+                        color: '#ffffff',
+                        fontSize: '12px',
+                        fontWeight: 800,
+                        cursor: isEquipping ? 'not-allowed' : 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        boxShadow: `0 4px 14px ${m.glow}`,
+                        transition: 'transform 0.15s ease',
+                      }}
+                    >
+                      <Sparkles size={13} />
+                      {isEquipping ? 'Seçiliyor...' : 'Yoldaş Yap'}
+                    </button>
+                  ) : (
+                    <div>
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          fontSize: '10.5px',
+                          color: '#64748b',
+                          marginBottom: '4px',
+                          fontWeight: 600,
+                        }}
+                      >
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <Lock size={10} /> Kilitli
+                        </span>
+                        <span style={{ color: '#f59e0b', fontWeight: 700 }}>
+                          {remainingXp.toLocaleString('tr-TR')} XP Kaldı
+                        </span>
+                      </div>
+                      <div
+                        style={{
+                          width: '100%',
+                          height: '6px',
+                          backgroundColor: 'rgba(255,255,255,0.06)',
+                          borderRadius: '999px',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: `${progressPct}%`,
+                            height: '100%',
+                            backgroundImage: 'linear-gradient(to right, #eab308, #f59e0b)',
+                            borderRadius: '999px',
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 function DashboardContent() {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('home');
@@ -119,34 +544,66 @@ function DashboardContent() {
   const [pendingAssignments, setPendingAssignments] = React.useState<any[]>([]);
   const [announcements, setAnnouncements] = React.useState<any[]>([]);
   
-  // Pofuduk interactive petting & mood states
+  // Mascot interactive petting, modal & mood states
+  const [isMascotModalOpen, setIsMascotModalOpen] = useState(false);
+  const [equippingMascotId, setEquippingMascotId] = useState<string | null>(null);
   const [pofudukWiggle, setPofudukWiggle] = useState(false);
   const [speechBubble, setSpeechBubble] = useState<string | null>(null);
   const [floatingHearts, setFloatingHearts] = useState<{ id: number; x: number }[]>([]);
 
-  const POFUDUK_QUOTES = [
-    "Bugün harika gidiyorsun, devam et! 🚀",
-    "Her çözülen soru seni hedefine yaklaştırır! 🎯",
-    "Odaklanman süper! Birlikte kazanacağız! ⭐",
-    "Mola vermeyi ve su içmeyi unutma! 💧",
-    "Pes etmek yok, YKS Yıldızı sensin! 🌟",
-    "Sen çalıştıkça ben de güçleniyorum! ⚡",
-  ];
+  const currentXp = stats?.xp || 0;
+  const equippedMascot = getEquippedMascot(stats?.active_mascot, currentXp);
+  const unlockedMascots = getUnlockedMascots(currentXp);
+  const nextMascotData = getNextMascot(currentXp);
 
-  const handlePetPofuduk = () => {
+  const handlePetMascot = () => {
     haptics.impact('light');
     setPofudukWiggle(true);
     setTimeout(() => setPofudukWiggle(false), 500);
 
-    const randomQuote = POFUDUK_QUOTES[Math.floor(Math.random() * POFUDUK_QUOTES.length)];
+    const reactionPool = [
+      ...(equippedMascot.petReactions || []),
+      ...(equippedMascot.quotes || [])
+    ];
+    const randomQuote = reactionPool[Math.floor(Math.random() * reactionPool.length)] || "Birlikte başaracağız! 🌟";
     setSpeechBubble(randomQuote);
-    setTimeout(() => setSpeechBubble(null), 3200);
+    setTimeout(() => setSpeechBubble(null), 3400);
 
     const heartId = Date.now();
     setFloatingHearts(prev => [...prev, { id: heartId, x: (Math.random() - 0.5) * 60 }]);
     setTimeout(() => {
       setFloatingHearts(prev => prev.filter(h => h.id !== heartId));
     }, 900);
+  };
+
+  const handleEquipMascot = async (targetMascot: Mascot) => {
+    if (currentXp < targetMascot.requiredXp) return;
+    setEquippingMascotId(targetMascot.id);
+    try {
+      const res = await fetch('/api/user/mascot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mascotId: targetMascot.id }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setStats(prev => prev ? { ...prev, active_mascot: targetMascot.id } : prev);
+        try {
+          localStorage.setItem('yks_focus_pet', JSON.stringify(targetMascot));
+          window.dispatchEvent(new Event('pet-updated'));
+        } catch (_) {}
+        confetti({
+          particleCount: 50,
+          spread: 60,
+          origin: { y: 0.6 }
+        });
+        setIsMascotModalOpen(false);
+      }
+    } catch (err) {
+      console.error('Failed to equip mascot:', err);
+    } finally {
+      setEquippingMascotId(null);
+    }
   };
 
   const fetchGamificationData = async () => {
@@ -347,202 +804,248 @@ function DashboardContent() {
 
           {/* Odak Dostun (Pofuduk) & Stats Row container */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
-            {/* Odak Dostun — Pofuduk Evolution & Petting */}
-            {(() => {
-              const level = stats?.pofuduk_level || 1;
-              const stage = getPofudukStage(level);
-              const next = getNextStage(level);
-              const xp = stats?.xp || 0;
-              const xpNeeded = level * 500;
-              const xpPct = Math.min(100, (xp / xpNeeded) * 100);
-              return (
-                <div
-                  style={{
-                    flex: '1 1 300px',
-                    backgroundColor: '#0f1523',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                    borderTop: `2px solid ${stage.color}`,
-                    borderRadius: '20px',
-                    padding: '24px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    boxShadow: 'var(--shadow-card)',
-                  }}
-                >
-                  {/* Glow background */}
-                  <div
+            {/* Odak Dostun — Mascot Companion & Petting */}
+            <div
+              style={{
+                flex: '1 1 300px',
+                backgroundColor: '#0f1523',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderTop: `2.5px solid ${equippedMascot.color}`,
+                borderRadius: '20px',
+                padding: '24px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative',
+                overflow: 'hidden',
+                boxShadow: 'var(--shadow-card)',
+              }}
+            >
+              {/* Glow background */}
+              <div
+                style={{
+                  position: 'absolute',
+                  width: '220px',
+                  height: '220px',
+                  borderRadius: '50%',
+                  background: equippedMascot.color,
+                  filter: 'blur(80px)',
+                  opacity: 0.14,
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%,-50%)',
+                  pointerEvents: 'none',
+                }}
+              />
+
+              {/* Speech Bubble */}
+              <AnimatePresence>
+                {speechBubble && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.85 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.85 }}
                     style={{
                       position: 'absolute',
-                      width: '200px',
-                      height: '200px',
-                      borderRadius: '50%',
-                      background: stage.color,
-                      filter: 'blur(75px)',
-                      opacity: 0.12,
-                      top: '50%',
-                      left: '50%',
-                      transform: 'translate(-50%,-50%)',
-                      pointerEvents: 'none',
-                    }}
-                  />
-
-                  {/* Speech Bubble */}
-                  <AnimatePresence>
-                    {speechBubble && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 8, scale: 0.85 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -8, scale: 0.85 }}
-                        style={{
-                          position: 'absolute',
-                          top: '12px',
-                          left: '16px',
-                          right: '16px',
-                          textAlign: 'center',
-                          background: 'rgba(8, 12, 20, 0.95)',
-                          border: `1px solid ${stage.color}70`,
-                          borderRadius: '12px',
-                          padding: '6px 12px',
-                          color: '#f8fafc',
-                          fontSize: '11px',
-                          fontWeight: 700,
-                          boxShadow: `0 6px 20px rgba(0,0,0,0.6), 0 0 15px ${stage.glow}`,
-                          zIndex: 20,
-                          pointerEvents: 'none',
-                        }}
-                      >
-                        {speechBubble}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  {/* Floating hearts */}
-                  {floatingHearts.map((h) => (
-                    <motion.span
-                      key={h.id}
-                      initial={{ opacity: 1, y: 0, x: h.x, scale: 0.8 }}
-                      animate={{ opacity: 0, y: -50, scale: 1.3 }}
-                      transition={{ duration: 0.85, ease: 'easeOut' }}
-                      style={{ position: 'absolute', top: '75px', left: '50%', fontSize: '20px', pointerEvents: 'none', zIndex: 25 }}
-                    >
-                      💖
-                    </motion.span>
-                  ))}
-
-                  {/* Animated emoji with Wiggle on Pet */}
-                  <motion.div
-                    onClick={handlePetPofuduk}
-                    animate={pofudukWiggle ? { rotate: [-12, 12, -8, 8, -4, 4, 0], scale: [1, 1.25, 1] } : { scale: [1, 1.08, 1] }}
-                    transition={pofudukWiggle ? { duration: 0.5 } : { duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                    style={{
-                      fontSize: '64px',
-                      marginBottom: '8px',
-                      filter: `drop-shadow(0 0 14px ${stage.glow})`,
-                      position: 'relative',
-                      zIndex: 1,
-                      cursor: 'pointer',
-                      userSelect: 'none',
-                    }}
-                    title="Pofuduk'u sevmek için tıkla!"
-                  >
-                    {stage.emoji}
-                  </motion.div>
-
-                  <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#ffffff', marginBottom: '4px', zIndex: 1 }}>{stage.name}</h3>
-                  <div
-                    style={{
-                      fontSize: '10.5px',
-                      color: stage.color,
-                      backgroundColor: `${stage.color}15`,
-                      border: `1px solid ${stage.color}35`,
-                      padding: '2px 10px',
-                      borderRadius: '20px',
-                      fontWeight: 800,
-                      marginBottom: '8px',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.06em',
-                      zIndex: 1,
-                    }}
-                  >
-                    {stage.title} · Seviye {level}
-                  </div>
-
-                  {/* Pet button */}
-                  <button
-                    onClick={handlePetPofuduk}
-                    style={{
-                      marginBottom: '12px',
-                      background: 'rgba(236,72,153,0.12)',
-                      border: '1px solid rgba(236,72,153,0.35)',
-                      color: '#f472b6',
-                      borderRadius: '999px',
-                      padding: '4px 14px',
+                      top: '12px',
+                      left: '16px',
+                      right: '16px',
+                      textAlign: 'center',
+                      background: 'rgba(8, 12, 20, 0.95)',
+                      border: `1px solid ${equippedMascot.color}70`,
+                      borderRadius: '12px',
+                      padding: '8px 12px',
+                      color: '#f8fafc',
                       fontSize: '11px',
                       fontWeight: 700,
-                      cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '5px',
-                      transition: 'all 0.16s ease',
-                      zIndex: 1,
+                      boxShadow: `0 6px 20px rgba(0,0,0,0.6), 0 0 15px ${equippedMascot.glow}`,
+                      zIndex: 20,
+                      pointerEvents: 'none',
+                      lineHeight: 1.4,
                     }}
                   >
-                    <Heart size={12} fill="#f472b6" /> Pofuduk'u Sev
-                  </button>
+                    {speechBubble}
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-                  {/* XP Progress */}
-                  <div style={{ width: '100%', marginBottom: '10px', zIndex: 1 }}>
+              {/* Floating hearts */}
+              {floatingHearts.map((h) => (
+                <motion.span
+                  key={h.id}
+                  initial={{ opacity: 1, y: 0, x: h.x, scale: 0.8 }}
+                  animate={{ opacity: 0, y: -50, scale: 1.3 }}
+                  transition={{ duration: 0.85, ease: 'easeOut' }}
+                  style={{ position: 'absolute', top: '75px', left: '50%', fontSize: '20px', pointerEvents: 'none', zIndex: 25 }}
+                >
+                  💖
+                </motion.span>
+              ))}
+
+              {/* Top Controls: Status pill & Mascot Village Button */}
+              <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', zIndex: 2 }}>
+                <div
+                  style={{
+                    fontSize: '10.5px',
+                    color: equippedMascot.color,
+                    backgroundColor: `${equippedMascot.color}15`,
+                    border: `1px solid ${equippedMascot.color}35`,
+                    padding: '3px 10px',
+                    borderRadius: '20px',
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}
+                >
+                  {equippedMascot.title} • Lvl {equippedMascot.level}
+                </div>
+
+                <button
+                  onClick={() => setIsMascotModalOpen(true)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    background: 'rgba(255, 255, 255, 0.06)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    borderRadius: '20px',
+                    padding: '4px 10px',
+                    color: '#e2e8f0',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                  title="Maskot Köyü: Yeni maskotları keşfet ve aktif yoldaşını değiştir!"
+                >
+                  <Sparkles size={11} color={equippedMascot.color} />
+                  <span>Maskot Köyü</span>
+                  <span style={{
+                    fontSize: '9.5px',
+                    backgroundColor: `${equippedMascot.color}25`,
+                    color: equippedMascot.color,
+                    padding: '1px 6px',
+                    borderRadius: '10px',
+                    fontWeight: 800
+                  }}>
+                    {unlockedMascots.length}/{MASCOTS.length}
+                  </span>
+                </button>
+              </div>
+
+              {/* Animated emoji with Wiggle on Pet */}
+              <motion.div
+                onClick={handlePetMascot}
+                animate={pofudukWiggle ? { rotate: [-12, 12, -8, 8, -4, 4, 0], scale: [1, 1.25, 1] } : { scale: [1, 1.08, 1] }}
+                transition={pofudukWiggle ? { duration: 0.5 } : { duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                style={{
+                  fontSize: '66px',
+                  marginBottom: '6px',
+                  marginTop: '4px',
+                  filter: `drop-shadow(0 0 16px ${equippedMascot.glow})`,
+                  position: 'relative',
+                  zIndex: 1,
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                }}
+                title={`${equippedMascot.name}'i sevmek için tıkla!`}
+              >
+                {equippedMascot.emoji}
+              </motion.div>
+
+              <div style={{ textAlign: 'center', marginBottom: '6px', zIndex: 1 }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#ffffff', margin: 0 }}>
+                  {equippedMascot.name} <span style={{ color: equippedMascot.color, fontSize: '15px' }}>({equippedMascot.nickname})</span>
+                </h3>
+                <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
+                  🎯 {equippedMascot.specialty}
+                </div>
+              </div>
+
+              {/* Pet button */}
+              <button
+                onClick={handlePetMascot}
+                style={{
+                  marginBottom: '14px',
+                  background: 'rgba(236,72,153,0.12)',
+                  border: '1px solid rgba(236,72,153,0.35)',
+                  color: '#f472b6',
+                  borderRadius: '999px',
+                  padding: '5px 16px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  transition: 'all 0.16s ease',
+                  zIndex: 1,
+                }}
+              >
+                <Heart size={12} fill="#f472b6" /> {equippedMascot.nickname}'i Sev
+              </button>
+
+              {/* Next Mascot Unlock Progression */}
+              <div style={{ width: '100%', marginBottom: '12px', zIndex: 1 }}>
+                {nextMascotData ? (
+                  <>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#94a3b8', marginBottom: '5px', fontWeight: 600 }}>
-                      <span>XP İlerlemesi</span>
-                      <span style={{ color: '#f1f5f9' }}>{xp} / {xpNeeded}</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span>Sonraki:</span>
+                        <span style={{ color: nextMascotData.mascot.color, fontWeight: 700 }}>
+                          {nextMascotData.mascot.emoji} {nextMascotData.mascot.nickname}
+                        </span>
+                      </span>
+                      <span style={{ color: '#f1f5f9' }}>
+                        {nextMascotData.remainingXp.toLocaleString('tr-TR')} XP kaldı (%{nextMascotData.progressPercent})
+                      </span>
                     </div>
                     <div style={{ width: '100%', height: '8px', backgroundColor: '#090e18', borderRadius: '999px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)' }}>
                       <motion.div
                         initial={{ width: 0 }}
-                        animate={{ width: `${xpPct}%` }}
+                        animate={{ width: `${nextMascotData.progressPercent}%` }}
                         transition={{ duration: 1.2, ease: 'easeOut' }}
-                        style={{ height: '100%', backgroundImage: `linear-gradient(to right, ${stage.color}88, ${stage.color})`, borderRadius: '999px' }}
+                        style={{ height: '100%', backgroundImage: `linear-gradient(to right, ${equippedMascot.color}, ${nextMascotData.mascot.color})`, borderRadius: '999px' }}
                       />
                     </div>
+                  </>
+                ) : (
+                  <div style={{
+                    padding: '6px 12px',
+                    borderRadius: '10px',
+                    background: 'linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(168, 85, 247, 0.15))',
+                    border: '1px solid rgba(234, 179, 8, 0.3)',
+                    textAlign: 'center',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    color: '#fef08a'
+                  }}>
+                    👑 Tüm Maskotlar Açıldı! Kozmik Şampiyonsun!
                   </div>
+                )}
+              </div>
 
-                  {/* Stats bars */}
-                  <div style={{ width: '100%', marginBottom: '8px', zIndex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#cbd5e1', marginBottom: '4px', fontWeight: 600 }}>
-                      <span>😊 Mutluluk</span>
-                      <span style={{ color: '#f472b6' }}>{stats?.pofuduk_happiness ?? 85}%</span>
-                    </div>
-                    <div style={{ width: '100%', height: '6px', backgroundColor: '#090e18', borderRadius: '999px', overflow: 'hidden' }}>
-                      <div style={{ width: `${stats?.pofuduk_happiness ?? 85}%`, height: '100%', backgroundImage: 'linear-gradient(to right, #ec4899, #a855f7)', borderRadius: '999px' }} />
-                    </div>
-                  </div>
-                  <div style={{ width: '100%', marginBottom: '12px', zIndex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#cbd5e1', marginBottom: '4px', fontWeight: 600 }}>
-                      <span>⚡ Enerji</span>
-                      <span style={{ color: '#fbbf24' }}>{stats?.pofuduk_energy ?? 60}%</span>
-                    </div>
-                    <div style={{ width: '100%', height: '6px', backgroundColor: '#090e18', borderRadius: '999px', overflow: 'hidden' }}>
-                      <div style={{ width: `${stats?.pofuduk_energy ?? 60}%`, height: '100%', backgroundImage: 'linear-gradient(to right, #eab308, #f97316)', borderRadius: '999px' }} />
-                    </div>
-                  </div>
-
-                  {/* Next evolution preview */}
-                  {next && (
-                    <div style={{ width: '100%', padding: '8px 12px', background: 'rgba(255,255,255,0.025)', border: '1px dashed rgba(255,255,255,0.08)', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '8px', zIndex: 1 }}>
-                      <span style={{ fontSize: '18px' }}>{next.emoji}</span>
-                      <div>
-                        <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 600 }}>Sonraki Evrim: Lvl {next.minLevel}</div>
-                        <div style={{ fontSize: '11px', color: next.color, fontWeight: 700 }}>{next.name}</div>
-                      </div>
-                    </div>
-                  )}
+              {/* Stats bars: Mutluluk & Enerji */}
+              <div style={{ width: '100%', marginBottom: '8px', zIndex: 1 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#cbd5e1', marginBottom: '4px', fontWeight: 600 }}>
+                  <span>😊 Mutluluk</span>
+                  <span style={{ color: '#f472b6' }}>{stats?.pofuduk_happiness ?? 85}%</span>
                 </div>
-              );
-            })()}
+                <div style={{ width: '100%', height: '6px', backgroundColor: '#090e18', borderRadius: '999px', overflow: 'hidden' }}>
+                  <div style={{ width: `${stats?.pofuduk_happiness ?? 85}%`, height: '100%', backgroundImage: 'linear-gradient(to right, #ec4899, #a855f7)', borderRadius: '999px' }} />
+                </div>
+              </div>
+              <div style={{ width: '100%', zIndex: 1 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#cbd5e1', marginBottom: '4px', fontWeight: 600 }}>
+                  <span>⚡ Enerji</span>
+                  <span style={{ color: '#fbbf24' }}>{stats?.pofuduk_energy ?? 60}%</span>
+                </div>
+                <div style={{ width: '100%', height: '6px', backgroundColor: '#090e18', borderRadius: '999px', overflow: 'hidden' }}>
+                  <div style={{ width: `${stats?.pofuduk_energy ?? 60}%`, height: '100%', backgroundImage: 'linear-gradient(to right, #eab308, #f97316)', borderRadius: '999px' }} />
+                </div>
+              </div>
+            </div>
 
             {/* 4 Dynamic Stat Cards */}
             <div style={{ flex: '2 1 300px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px' }}>
@@ -809,6 +1312,21 @@ function DashboardContent() {
         {(activeTab === 'sinif' || activeTab === 'sinifim') && <SinifimTab key="sinif" />}
         {activeTab === 'forum' && <ForumTab key="forum" />}
         {(activeTab === 'profile' || activeTab === 'profil') && <ProfileTab key="profile" />}
+      </AnimatePresence>
+
+      {/* Mascot Village Modal */}
+      <AnimatePresence>
+        {isMascotModalOpen && (
+          <MascotVillageModal
+            isOpen={isMascotModalOpen}
+            onClose={() => setIsMascotModalOpen(false)}
+            currentXp={currentXp}
+            equippedMascot={equippedMascot}
+            unlockedMascots={unlockedMascots}
+            onEquip={handleEquipMascot}
+            equippingId={equippingMascotId}
+          />
+        )}
       </AnimatePresence>
     </div>
   );
