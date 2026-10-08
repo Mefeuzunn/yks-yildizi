@@ -212,13 +212,37 @@ async function seedTemplates() {
   }
 }
 
+function normalizeSubject(s: string): string {
+  const map: Record<string, string> = {
+    'cografya': 'Coğrafya',
+    'coğrafya': 'Coğrafya',
+    'turkce': 'Türkçe',
+    'türkçe': 'Türkçe',
+    'edebiyat': 'Türk Dili ve Edebiyatı',
+    'felsefe': 'Felsefe & Din',
+    'din': 'Felsefe & Din',
+    'biyo': 'Biyoloji',
+    'fiz': 'Fizik',
+    'mat': 'Matematik',
+    'geo': 'Geometri',
+    'kim': 'Kimya',
+    'tar': 'Tarih'
+  };
+  const lower = (s || '').toLowerCase().trim();
+  for (const [k, v] of Object.entries(map)) {
+    if (lower.includes(k)) return v;
+  }
+  return s;
+}
+
 export async function GET(req: Request) {
   try {
     await seedTemplates();
 
     const { searchParams } = new URL(req.url);
     const zorluk = searchParams.get('zorluk');
-    const subject = searchParams.get('subject');
+    const rawSubject = searchParams.get('subject');
+    const subject = rawSubject && rawSubject !== 'all' ? normalizeSubject(rawSubject) : null;
 
     let query = `SELECT ss.* FROM soru_sablonlari ss JOIN dersler d ON ss.ders_id = d.id`;
     const conditions: string[] = [];
@@ -229,9 +253,9 @@ export async function GET(req: Request) {
       params.push(parseInt(zorluk));
     }
 
-    if (subject && subject !== 'all') {
-      conditions.push('d.isim = ?');
-      params.push(subject);
+    if (subject) {
+      conditions.push('(d.isim = ? OR LOWER(d.isim) LIKE ?)');
+      params.push(subject, `%${subject.toLowerCase()}%`);
     }
 
     if (conditions.length > 0) {
@@ -249,9 +273,9 @@ export async function GET(req: Request) {
       const qParams: any[] = [];
       const qConds: string[] = [];
 
-      if (subject && subject !== 'all') {
-        qConds.push(`LOWER(subject) = LOWER(?)`);
-        qParams.push(subject);
+      if (subject) {
+        qConds.push(`(LOWER(subject) = LOWER(?) OR LOWER(subject) LIKE '%' || LOWER(?) || '%')`);
+        qParams.push(subject, subject);
       }
       if (zorluk && zorluk !== 'all') {
         qConds.push(`difficulty = ?`);
@@ -265,9 +289,9 @@ export async function GET(req: Request) {
       const staticStmt = await db.prepare(qQuery);
       let staticQ = staticStmt.get(...qParams) as any;
 
-      if (!staticQ && subject && subject !== 'all') {
+      if (!staticQ && subject) {
         // Zorluk kısıtı olmadan o branştan getir
-        staticQ = await db.prepare(`SELECT * FROM questions WHERE LOWER(subject) = LOWER(?) ORDER BY RANDOM() LIMIT 1`).get(subject) as any;
+        staticQ = await db.prepare(`SELECT * FROM questions WHERE (LOWER(subject) = LOWER(?) OR LOWER(subject) LIKE '%' || LOWER(?) || '%') ORDER BY RANDOM() LIMIT 1`).get(subject, subject) as any;
       }
       if (!staticQ) {
         // En son çare: Soru bankasından herhangi rastgele bir soru getir
