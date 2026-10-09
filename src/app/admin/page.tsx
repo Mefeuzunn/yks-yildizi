@@ -12,7 +12,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { toast } from '@/context/ToastContext';
 import { triggerHaptic } from '@/lib/haptics';
-import { YKS_CURRICULUM_TAXONOMY } from '@/lib/content-factory';
+import { YKS_CURRICULUM_TAXONOMY } from '@/lib/curriculum-taxonomy';
 
 const mockTeachers = [
   { id: 1, name: 'Ahmet Yılmaz', subject: 'Matematik', school: 'Atatürk Anadolu Lisesi', date: '21 Haziran 2026', status: 'pending' },
