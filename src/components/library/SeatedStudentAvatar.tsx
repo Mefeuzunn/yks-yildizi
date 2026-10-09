@@ -690,4 +690,4 @@ export const EmptyLibraryDesk = React.memo(function EmptyLibraryDesk({
       </svg>
     </motion.div>
   );
-}
+});
