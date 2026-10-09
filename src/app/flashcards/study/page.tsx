@@ -14,6 +14,7 @@ import { haptics } from '@/lib/haptics';
 import confetti from 'canvas-confetti';
 import { useNaturalAudio } from '@/lib/audio-player';
 import FormattedCardContent from '@/components/FormattedCardContent';
+import AudioWaveformVisualizer from '@/components/AudioWaveformVisualizer';
 
 function StudyContent() {
   const { user } = useAuth();
@@ -36,6 +37,7 @@ function StudyContent() {
   // Natural Human Audio & Podcast Engine
   const { isPlaying, currentText, speed, setSpeed, play, stop, toggle } = useNaturalAudio();
   const [podcastMode, setPodcastMode] = useState(false);
+  const [podcastPhase, setPodcastPhase] = useState<'idle' | 'front' | 'gap' | 'back' | 'next'>('idle');
   const podcastTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -95,6 +97,7 @@ function StudyContent() {
   useEffect(() => {
     if (!podcastMode || cards.length === 0 || completed) {
       if (podcastTimerRef.current) clearTimeout(podcastTimerRef.current);
+      setPodcastPhase('idle');
       return;
     }
 
@@ -105,15 +108,18 @@ function StudyContent() {
 
     const runPodcastSequence = async () => {
       setIsFlipped(false);
+      setPodcastPhase('front');
       
       // Read front
       await play(currentCard.front_text, speed);
       if (isCancelled) return;
 
       // Wait 2.5 seconds thinking gap
+      setPodcastPhase('gap');
       podcastTimerRef.current = setTimeout(async () => {
         if (isCancelled) return;
         setIsFlipped(true);
+        setPodcastPhase('back');
 
         // Read back + tip
         const backSpoken = currentCard.back_text + (currentCard.tip ? `. Önemli İpucu: ${currentCard.tip}` : '');
@@ -121,6 +127,7 @@ function StudyContent() {
         if (isCancelled) return;
 
         // Wait 2.8 seconds and advance
+        setPodcastPhase('next');
         podcastTimerRef.current = setTimeout(() => {
           if (isCancelled) return;
           handleReview(2);
@@ -134,6 +141,7 @@ function StudyContent() {
       isCancelled = true;
       if (podcastTimerRef.current) clearTimeout(podcastTimerRef.current);
       stop();
+      setPodcastPhase('idle');
     };
   }, [podcastMode, currentIndex, completed, cards, speed]);
 
@@ -142,6 +150,7 @@ function StudyContent() {
       if (podcastTimerRef.current) clearTimeout(podcastTimerRef.current);
       stop();
       setPodcastMode(false);
+      setPodcastPhase('idle');
     } else {
       setPodcastMode(true);
     }
@@ -358,6 +367,24 @@ function StudyContent() {
               <span style={{ fontWeight: 700, color: '#f1f5f9' }}>{currentIndex + 1} / {cards.length}</span>
             </div>
           </div>
+
+          {/* Live Audio Waveform & Speech Monitor */}
+          <AnimatePresence>
+            {(isPlaying || podcastMode) && (
+              <AudioWaveformVisualizer
+                isActive={isPlaying}
+                mode={podcastMode ? 'podcast' : 'normal'}
+                phase={podcastPhase}
+                onStop={() => {
+                  stop();
+                  if (podcastMode) {
+                    setPodcastMode(false);
+                    setPodcastPhase('idle');
+                  }
+                }}
+              />
+            )}
+          </AnimatePresence>
 
           {/* Swipeable & Flippable Card */}
           <motion.div 

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
 import { sendSmartPushToUser, isWithinQuietHours } from '@/lib/push-notifications';
+import { generateFlashcardsBatch, saveFlashcardsToDB } from '@/lib/content-factory';
+import { YKS_CURRICULUM_TAXONOMY } from '@/lib/curriculum-taxonomy';
 
 export const dynamic = 'force-dynamic';
 
@@ -238,6 +240,63 @@ export async function GET(req: Request) {
 
       summary.weeklyReports = { reportsProcessed, totalClasses: classes.length };
       summary.tasksExecuted.push('weekly_reports');
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 4. OTONOM AI İÇERİK FABRİKASI (Autonomous Daily Curriculum Replenishment)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (process.env.GEMINI_API_KEY) {
+      try {
+        // En az bilgi kartına sahip veya son 7 günde en çok hata yapılan konuyu tespit et
+        const weakestSubjectTopic = await db.prepare(`
+          SELECT el.subject, el.topic, COUNT(*) as err_count
+          FROM error_log el
+          WHERE el.created_at >= NOW() - INTERVAL '7 days'
+          GROUP BY el.subject, el.topic
+          ORDER BY err_count DESC
+          LIMIT 1
+        `).get() as any;
+
+        let targetSubject = weakestSubjectTopic?.subject;
+        let targetTopic = weakestSubjectTopic?.topic;
+        let category: 'TYT' | 'AYT' | 'TYT/AYT' = 'TYT/AYT';
+
+        const subjects = Object.keys(YKS_CURRICULUM_TAXONOMY);
+        if (!targetSubject || !YKS_CURRICULUM_TAXONOMY[targetSubject]) {
+          targetSubject = subjects[Math.floor(Math.random() * subjects.length)];
+          const meta = YKS_CURRICULUM_TAXONOMY[targetSubject];
+          targetTopic = meta.topics[Math.floor(Math.random() * meta.topics.length)];
+          category = meta.category;
+        } else {
+          category = YKS_CURRICULUM_TAXONOMY[targetSubject].category;
+          if (!targetTopic) {
+            const meta = YKS_CURRICULUM_TAXONOMY[targetSubject];
+            targetTopic = meta.topics[0];
+          }
+        }
+
+        const generatedCards = await generateFlashcardsBatch({
+          subject: targetSubject,
+          topic: targetTopic,
+          category,
+          count: 10,
+        });
+
+        if (generatedCards.length > 0) {
+          const savedCount = await saveFlashcardsToDB(generatedCards);
+          summary.contentFactory = {
+            status: 'success',
+            subject: targetSubject,
+            topic: targetTopic,
+            cardsGenerated: savedCount,
+            reason: weakestSubjectTopic?.err_count ? 'weak_topic_booster' : 'curriculum_expansion',
+          };
+          summary.tasksExecuted.push('autonomous_content_factory');
+        }
+      } catch (cfErr: any) {
+        console.error('Autonomous Content Factory cron error:', cfErr);
+        summary.contentFactory = { status: 'error', error: cfErr?.message };
+      }
     }
 
     return NextResponse.json({
