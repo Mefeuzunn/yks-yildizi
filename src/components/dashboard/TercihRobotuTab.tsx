@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, MapPin, Target, Plus, Check, Loader2, Sparkles } from 'lucide-react';
+import { toast } from '@/context/ToastContext';
 
 export default function TercihRobotuTab() {
   const [departments, setDepartments] = useState<any[]>([]);
@@ -39,14 +40,21 @@ export default function TercihRobotuTab() {
 
   const addToPreferences = async (deptId: string) => {
     const existingIds = prefList.map(p => p.id || p.department_id);
-    if (existingIds.includes(deptId)) return;
-    if (existingIds.length >= 24) return alert('En fazla 24 tercih yapabilirsiniz.');
+    if (existingIds.includes(deptId)) {
+      toast.info('Bu bölüm zaten tercih listenizde.');
+      return;
+    }
+    if (existingIds.length >= 24) {
+      toast.warning('En fazla 24 tercih yapabilirsiniz.');
+      return;
+    }
 
     const newIds = [...existingIds, deptId];
     
     // Optimistic UI Update
     const dept = departments.find(d => d.id === deptId);
     if (dept) setPrefList([...prefList, { department_id: deptId, ...dept }]);
+    toast.success('Bölüm tercih listenize eklendi.');
 
     await fetch('/api/user/preferences', {
       method: 'POST',

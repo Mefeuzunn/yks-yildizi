@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, Check, X, ChevronDown, ChevronUp, Trash2, Zap, ArrowRight, Award, HelpCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { toast } from '@/context/ToastContext';
 
 type Mistake = {
   id: number;
@@ -95,9 +96,10 @@ export default function HataDefteriPage() {
         setIsQuizActive(true);
       } else {
         const err = await res.json();
-        alert(err.error || 'Quiz oluşturulamadı.');
+        toast.error(err.error || 'Quiz oluşturulamadı.');
       }
     } catch (e) {
+      toast.error('Quiz başlatılırken bağlantı hatası oluştu.');
       console.error(e);
     }
   };

@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { User, Mail, Shield, BookOpen, Star, Loader2, LogOut, Settings } from 'lucide-react';
 import { BADGES } from '@/lib/badges';
 import { SHOP_ITEMS } from '@/lib/shop-items';
+import { toast } from '@/context/ToastContext';
 
 export default function ProfilPage() {
   const [data, setData] = useState<any>(null);
@@ -24,13 +25,13 @@ export default function ProfilPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        alert('Başarıyla öğretmeninize bağlandınız!');
+        toast.success('Başarıyla öğretmeninize bağlandınız!');
         setInviteCode('');
       } else {
-        alert(data.error || 'Bir hata oluştu');
+        toast.error(data.error || 'Bir hata oluştu');
       }
     } catch(e) {
-      alert('Sunucu hatası');
+      toast.error('Sunucu hatası oluştu');
     } finally {
       setJoining(false);
     }
@@ -216,7 +217,17 @@ export default function ProfilPage() {
                   <h3 style={{ fontSize: '1rem', color: '#fff', marginBottom: '0.25rem' }}>👨👩👦 Veli Takip Kodu</h3>
                   <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Bu kodu ailenize vererek sizin gelişiminizi izlemelerini sağlayabilirsiniz.</p>
                 </div>
-                <div style={{ padding: '0.75rem 1.5rem', background: '#10b981', color: '#fff', borderRadius: '8px', fontWeight: 700, fontSize: '1.25rem', letterSpacing: '2px', cursor: 'pointer' }} onClick={() => alert('Kod kopyalandı!')}>
+                <div 
+                  style={{ padding: '0.75rem 1.5rem', background: '#10b981', color: '#fff', borderRadius: '8px', fontWeight: 700, fontSize: '1.25rem', letterSpacing: '2px', cursor: 'pointer' }} 
+                  onClick={() => {
+                    const code = `YKS-${user.username.substring(0,2).toUpperCase()}8F`;
+                    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                      navigator.clipboard.writeText(code).catch(() => {});
+                    }
+                    toast.success('Veli takip kodu panoya kopyalandı!');
+                  }}
+                  title="Kopyalamak için tıklayın"
+                >
                   YKS-{user.username.substring(0,2).toUpperCase()}8F
                 </div>
               </div>

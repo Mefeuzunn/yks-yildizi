@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { PushNotificationToggle } from '@/components/PWAComponents';
 import { SHOP_ITEMS } from '@/lib/shop-items';
+import { toast } from '@/context/ToastContext';
 
 interface ProfileData {
   username: string;
@@ -113,8 +114,14 @@ export default function ProfileTab() {
 
   const handleChangePassword = async () => {
     if (!oldPassword || !newPassword) return;
-    if (newPassword !== confirmPassword) return alert('Yeni şifreler eşleşmiyor!');
-    if (newPassword.length < 6) return alert('Şifre en az 6 karakter olmalı!');
+    if (newPassword !== confirmPassword) {
+      toast.error('Yeni şifreler eşleşmiyor!');
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast.warning('Şifre en az 6 karakter olmalı!');
+      return;
+    }
 
     setSaving(true);
     try {
@@ -124,12 +131,13 @@ export default function ProfileTab() {
         body: JSON.stringify({ oldPassword, newPassword }),
       });
       if (res.ok) {
+        toast.success('Şifreniz başarıyla değiştirildi!');
         setSaved(true);
         setOldPassword(''); setNewPassword(''); setConfirmPassword('');
         setTimeout(() => setSaved(false), 2500);
       } else {
         const data = await res.json();
-        alert(data.error || 'Şifre değiştirme başarısız');
+        toast.error(data.error || 'Şifre değiştirme başarısız');
       }
     } catch (e) { console.error(e); }
     setSaving(false);
@@ -139,6 +147,7 @@ export default function ProfileTab() {
     if (profile.parent_code) {
       navigator.clipboard.writeText(profile.parent_code);
       setCodeCopied(true);
+      toast.success('Veli erişim kodu kopyalandı!');
       setTimeout(() => setCodeCopied(false), 2000);
     }
   };
@@ -440,9 +449,13 @@ export default function ProfileTab() {
                         try {
                           const res = await fetch('/api/notifications/test', { method: 'POST' });
                           const d = await res.json();
-                          alert(d.message || 'Test bildirimi iletildi!');
+                          if (res.ok) {
+                            toast.success(d.message || 'Test bildirimi iletildi!');
+                          } else {
+                            toast.error(d.error || 'Test bildirimi gönderilemedi.');
+                          }
                         } catch (e) {
-                          alert('Test bildirimi gönderilemedi.');
+                          toast.error('Test bildirimi gönderilemedi.');
                         }
                       }}
                       style={{

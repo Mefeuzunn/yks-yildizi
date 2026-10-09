@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUp, ArrowDown, X, Save, Target, Loader2, Sparkles } from 'lucide-react';
+import { toast } from '@/context/ToastContext';
 
 export default function TercihListemTab() {
   const [list, setList] = useState<any[]>([]);
@@ -56,10 +57,10 @@ export default function TercihListemTab() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ departmentIds })
       });
-      // Optionally show a success toast here
+      toast.success('Tercih listeniz başarıyla kaydedildi!');
     } catch (e) {
       console.log(e);
-      alert('Hata oluştu.');
+      toast.error('Kaydedilirken hata oluştu.');
     } finally {
       setSaving(false);
     }

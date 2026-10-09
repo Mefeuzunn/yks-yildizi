@@ -4,6 +4,7 @@ import { Sparkles,  Calendar as CalIcon, Clock, X, Trash2, Plus, Pencil, Chevron
 import { useSchedule, ScheduleBlock } from '@/context/ScheduleContext';
 import { useAuth } from '@/context/AuthContext';
 import { getQuickSelectsByAlan } from '@/lib/subjectData';
+import { toast } from '@/context/ToastContext';
 
 // ─── Grid constants (Custom 18h: 07:00 - 00:00) ───────────────────────────────
 const VISIBLE_HOURS = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 0];
@@ -253,10 +254,16 @@ export default function ScheduleTab() {
           onClick={async () => {
             if (confirm('Yapay zeka analizlerine göre eski program silinip yepyeni bir adaptif takvim çizilecek. Onaylıyor musun?')) {
               try {
-                await fetch('/api/user/calendar/generate', { method: 'POST' });
-                window.location.reload();
+                toast.info('Yapay zeka planı hazırlanıyor...');
+                const res = await fetch('/api/user/calendar/generate', { method: 'POST' });
+                if (res.ok) {
+                  toast.success('Yapay zeka planı oluşturuldu!');
+                  window.location.reload();
+                } else {
+                  toast.error('Plan oluşturulurken hata meydana geldi.');
+                }
               } catch (e) {
-                alert('Hata oluştu!');
+                toast.error('Hata oluştu!');
               }
             }
           }}

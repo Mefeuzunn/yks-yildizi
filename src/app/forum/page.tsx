@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, ThumbsUp, MessageCircle, X, Loader2, Send } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { toast } from '@/context/ToastContext';
 
 export default function ForumPage() {
   const { user } = useAuth();
@@ -62,7 +63,10 @@ export default function ForumPage() {
 
   const handleLike = async (postId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!user) return alert('Beğenmek için giriş yapmalısınız');
+    if (!user) {
+      toast.warning('Beğenmek için lütfen giriş yapın.');
+      return;
+    }
     
     // Optimistic update
     setPosts(posts.map(p => {
@@ -150,7 +154,10 @@ export default function ForumPage() {
         </div>
         <button 
           onClick={() => {
-            if (!user) return alert('Konu açmak için giriş yapmalısınız!');
+            if (!user) {
+              toast.warning('Konu açmak için lütfen giriş yapın.');
+              return;
+            }
             setIsNewPostModalOpen(true);
           }}
           className="btn-interactive" style={{ background: 'linear-gradient(180deg, #8b5cf6 0%, #6d28d9 100%)' }}

@@ -6,6 +6,7 @@ import { Shield, Users, Zap, Trophy, Plus, Crown, LogOut, Search, Star, Loader2,
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { getLevel, getLevelProgress, XP_PER_LEVEL } from '@/lib/level-system';
+import { toast } from '@/context/ToastContext';
 
 const CLAN_CREATE_MIN_XP = 1000; // Level 3 (1000 XP)
 const CLAN_CREATE_MIN_LEVEL = 3;
@@ -111,13 +112,14 @@ export default function KlanlarPage() {
       });
       const data = await res.json();
       if (data.success) {
+        toast.success('Klana başarıyla katıldınız!');
         await fetchAll();
         setActiveTab('Klanım');
       } else {
-        alert(data.error || 'Katılma başarısız');
+        toast.error(data.error || 'Katılma başarısız');
       }
     } catch {
-      alert('Sunucu hatası');
+      toast.error('Sunucu hatası');
     }
   }
 
@@ -127,12 +129,13 @@ export default function KlanlarPage() {
       const res = await fetch('/api/clans/leave', { method: 'POST' });
       const data = await res.json();
       if (data.success) {
+        toast.success('Klandan ayrıldınız.');
         setMyClan(null);
         setMyClanDetails(null);
         await fetchAll();
       }
     } catch {
-      alert('Sunucu hatası');
+      toast.error('Sunucu hatası');
     }
   }
 
@@ -165,12 +168,13 @@ export default function KlanlarPage() {
       });
       const data = await res.json();
       if (data.success) {
+        toast.success(accept ? 'Klan daveti kabul edildi!' : 'Klan daveti reddedildi.');
         await fetchAll();
       } else {
-        alert(data.error || 'İşlem başarısız');
+        toast.error(data.error || 'İşlem başarısız');
       }
     } catch {
-      alert('Sunucu hatası');
+      toast.error('Sunucu hatası');
     }
   }
 

@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, Upload, X, Loader2, Save, Type, CheckCircle } from 'lucide-react';
 import Tesseract from 'tesseract.js';
+import { toast } from '@/context/ToastContext';
 
 interface Props {
   isOpen: boolean;
@@ -64,7 +65,7 @@ export default function ScanMistakeModal({ isOpen, onClose, onSaved }: Props) {
       setOcrText(result.data.text);
     } catch (error) {
       console.error('OCR Error:', error);
-      alert('Fotoğraf okunurken bir hata oluştu.');
+      toast.error('Fotoğraf okunurken bir hata oluştu.');
     } finally {
       setIsProcessing(false);
     }
@@ -72,7 +73,7 @@ export default function ScanMistakeModal({ isOpen, onClose, onSaved }: Props) {
 
   const handleSave = async () => {
     if (!topic || !ocrText) {
-      alert('Lütfen konu ve soru metnini doldurun.');
+      toast.warning('Lütfen konu ve soru metnini doldurun.');
       return;
     }
 
@@ -96,14 +97,15 @@ export default function ScanMistakeModal({ isOpen, onClose, onSaved }: Props) {
       });
 
       if (res.ok) {
+        toast.success('Hata defterine kaydedildi!');
         onSaved();
         handleClose();
       } else {
-        alert('Kaydedilirken hata oluştu.');
+        toast.error('Kaydedilirken hata oluştu.');
       }
     } catch (err) {
       console.error(err);
-      alert('Kaydedilirken hata oluştu.');
+      toast.error('Kaydedilirken hata oluştu.');
     } finally {
       setIsSaving(false);
     }

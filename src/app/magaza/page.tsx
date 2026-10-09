@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { haptics } from '@/lib/haptics';
 import { SHOP_ITEMS } from '@/lib/shop-items';
+import { toast } from '@/context/ToastContext';
 
 const CATEGORIES = [
   { id: 'avatars', label: 'Profillik Avatarlar', icon: <ImageIcon size={18} /> },
@@ -83,21 +84,21 @@ export default function StorePage() {
           }
           // Update item to purchased visually
           setShopItems(prev => prev.map(i => i.id === item.id ? { ...i, purchased: true } : i));
-          // Confetti celebration
           confetti({
             particleCount: 150,
             spread: 80,
             origin: { y: 0.6 },
             colors: [item.color, '#facc15', '#ffffff']
           });
+          toast.success(`"${item.name}" başarıyla envanterinize eklendi!`);
         } else {
           haptics.notification('warning');
-          alert(data.error || 'Satın alma başarısız oldu.');
+          toast.error(data.error || 'Satın alma başarısız oldu.');
         }
       } catch (err) {
         haptics.notification('warning');
         console.error("Satın alma hatası", err);
-        alert('Satın alma sırasında bir hata oluştu.');
+        toast.error('Satın alma sırasında bir hata oluştu.');
       } finally {
         setBuyingId(null);
       }

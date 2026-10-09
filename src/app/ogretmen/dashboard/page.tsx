@@ -16,6 +16,7 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { triggerHaptic } from '@/lib/haptics';
 import TeacherMaarifTab from '@/components/ogretmen/TeacherMaarifTab';
+import { toast } from '@/context/ToastContext';
 
 // ─────────────────────────────────────────────
 // TYPES
@@ -926,15 +927,16 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
       const res = await fetch(url, { method: 'DELETE' });
       const resData = await res.json();
       if (res.ok) {
+        toast.success('Öğrenci sınıftan çıkarıldı.');
         setConfirmRemoveStudent(false);
         onClose();
         onStudentRemoved?.();
       } else {
-        alert(resData.error || 'Öğrenci sınıftan çıkarılamadı.');
+        toast.error(resData.error || 'Öğrenci sınıftan çıkarılamadı.');
       }
     } catch (err: any) {
       console.error('Error removing student:', err);
-      alert('Bir hata oluştu.');
+      toast.error('Bir hata oluştu.');
     } finally {
       setRemovingStudent(false);
     }
@@ -951,6 +953,7 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
         body: JSON.stringify({ note: newNoteText.trim(), category: newNoteCategory }),
       });
       if (res.ok) {
+        toast.success('Öğretmen notu kaydedildi.');
         const d = await res.json();
         if (d.note) {
           setNotes(prev => [d.note, ...prev]);
@@ -960,11 +963,11 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
         setNewNoteText('');
       } else {
         const err = await res.json().catch(() => ({}));
-        alert(err.error || 'Not kaydedilemedi.');
+        toast.error(err.error || 'Not kaydedilemedi.');
       }
     } catch (e) {
       console.error('Add note error:', e);
-      alert('Bir hata oluştu.');
+      toast.error('Bir hata oluştu.');
     } finally {
       setSavingNote(false);
     }
@@ -978,13 +981,14 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
         method: 'DELETE',
       });
       if (res.ok) {
+        toast.success('Not silindi.');
         setNotes(prev => prev.filter(n => n.id !== noteId));
       } else {
-        alert('Not silinemedi.');
+        toast.error('Not silinemedi.');
       }
     } catch (e) {
       console.error('Delete note error:', e);
-      alert('Bir hata oluştu.');
+      toast.error('Bir hata oluştu.');
     } finally {
       setDeletingNoteId(null);
     }
@@ -2226,14 +2230,15 @@ function TeacherDashboardContent() {
       });
       const data = await res.json();
       if (res.ok) {
+        toast.success('Sınıf adı güncellendi.');
         setClasses(prev => prev.map(c => c.id === editingClass.id ? { ...c, class_name: editClassNameInput.trim() } : c));
         setEditingClass(null);
       } else {
-        alert(data.error || 'Sınıf güncellenemedi.');
+        toast.error(data.error || 'Sınıf güncellenemedi.');
       }
     } catch (e) {
       console.error('Update class error:', e);
-      alert('Bir hata oluştu.');
+      toast.error('Bir hata oluştu.');
     } finally {
       setSavingEditClass(false);
     }
@@ -2254,11 +2259,15 @@ function TeacherDashboardContent() {
           url: data.inviteUrl || data.url || '',
           expires: data.expiresAt || data.expires || ''
         });
+        toast.success('Davet kodu ve QR başarıyla oluşturuldu!');
       } else {
         const err = await res.json();
-        alert(err.error || 'Hata');
+        toast.error(err.error || 'Davet oluşturulamadı.');
       }
-    } catch(e) { console.error(e); }
+    } catch(e) {
+      console.error(e);
+      toast.error('Bir hata oluştu.');
+    }
     finally { setSubmitting(false); }
   };
 
@@ -2281,10 +2290,13 @@ function TeacherDashboardContent() {
             )
           };
         });
-        alert('Geri bildirim başarıyla kaydedildi!');
+        toast.success('Geri bildirim başarıyla kaydedildi!');
+      } else {
+        toast.error('Geri bildirim kaydedilemedi.');
       }
     } catch (e) {
       console.error(e);
+      toast.error('Geri bildirim kaydedilemedi.');
     } finally {
       setSavingFeedback(prev => ({ ...prev, [studentId]: false }));
     }
@@ -2299,13 +2311,13 @@ function TeacherDashboardContent() {
       });
       const data = await res.json();
       if (res.ok) {
-        alert(data.message || 'Ödev hatırlatması gönderildi!');
+        toast.success(data.message || 'Ödev hatırlatması gönderildi!');
       } else {
-        alert(data.error || 'Hatırlatma gönderilemedi.');
+        toast.error(data.error || 'Hatırlatma gönderilemedi.');
       }
     } catch (e) {
       console.error(e);
-      alert('Bir hata oluştu.');
+      toast.error('Bir hata oluştu.');
     } finally {
       setReminding(false);
     }
@@ -2326,15 +2338,16 @@ function TeacherDashboardContent() {
       });
       const data = await res.json();
       if (res.ok) {
-        alert(data.message || 'Canlı etüt başarıyla başlatıldı ve sınıfa duyuruldu!');
+        toast.success(data.message || 'Canlı etüt başarıyla başlatıldı ve sınıfa duyuruldu!');
         setEtutModal(null);
         setEtutTitle('');
         fetchAnnouncements();
       } else {
-        alert(data.error || 'Etüt başlatılamadı.');
+        toast.error(data.error || 'Etüt başlatılamadı.');
       }
     } catch (e) {
       console.error(e);
+      toast.error('Bir hata oluştu.');
     } finally {
       setStartingEtut(false);
     }
@@ -2342,7 +2355,7 @@ function TeacherDashboardContent() {
 
   const handleExportCSV = () => {
     if (!filteredStudents.length) {
-      alert('Dışa aktarılacak öğrenci verisi bulunamadı.');
+      toast.warning('Dışa aktarılacak öğrenci verisi bulunamadı.');
       return;
     }
     const headers = ['Öğrenci Adı', 'Sınıf', 'Alan', 'Sınıf Seviyesi', 'Çözülen Soru', 'Başarı Oranı (%)', 'Seri (Gün)', 'Lig', 'Lig Puanı', 'Veli Kodu'];
@@ -2406,16 +2419,16 @@ function TeacherDashboardContent() {
         body: JSON.stringify({ studentId: awardXpModal.id, amount: awardAmount })
       });
       if (res.ok) {
+        toast.success(`${awardAmount} XP öğrenciye tanımlandı!`);
         setAwardXpModal(null);
         fetchStudents();
-        // Optional: you can show a toast here
       } else {
         const err = await res.json();
-        alert(err.error || 'Hata oluştu');
+        toast.error(err.error || 'Hata oluştu');
       }
     } catch (e) {
       console.error(e);
-      alert('Beklenmeyen bir hata oluştu');
+      toast.error('Beklenmeyen bir hata oluştu');
     } finally {
       setSubmitting(false);
     }
@@ -2543,12 +2556,14 @@ function TeacherDashboardContent() {
         body: JSON.stringify({ student_id: studentId, class_id: classId })
       });
       if (res.ok) {
+        toast.success('Öğrencinin sınıfı güncellendi.');
         fetchStudents();
       } else {
-        alert('Öğrenci sınıfı değiştirilirken hata oluştu.');
+        toast.error('Öğrenci sınıfı değiştirilirken hata oluştu.');
       }
     } catch (e) {
       console.error(e);
+      toast.error('Bir hata oluştu.');
     }
   };
 

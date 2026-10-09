@@ -13,6 +13,7 @@ import SessionLogModal from '@/components/dashboard/SessionLogModal';
 import ThemeEngine from '@/components/ThemeEngine';
 import BatteryOptimizer from '@/components/BatteryOptimizer';
 import FullscreenFocusOverlay from '@/components/dashboard/FullscreenFocusOverlay';
+import { ToastProvider } from '@/context/ToastContext';
 
 function GlobalFullscreenFocusHost() {
   const router = useRouter();
@@ -101,12 +102,14 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
   if (isStandalonePage) {
     return (
       <AuthProvider>
-        <TimerProvider>
-          <ThemeEngine />
-          <BatteryOptimizer />
-          {children}
-          <ServiceWorkerRegistrar />
-        </TimerProvider>
+        <ToastProvider>
+          <TimerProvider>
+            <ThemeEngine />
+            <BatteryOptimizer />
+            {children}
+            <ServiceWorkerRegistrar />
+          </TimerProvider>
+        </ToastProvider>
       </AuthProvider>
     );
   }
@@ -116,19 +119,21 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
   if (isNoSidebarPage) {
     return (
       <AuthProvider>
-        <TimerProvider>
-          <ThemeEngine />
-          <BatteryOptimizer />
-          {children}
-          <React.Suspense fallback={null}>
-            <GlobalTimerWidget />
-          </React.Suspense>
-          <GlobalFullscreenFocusHost />
-          <SessionLogModal />
-          <OfflineStatusBanner />
-          <OfflineFocusNotification />
-          <ServiceWorkerRegistrar />
-        </TimerProvider>
+        <ToastProvider>
+          <TimerProvider>
+            <ThemeEngine />
+            <BatteryOptimizer />
+            {children}
+            <React.Suspense fallback={null}>
+              <GlobalTimerWidget />
+            </React.Suspense>
+            <GlobalFullscreenFocusHost />
+            <SessionLogModal />
+            <OfflineStatusBanner />
+            <OfflineFocusNotification />
+            <ServiceWorkerRegistrar />
+          </TimerProvider>
+        </ToastProvider>
       </AuthProvider>
     );
   }
@@ -136,39 +141,41 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
 // All other pages: dark-theme layout with sidebar
   return (
     <AuthProvider>
-      <TimerProvider>
-      <CurriculumBoundaryGuard />
-      <ThemeEngine />
-      <BatteryOptimizer />
-      <div style={{ minHeight: '100vh', backgroundColor: '#080c14', overflowX: 'hidden' }}>
-        <MobileHeader />
-        <React.Suspense fallback={<div className="desktop-only" style={{ width: 228, borderRight: '1px solid rgba(255,255,255,0.06)' }} />}>
-          <AppSidebar />
-        </React.Suspense>
-        <React.Suspense fallback={<div className="mobile-only" style={{ height: 60 }} />}>
-          <MobileNav />
-        </React.Suspense>
-        <main
-          className="dashboard-main-responsive"
-          style={{
-            minHeight: '100vh',
-            backgroundColor: '#080c14',
-            boxSizing: 'border-box',
-          }}
-        >
-          {children}
-        </main>
-        <React.Suspense fallback={null}>
-          <GlobalTimerWidget />
-        </React.Suspense>
-        <GlobalFullscreenFocusHost />
-        <SessionLogModal />
-        <ServiceWorkerRegistrar />
-        <PWAInstallBanner />
-        <OfflineStatusBanner />
-        <OfflineFocusNotification />
-      </div>
-      </TimerProvider>
+      <ToastProvider>
+        <TimerProvider>
+          <CurriculumBoundaryGuard />
+          <ThemeEngine />
+          <BatteryOptimizer />
+          <div style={{ minHeight: '100vh', backgroundColor: '#080c14', overflowX: 'hidden' }}>
+            <MobileHeader />
+            <React.Suspense fallback={<div className="desktop-only" style={{ width: 228, borderRight: '1px solid rgba(255,255,255,0.06)' }} />}>
+              <AppSidebar />
+            </React.Suspense>
+            <React.Suspense fallback={<div className="mobile-only" style={{ height: 60 }} />}>
+              <MobileNav />
+            </React.Suspense>
+            <main
+              className="dashboard-main-responsive"
+              style={{
+                minHeight: '100vh',
+                backgroundColor: '#080c14',
+                boxSizing: 'border-box',
+              }}
+            >
+              {children}
+            </main>
+            <React.Suspense fallback={null}>
+              <GlobalTimerWidget />
+            </React.Suspense>
+            <GlobalFullscreenFocusHost />
+            <SessionLogModal />
+            <ServiceWorkerRegistrar />
+            <PWAInstallBanner />
+            <OfflineStatusBanner />
+            <OfflineFocusNotification />
+          </div>
+        </TimerProvider>
+      </ToastProvider>
     </AuthProvider>
   );
 }
