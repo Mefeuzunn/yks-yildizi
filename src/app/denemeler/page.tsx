@@ -6,6 +6,7 @@ import { LineChart as LucideLineChart, Plus, BarChart2, X, Trash2, GraduationCap
 import { format, parseISO } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
+import OnlineExamSimulator from '@/components/exam/OnlineExamSimulator';
 
 // --- Types ---
 type MockExam = {
@@ -132,6 +133,7 @@ export default function DenemelerPage() {
   const [userAlan, setUserAlan] = useState<'Sayisal'|'Esit Agirlik'|'Sozel'|'Dil'>('Sayisal');
   const [activeTab, setActiveTab] = useState<'TYT' | 'AYT'>('TYT');
   const [modalTab, setModalTab] = useState<'TYT' | 'AYT'>('TYT');
+  const [isSimulatorOpen, setIsSimulatorOpen] = useState(false);
   const [aiAnalysisModalOpen, setAiAnalysisModalOpen] = useState(false);
   const [aiAnalysisData, setAiAnalysisData] = useState<any>(null);
   const [isAiAnalyzing, setIsAiAnalyzing] = useState(false);
@@ -364,6 +366,21 @@ export default function DenemelerPage() {
     loadData();
   }, []);
 
+  const refreshExams = async () => {
+    try {
+      const examsRes = await fetch('/api/user/exams');
+      if (examsRes.ok) {
+        const data = await examsRes.json();
+        if (Array.isArray(data)) {
+          const mappedExams = data.map((e: any) => mapExamFromDb(e, userAlan));
+          setExams(mappedExams.length > 0 ? mappedExams : DEFAULT_MOCK_DATA);
+        }
+      }
+    } catch (err) {
+      console.error('Error refreshing exams:', err);
+    }
+  };
+
   // Handle Input Changes
   const handleInputChange = (fieldId: string, value: string) => {
     setNewExam((prev: any) => ({ ...prev, [fieldId]: value }));
@@ -524,6 +541,27 @@ export default function DenemelerPage() {
           >
             <GraduationCap size={17} /> {userAlan} Alanı
           </div>
+          <button 
+            onClick={() => setIsSimulatorOpen(true)} 
+            className="active:scale-[0.98] online-sim-start-btn"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.6rem 1.35rem',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%)',
+              color: '#ffffff',
+              fontSize: '0.875rem',
+              fontWeight: 800,
+              border: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 4px 18px rgba(139, 92, 246, 0.45)',
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+          >
+            <Sparkles size={18} className="animate-pulse" /> ⚡ Online {activeTab} Başlat ({activeTab === 'TYT' ? '165 dk' : '180 dk'})
+          </button>
           <button 
             onClick={() => { setModalTab(activeTab); setIsModalOpen(true); }} 
             className="active:scale-[0.98]"
@@ -1252,6 +1290,18 @@ export default function DenemelerPage() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Gerçek Sınav Simülatörü (165 dk TYT / 180 dk AYT) */}
+      {isSimulatorOpen && (
+        <OnlineExamSimulator
+          examType={activeTab}
+          alan={userAlan}
+          onClose={() => setIsSimulatorOpen(false)}
+          onExamSaved={() => {
+            refreshExams();
+          }}
+        />
+      )}
 
       <style jsx>{`
         @keyframes scanAnim {
