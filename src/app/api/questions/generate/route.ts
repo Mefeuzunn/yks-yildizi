@@ -311,7 +311,7 @@ export async function GET(req: Request) {
         return NextResponse.json({
           template_id: `static_${staticQ.id}`,
           icerik: staticQ.text,
-          cozum: `Doğru Seçenek: ${correctLetter} (${dogruCevap}).`,
+          cozum: staticQ.explanation || `Doğru Seçenek: ${correctLetter} (${dogruCevap}).`,
           secenekler: secenekler.length > 0 ? secenekler : ['A', 'B', 'C', 'D', 'E'],
           dogruCevap,
           parametreler: { static_id: staticQ.id, correct_letter: correctLetter },

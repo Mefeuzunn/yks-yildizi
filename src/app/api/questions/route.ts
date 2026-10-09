@@ -32,9 +32,10 @@ export async function GET(req: Request) {
       subject: q.subject,
       topic: q.topic,
       text: q.text,
-      options: JSON.parse(q.options_json),
+      options: typeof q.options_json === 'string' ? JSON.parse(q.options_json) : q.options_json,
       correctOption: q.correct_option,
-      difficulty: q.difficulty
+      difficulty: q.difficulty,
+      explanation: q.explanation || ''
     }));
 
     return NextResponse.json({ success: true, questions: mappedQuestions }, { status: 200 });
