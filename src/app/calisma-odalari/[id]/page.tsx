@@ -11,6 +11,7 @@ import { useAuth } from '@/context/AuthContext';
 import { haptics } from '@/lib/haptics';
 import { motion, AnimatePresence } from 'framer-motion';
 import LibraryStudyHall from '@/components/library/LibraryStudyHall';
+import InviteFriendsModal from '@/components/library/InviteFriendsModal';
 import { libraryAudio } from '@/lib/library-audio';
 
 export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: string }> }) {
@@ -22,6 +23,8 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
   const [newMessage, setNewMessage] = useState('');
   const [showMobileDrawer, setShowMobileDrawer] = useState(false);
   const [activeSideTab, setActiveSideTab] = useState<'chat' | 'users'>('chat');
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [focusToast, setFocusToast] = useState<string | null>(null);
   
   // Virtual Library Seating & Stage
   const [viewMode, setViewMode] = useState<'library' | 'clock'>('library');
@@ -373,6 +376,39 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
   const handleSeatChange = async (newSeatId: string | null) => {
     setMySeatId(newSeatId);
 
+    const isSittingDown = Boolean(newSeatId);
+    let nextTimerActive = timerActive;
+
+    if (isSittingDown) {
+      // Start focusing immediately upon sitting down!
+      if (!timerActive) {
+        nextTimerActive = true;
+        setTimerActive(true);
+        libraryAudio.playChime();
+        fetch(`/api/rooms/${id}/timer`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ timerState: 'active', timeLeft }),
+        }).catch(() => {});
+      }
+      const seatName = newSeatId ? newSeatId.replace('t', 'Masa ').replace('-s', ' / Koltuk ') : '';
+      setFocusToast(`Masaya oturdun (${seatName}). Odaklanma seansın başladı! 🎯`);
+      setTimeout(() => setFocusToast(null), 3500);
+    } else {
+      // User stood up: pause focus timer
+      if (timerActive) {
+        nextTimerActive = false;
+        setTimerActive(false);
+        fetch(`/api/rooms/${id}/timer`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ timerState: 'paused', timeLeft }),
+        }).catch(() => {});
+      }
+      setFocusToast('Masadan kalktın. Odaklanma seansın duraklatıldı.');
+      setTimeout(() => setFocusToast(null), 3000);
+    }
+
     // Instant Optimistic Update
     if (user) {
       setParticipants(prev => {
@@ -387,7 +423,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
             seatId: newSeatId,
             subject: userSubject,
             avatarConfig: avatarConfig,
-            status: timerActive ? 'focusing' : 'break',
+            status: nextTimerActive ? 'focusing' : 'break',
             focusMinutes: 25,
           },
         ];
@@ -404,7 +440,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
           currentSubject: userSubject,
           avatarConfig: avatarConfig,
           userId: user?.id,
-          status: timerActive ? 'focusing' : 'break',
+          status: nextTimerActive ? 'focusing' : 'break',
         }),
       });
       const data = await res.json();
@@ -536,24 +572,40 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
   }
 
   return (
-    <div className="flex h-[calc(100vh-80px)] overflow-hidden relative bg-[#080c14]">
+    <div className="flex h-[calc(100dvh-70px)] sm:h-[calc(100vh-80px)] overflow-hidden relative bg-[#080c14]">
       {/* ── Left Stage: Atmospheric Screen & Pomodoro Timer ── */}
-      <div className="flex-1 flex flex-col p-4 sm:p-6 lg:p-8 overflow-y-auto pb-32 lg:pb-8 custom-scrollbar relative z-10">
+      <div className="flex-1 flex flex-col p-2.5 sm:p-5 lg:p-7 overflow-y-auto pb-32 lg:pb-8 custom-scrollbar relative z-10">
+        {/* Floating Focus Status Toast */}
+        <AnimatePresence>
+          {focusToast && (
+            <motion.div
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              className="fixed top-18 sm:top-20 left-1/2 -translate-x-1/2 z-50 pointer-events-none px-4 py-2 rounded-2xl bg-black/90 border border-emerald-500/40 text-emerald-300 text-xs sm:text-sm font-extrabold shadow-[0_10px_35px_rgba(0,0,0,0.7)] backdrop-blur-md flex items-center gap-2"
+            >
+              <Sparkles className="w-4 h-4 text-emerald-400 animate-spin" />
+              <span>{focusToast}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Top Navigation & Status Bar */}
-        <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
+        <div className="flex items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6 flex-wrap">
           <Link 
             href="/calisma-odalari" 
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 text-xs sm:text-sm font-semibold transition-all no-underline"
+            className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 text-xs sm:text-sm font-semibold transition-all no-underline"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Odalara Dön</span>
+            <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Odalara Dön</span>
+            <span className="sm:hidden">Odalar</span>
           </Link>
 
           {/* View Mode Switcher */}
           <div className="flex items-center p-1 rounded-xl bg-white/5 border border-white/10">
             <button
               onClick={() => setViewMode('library')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 viewMode === 'library'
                   ? 'bg-emerald-500 text-black shadow-md'
                   : 'text-gray-400 hover:text-white'
@@ -565,7 +617,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
             </button>
             <button
               onClick={() => setViewMode('clock')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 viewMode === 'clock'
                   ? 'bg-indigo-600 text-white shadow-md'
                   : 'text-gray-400 hover:text-white'
@@ -577,10 +629,24 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
             </button>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Invite Button */}
+            <button
+              onClick={() => {
+                haptics.impact('light');
+                setShowInviteModal(true);
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-emerald-500/20 to-teal-500/15 hover:from-emerald-500/30 hover:to-teal-500/25 text-emerald-300 border border-emerald-500/35 text-xs font-extrabold transition-all cursor-pointer shadow-sm active:scale-95"
+              title="Arkadaşını odaya davet et"
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Arkadaşını Davet Et</span>
+              <span className="sm:hidden">Davet Et</span>
+            </button>
+
+            <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] sm:text-xs font-bold">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>{participants.length} Öğrenci Salonda</span>
+              <span>{participants.length} <span className="hidden min-[480px]:inline">Öğrenci Salonda</span><span className="min-[480px]:hidden">Odakta</span></span>
             </div>
           </div>
         </div>
@@ -606,21 +672,22 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
               timeLeftFormatted={formatTime(timeLeft)}
               avatarConfig={avatarConfig}
               onUpdateAvatarConfig={handleUpdateAvatarConfig}
+              onOpenInvite={() => setShowInviteModal(true)}
             />
 
             {/* ── Compact Docked Focus Bar & Ambience Controls ── */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#0f172a]/90 border border-white/10 backdrop-blur-md shadow-xl flex flex-col md:flex-row items-center justify-between gap-4 max-w-5xl mx-auto w-full">
+            <div className="p-3 sm:p-5 rounded-2xl sm:rounded-3xl bg-[#0f172a]/90 border border-white/10 backdrop-blur-md shadow-xl flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4 max-w-5xl mx-auto w-full">
               
               {/* Digital Timer Readout & Controls */}
-              <div className="flex items-center gap-4">
-                <div className="text-3xl sm:text-4xl font-black text-white font-mono tracking-tight drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+              <div className="flex items-center gap-2.5 sm:gap-4 flex-wrap justify-center">
+                <div className="text-2xl min-[380px]:text-3xl sm:text-4xl font-black text-white font-mono tracking-tight drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
                   {formatTime(timeLeft)}
                 </div>
 
                 <div className="flex items-center gap-2">
                   <button
                     onClick={toggleTimer}
-                    className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all cursor-pointer shadow-md ${
+                    className={`w-10 h-10 min-[380px]:w-11 min-[380px]:h-11 rounded-xl flex items-center justify-center transition-all cursor-pointer shadow-md ${
                       timerActive
                         ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30'
                         : 'bg-gradient-to-r from-emerald-500 to-teal-600 text-black font-bold hover:brightness-110'
@@ -632,7 +699,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
 
                   <button
                     onClick={() => resetTimer()}
-                    className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/10 flex items-center justify-center transition-all cursor-pointer"
+                    className="w-9 h-9 min-[380px]:w-10 min-[380px]:h-10 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/10 flex items-center justify-center transition-all cursor-pointer"
                     title="Sıfırla"
                   >
                     <RotateCcw className="w-4 h-4" />
@@ -640,7 +707,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
                 </div>
 
                 {/* Preset Chips */}
-                <div className="hidden sm:flex items-center gap-1.5">
+                <div className="flex items-center gap-1 sm:gap-1.5">
                   {[
                     { label: '25 dk', sec: 25 * 60 },
                     { label: '45 dk', sec: 45 * 60 },
@@ -649,7 +716,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
                     <button
                       key={idx}
                       onClick={() => resetTimer(preset.sec)}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
+                      className={`px-2 min-[380px]:px-2.5 py-1 rounded-lg text-[10px] min-[380px]:text-xs font-bold border transition-all cursor-pointer ${
                         initialTime === preset.sec && !timerActive
                           ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
                           : 'bg-white/5 text-gray-400 hover:text-white border-white/5'
@@ -662,8 +729,8 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
               </div>
 
               {/* Ambient Sound Bar */}
-              <div className="flex items-center gap-2 flex-wrap justify-center">
-                <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2 flex-wrap justify-center w-full md:w-auto">
+                <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto max-w-full pb-0.5 sm:pb-0 custom-scrollbar">
                   {[
                     { id: 'none', label: 'Sessiz', icon: VolumeX },
                     { id: 'rain', label: 'Yağmur', icon: CloudRain },
@@ -676,21 +743,21 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
                       <button
                         key={snd.id}
                         onClick={() => playAmbientSound(snd.id as any)}
-                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                           isCurrent
                             ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-black font-extrabold shadow-sm'
                             : 'bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5'
                         }`}
                       >
                         <Icon className="w-3.5 h-3.5" />
-                        <span className="hidden sm:inline">{snd.label}</span>
+                        <span>{snd.label}</span>
                       </button>
                     );
                   })}
                 </div>
 
                 {ambientSound !== 'none' && (
-                  <div className="flex items-center gap-1.5 ml-2">
+                  <div className="flex items-center gap-1.5 ml-1 sm:ml-2">
                     <input
                       type="range"
                       min="0.05"
@@ -698,7 +765,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
                       step="0.05"
                       value={ambientVolume}
                       onChange={e => setAmbientVolume(parseFloat(e.target.value))}
-                      className="w-16 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                      className="w-14 sm:w-16 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-emerald-500"
                     />
                     <span className="text-[10px] text-gray-400 font-mono">%{Math.round(ambientVolume * 100)}</span>
                   </div>
@@ -1028,18 +1095,18 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
             </div>
 
             {/* Mobile Chat Input */}
-            <form onSubmit={sendMessage} className="p-3 bg-black/60 border-t border-white/10 flex gap-2 pb-[calc(12px+env(safe-area-inset-bottom,0px))]">
+            <form onSubmit={sendMessage} className="p-3 bg-black/60 border-t border-white/10 flex gap-2 pb-[calc(14px+env(safe-area-inset-bottom,10px))]">
               <input 
                 type="text" 
                 value={newMessage}
                 onChange={e => setNewMessage(e.target.value)}
                 placeholder="Mesaj yaz..."
-                className="flex-1 bg-white/10 border border-white/10 rounded-full px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                className="flex-1 bg-white/10 border border-white/10 rounded-full px-4 py-2 text-base sm:text-sm text-white focus:outline-none focus:border-indigo-500"
               />
               <button 
                 type="submit" 
                 disabled={!newMessage.trim()}
-                className="bg-indigo-600 text-white w-9 h-9 flex items-center justify-center rounded-full disabled:opacity-50 shrink-0"
+                className="bg-indigo-600 text-white w-9 h-9 flex items-center justify-center rounded-full disabled:opacity-50 shrink-0 cursor-pointer"
               >
                 <Send className="w-4 h-4" />
               </button>
@@ -1047,6 +1114,15 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
           </div>
         </div>
       )}
+
+      {/* ── Friend Invitation Modal ── */}
+      <InviteFriendsModal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        roomName={roomMeta.name}
+        roomId={id}
+        participantCount={participants.length}
+      />
     </div>
   );
 }

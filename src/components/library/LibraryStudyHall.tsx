@@ -10,6 +10,7 @@ import {
 import SeatedStudentAvatar, { EmptyLibraryDesk, AvatarConfig } from './SeatedStudentAvatar';
 import StudentDeskCardModal, { DeskCardStudent } from './StudentDeskCardModal';
 import AvatarWardrobeModal from './AvatarWardrobeModal';
+import LeaveDeskConfirmModal from './LeaveDeskConfirmModal';
 import { haptics } from '@/lib/haptics';
 import { libraryAudio } from '@/lib/library-audio';
 
@@ -42,6 +43,7 @@ interface LibraryStudyHallProps {
   timeLeftFormatted?: string;
   avatarConfig?: AvatarConfig;
   onUpdateAvatarConfig?: (config: AvatarConfig) => void;
+  onOpenInvite?: () => void;
 }
 
 // 4 Tables x 4 Seats = 16 Seats Total
@@ -65,10 +67,15 @@ export default function LibraryStudyHall({
   timeLeftFormatted,
   avatarConfig,
   onUpdateAvatarConfig,
+  onOpenInvite,
 }: LibraryStudyHallProps) {
   const [selectedStudent, setSelectedStudent] = useState<DeskCardStudent | null>(null);
   const [localInteractions, setLocalInteractions] = useState<Record<string, 'coffee' | 'wave' | 'energy'>>({});
   const [isWardrobeOpen, setIsWardrobeOpen] = useState(false);
+  const [confirmModal, setConfirmModal] = useState<{
+    type: 'leave' | 'switch';
+    targetSeatId?: string | null;
+  } | null>(null);
 
   // ── Determine Day / Sunset / Night Lighting based on real local time ──
   const timeOfDay = useMemo(() => {
@@ -122,15 +129,40 @@ export default function LibraryStudyHall({
 
   // Handle student clicking empty seat
   const handleSitDown = (seatId: string) => {
+    // If user is already sitting at another desk, ask confirmation before switching
+    if (mySeatId && mySeatId !== seatId) {
+      setConfirmModal({ type: 'switch', targetSeatId: seatId });
+      return;
+    }
+    if (mySeatId === seatId) return;
+
     haptics.impact('medium');
     libraryAudio.playEnergy();
     onSeatChange?.(seatId);
   };
 
-  // Handle student leaving seat
+  // Handle student leaving seat - ask confirmation
   const handleLeaveSeat = () => {
-    haptics.impact('light');
-    onSeatChange?.(null);
+    if (mySeatId) {
+      setConfirmModal({ type: 'leave' });
+    }
+  };
+
+  const handleConfirmAction = () => {
+    if (!confirmModal) return;
+    if (confirmModal.type === 'switch' && confirmModal.targetSeatId) {
+      haptics.impact('medium');
+      libraryAudio.playEnergy();
+      onSeatChange?.(confirmModal.targetSeatId);
+    } else if (confirmModal.type === 'leave') {
+      haptics.impact('light');
+      onSeatChange?.(null);
+    }
+    setConfirmModal(null);
+  };
+
+  const handleCancelAction = () => {
+    setConfirmModal(null);
   };
 
   // Quick auto-sit: find first truly empty desk
@@ -205,6 +237,21 @@ export default function LibraryStudyHall({
             <Shirt size={13} />
             <span>Gardırop & Masa</span>
           </button>
+
+          {/* Invite Friends Button */}
+          {onOpenInvite && (
+            <button
+              onClick={() => {
+                haptics.impact('light');
+                onOpenInvite();
+              }}
+              className="px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm hover:scale-[1.02] active:scale-95"
+              title="Arkadaşını çalışma odasına davet et"
+            >
+              <Users size={13} />
+              <span>Davet Et</span>
+            </button>
+          )}
 
           {mySeatId ? (
             <div className="flex items-center gap-2">
@@ -344,20 +391,20 @@ export default function LibraryStudyHall({
           )}
 
           {/* ── The 4 Study Tables Grid (2x2 Layout) ── */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-8 lg:gap-10">
             {[1, 2, 3, 4].map(tableNum => (
               <div
                 key={tableNum}
-                className="relative p-4 sm:p-5 rounded-3xl bg-black/40 border border-white/10 backdrop-blur-md shadow-2xl flex flex-col items-center"
+                className="relative p-2.5 min-[390px]:p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-black/40 border border-white/10 backdrop-blur-md shadow-2xl flex flex-col items-center"
               >
                 {/* Table Center Brass Plaque */}
-                <div className="mb-3 px-3 py-1 rounded-full bg-gradient-to-r from-amber-950/60 to-yellow-950/60 border border-amber-600/30 text-amber-300 text-[11px] font-black tracking-wider flex items-center gap-1.5 shadow-sm">
+                <div className="mb-2 sm:mb-3 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-gradient-to-r from-amber-950/60 to-yellow-950/60 border border-amber-600/30 text-amber-300 text-[10px] sm:text-[11px] font-black tracking-wider flex items-center gap-1.5 shadow-sm">
                   <Compass size={12} className="text-amber-400" />
                   <span>MASA {tableNum} · SESSİZ BÖLÜM</span>
                 </div>
 
                 {/* 4 Seats Grid for this Table (2 Top, 2 Bottom) */}
-                <div className="grid grid-cols-2 gap-3 sm:gap-6 w-full justify-items-center">
+                <div className="grid grid-cols-2 gap-2 min-[390px]:gap-3 sm:gap-6 w-full justify-items-center">
                   {SEATS_PER_TABLE.map(seatLetter => {
                     const seatId = `t${tableNum}-s${seatLetter}`;
                     const occupant = seatMap[seatId];
@@ -454,6 +501,16 @@ export default function LibraryStudyHall({
         }}
         username={currentUsername}
         target={currentUserTarget}
+      />
+
+      {/* ── Leave or Switch Desk Confirmation Modal ── */}
+      <LeaveDeskConfirmModal
+        isOpen={!!confirmModal}
+        type={confirmModal?.type || 'leave'}
+        currentSeatId={mySeatId || null}
+        targetSeatId={confirmModal?.targetSeatId || null}
+        onConfirm={handleConfirmAction}
+        onCancel={handleCancelAction}
       />
 
     </div>

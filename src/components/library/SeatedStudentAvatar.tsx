@@ -76,8 +76,7 @@ const SeatedStudentAvatar = React.memo(function SeatedStudentAvatar({
       whileHover={{ y: -4, scale: 1.02 }}
       transition={{ duration: 0.2 }}
       onClick={onClick}
-      className="relative flex flex-col items-center justify-end cursor-pointer group select-none"
-      style={{ width: '160px', height: '190px' }}
+      className="relative flex flex-col items-center justify-end cursor-pointer group select-none w-[136px] min-[390px]:w-[152px] sm:w-[160px] h-[166px] min-[390px]:h-[182px] sm:h-[190px]"
     >
       {/* ── Overhead Info Badge (Floating HUD) ── */}
       <div className="absolute -top-3 z-30 flex flex-col items-center pointer-events-none transition-transform group-hover:scale-105">
@@ -104,7 +103,7 @@ const SeatedStudentAvatar = React.memo(function SeatedStudentAvatar({
           {isCurrentUser && (
             <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse" />
           )}
-          <span className="truncate max-w-[90px]">{user.username}</span>
+          <span className="truncate max-w-[70px] min-[390px]:max-w-[85px] sm:max-w-[95px]">{user.username}</span>
           {isCurrentUser && (
             <span className="text-[9px] px-1 py-0.2 rounded bg-sky-500/30 text-sky-300 font-black">
               SEN
@@ -594,8 +593,7 @@ export const EmptyLibraryDesk = React.memo(function EmptyLibraryDesk({
           onSitDown();
         }
       }}
-      className="relative flex flex-col items-center justify-end cursor-pointer group select-none focus:outline-none"
-      style={{ width: '160px', height: '190px' }}
+      className="relative flex flex-col items-center justify-end cursor-pointer group select-none focus:outline-none w-[136px] min-[390px]:w-[152px] sm:w-[160px] h-[166px] min-[390px]:h-[182px] sm:h-[190px]"
       title={`Masa ${tableNumber} - Koltuk ${seatLabel}: Masaya Oturmak için Tıkla`}
     >
       {/* ── Prominent Sit Down Button (Touch + Click Ready) ── */}
@@ -606,7 +604,7 @@ export const EmptyLibraryDesk = React.memo(function EmptyLibraryDesk({
             e.stopPropagation();
             onSitDown();
           }}
-          className="px-3.5 py-1 rounded-full text-[11px] font-black bg-gradient-to-r from-emerald-500 to-teal-400 text-black shadow-[0_0_15px_rgba(16,185,129,0.4)] flex items-center gap-1.5 whitespace-nowrap opacity-90 group-hover:opacity-100 group-hover:scale-105 active:scale-95 transition-all cursor-pointer border border-emerald-300/40"
+          className="px-2.5 min-[390px]:px-3.5 py-1 rounded-full text-[10px] min-[390px]:text-[11px] font-black bg-gradient-to-r from-emerald-500 to-teal-400 text-black shadow-[0_0_15px_rgba(16,185,129,0.4)] flex items-center gap-1.5 whitespace-nowrap opacity-90 group-hover:opacity-100 group-hover:scale-105 active:scale-95 transition-all cursor-pointer border border-emerald-300/40"
         >
           <span>🪑 Masaya Otur</span>
         </button>
