@@ -11,6 +11,7 @@ import { useAuth } from '@/context/AuthContext';
 import { haptics } from '@/lib/haptics';
 import { motion, AnimatePresence } from 'framer-motion';
 import LibraryStudyHall from '@/components/library/LibraryStudyHall';
+import { libraryAudio } from '@/lib/library-audio';
 
 export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -26,6 +27,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
   const [viewMode, setViewMode] = useState<'library' | 'clock'>('library');
   const [mySeatId, setMySeatId] = useState<string | null>(null);
   const [userSubject, setUserSubject] = useState<string>('AYT Matematik');
+  const [avatarConfig, setAvatarConfig] = useState<any>(null);
   
   const chatRef = useRef<HTMLDivElement>(null);
   const mobileChatRef = useRef<HTMLDivElement>(null);
@@ -239,6 +241,9 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
         } else if (payload.type === 'library-interaction' && payload.data) {
           if (payload.data.receiverId === user?.id) {
             haptics.notification('success');
+            if (payload.data.actionType === 'coffee') libraryAudio.playCoffee();
+            else if (payload.data.actionType === 'energy') libraryAudio.playEnergy();
+            else if (payload.data.actionType === 'wave') libraryAudio.playWave();
           }
         } else if (payload.type === 'update-timer' && payload.data) {
           if (payload.data.timerState === 'active') {
@@ -296,6 +301,18 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
     }
   }, [messages, showMobileDrawer, activeSideTab]);
 
+  // Load saved avatar wardrobe config from localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('yks_library_avatar_config');
+        if (saved) {
+          setAvatarConfig(JSON.parse(saved));
+        }
+      } catch (_) {}
+    }
+  }, []);
+
   // Timer Tick
   useEffect(() => {
     let interval: any = null;
@@ -305,11 +322,19 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
           if (prev <= 1) {
             setTimerActive(false);
             haptics.notification('success');
+            libraryAudio.playChime();
             fetch(`/api/rooms/${id}/timer`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ timerState: 'finished', timeLeft: 0 }),
             }).catch(() => {});
+            if (mySeatId) {
+              fetch(`/api/rooms/${id}/join`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'sit', seatId: mySeatId, status: 'break' }),
+              }).catch(() => {});
+            }
             return 0;
           }
           return prev - 1;
@@ -319,7 +344,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
       clearInterval(interval);
     }
     return () => clearInterval(interval);
-  }, [timerActive, timeLeft, id]);
+  }, [timerActive, timeLeft, id, mySeatId]);
 
   const toggleTimer = () => {
     haptics.impact('light');
@@ -355,6 +380,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
           action: newSeatId ? 'sit' : 'stand',
           seatId: newSeatId,
           currentSubject: userSubject,
+          avatarConfig: avatarConfig,
           status: timerActive ? 'focusing' : 'break',
         }),
       });
@@ -363,6 +389,29 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
         setParticipants(data.participants);
       }
     } catch (_) {}
+  };
+
+  const handleUpdateAvatarConfig = async (newConfig: any) => {
+    setAvatarConfig(newConfig);
+    if (mySeatId) {
+      try {
+        const res = await fetch(`/api/rooms/${id}/join`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'sit',
+            seatId: mySeatId,
+            currentSubject: userSubject,
+            avatarConfig: newConfig,
+            status: timerActive ? 'focusing' : 'break',
+          }),
+        });
+        const data = await res.json();
+        if (data.participants) {
+          setParticipants(data.participants);
+        }
+      } catch (_) {}
+    }
   };
 
   const handleSubjectChange = async (newSubject: string) => {
@@ -523,6 +572,8 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
               onSendInteraction={handleSendInteraction}
               timerActive={timerActive}
               timeLeftFormatted={formatTime(timeLeft)}
+              avatarConfig={avatarConfig}
+              onUpdateAvatarConfig={handleUpdateAvatarConfig}
             />
 
             {/* ── Compact Docked Focus Bar & Ambience Controls ── */}

@@ -4,9 +4,11 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Headphones, Users, BookOpen, CloudRain, Code, Loader2, 
-  Sparkles, Timer, Flame, Shield, ArrowRight, Radio, Volume2
+  Sparkles, Timer, Flame, Shield, ArrowRight, Radio, Volume2, Shirt
 } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
+import AvatarWardrobeModal from '@/components/library/AvatarWardrobeModal';
 
 interface Room {
   id: string;
@@ -17,9 +19,21 @@ interface Room {
 }
 
 export default function CalismaOdalariLobby() {
+  const { user } = useAuth();
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'library' | 'lofi' | 'rain' | 'tech'>('all');
+  const [wardrobeOpen, setWardrobeOpen] = useState(false);
+  const [avatarConfig, setAvatarConfig] = useState<any>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('yks_library_avatar_config');
+        if (saved) setAvatarConfig(JSON.parse(saved));
+      } catch (_) {}
+    }
+  }, []);
 
   useEffect(() => {
     fetch('/api/rooms')
@@ -135,8 +149,21 @@ export default function CalismaOdalariLobby() {
             </p>
           </div>
 
-          {/* Quick Live Stats Pill Box */}
+          {/* Quick Live Stats Pill Box & Wardrobe Button */}
           <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
+            <button
+              onClick={() => setWardrobeOpen(true)}
+              className="px-4 py-3 rounded-2xl bg-gradient-to-r from-purple-500/15 via-indigo-500/15 to-purple-500/10 hover:from-purple-500/25 hover:to-indigo-500/25 border border-purple-500/30 text-white flex items-center gap-3 backdrop-blur-md transition-all hover:scale-[1.02] cursor-pointer shadow-lg active:scale-95"
+            >
+              <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-300">
+                <Shirt className="w-5 h-5" />
+              </div>
+              <div className="text-left">
+                <div className="text-xs font-black text-purple-200">Karakterini Özelleştir</div>
+                <div className="text-[11px] text-gray-400 font-medium">Gardırop & Masa</div>
+              </div>
+            </button>
+
             <div className="px-4 py-3 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center gap-3 min-w-[140px] backdrop-blur-md">
               <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
                 <Users className="w-5 h-5" />
@@ -260,6 +287,53 @@ export default function CalismaOdalariLobby() {
                     ))}
                   </div>
 
+                  {/* Mini Virtual Library Hall HUD Preview */}
+                  <div className="p-3.5 rounded-2xl bg-black/40 border border-white/5 mb-5 space-y-2.5">
+                    <div className="flex items-center justify-between text-[11px] font-bold">
+                      <span className="flex items-center gap-1.5 text-gray-300">
+                        <BookOpen size={13} className="text-emerald-400" />
+                        <span>Sanal Kütüphane Masaları</span>
+                      </span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/25 font-black">
+                        {room.current_participants || 0} / 16 Masada
+                      </span>
+                    </div>
+
+                    {/* 4 Tables x 4 Desks = 16 mini desk icons */}
+                    <div className="grid grid-cols-4 gap-2 pt-1">
+                      {[1, 2, 3, 4].map(tableNum => (
+                        <div 
+                          key={tableNum} 
+                          className="p-1.5 rounded-xl bg-white/[0.03] border border-white/5 flex flex-col items-center gap-1"
+                        >
+                          <span className="text-[9px] text-gray-500 font-bold">M{tableNum}</span>
+                          <div className="grid grid-cols-2 gap-1 w-full justify-items-center">
+                            {['A', 'B', 'C', 'D'].map((seatLetter, seatIdx) => {
+                              const globalSeatIndex = (tableNum - 1) * 4 + seatIdx;
+                              const isOccupied = globalSeatIndex < (room.current_participants || 0);
+
+                              return (
+                                <div
+                                  key={seatLetter}
+                                  title={`Masa ${tableNum} - Koltuk ${seatLetter}: ${isOccupied ? 'Dolu' : 'Boş'}`}
+                                  className={`w-3.5 h-3.5 rounded-md flex items-center justify-center transition-all ${
+                                    isOccupied
+                                      ? 'bg-emerald-500/30 border border-emerald-400/80 shadow-[0_0_8px_rgba(16,185,129,0.5)]'
+                                      : 'bg-white/[0.04] border border-white/10 hover:border-white/20'
+                                  }`}
+                                >
+                                  {isOccupied && (
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
                   {/* Occupancy Progress Bar */}
                   <div className="space-y-1.5 mb-6">
                     <div className="flex justify-between text-[11px] font-semibold text-gray-400">
@@ -311,6 +385,18 @@ export default function CalismaOdalariLobby() {
           </p>
         </div>
       </div>
+
+      {/* ── Avatar Wardrobe & Customization Modal ── */}
+      <AvatarWardrobeModal
+        isOpen={wardrobeOpen}
+        onClose={() => setWardrobeOpen(false)}
+        currentConfig={avatarConfig}
+        onSave={newConfig => {
+          setAvatarConfig(newConfig);
+        }}
+        username={user?.username || 'Öğrenci'}
+        target={user?.hedef || 'YKS 2026'}
+      />
     </div>
   );
 }

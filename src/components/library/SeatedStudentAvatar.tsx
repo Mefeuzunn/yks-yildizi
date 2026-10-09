@@ -12,6 +12,7 @@ export interface AvatarConfig {
   skinTone?: string;
   headphonesColor?: string;
   lampColor?: 'green' | 'amber' | 'cyan' | 'purple';
+  petType?: 'none' | 'cat' | 'owl';
   hasCat?: boolean;
 }
 
@@ -46,10 +47,13 @@ export default function SeatedStudentAvatar({
 }: SeatedStudentProps) {
   const config = user.avatarConfig || {};
   const outfitColor = config.outfitColor || (isCurrentUser ? '#38bdf8' : '#8b5cf6');
+  const outfitType = config.outfitType || 'hoodie';
+  const hairStyle = config.hairStyle || 'short';
   const hairColor = config.hairColor || '#2d1b00';
   const skinTone = config.skinTone || '#fcd34d';
   const headphonesColor = config.headphonesColor || (isCurrentUser ? '#0ea5e9' : '#ec4899');
   const lampType = config.lampColor || 'green';
+  const petType = config.petType || (config.hasCat ? 'cat' : 'none');
   const status = user.status || 'focusing';
 
   // Lamp style variables
@@ -193,13 +197,47 @@ export default function SeatedStudentAvatar({
             stroke="rgba(0,0,0,0.3)"
             strokeWidth="1.5"
           />
-          {/* Hood / Collar detail */}
-          <path
-            d="M 68 88 Q 80 96 92 88 Q 80 91 68 88"
-            fill="none"
-            stroke="rgba(255,255,255,0.3)"
-            strokeWidth="1.5"
-          />
+
+          {/* Outfit Type Details */}
+          {outfitType === 'hoodie' && (
+            <g id="outfit-hoodie">
+              {/* Hood / Collar curve */}
+              <path
+                d="M 68 88 Q 80 96 92 88 Q 80 91 68 88"
+                fill="none"
+                stroke="rgba(255,255,255,0.3)"
+                strokeWidth="1.5"
+              />
+              {/* Drawstrings */}
+              <line x1="76" y1="92" x2="76" y2="104" stroke="#ffffff" strokeWidth="1.2" strokeLinecap="round" opacity="0.65" />
+              <line x1="84" y1="92" x2="84" y2="104" stroke="#ffffff" strokeWidth="1.2" strokeLinecap="round" opacity="0.65" />
+            </g>
+          )}
+
+          {outfitType === 'sweater' && (
+            <g id="outfit-sweater">
+              {/* Ribbed crew neck */}
+              <path d="M 71 86 Q 80 92 89 86" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2.5" strokeDasharray="2,1.5" />
+              {/* Cozy knit horizontal band */}
+              <line x1="62" y1="98" x2="98" y2="98" stroke="rgba(255,255,255,0.18)" strokeWidth="1" strokeDasharray="3,3" />
+            </g>
+          )}
+
+          {outfitType === 'jacket' && (
+            <g id="outfit-jacket">
+              {/* White inner t-shirt triangle */}
+              <polygon points="76,82 80,94 84,82" fill="#ffffff" />
+              {/* Open jacket lapel seams */}
+              <path d="M 68 86 L 76 96 L 73 110" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="1.6" />
+              <path d="M 92 86 L 84 96 L 87 110" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="1.6" />
+            </g>
+          )}
+
+          {outfitType === 'tshirt' && (
+            <g id="outfit-tshirt">
+              <path d="M 72 85 Q 80 92 88 85" fill="none" stroke="rgba(0,0,0,0.25)" strokeWidth="1.8" />
+            </g>
+          )}
 
           {/* Neck */}
           <rect x="74" y="74" width="12" height="12" rx="3" fill={skinTone} />
@@ -221,15 +259,72 @@ export default function SeatedStudentAvatar({
             </g>
           )}
 
-          {/* Hair */}
-          <path
-            d="M 62 58 C 62 38, 98 38, 98 58 C 96 52, 90 44, 80 44 C 70 44, 64 52, 62 58 Z"
-            fill={hairColor}
-          />
-          <path
-            d="M 63 56 Q 73 48 84 56 Q 76 52 63 56"
-            fill={hairColor}
-          />
+          {/* Hair based on hairStyle */}
+          {hairStyle === 'short' && (
+            <g id="hair-short">
+              <path
+                d="M 62 58 C 62 38, 98 38, 98 58 C 96 52, 90 44, 80 44 C 70 44, 64 52, 62 58 Z"
+                fill={hairColor}
+              />
+              <path
+                d="M 63 56 Q 73 48 84 56 Q 76 52 63 56"
+                fill={hairColor}
+              />
+            </g>
+          )}
+
+          {hairStyle === 'curly' && (
+            <g id="hair-curly">
+              <path d="M 62 58 C 60 42, 70 36, 80 36 C 90 36, 100 42, 98 58 Z" fill={hairColor} />
+              <circle cx="68" cy="42" r="6" fill={hairColor} />
+              <circle cx="80" cy="38" r="7" fill={hairColor} />
+              <circle cx="92" cy="42" r="6" fill={hairColor} />
+              <circle cx="64" cy="50" r="5" fill={hairColor} />
+              <circle cx="96" cy="50" r="5" fill={hairColor} />
+              <circle cx="73" cy="47" r="5" fill={hairColor} />
+              <circle cx="87" cy="47" r="5" fill={hairColor} />
+            </g>
+          )}
+
+          {hairStyle === 'ponytail' && (
+            <g id="hair-ponytail">
+              <path
+                d="M 63 58 C 63 40, 97 40, 97 58 C 95 48, 80 44, 63 58 Z"
+                fill={hairColor}
+              />
+              {/* Ponytail Hair Tie */}
+              <circle cx="97" cy="52" r="3" fill="#f43f5e" />
+              {/* Ponytail Strand over shoulder */}
+              <path d="M 97 52 Q 106 62 104 78 Q 101 74 96 64 Z" fill={hairColor} />
+            </g>
+          )}
+
+          {hairStyle === 'messy' && (
+            <g id="hair-messy">
+              <path d="M 61 58 C 60 38, 100 38, 99 58 Z" fill={hairColor} />
+              {/* Layered spiky bangs */}
+              <polygon points="62,56 67,42 72,58" fill={hairColor} />
+              <polygon points="70,58 77,39 82,58" fill={hairColor} />
+              <polygon points="80,58 87,40 93,58" fill={hairColor} />
+              <polygon points="89,56 97,44 99,58" fill={hairColor} />
+              <polygon points="60,54 54,48 62,46" fill={hairColor} />
+              <polygon points="100,54 106,48 98,46" fill={hairColor} />
+            </g>
+          )}
+
+          {hairStyle === 'beanie' && (
+            <g id="hair-beanie">
+              {/* Beanie Knit Dome */}
+              <path d="M 61 58 C 60 33, 100 33, 99 58 Z" fill={hairColor} stroke="rgba(0,0,0,0.25)" strokeWidth="0.8" />
+              {/* Folded Brim */}
+              <rect x="59" y="51" width="42" height="7.5" rx="3.75" fill={hairColor} stroke="rgba(255,255,255,0.3)" strokeWidth="0.8" />
+              {/* Pompom on top */}
+              <circle cx="80" cy="33" r="5" fill="#f8fafc" stroke="rgba(0,0,0,0.15)" strokeWidth="0.8" />
+              {/* Little hair strands peeking out */}
+              <path d="M 64 60 Q 68 66 72 60" stroke="#2d1b00" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+              <path d="M 88 60 Q 92 66 96 60" stroke="#2d1b00" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+            </g>
+          )}
 
           {/* Over-Ear Headphones */}
           <g id="headphones">
@@ -379,7 +474,7 @@ export default function SeatedStudentAvatar({
           </g>
 
           {/* ── Steaming Coffee / Tea Mug ── */}
-          <g id="coffee-mug" transform="translate(118, 126)">
+          <g id="coffee-mug" transform={`translate(${petType !== 'none' ? 104 : 118}, 126)`}>
             {/* Mug Body */}
             <rect x="2" y="5" width="12" height="15" rx="3" fill="#f1f5f9" stroke="#cbd5e1" strokeWidth="0.8" />
             {/* Handle */}
@@ -402,6 +497,59 @@ export default function SeatedStudentAvatar({
               strokeLinecap="round"
             />
           </g>
+
+          {/* ── Desktop Pets (Astro-Kedi & Kozmik Baykuş) ── */}
+          {petType === 'cat' && (
+            <g id="desk-cat" transform="translate(124, 128)">
+              {/* Cat coaster/shadow */}
+              <ellipse cx="12" cy="14" rx="12" ry="4" fill="rgba(0,0,0,0.3)" />
+              {/* Curled Body */}
+              <ellipse cx="12" cy="10" rx="10" ry="7.5" fill="#f97316" stroke="#c2410c" strokeWidth="0.75" />
+              {/* Cat Head */}
+              <circle cx="7" cy="7.5" r="5.5" fill="#f97316" stroke="#c2410c" strokeWidth="0.75" />
+              {/* Left Ear */}
+              <polygon points="4,4.5 2,1 7,2.5" fill="#f97316" stroke="#c2410c" strokeWidth="0.6" />
+              <polygon points="4,3.8 3,2 6,2.8" fill="#fda4af" />
+              {/* Right Ear */}
+              <polygon points="8,3 10,0.5 11,4" fill="#f97316" stroke="#c2410c" strokeWidth="0.6" />
+              <polygon points="9,3 10,1.5 10.8,3.5" fill="#fda4af" />
+              {/* Sleeping Eyes (^ ^) */}
+              <path d="M 4 7 Q 5.5 8 7 7" fill="none" stroke="#7c2d12" strokeWidth="0.8" strokeLinecap="round" />
+              {/* Nose & Whiskers */}
+              <circle cx="5.5" cy="9" r="0.6" fill="#fda4af" />
+              <line x1="3" y1="9" x2="0" y2="8.5" stroke="#fed7aa" strokeWidth="0.5" />
+              <line x1="3" y1="10" x2="0" y2="10.8" stroke="#fed7aa" strokeWidth="0.5" />
+              {/* Curled Tail wrapping around body */}
+              <path d="M 21 11 C 23 7, 18 5, 17 7" fill="none" stroke="#ea580c" strokeWidth="2.2" strokeLinecap="round" />
+            </g>
+          )}
+
+          {petType === 'owl' && (
+            <g id="desk-owl" transform="translate(126, 122)">
+              {/* Shadow */}
+              <ellipse cx="10" cy="20" rx="9" ry="3" fill="rgba(0,0,0,0.3)" />
+              {/* Perch Stand / Mini Wooden Perch */}
+              <rect x="5" y="19" width="10" height="3" rx="1.5" fill="#78350f" />
+              {/* Owl Body */}
+              <ellipse cx="10" cy="13" rx="8" ry="9" fill="#6366f1" stroke="#4338ca" strokeWidth="0.8" />
+              {/* Belly Patch with star-like feathers */}
+              <ellipse cx="10" cy="15" rx="5" ry="6" fill="#e0e7ff" />
+              <path d="M 8 13 Q 10 14 12 13" fill="none" stroke="#818cf8" strokeWidth="0.7" />
+              <path d="M 8 16 Q 10 17 12 16" fill="none" stroke="#818cf8" strokeWidth="0.7" />
+              {/* Ear Tufts */}
+              <polygon points="5,7 4,3 8,6" fill="#4338ca" />
+              <polygon points="15,7 16,3 12,6" fill="#4338ca" />
+              {/* Big Wise Eyes */}
+              <circle cx="7.5" cy="9.5" r="3.2" fill="#fef08a" stroke="#ca8a04" strokeWidth="0.6" />
+              <circle cx="7.5" cy="9.5" r="1.5" fill="#1e1b4b" />
+              <circle cx="8" cy="9" r="0.6" fill="#ffffff" />
+              <circle cx="12.5" cy="9.5" r="3.2" fill="#fef08a" stroke="#ca8a04" strokeWidth="0.6" />
+              <circle cx="12.5" cy="9.5" r="1.5" fill="#1e1b4b" />
+              <circle cx="13" cy="9" r="0.6" fill="#ffffff" />
+              {/* Tiny Orange Beak */}
+              <polygon points="9.3,10.5 10.7,10.5 10,12.5" fill="#f97316" />
+            </g>
+          )}
 
           {/* ── Table Number Plate ── */}
           <g id="plate" transform="translate(18, 142)">

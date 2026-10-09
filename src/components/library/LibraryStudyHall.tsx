@@ -5,11 +5,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BookOpen, Users, Moon, Sun, Sunset, CloudRain, 
   Sparkles, Coffee, Volume2, Shield, Radio, Check, 
-  RotateCcw, Flame, LogOut, ArrowRight, Lamp, Compass
+  RotateCcw, Flame, LogOut, ArrowRight, Lamp, Compass, Shirt
 } from 'lucide-react';
-import SeatedStudentAvatar, { EmptyLibraryDesk } from './SeatedStudentAvatar';
+import SeatedStudentAvatar, { EmptyLibraryDesk, AvatarConfig } from './SeatedStudentAvatar';
 import StudentDeskCardModal, { DeskCardStudent } from './StudentDeskCardModal';
+import AvatarWardrobeModal from './AvatarWardrobeModal';
 import { haptics } from '@/lib/haptics';
+import { libraryAudio } from '@/lib/library-audio';
 
 export interface RoomParticipant {
   id: string;
@@ -38,6 +40,8 @@ interface LibraryStudyHallProps {
   onSendInteraction?: (receiverId: string, action: 'coffee' | 'wave' | 'energy') => void;
   timerActive?: boolean;
   timeLeftFormatted?: string;
+  avatarConfig?: AvatarConfig;
+  onUpdateAvatarConfig?: (config: AvatarConfig) => void;
 }
 
 // 4 Tables x 4 Seats = 16 Seats Total
@@ -59,9 +63,12 @@ export default function LibraryStudyHall({
   onSendInteraction,
   timerActive = false,
   timeLeftFormatted,
+  avatarConfig,
+  onUpdateAvatarConfig,
 }: LibraryStudyHallProps) {
   const [selectedStudent, setSelectedStudent] = useState<DeskCardStudent | null>(null);
   const [localInteractions, setLocalInteractions] = useState<Record<string, 'coffee' | 'wave' | 'energy'>>({});
+  const [isWardrobeOpen, setIsWardrobeOpen] = useState(false);
 
   // ── Determine Day / Sunset / Night Lighting based on real local time ──
   const timeOfDay = useMemo(() => {
@@ -128,6 +135,10 @@ export default function LibraryStudyHall({
   // Handle silent interaction (coffee / wave / energy)
   const handleSendInteraction = (receiverId: string, action: 'coffee' | 'wave' | 'energy') => {
     setLocalInteractions(prev => ({ ...prev, [receiverId]: action }));
+    if (action === 'coffee') libraryAudio.playCoffee();
+    else if (action === 'energy') libraryAudio.playEnergy();
+    else if (action === 'wave') libraryAudio.playWave();
+    
     onSendInteraction?.(receiverId, action);
     setTimeout(() => {
       setLocalInteractions(prev => {
@@ -168,6 +179,19 @@ export default function LibraryStudyHall({
 
         {/* User Desk Status / Action */}
         <div className="flex items-center gap-2 flex-wrap">
+          {/* Wardrobe & Avatar Customizer Button */}
+          <button
+            onClick={() => {
+              haptics.impact('light');
+              setIsWardrobeOpen(true);
+            }}
+            className="px-3 py-1.5 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 text-purple-200 border border-purple-500/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm hover:scale-[1.02] active:scale-95"
+            title="Karakterini, saçını, kıyafetini ve masa lambanı özelleştir"
+          >
+            <Shirt size={13} />
+            <span>Gardırop & Masa</span>
+          </button>
+
           {mySeatId ? (
             <div className="flex items-center gap-2">
               <div className="px-3 py-1.5 rounded-xl bg-sky-500/15 border border-sky-500/30 text-sky-200 text-xs font-bold flex items-center gap-2">
@@ -319,7 +343,7 @@ export default function LibraryStudyHall({
                             target: isMe ? currentUserTarget : (occupant.target || 'YKS 2026'),
                             subject: isMe ? userSubject : (occupant.subject || 'Ders Çalışıyor'),
                             status: occupant.status || 'focusing',
-                            avatarConfig: occupant.avatarConfig,
+                            avatarConfig: isMe ? (avatarConfig || occupant.avatarConfig) : occupant.avatarConfig,
                             focusMinutes: occupant.focusMinutes || 25,
                             tempInteraction: localInteractions[occupant.id] || null,
                           }}
@@ -369,6 +393,18 @@ export default function LibraryStudyHall({
         onClose={() => setSelectedStudent(null)}
         onSendInteraction={handleSendInteraction}
         isCurrentUser={selectedStudent?.id === currentUserId}
+      />
+
+      {/* ── Avatar Wardrobe & Customization Modal ── */}
+      <AvatarWardrobeModal
+        isOpen={isWardrobeOpen}
+        onClose={() => setIsWardrobeOpen(false)}
+        currentConfig={avatarConfig}
+        onSave={newConfig => {
+          onUpdateAvatarConfig?.(newConfig);
+        }}
+        username={currentUsername}
+        target={currentUserTarget}
       />
 
     </div>
