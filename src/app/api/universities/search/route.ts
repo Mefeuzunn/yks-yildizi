@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -17,7 +19,7 @@ export async function GET(req: Request) {
     const params: any[] = [];
 
     if (q) {
-      query += ` AND (d.name LIKE ? OR u.name LIKE ?)`;
+      query += ` AND (d.name ILIKE ? OR u.name ILIKE ?)`;
       params.push(`%${q}%`, `%${q}%`);
     }
     

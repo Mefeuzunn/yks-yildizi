@@ -73,6 +73,7 @@ export default function TercihListemTab() {
     if (dep.score_type === 'SAY') myScore = userScores.say_score;
     else if (dep.score_type === 'EA') myScore = userScores.ea_score;
     else if (dep.score_type === 'SÖZ') myScore = userScores.soz_score;
+    else if (dep.score_type === 'DİL') myScore = userScores.dil_score || userScores.ydt_score || 0;
     else if (dep.score_type === 'TYT') myScore = userScores.tyt_score;
 
     if (myScore === 0) return { text: 'Hesaplanmadı', width: '0%', color: 'bg-gray-500', glow: '' };

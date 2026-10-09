@@ -15,10 +15,10 @@ export default function TercihRobotuTab() {
     search();
   }, []);
 
-  async function search() {
+  async function search(searchQuery = q, selectedType = scoreType) {
     setLoading(true);
     try {
-      const res = await fetch(`/api/universities/search?q=${q}&scoreType=${scoreType}`);
+      const res = await fetch(`/api/universities/search?q=${encodeURIComponent(searchQuery)}&scoreType=${encodeURIComponent(selectedType)}`);
       const data = await res.json();
       setDepartments(data.departments || []);
     } catch (e) {
@@ -95,24 +95,33 @@ export default function TercihRobotuTab() {
           <Search className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input 
             type="text" 
-            placeholder="Üniversite veya Bölüm adı ara..." 
+            placeholder="Üniversite veya Bölüm adı ara (örn: Tıp, Bilgisayar, Hukuk, ODTÜ)..." 
             value={q} onChange={e => setQ(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && search()}
+            onKeyDown={e => e.key === 'Enter' && search(q, scoreType)}
             className="w-full bg-black/40 border border-white/5 rounded-2xl pl-12 pr-4 py-4 text-white outline-none focus:border-sky-500/50 focus:bg-sky-500/5 transition-all text-base"
           />
         </div>
-        <div className="w-full md:w-48 relative">
+        <div className="w-full md:w-56 relative">
           <Target className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <input 
-            type="text" 
-            placeholder="SAY, EA..." 
-            value={scoreType} onChange={e => setScoreType(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && search()}
-            className="w-full bg-black/40 border border-white/5 rounded-2xl pl-12 pr-4 py-4 text-white outline-none focus:border-sky-500/50 focus:bg-sky-500/5 transition-all uppercase text-base"
-          />
+          <select 
+            value={scoreType} 
+            onChange={e => {
+              const val = e.target.value;
+              setScoreType(val);
+              search(q, val);
+            }}
+            className="w-full bg-black/40 border border-white/5 rounded-2xl pl-12 pr-8 py-4 text-white outline-none focus:border-sky-500/50 focus:bg-sky-500/5 transition-all text-base appearance-none cursor-pointer"
+          >
+            <option value="" className="bg-[#0b1329] text-white">Tüm Puan Türleri</option>
+            <option value="SAY" className="bg-[#0b1329] text-white">SAY (Sayısal)</option>
+            <option value="EA" className="bg-[#0b1329] text-white">EA (Eşit Ağırlık)</option>
+            <option value="SÖZ" className="bg-[#0b1329] text-white">SÖZ (Sözel)</option>
+            <option value="DİL" className="bg-[#0b1329] text-white">DİL (Yabancı Dil)</option>
+            <option value="TYT" className="bg-[#0b1329] text-white">TYT (Önlisans)</option>
+          </select>
         </div>
         <button 
-          onClick={search} 
+          onClick={() => search(q, scoreType)} 
           disabled={loading}
           className="w-full md:w-auto px-10 py-4 bg-sky-500 hover:bg-sky-400 text-white rounded-2xl font-bold transition-all shadow-[0_0_20px_rgba(14,165,233,0.3)] hover:shadow-[0_0_30px_rgba(14,165,233,0.5)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
