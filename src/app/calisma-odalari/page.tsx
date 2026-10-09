@@ -4,9 +4,11 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Headphones, Users, BookOpen, CloudRain, Code, Loader2, 
-  Sparkles, Timer, Flame, Shield, ArrowRight, Radio, Volume2, Shirt
+  Sparkles, Timer, Flame, Shield, ArrowRight, Radio, Volume2, Shirt,
+  KeyRound, Share2, Check, Copy, X
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import AvatarWardrobeModal from '@/components/library/AvatarWardrobeModal';
 
@@ -19,12 +21,17 @@ interface Room {
 }
 
 export default function CalismaOdalariLobby() {
+  const router = useRouter();
   const { user } = useAuth();
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'library' | 'lofi' | 'rain' | 'tech'>('all');
   const [wardrobeOpen, setWardrobeOpen] = useState(false);
   const [avatarConfig, setAvatarConfig] = useState<any>(null);
+  const [joinModalOpen, setJoinModalOpen] = useState(false);
+  const [inputCode, setInputCode] = useState('');
+  const [inputError, setInputError] = useState('');
+  const [copiedRoomId, setCopiedRoomId] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -46,6 +53,41 @@ export default function CalismaOdalariLobby() {
   }, []);
 
   const totalStudying = rooms.reduce((acc, r) => acc + (Number(r.current_participants) || 0), 0);
+
+  const handleJoinByCode = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const trimmed = inputCode.trim();
+    if (!trimmed) {
+      setInputError('Lütfen geçerli bir oda kodu veya davet bağlantısı girin.');
+      return;
+    }
+    let code = trimmed;
+    if (code.includes('/calisma-odalari/')) {
+      code = code.split('/calisma-odalari/')[1].split(/[?#]/)[0];
+    } else if (code.startsWith('http')) {
+      const parts = code.split('/');
+      code = parts[parts.length - 1].split(/[?#]/)[0];
+    }
+    code = code.trim().toLowerCase();
+    if (!code) {
+      setInputError('Oda kodu tespit edilemedi.');
+      return;
+    }
+    setJoinModalOpen(false);
+    router.push(`/calisma-odalari/${code}`);
+  };
+
+  const handleCopyRoomLink = (roomId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (typeof window !== 'undefined') {
+      const url = `${window.location.origin}/calisma-odalari/${roomId}`;
+      navigator.clipboard.writeText(url).then(() => {
+        setCopiedRoomId(roomId);
+        setTimeout(() => setCopiedRoomId(null), 2500);
+      }).catch(() => {});
+    }
+  };
 
   const getThemeConfig = (theme: string) => {
     switch (theme) {
@@ -149,8 +191,21 @@ export default function CalismaOdalariLobby() {
             </p>
           </div>
 
-          {/* Quick Live Stats Pill Box & Wardrobe Button */}
+          {/* Quick Live Stats Pill Box & Wardrobe Button & Join by Code */}
           <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
+            <button
+              onClick={() => { setJoinModalOpen(true); setInputError(''); }}
+              className="px-4 py-3 rounded-2xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-white flex items-center gap-3 backdrop-blur-md transition-all hover:scale-[1.02] cursor-pointer shadow-lg active:scale-95"
+            >
+              <div className="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-300">
+                <KeyRound className="w-5 h-5" />
+              </div>
+              <div className="text-left">
+                <div className="text-xs font-black text-indigo-200">Koda Göre Katıl</div>
+                <div className="text-[11px] text-gray-400 font-medium">Oda Kodu / Link</div>
+              </div>
+            </button>
+
             <button
               onClick={() => setWardrobeOpen(true)}
               className="px-4 py-3 rounded-2xl bg-gradient-to-r from-purple-500/15 via-indigo-500/15 to-purple-500/10 hover:from-purple-500/25 hover:to-indigo-500/25 border border-purple-500/30 text-white flex items-center gap-3 backdrop-blur-md transition-all hover:scale-[1.02] cursor-pointer shadow-lg active:scale-95"
@@ -352,9 +407,9 @@ export default function CalismaOdalariLobby() {
                   </div>
                 </div>
 
-                {/* Join Button */}
-                <div className="relative z-10 pt-2 border-t border-white/5">
-                  <Link href={`/calisma-odalari/${room.id}`} className="no-underline block">
+                {/* Join & Quick Share Buttons */}
+                <div className="relative z-10 pt-2 border-t border-white/5 flex items-center gap-2">
+                  <Link href={`/calisma-odalari/${room.id}`} className="no-underline flex-1 block">
                     <button 
                       type="button"
                       className="w-full py-3.5 px-4 rounded-2xl bg-white/[0.06] hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 text-white font-bold text-sm border border-white/10 hover:border-transparent transition-all duration-200 flex items-center justify-center gap-2 group-hover:shadow-[0_0_25px_rgba(99,102,241,0.3)] cursor-pointer active:scale-[0.98]"
@@ -364,6 +419,19 @@ export default function CalismaOdalariLobby() {
                       <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                     </button>
                   </Link>
+
+                  <button
+                    type="button"
+                    onClick={(e) => handleCopyRoomLink(room.id, e)}
+                    title="Oda Davet Bağlantısını Kopyala"
+                    className="p-3.5 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 text-gray-300 hover:text-white transition-all flex items-center justify-center cursor-pointer active:scale-95"
+                  >
+                    {copiedRoomId === room.id ? (
+                      <Check className="w-4 h-4 text-emerald-400" />
+                    ) : (
+                      <Share2 className="w-4 h-4" />
+                    )}
+                  </button>
                 </div>
               </motion.div>
             );
@@ -385,6 +453,109 @@ export default function CalismaOdalariLobby() {
           </p>
         </div>
       </div>
+
+      {/* ── Join by Room Code Modal ── */}
+      <AnimatePresence>
+        {joinModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="relative w-full max-w-md p-6 sm:p-7 rounded-3xl bg-[#0b101b] border border-white/10 shadow-2xl text-left overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+              <button
+                onClick={() => setJoinModalOpen(false)}
+                className="absolute top-5 right-5 p-2 rounded-xl text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 transition-all cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-300">
+                  <KeyRound size={22} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-white">Koda Göre Odaya Katıl</h3>
+                  <p className="text-xs text-gray-400">Oda kodunu veya davet bağlantısını gir</p>
+                </div>
+              </div>
+
+              <form onSubmit={handleJoinByCode} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-2">
+                    Oda Kodu / Link
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={inputCode}
+                      onChange={(e) => {
+                        setInputCode(e.target.value);
+                        setInputError('');
+                      }}
+                      placeholder="Örn: room-1 veya https://.../room-1"
+                      className="w-full px-4 py-3.5 rounded-2xl bg-white/[0.05] border border-white/10 focus:border-indigo-500 text-white placeholder-gray-500 text-sm outline-none transition-all"
+                      autoFocus
+                    />
+                  </div>
+                  {inputError && (
+                    <p className="text-rose-400 text-xs font-medium mt-1.5">{inputError}</p>
+                  )}
+                </div>
+
+                {/* Quick Room Shortcuts */}
+                <div>
+                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                    Hızlı Seçim
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { id: 'room-1', name: '📚 Sessiz Kütüphane' },
+                      { id: 'room-2', name: '☕ Lofi Chill Cafe' },
+                      { id: 'room-3', name: '🌧️ Gece & Yağmur' },
+                      { id: 'room-4', name: '⚡ Sayısal & Maraton' },
+                    ].map(r => (
+                      <button
+                        key={r.id}
+                        type="button"
+                        onClick={() => {
+                          setInputCode(r.id);
+                          setInputError('');
+                        }}
+                        className={`p-2.5 rounded-xl border text-left text-xs font-semibold transition-all cursor-pointer ${
+                          inputCode.toLowerCase() === r.id
+                            ? 'bg-indigo-500/20 border-indigo-500/50 text-indigo-200'
+                            : 'bg-white/[0.03] border-white/5 hover:bg-white/[0.06] text-gray-300'
+                        }`}
+                      >
+                        {r.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-2 flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setJoinModalOpen(false)}
+                    className="flex-1 py-3 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 font-bold text-sm transition-all cursor-pointer"
+                  >
+                    Vazgeç
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-sm shadow-lg shadow-indigo-500/25 transition-all cursor-pointer"
+                  >
+                    Odaya Gir
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* ── Avatar Wardrobe & Customization Modal ── */}
       <AvatarWardrobeModal

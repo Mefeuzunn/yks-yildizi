@@ -12,17 +12,36 @@ export default function OdevlerimPage() {
   const [solvingState, setSolvingState] = useState<'idle' | 'solving' | 'result'>('idle');
   const [currentQ, setCurrentQ] = useState(0);
   const [score, setScore] = useState(0);
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [isChecking, setIsChecking] = useState(false);
+  const [rewardInfo, setRewardInfo] = useState<{ xp: number; coins: number } | null>(null);
 
   useEffect(() => {
     fetch('/api/student/assignments')
       .then(r => r.json())
-      .then(d => { if (d.success) setAssignments(d.assignments); setLoading(false); })
+      .then(d => { if (d.success) setAssignments(d.assignments || []); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 
+  const parseQuestions = (json: any) => {
+    if (!json) return [];
+    if (Array.isArray(json)) return json;
+    try {
+      const parsed = typeof json === 'string' ? JSON.parse(json) : json;
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (_) {
+      return [];
+    }
+  };
+
   const openAssignment = (a: any) => {
     setActiveAssignment(a);
-    if (a.questions_json && a.status === 'pending') {
+    setSelectedOption(null);
+    setIsChecking(false);
+    setRewardInfo(null);
+
+    const qList = parseQuestions(a.questions_json);
+    if (qList.length > 0 && a.status === 'pending') {
       setSolvingState('solving');
       setCurrentQ(0);
       setScore(0);
@@ -32,31 +51,43 @@ export default function OdevlerimPage() {
   };
 
   const handleAnswer = (opt: string) => {
-    const qList = JSON.parse(activeAssignment.questions_json);
+    if (isChecking) return;
+    setSelectedOption(opt);
+    setIsChecking(true);
+
+    const qList = parseQuestions(activeAssignment?.questions_json);
     const q = qList[currentQ];
-    
-    if (opt === q.correctAnswer) {
-      setScore(s => s + 1);
-    }
-    
-    if (currentQ < qList.length - 1) {
-      setCurrentQ(c => c + 1);
-    } else {
-      finishAssignment(score + (opt === q.correctAnswer ? 1 : 0), qList.length);
-    }
+    const isCorrect = opt === q?.correctAnswer;
+    const newScore = score + (isCorrect ? 1 : 0);
+    if (isCorrect) setScore(newScore);
+
+    setTimeout(() => {
+      setIsChecking(false);
+      setSelectedOption(null);
+      if (currentQ < qList.length - 1) {
+        setCurrentQ(c => c + 1);
+      } else {
+        finishAssignment(newScore, qList.length);
+      }
+    }, 400);
   };
 
   const finishAssignment = async (finalScore: number, totalQ: number) => {
     setSolvingState('result');
-    const finalPercent = Math.round((finalScore / totalQ) * 100);
+    const finalPercent = totalQ > 0 ? Math.round((finalScore / totalQ) * 100) : 100;
     confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
     
     try {
-      await fetch('/api/student/assignments/submit', {
+      const res = await fetch('/api/student/assignments/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ assignment_id: activeAssignment.id, score: finalPercent })
       });
+      const data = await res.json();
+      if (data.earnedXp) {
+        setRewardInfo({ xp: data.earnedXp, coins: data.earnedCoins });
+      }
+
       // Update local state
       setAssignments(prev => prev.map(a => a.id === activeAssignment.id ? { ...a, status: 'graded', score: finalPercent } : a));
       setActiveAssignment({ ...activeAssignment, status: 'graded', score: finalPercent });
@@ -141,24 +172,44 @@ export default function OdevlerimPage() {
               <div style={{ padding: '2rem', overflowY: 'auto' }}>
                 {solvingState === 'solving' ? (
                   (() => {
-                    const qList = JSON.parse(activeAssignment.questions_json);
+                    const qList = parseQuestions(activeAssignment.questions_json);
                     const q = qList[currentQ];
+                    if (!q) {
+                      return (
+                        <div style={{ textAlign: 'center', padding: '2rem 0', color: '#9ca3af' }}>
+                          Soru formatı ayrıştırılamadı.
+                        </div>
+                      );
+                    }
                     return (
                       <div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', color: '#9ca3af', marginBottom: '1.5rem', fontWeight: 600 }}>
                           <span>Soru {currentQ + 1} / {qList.length}</span>
                         </div>
-                        <div style={{ fontSize: '1.25rem', color: '#fff', marginBottom: '2rem', lineHeight: 1.6 }} dangerouslySetInnerHTML={{ __html: q.questionText.replace(/\n/g, '<br/>') }} />
+                        <div style={{ fontSize: '1.25rem', color: '#fff', marginBottom: '2rem', lineHeight: 1.6 }} dangerouslySetInnerHTML={{ __html: (q.questionText || q.question || '').replace(/\n/g, '<br/>') }} />
                         
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                          {q.options.map((opt: string, i: number) => (
-                            <button key={i} onClick={() => handleAnswer(opt)} style={{
-                              padding: '1.25rem', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
-                              color: '#fff', textAlign: 'left', fontSize: '1rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', gap: '1rem'
-                            }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}>
-                              <span style={{ color: '#8b5cf6', fontWeight: 700 }}>{['A', 'B', 'C', 'D', 'E'][i]})</span> {opt}
-                            </button>
-                          ))}
+                          {(q.options || []).map((opt: string, i: number) => {
+                            const isSelected = selectedOption === opt;
+                            return (
+                              <button 
+                                key={i} 
+                                onClick={() => handleAnswer(opt)} 
+                                disabled={isChecking}
+                                style={{
+                                  padding: '1.25rem', borderRadius: '12px', 
+                                  background: isSelected ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.03)', 
+                                  border: isSelected ? '1px solid #8b5cf6' : '1px solid rgba(255,255,255,0.08)',
+                                  color: '#fff', textAlign: 'left', fontSize: '1rem', cursor: isChecking ? 'default' : 'pointer', 
+                                  transition: 'all 0.2s', display: 'flex', gap: '1rem'
+                                }} 
+                                onMouseEnter={e => { if (!isSelected && !isChecking) e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }} 
+                                onMouseLeave={e => { if (!isSelected && !isChecking) e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
+                              >
+                                <span style={{ color: '#8b5cf6', fontWeight: 700 }}>{['A', 'B', 'C', 'D', 'E'][i]})</span> {opt}
+                              </button>
+                            );
+                          })}
                         </div>
                       </div>
                     );
@@ -169,8 +220,17 @@ export default function OdevlerimPage() {
                       <CheckCircle2 size={50} color="#10b981" />
                     </div>
                     <h2 style={{ color: '#fff', fontSize: '2rem', marginBottom: '0.5rem' }}>Ödev Tamamlandı!</h2>
-                    <p style={{ color: '#9ca3af', fontSize: '1.1rem', marginBottom: '2rem' }}>Başarı Oranın: <span style={{ color: '#10b981', fontWeight: 800 }}>%{activeAssignment.score}</span></p>
-                    <button onClick={() => setActiveAssignment(null)} style={{ padding: '0.75rem 2rem', background: '#3b82f6', color: '#fff', borderRadius: '12px', border: 'none', fontWeight: 700, cursor: 'pointer', fontSize: '1rem' }}>Panoya Dön</button>
+                    <p style={{ color: '#9ca3af', fontSize: '1.1rem', marginBottom: rewardInfo ? '1rem' : '2rem' }}>Başarı Oranın: <span style={{ color: '#10b981', fontWeight: 800 }}>%{activeAssignment.score}</span></p>
+                    {rewardInfo && (
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: '20px', color: '#fbbf24', fontSize: '0.9rem', fontWeight: 700, marginBottom: '2rem' }}>
+                        <span>🎉 +{rewardInfo.xp} XP</span>
+                        <span>·</span>
+                        <span>🪙 +{rewardInfo.coins} Coin</span>
+                      </div>
+                    )}
+                    <div>
+                      <button onClick={() => setActiveAssignment(null)} style={{ padding: '0.75rem 2rem', background: '#3b82f6', color: '#fff', borderRadius: '12px', border: 'none', fontWeight: 700, cursor: 'pointer', fontSize: '1rem' }}>Panoya Dön</button>
+                    </div>
                   </div>
                 )}
               </div>

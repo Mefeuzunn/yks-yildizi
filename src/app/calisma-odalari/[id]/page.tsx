@@ -170,6 +170,11 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
       }
 
       setAmbientSound(type);
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('yks_ambient_sound', type);
+        } catch (_) {}
+      }
     } catch (e) {
       console.warn('Web Audio ambience failed:', e);
       setAmbientSound('none');
@@ -181,7 +186,31 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
     if (gainNodeRef.current && audioCtxRef.current) {
       gainNodeRef.current.gain.setValueAtTime(ambientVolume, audioCtxRef.current.currentTime);
     }
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('yks_ambient_volume', String(ambientVolume));
+      } catch (_) {}
+    }
   }, [ambientVolume]);
+
+  // Restore saved ambient volume and sound on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedVol = localStorage.getItem('yks_ambient_volume');
+        if (savedVol) {
+          const v = parseFloat(savedVol);
+          if (!isNaN(v) && v >= 0.05 && v <= 1) {
+            setAmbientVolume(v);
+          }
+        }
+        const savedSound = localStorage.getItem('yks_ambient_sound');
+        if (savedSound && ['rain', 'lofi', 'waves'].includes(savedSound)) {
+          playAmbientSound(savedSound as any);
+        }
+      } catch (_) {}
+    }
+  }, [playAmbientSound]);
 
   // Cleanup audio on unmount
   useEffect(() => {

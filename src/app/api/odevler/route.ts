@@ -11,6 +11,7 @@ export async function GET(req: Request) {
 
     const assignments = await db.prepare(`
       SELECT a.id, a.title, a.description, a.due_date, a.created_at,
+             a.questions_json, a.subject, a.topic,
              s.status, s.score, s.submitted_at,
              u.username as teacher_name
       FROM assignment_submissions s
