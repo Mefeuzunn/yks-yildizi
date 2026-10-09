@@ -10,7 +10,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 export interface RoomBroadcastEvent {
-  type: 'new-message' | 'room-users' | 'update-timer';
+  type: 'new-message' | 'room-users' | 'update-timer' | 'library-interaction';
   data: any;
 }
 

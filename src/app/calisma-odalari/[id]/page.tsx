@@ -4,12 +4,13 @@ import React, { useEffect, useState, useRef, use, useCallback } from 'react';
 import { 
   ArrowLeft, Users, MessageSquare, Send, Timer, Pause, Play, 
   RotateCcw, X, Volume2, VolumeX, CloudRain, Headphones, Waves, 
-  Sparkles, Radio, Shield, Coffee, CheckCircle2 
+  Sparkles, Radio, Shield, Coffee, CheckCircle2, BookOpen, Lamp, Eye
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { haptics } from '@/lib/haptics';
 import { motion, AnimatePresence } from 'framer-motion';
+import LibraryStudyHall from '@/components/library/LibraryStudyHall';
 
 export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -20,6 +21,11 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
   const [newMessage, setNewMessage] = useState('');
   const [showMobileDrawer, setShowMobileDrawer] = useState(false);
   const [activeSideTab, setActiveSideTab] = useState<'chat' | 'users'>('chat');
+  
+  // Virtual Library Seating & Stage
+  const [viewMode, setViewMode] = useState<'library' | 'clock'>('library');
+  const [mySeatId, setMySeatId] = useState<string | null>(null);
+  const [userSubject, setUserSubject] = useState<string>('AYT Matematik');
   
   const chatRef = useRef<HTMLDivElement>(null);
   const mobileChatRef = useRef<HTMLDivElement>(null);
@@ -198,6 +204,9 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
       .then(data => {
         if (isMounted && data.participants) {
           setParticipants(data.participants);
+          const me = data.participants.find((p: any) => p.id === user?.id);
+          if (me?.seatId) setMySeatId(me.seatId);
+          if (me?.subject) setUserSubject(me.subject);
         }
       })
       .catch(() => {});
@@ -225,6 +234,12 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
           });
         } else if (payload.type === 'room-users' && Array.isArray(payload.data)) {
           setParticipants(payload.data);
+          const me = payload.data.find((p: any) => p.id === user?.id);
+          if (me?.seatId) setMySeatId(me.seatId);
+        } else if (payload.type === 'library-interaction' && payload.data) {
+          if (payload.data.receiverId === user?.id) {
+            haptics.notification('success');
+          }
         } else if (payload.type === 'update-timer' && payload.data) {
           if (payload.data.timerState === 'active') {
             setTimerActive(true);
@@ -310,11 +325,72 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
     haptics.impact('light');
     const newState = !timerActive;
     setTimerActive(newState);
+
+    if (mySeatId) {
+      fetch(`/api/rooms/${id}/join`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'sit',
+          seatId: mySeatId,
+          status: newState ? 'focusing' : 'break',
+        }),
+      }).catch(() => {});
+    }
+
     fetch(`/api/rooms/${id}/timer`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ timerState: newState ? 'active' : 'paused', timeLeft }),
     }).catch(() => {});
+  };
+
+  const handleSeatChange = async (newSeatId: string | null) => {
+    setMySeatId(newSeatId);
+    try {
+      const res = await fetch(`/api/rooms/${id}/join`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: newSeatId ? 'sit' : 'stand',
+          seatId: newSeatId,
+          currentSubject: userSubject,
+          status: timerActive ? 'focusing' : 'break',
+        }),
+      });
+      const data = await res.json();
+      if (data.participants) {
+        setParticipants(data.participants);
+      }
+    } catch (_) {}
+  };
+
+  const handleSubjectChange = async (newSubject: string) => {
+    setUserSubject(newSubject);
+    if (mySeatId) {
+      try {
+        await fetch(`/api/rooms/${id}/join`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'sit',
+            seatId: mySeatId,
+            currentSubject: newSubject,
+            status: timerActive ? 'focusing' : 'break',
+          }),
+        });
+      } catch (_) {}
+    }
+  };
+
+  const handleSendInteraction = async (receiverId: string, actionType: 'coffee' | 'wave' | 'energy') => {
+    try {
+      await fetch(`/api/rooms/${id}/interact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ receiverId, actionType }),
+      });
+    } catch (_) {}
   };
 
   const resetTimer = (newDuration?: number) => {
@@ -383,7 +459,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
       {/* ── Left Stage: Atmospheric Screen & Pomodoro Timer ── */}
       <div className="flex-1 flex flex-col p-4 sm:p-6 lg:p-8 overflow-y-auto pb-32 lg:pb-8 custom-scrollbar relative z-10">
         {/* Top Navigation & Status Bar */}
-        <div className="flex items-center justify-between gap-4 mb-6">
+        <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
           <Link 
             href="/calisma-odalari" 
             className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 text-xs sm:text-sm font-semibold transition-all no-underline"
@@ -392,168 +468,284 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
             <span>Odalara Dön</span>
           </Link>
 
+          {/* View Mode Switcher */}
+          <div className="flex items-center p-1 rounded-xl bg-white/5 border border-white/10">
+            <button
+              onClick={() => setViewMode('library')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                viewMode === 'library'
+                  ? 'bg-emerald-500 text-black shadow-md'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <BookOpen size={13} />
+              <span className="hidden sm:inline">Kütüphane Salonu</span>
+              <span className="sm:hidden">Salon</span>
+            </button>
+            <button
+              onClick={() => setViewMode('clock')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                viewMode === 'clock'
+                  ? 'bg-indigo-600 text-white shadow-md'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <Timer size={13} />
+              <span className="hidden sm:inline">Büyük Sayaç</span>
+              <span className="sm:hidden">Sayaç</span>
+            </button>
+          </div>
+
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>{participants.length} Öğrenci Odakta</span>
+              <span>{participants.length} Öğrenci Salonda</span>
             </div>
           </div>
         </div>
 
-        {/* ── Atmosphere Visual Hero Card ── */}
-        <div className="relative w-full aspect-[21/9] min-h-[180px] max-h-[280px] rounded-3xl mb-8 overflow-hidden border border-white/10 shadow-2xl flex flex-col justify-between p-6 sm:p-8 bg-[#0b0f19]">
-          {/* Subtle Ambient Background Gradient */}
-          <div className={`absolute inset-0 bg-gradient-to-br ${roomMeta.gradient} pointer-events-none`} />
-          <div className="absolute top-0 right-0 w-80 h-80 bg-white/[0.02] rounded-full blur-3xl pointer-events-none" />
-
-          {/* Top Stage Badges */}
-          <div className="relative z-10 flex items-center justify-between gap-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/60 border border-white/15 backdrop-blur-md text-xs font-bold text-gray-200">
-              <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-              <span>CANLI ÇALIŞMA AMBİYANSI</span>
-            </div>
-
-            {ambientSound !== 'none' && (
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-semibold backdrop-blur-md">
-                <Volume2 className="w-3.5 h-3.5 animate-pulse" />
-                <span className="capitalize">{ambientSound} Çalıyor</span>
-              </div>
-            )}
-          </div>
-
-          {/* Bottom Stage Title */}
-          <div className="relative z-10">
-            <h1 className="text-xl sm:text-3xl font-black text-white tracking-tight drop-shadow-md">
-              {roomMeta.name}
-            </h1>
-            <p className="text-gray-400 text-xs sm:text-sm mt-1 max-w-xl">
-              Senin gibi hedefine kilitlenmiş öğrencilerle aynı anda masadasın. Dikkat dağıtıcıları kapat, odaklan.
-            </p>
-          </div>
-        </div>
-
-        {/* ── Ambient Sound Bar ── */}
-        <div className="mb-8 p-4 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Volume2 className="w-4 h-4 text-indigo-400" />
-            <span className="text-xs sm:text-sm font-bold text-white">Ambiyans Sesi:</span>
-          </div>
-
-          <div className="flex items-center gap-1.5 flex-wrap">
-            {[
-              { id: 'none', label: 'Sessiz', icon: VolumeX },
-              { id: 'rain', label: 'Yağmur', icon: CloudRain },
-              { id: 'lofi', label: 'Lofi Cafe', icon: Coffee },
-              { id: 'waves', label: 'Dalgalar', icon: Waves },
-            ].map(snd => {
-              const Icon = snd.icon;
-              const isCurrent = ambientSound === snd.id;
-              return (
-                <button
-                  key={snd.id}
-                  onClick={() => playAmbientSound(snd.id as any)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    isCurrent
-                      ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-[0_0_15px_rgba(99,102,241,0.4)]'
-                      : 'bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5'
-                  }`}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  <span>{snd.label}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Volume Slider */}
-          {ambientSound !== 'none' && (
-            <div className="flex items-center gap-2 min-w-[120px]">
-              <input
-                type="range"
-                min="0.05"
-                max="1"
-                step="0.05"
-                value={ambientVolume}
-                onChange={e => setAmbientVolume(parseFloat(e.target.value))}
-                className="w-20 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-indigo-500"
-                title="Ses Düzeyi"
-              />
-              <span className="text-[11px] text-gray-400 font-mono">%{Math.round(ambientVolume * 100)}</span>
-            </div>
-          )}
-        </div>
-
-        {/* ── Pomodoro Focus Clock ── */}
-        <div className="relative p-6 sm:p-8 rounded-3xl bg-[#0f1523]/85 border border-white/10 shadow-2xl backdrop-blur-xl flex flex-col items-center justify-center max-w-lg mx-auto w-full overflow-hidden">
-          {/* Preset Buttons */}
-          <div className="flex items-center gap-2 mb-6 flex-wrap justify-center">
-            {[
-              { label: '25 dk (Klasik)', sec: 25 * 60 },
-              { label: '45 dk (Derin)', sec: 45 * 60 },
-              { label: '50 dk (Blok)', sec: 50 * 60 },
-              { label: '5 dk (Mola)', sec: 5 * 60 },
-            ].map((preset, idx) => (
-              <button
-                key={idx}
-                onClick={() => resetTimer(preset.sec)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer active:scale-[0.98] ${
-                  initialTime === preset.sec && !timerActive
-                    ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40 shadow-sm'
-                    : 'bg-white/5 text-gray-400 hover:text-white border-white/5 hover:border-white/10'
-                }`}
-              >
-                {preset.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Glowing Digital Digits */}
-          <div className="relative mb-6">
-            <div className="text-6xl sm:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-300 font-mono tracking-tighter drop-shadow-[0_0_35px_rgba(255,255,255,0.15)]">
-              {formatTime(timeLeft)}
-            </div>
-            <div className="text-center mt-2">
-              <span className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full border ${
-                timerActive 
-                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 animate-pulse' 
-                  : 'bg-white/5 text-gray-400 border-white/10'
-              }`}>
-                {timerActive ? '⚡ Odak Seansı Sürüyor' : '⏸️ Duraklatıldı'}
-              </span>
-            </div>
-          </div>
-
-          {/* Linear Progress Bar */}
-          <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden mb-8 border border-white/5">
-            <div 
-              className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-300"
-              style={{ width: `${timerProgress}%` }}
+        {/* ── CONDITIONAL VIEW: VIRTUAL LIBRARY STAGE OR CLOCK ── */}
+        {viewMode === 'library' ? (
+          <div className="flex flex-col gap-6 w-full">
+            {/* Virtual Library Study Hall Component */}
+            <LibraryStudyHall
+              roomId={id}
+              roomName={roomMeta.name}
+              roomTheme={roomMeta.theme}
+              participants={participants}
+              currentUserId={user?.id}
+              currentUsername={user?.username}
+              currentUserTarget={user?.hedef || 'YKS 2026'}
+              userSubject={userSubject}
+              onSubjectChange={handleSubjectChange}
+              onSeatChange={handleSeatChange}
+              mySeatId={mySeatId}
+              onSendInteraction={handleSendInteraction}
+              timerActive={timerActive}
+              timeLeftFormatted={formatTime(timeLeft)}
             />
-          </div>
 
-          {/* Play/Pause & Reset Controls */}
-          <div className="flex items-center gap-4">
-            <button
-              onClick={toggleTimer}
-              className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-200 cursor-pointer shadow-lg active:scale-[0.98] ${
-                timerActive
-                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 shadow-[0_0_25px_rgba(245,158,11,0.25)]'
-                  : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-[0_4px_25px_rgba(99,102,241,0.4)] hover:brightness-110'
-              }`}
-              title={timerActive ? 'Durdur' : 'Başlat'}
-            >
-              {timerActive ? <Pause className="w-7 h-7 fill-current" /> : <Play className="w-7 h-7 fill-current ml-1" />}
-            </button>
+            {/* ── Compact Docked Focus Bar & Ambience Controls ── */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#0f172a]/90 border border-white/10 backdrop-blur-md shadow-xl flex flex-col md:flex-row items-center justify-between gap-4 max-w-5xl mx-auto w-full">
+              
+              {/* Digital Timer Readout & Controls */}
+              <div className="flex items-center gap-4">
+                <div className="text-3xl sm:text-4xl font-black text-white font-mono tracking-tight drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+                  {formatTime(timeLeft)}
+                </div>
 
-            <button
-              onClick={() => resetTimer()}
-              className="w-12 h-12 rounded-2xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/10 flex items-center justify-center transition-all cursor-pointer active:scale-[0.98]"
-              title="Sıfırla"
-            >
-              <RotateCcw className="w-5 h-5" />
-            </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={toggleTimer}
+                    className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all cursor-pointer shadow-md ${
+                      timerActive
+                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30'
+                        : 'bg-gradient-to-r from-emerald-500 to-teal-600 text-black font-bold hover:brightness-110'
+                    }`}
+                    title={timerActive ? 'Durdur' : 'Başlat'}
+                  >
+                    {timerActive ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-0.5" />}
+                  </button>
+
+                  <button
+                    onClick={() => resetTimer()}
+                    className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/10 flex items-center justify-center transition-all cursor-pointer"
+                    title="Sıfırla"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Preset Chips */}
+                <div className="hidden sm:flex items-center gap-1.5">
+                  {[
+                    { label: '25 dk', sec: 25 * 60 },
+                    { label: '45 dk', sec: 45 * 60 },
+                    { label: '5 dk', sec: 5 * 60 },
+                  ].map((preset, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => resetTimer(preset.sec)}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
+                        initialTime === preset.sec && !timerActive
+                          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                          : 'bg-white/5 text-gray-400 hover:text-white border-white/5'
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Ambient Sound Bar */}
+              <div className="flex items-center gap-2 flex-wrap justify-center">
+                <div className="flex items-center gap-1.5">
+                  {[
+                    { id: 'none', label: 'Sessiz', icon: VolumeX },
+                    { id: 'rain', label: 'Yağmur', icon: CloudRain },
+                    { id: 'lofi', label: 'Lofi Cafe', icon: Coffee },
+                    { id: 'waves', label: 'Dalgalar', icon: Waves },
+                  ].map(snd => {
+                    const Icon = snd.icon;
+                    const isCurrent = ambientSound === snd.id;
+                    return (
+                      <button
+                        key={snd.id}
+                        onClick={() => playAmbientSound(snd.id as any)}
+                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          isCurrent
+                            ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-black font-extrabold shadow-sm'
+                            : 'bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5'
+                        }`}
+                      >
+                        <Icon className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">{snd.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {ambientSound !== 'none' && (
+                  <div className="flex items-center gap-1.5 ml-2">
+                    <input
+                      type="range"
+                      min="0.05"
+                      max="1"
+                      step="0.05"
+                      value={ambientVolume}
+                      onChange={e => setAmbientVolume(parseFloat(e.target.value))}
+                      className="w-16 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                    />
+                    <span className="text-[10px] text-gray-400 font-mono">%{Math.round(ambientVolume * 100)}</span>
+                  </div>
+                )}
+              </div>
+
+            </div>
           </div>
-        </div>
+        ) : (
+          /* ── CLOCK VIEW (Large Digital Focus Clock) ── */
+          <div className="flex flex-col gap-8 w-full max-w-lg mx-auto">
+            {/* Ambient Sound Bar */}
+            <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <Volume2 className="w-4 h-4 text-indigo-400" />
+                <span className="text-xs sm:text-sm font-bold text-white">Ambiyans Sesi:</span>
+              </div>
+
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {[
+                  { id: 'none', label: 'Sessiz', icon: VolumeX },
+                  { id: 'rain', label: 'Yağmur', icon: CloudRain },
+                  { id: 'lofi', label: 'Lofi Cafe', icon: Coffee },
+                  { id: 'waves', label: 'Dalgalar', icon: Waves },
+                ].map(snd => {
+                  const Icon = snd.icon;
+                  const isCurrent = ambientSound === snd.id;
+                  return (
+                    <button
+                      key={snd.id}
+                      onClick={() => playAmbientSound(snd.id as any)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        isCurrent
+                          ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-[0_0_15px_rgba(99,102,241,0.4)]'
+                          : 'bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5'
+                      }`}
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      <span>{snd.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {ambientSound !== 'none' && (
+                <div className="flex items-center gap-2 min-w-[120px]">
+                  <input
+                    type="range"
+                    min="0.05"
+                    max="1"
+                    step="0.05"
+                    value={ambientVolume}
+                    onChange={e => setAmbientVolume(parseFloat(e.target.value))}
+                    className="w-20 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                    title="Ses Düzeyi"
+                  />
+                  <span className="text-[11px] text-gray-400 font-mono">%{Math.round(ambientVolume * 100)}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Pomodoro Focus Clock */}
+            <div className="relative p-6 sm:p-8 rounded-3xl bg-[#0f1523]/85 border border-white/10 shadow-2xl backdrop-blur-xl flex flex-col items-center justify-center w-full overflow-hidden">
+              <div className="flex items-center gap-2 mb-6 flex-wrap justify-center">
+                {[
+                  { label: '25 dk (Klasik)', sec: 25 * 60 },
+                  { label: '45 dk (Derin)', sec: 45 * 60 },
+                  { label: '50 dk (Blok)', sec: 50 * 60 },
+                  { label: '5 dk (Mola)', sec: 5 * 60 },
+                ].map((preset, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => resetTimer(preset.sec)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer active:scale-[0.98] ${
+                      initialTime === preset.sec && !timerActive
+                        ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40 shadow-sm'
+                        : 'bg-white/5 text-gray-400 hover:text-white border-white/5 hover:border-white/10'
+                    }`}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="relative mb-6">
+                <div className="text-6xl sm:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-300 font-mono tracking-tighter drop-shadow-[0_0_35px_rgba(255,255,255,0.15)]">
+                  {formatTime(timeLeft)}
+                </div>
+                <div className="text-center mt-2">
+                  <span className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full border ${
+                    timerActive 
+                      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 animate-pulse' 
+                      : 'bg-white/5 text-gray-400 border-white/10'
+                  }`}>
+                    {timerActive ? '⚡ Odak Seansı Sürüyor' : '⏸️ Duraklatıldı'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden mb-8 border border-white/5">
+                <div 
+                  className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-300"
+                  style={{ width: `${timerProgress}%` }}
+                />
+              </div>
+
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={toggleTimer}
+                  className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-200 cursor-pointer shadow-lg active:scale-[0.98] ${
+                    timerActive
+                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 shadow-[0_0_25px_rgba(245,158,11,0.25)]'
+                      : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-[0_4px_25px_rgba(99,102,241,0.4)] hover:brightness-110'
+                  }`}
+                  title={timerActive ? 'Durdur' : 'Başlat'}
+                >
+                  {timerActive ? <Pause className="w-7 h-7 fill-current" /> : <Play className="w-7 h-7 fill-current ml-1" />}
+                </button>
+
+                <button
+                  onClick={() => resetTimer()}
+                  className="w-12 h-12 rounded-2xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/10 flex items-center justify-center transition-all cursor-pointer active:scale-[0.98]"
+                  title="Sıfırla"
+                >
+                  <RotateCcw className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── Right Panel: Chat & Participants (Desktop Sidebar) ── */}
