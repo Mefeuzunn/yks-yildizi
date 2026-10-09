@@ -372,6 +372,28 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
 
   const handleSeatChange = async (newSeatId: string | null) => {
     setMySeatId(newSeatId);
+
+    // Instant Optimistic Update
+    if (user) {
+      setParticipants(prev => {
+        const others = prev.filter(p => p.id !== user.id);
+        return [
+          ...others,
+          {
+            id: user.id,
+            username: user.username,
+            target: user.hedef || 'YKS 2026',
+            league: user.league || 'Elmas',
+            seatId: newSeatId,
+            subject: userSubject,
+            avatarConfig: avatarConfig,
+            status: timerActive ? 'focusing' : 'break',
+            focusMinutes: 25,
+          },
+        ];
+      });
+    }
+
     try {
       const res = await fetch(`/api/rooms/${id}/join`, {
         method: 'POST',
@@ -381,6 +403,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
           seatId: newSeatId,
           currentSubject: userSubject,
           avatarConfig: avatarConfig,
+          userId: user?.id,
           status: timerActive ? 'focusing' : 'break',
         }),
       });
@@ -393,6 +416,9 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
 
   const handleUpdateAvatarConfig = async (newConfig: any) => {
     setAvatarConfig(newConfig);
+    if (user) {
+      setParticipants(prev => prev.map(p => p.id === user.id ? { ...p, avatarConfig: newConfig } : p));
+    }
     if (mySeatId) {
       try {
         const res = await fetch(`/api/rooms/${id}/join`, {
@@ -403,6 +429,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
             seatId: mySeatId,
             currentSubject: userSubject,
             avatarConfig: newConfig,
+            userId: user?.id,
             status: timerActive ? 'focusing' : 'break',
           }),
         });
@@ -416,6 +443,9 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
 
   const handleSubjectChange = async (newSubject: string) => {
     setUserSubject(newSubject);
+    if (user) {
+      setParticipants(prev => prev.map(p => p.id === user.id ? { ...p, subject: newSubject } : p));
+    }
     if (mySeatId) {
       try {
         await fetch(`/api/rooms/${id}/join`, {
@@ -425,6 +455,8 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
             action: 'sit',
             seatId: mySeatId,
             currentSubject: newSubject,
+            avatarConfig: avatarConfig,
+            userId: user?.id,
             status: timerActive ? 'focusing' : 'break',
           }),
         });

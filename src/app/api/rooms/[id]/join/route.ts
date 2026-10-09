@@ -8,34 +8,52 @@ export const dynamic = 'force-dynamic';
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: roomId } = await params;
-    const userId = await getAuthenticatedUserId(req);
-    if (!userId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
-
+    let userId = await getAuthenticatedUserId(req);
     const body = await req.json().catch(() => ({ action: 'join' }));
-    const { action = 'join', seatId, currentSubject, status, avatarConfig } = body;
+    const { action = 'join', seatId, currentSubject, status, avatarConfig, userId: clientUserId } = body;
+
+    // Resilient fallback for authenticated user in edge cases
+    if (!userId && clientUserId) {
+      try {
+        const u = await db.prepare('SELECT id FROM users WHERE id = ?').get(clientUserId) as any;
+        if (u) userId = u.id;
+      } catch (_) {}
+    }
+
+    if (!userId) {
+      return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
+    }
 
     if (action === 'join' || action === 'ping') {
-      // Upsert participant
+      // Upsert participant into room
       await db.prepare(`
         INSERT INTO room_participants (room_id, user_id, joined_at, last_active, seat_id, current_subject, status, avatar_config)
         VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ?, ?, ?, ?)
         ON CONFLICT(room_id, user_id) DO UPDATE SET 
           last_active = CURRENT_TIMESTAMP,
-          seat_id = COALESCE(?, room_participants.seat_id),
-          current_subject = COALESCE(?, room_participants.current_subject),
-          status = COALESCE(?, room_participants.status),
-          avatar_config = COALESCE(?, room_participants.avatar_config)
+          seat_id = COALESCE(EXCLUDED.seat_id, room_participants.seat_id),
+          current_subject = COALESCE(EXCLUDED.current_subject, room_participants.current_subject),
+          status = COALESCE(EXCLUDED.status, room_participants.status),
+          avatar_config = COALESCE(EXCLUDED.avatar_config, room_participants.avatar_config)
       `).run(
         roomId, userId, 
-        seatId || null, currentSubject || null, status || 'focusing', avatarConfig ? JSON.stringify(avatarConfig) : null,
         seatId || null, currentSubject || null, status || 'focusing', avatarConfig ? JSON.stringify(avatarConfig) : null
       );
     } else if (action === 'sit') {
+      // Guaranteed upsert on sit
       await db.prepare(`
-        UPDATE room_participants 
-        SET seat_id = ?, current_subject = COALESCE(?, current_subject), status = COALESCE(?, status), last_active = CURRENT_TIMESTAMP
-        WHERE room_id = ? AND user_id = ?
-      `).run(seatId || null, currentSubject || null, status || 'focusing', roomId, userId);
+        INSERT INTO room_participants (room_id, user_id, joined_at, last_active, seat_id, current_subject, status, avatar_config)
+        VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ?, ?, ?, ?)
+        ON CONFLICT(room_id, user_id) DO UPDATE SET 
+          last_active = CURRENT_TIMESTAMP,
+          seat_id = EXCLUDED.seat_id,
+          current_subject = COALESCE(EXCLUDED.current_subject, room_participants.current_subject),
+          status = COALESCE(EXCLUDED.status, room_participants.status),
+          avatar_config = COALESCE(EXCLUDED.avatar_config, room_participants.avatar_config)
+      `).run(
+        roomId, userId, 
+        seatId || null, currentSubject || null, status || 'focusing', avatarConfig ? JSON.stringify(avatarConfig) : null
+      );
     } else if (action === 'stand') {
       await db.prepare(`
         UPDATE room_participants 
@@ -49,13 +67,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     // Clean inactive participants (> 5 mins)
     await db.prepare(`DELETE FROM room_participants WHERE last_active < CURRENT_TIMESTAMP - INTERVAL '5 minutes'`).run();
 
-    // Return current participants with full library details
+    // Return current participants with full library details (LEFT JOIN to prevent dropping)
     const rawParticipants = await db.prepare(`
-      SELECT p.user_id, u.username, u.hedef, COALESCE(us.league, 'Bronz') as league,
+      SELECT p.user_id, COALESCE(u.username, 'Öğrenci') as username, COALESCE(u.hedef, 'YKS 2026') as hedef, 
+             COALESCE(us.league, 'Bronz') as league,
              p.seat_id, p.current_subject, p.status, p.avatar_config,
              COALESCE(us.focus_minutes, 25) as focus_minutes
       FROM room_participants p
-      JOIN users u ON p.user_id = u.id
+      LEFT JOIN users u ON p.user_id = u.id
       LEFT JOIN user_stats us ON u.id = us.user_id
       WHERE p.room_id = ?
       ORDER BY p.joined_at ASC

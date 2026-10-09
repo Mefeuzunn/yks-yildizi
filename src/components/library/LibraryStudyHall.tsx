@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BookOpen, Users, Moon, Sun, Sunset, CloudRain, 
@@ -79,37 +79,51 @@ export default function LibraryStudyHall({
   }, []);
 
   // ── Map participants to their seats ──
-  // If participant doesn't have an assigned seatId, give them a deterministic fallback slot
   const seatMap = useMemo(() => {
     const map: Record<string, RoomParticipant> = {};
-    const unseated: RoomParticipant[] = [];
 
+    // 1. Map participants who actually have an assigned seat
     participants.forEach(p => {
       if (p.seatId) {
         map[p.seatId] = p;
-      } else {
-        unseated.push(p);
       }
     });
 
-    // Auto-place unseated into available slots
-    let unseatedIdx = 0;
-    for (let t = 1; t <= TOTAL_TABLES; t++) {
-      for (const s of SEATS_PER_TABLE) {
-        const seatId = `t${t}-s${s}`;
-        if (!map[seatId] && unseatedIdx < unseated.length) {
-          map[seatId] = { ...unseated[unseatedIdx], seatId };
-          unseatedIdx++;
+    // 2. Explicitly guarantee current user seat at mySeatId
+    if (mySeatId && currentUserId) {
+      // Clear any prior seat holding current user
+      Object.keys(map).forEach(s => {
+        if (map[s].id === currentUserId && s !== mySeatId) {
+          delete map[s];
         }
-      }
+      });
+
+      const existingUser = participants.find(p => p.id === currentUserId);
+      map[mySeatId] = {
+        id: currentUserId,
+        username: currentUsername || existingUser?.username || 'SEN',
+        league: existingUser?.league || 'Elmas',
+        target: currentUserTarget || existingUser?.target || 'YKS 2026',
+        subject: userSubject || existingUser?.subject || 'AYT Matematik',
+        seatId: mySeatId,
+        status: timerActive ? 'focusing' : 'break',
+        avatarConfig: avatarConfig || existingUser?.avatarConfig,
+        focusMinutes: existingUser?.focusMinutes || 25,
+      };
     }
 
     return map;
-  }, [participants]);
+  }, [participants, mySeatId, currentUserId, currentUsername, currentUserTarget, userSubject, timerActive, avatarConfig]);
+
+  // Unseated attendees in the room (standing / audience)
+  const unseatedParticipants = useMemo(() => {
+    return participants.filter(p => !p.seatId && p.id !== currentUserId);
+  }, [participants, currentUserId]);
 
   // Handle student clicking empty seat
   const handleSitDown = (seatId: string) => {
     haptics.impact('medium');
+    libraryAudio.playEnergy();
     onSeatChange?.(seatId);
   };
 
@@ -119,7 +133,7 @@ export default function LibraryStudyHall({
     onSeatChange?.(null);
   };
 
-  // Quick auto-sit
+  // Quick auto-sit: find first truly empty desk
   const handleQuickSit = () => {
     for (let t = 1; t <= TOTAL_TABLES; t++) {
       for (const s of SEATS_PER_TABLE) {
@@ -263,10 +277,6 @@ export default function LibraryStudyHall({
                   <span className="w-2 h-4 bg-emerald-900/60 rounded-t-sm" />
                   <span className="w-3 h-5.5 bg-amber-900/60 rounded-t-sm" />
                   <span className="w-2 h-5 bg-purple-900/60 rounded-t-sm" />
-                </div>
-                <div className="h-6 flex items-end gap-1 px-1">
-                  <span className="w-2.5 h-5 bg-emerald-900/60 rounded-t-sm" />
-                  <span className="w-2 h-6 bg-amber-800/60 rounded-t-sm" />
                   <span className="w-3 h-4 bg-sky-900/60 rounded-t-sm" />
                   <span className="w-2 h-5 bg-rose-900/60 rounded-t-sm" />
                 </div>
@@ -298,6 +308,7 @@ export default function LibraryStudyHall({
                   <span className="w-0.5 h-full bg-gradient-to-b from-transparent via-white to-transparent" />
                   <span className="w-0.5 h-full bg-gradient-to-b from-transparent via-white to-transparent" />
                   <span className="w-0.5 h-full bg-gradient-to-b from-transparent via-white to-transparent" />
+                  <span className="w-0.5 h-full bg-gradient-to-b from-transparent via-white to-transparent" />
                 </div>
               </div>
             )}
@@ -306,6 +317,31 @@ export default function LibraryStudyHall({
 
         {/* ── Floor Parquet Texture / Atmospheric Warmth ── */}
         <div className="relative z-10 pt-16 pb-4">
+
+          {/* Invitation Banner if User is Not Seated */}
+          {!mySeatId && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-indigo-500/15 border border-emerald-500/30 flex items-center justify-between gap-3 text-xs shadow-lg backdrop-blur-md"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold text-base shadow-sm">
+                  🪑
+                </div>
+                <div>
+                  <span className="font-extrabold text-white">Salondasın, henüz bir masaya oturmadın.</span>
+                  <span className="text-gray-300 ml-1.5 hidden sm:inline">Aşağıdaki boş masalardan birine tıklayarak veya hızlı otur butonuyla yerini seçebilirsin!</span>
+                </div>
+              </div>
+              <button
+                onClick={handleQuickSit}
+                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 text-black font-black text-xs hover:brightness-110 active:scale-95 transition-all shadow-md cursor-pointer whitespace-nowrap"
+              >
+                ⚡ İlk Boş Masaya Otur
+              </button>
+            </motion.div>
+          )}
 
           {/* ── The 4 Study Tables Grid (2x2 Layout) ── */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
@@ -382,6 +418,19 @@ export default function LibraryStudyHall({
               </div>
             ))}
           </div>
+
+          {/* Unseated Attendees Audience Bar */}
+          {unseatedParticipants.length > 0 && (
+            <div className="mt-8 p-3.5 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center gap-2.5 flex-wrap text-xs text-gray-400">
+              <Users size={14} className="text-indigo-400" />
+              <span className="font-bold text-gray-300">Salondaki Diğer Katılımcılar ({unseatedParticipants.length}):</span>
+              {unseatedParticipants.slice(0, 10).map(up => (
+                <span key={up.id} className="px-2.5 py-0.5 rounded-lg bg-white/5 text-gray-300 text-[11px] font-medium border border-white/5">
+                  {up.username}
+                </span>
+              ))}
+            </div>
+          )}
 
         </div>
 

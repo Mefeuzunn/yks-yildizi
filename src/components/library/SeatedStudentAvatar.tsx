@@ -36,7 +36,7 @@ export interface SeatedStudentProps {
   seatLabel?: string;
 }
 
-export default function SeatedStudentAvatar({
+const SeatedStudentAvatar = React.memo(function SeatedStudentAvatar({
   user,
   isCurrentUser = false,
   lampOn = true,
@@ -562,12 +562,14 @@ export default function SeatedStudentAvatar({
       </svg>
     </motion.div>
   );
-}
+});
+
+export default SeatedStudentAvatar;
 
 /**
  * Renders an empty library chair & study desk with an invite glow.
  */
-export function EmptyLibraryDesk({
+export const EmptyLibraryDesk = React.memo(function EmptyLibraryDesk({
   seatId,
   seatLabel = 'A',
   tableNumber = 1,
@@ -581,21 +583,38 @@ export function EmptyLibraryDesk({
   return (
     <motion.div
       whileHover={{ y: -3, scale: 1.02 }}
+      whileTap={{ scale: 0.97 }}
       transition={{ duration: 0.18 }}
       onClick={onSitDown}
-      className="relative flex flex-col items-center justify-end cursor-pointer group select-none"
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSitDown();
+        }
+      }}
+      className="relative flex flex-col items-center justify-end cursor-pointer group select-none focus:outline-none"
       style={{ width: '160px', height: '190px' }}
+      title={`Masa ${tableNumber} - Koltuk ${seatLabel}: Masaya Oturmak için Tıkla`}
     >
-      {/* ── Hover Pill Invitation ── */}
-      <div className="absolute top-2 z-30 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-        <div className="px-3 py-1 rounded-full text-[11px] font-black bg-gradient-to-r from-emerald-500 to-teal-500 text-black shadow-lg flex items-center gap-1.5 whitespace-nowrap animate-bounce">
+      {/* ── Prominent Sit Down Button (Touch + Click Ready) ── */}
+      <div className="absolute top-2 z-30 transition-all duration-200">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onSitDown();
+          }}
+          className="px-3.5 py-1 rounded-full text-[11px] font-black bg-gradient-to-r from-emerald-500 to-teal-400 text-black shadow-[0_0_15px_rgba(16,185,129,0.4)] flex items-center gap-1.5 whitespace-nowrap opacity-90 group-hover:opacity-100 group-hover:scale-105 active:scale-95 transition-all cursor-pointer border border-emerald-300/40"
+        >
           <span>🪑 Masaya Otur</span>
-        </div>
+        </button>
       </div>
 
       <svg
         viewBox="0 0 160 170"
-        className="w-full h-full relative z-20 overflow-visible opacity-75 group-hover:opacity-100 transition-opacity"
+        className="w-full h-full relative z-20 overflow-visible opacity-80 group-hover:opacity-100 transition-opacity"
         style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.35))' }}
       >
         <defs>
