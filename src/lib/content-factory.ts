@@ -316,3 +316,117 @@ export async function saveFlashcardsToDB(cards: GeneratedFlashcard[]): Promise<n
 
   return inserted;
 }
+
+/**
+ * Calls Gemini 2.0 to generate official, highly pedagogical YKS multiple choice questions with explanations
+ */
+export async function generateQuestionsBatch(
+  subject: string,
+  topic: string,
+  count = 5
+): Promise<GeneratedQuestion[]> {
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GOOGLE_GENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error('GEMINI_API_KEY eksik.');
+  }
+
+  const prompt = `Sen Türkiye MEB ve ÖSYM müfredatını en iyi bilen uzman bir YKS soru yazarısın.
+Ders: "${subject}"
+Konu: "${topic}"
+
+GÖREV: Bu konu için ÖSYM YKS sınav standartlarında (TYT veya AYT formatında) tam ${count} adet YENİ NESİL, ÇÖZÜMLÜ, ÇOKTAN SEÇMELİ SORU üret.
+
+KURALLAR:
+1. Soru metni (text): Gerçekçi, matematiksel veya kavramsal olarak hatasız, net soru kökü. Gerekirse standart LaTeX formülü ($...$) içermeli.
+2. Seçenekler (options): {"A": "...", "B": "...", "C": "...", "D": "...", "E": "..."} formatında 5 şık.
+3. Doğru şık (correctOption): "A", "B", "C", "D" veya "E".
+4. Zorluk (difficulty): 1 ile 5 arasında tam sayı (1: çok kolay, 3: orta YKS, 5: zor/eleme sorusu).
+5. Açıklamalı çözüm (explanation): Adım adım, öğrencinin tam anlayacağı pedagojik çözüm metni.
+6. Çıktı formatı: SADECE geçerli bir JSON dizisi (Array). Markdown backtick veya fazladan metin ekleme.
+
+JSON ŞEMASI:
+[
+  {
+    "text": "f(x) = x^3 - 3x^2 + 4 fonksiyonunun yerel minimum noktasının apsisi kaçtır?",
+    "options": { "A": "0", "B": "1", "C": "2", "D": "3", "E": "4" },
+    "correctOption": "C",
+    "difficulty": 3,
+    "explanation": "f'(x) = 3x^2 - 6x = 3x(x - 2) = 0. Kökler x = 0 ve x = 2'dir. İşaret tablosu incelendiğinde x = 2'de türev negatiften pozitife geçer, dolayısıyla yerel minimum apsisi 2'dir."
+  }
+]`;
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.65,
+          maxOutputTokens: 4096,
+        }
+      })
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => '');
+    throw new Error(`Gemini API Error (${response.status}): ${errorText.slice(0, 200)}`);
+  }
+
+  const resJson = await response.json();
+  const rawText = resJson.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  
+  const cleanedJson = rawText
+    .replace(/^```json\s*/i, '')
+    .replace(/^```\s*/i, '')
+    .replace(/\s*```$/i, '')
+    .trim();
+
+  const parsed = JSON.parse(cleanedJson);
+  if (!Array.isArray(parsed)) {
+    throw new Error('Gemini JSON çıktısı bir dizi formatında değil.');
+  }
+
+  const result: GeneratedQuestion[] = parsed.map((item) => ({
+    text: item.text || '',
+    options: item.options || { A: '', B: '', C: '', D: '', E: '' },
+    correctOption: item.correctOption || 'A',
+    difficulty: Math.max(1, Math.min(5, Number(item.difficulty) || 3)),
+    explanation: item.explanation || '',
+    subject,
+    topic,
+  }));
+
+  return result.filter(q => q.text && q.options && q.options.A && q.options.B);
+}
+
+/**
+ * Saves generated questions into the PostgreSQL questions table
+ */
+export async function saveQuestionsToDB(questions: GeneratedQuestion[]): Promise<number> {
+  let inserted = 0;
+
+  for (const q of questions) {
+    try {
+      await db.prepare(`
+        INSERT INTO questions (subject, topic, text, options_json, correct_option, difficulty, explanation)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `).run(
+        q.subject,
+        q.topic,
+        q.text,
+        JSON.stringify(q.options),
+        q.correctOption,
+        q.difficulty,
+        q.explanation || ''
+      );
+      inserted++;
+    } catch (e) {
+      console.error('Soru kaydetme hatası:', e);
+    }
+  }
+
+  return inserted;
+}
