@@ -1,13 +1,17 @@
-"use client";
-
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BrainCircuit, Check, X, ArrowLeft, Loader2, Sparkles, Volume2, Lightbulb, RotateCw, Flame } from 'lucide-react';
+import { 
+  BrainCircuit, Check, X, ArrowLeft, Loader2, Sparkles, 
+  Volume2, VolumeX, Lightbulb, RotateCw, Flame, Headphones, 
+  Play, Pause, FastForward 
+} from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { haptics } from '@/lib/haptics';
 import confetti from 'canvas-confetti';
+import { useNaturalAudio } from '@/lib/audio-player';
+import FormattedCardContent from '@/components/FormattedCardContent';
 
 function StudyContent() {
   const { user } = useAuth();
@@ -26,6 +30,11 @@ function StudyContent() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [completed, setCompleted] = useState(false);
   const [sessionStats, setSessionStats] = useState({ reviewed: 0, again: 0, hard: 0, good: 0, easy: 0, xp: 0 });
+
+  // Natural Human Audio & Podcast Engine
+  const { isPlaying, currentText, speed, setSpeed, play, stop, toggle } = useNaturalAudio();
+  const [podcastMode, setPodcastMode] = useState(false);
+  const podcastTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     fetchCards();
@@ -80,20 +89,67 @@ function StudyContent() {
     }
   };
 
-  const speak = (text: string, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
-    try {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'tr-TR';
-      utterance.rate = 0.95;
-      window.speechSynthesis.speak(utterance);
-    } catch (_) {}
+  // Podcast Mode Sequencer
+  useEffect(() => {
+    if (!podcastMode || cards.length === 0 || completed) {
+      if (podcastTimerRef.current) clearTimeout(podcastTimerRef.current);
+      return;
+    }
+
+    const currentCard = cards[currentIndex];
+    if (!currentCard) return;
+
+    let isCancelled = false;
+
+    const runPodcastSequence = async () => {
+      setIsFlipped(false);
+      
+      // Read front
+      await play(currentCard.front_text, speed);
+      if (isCancelled) return;
+
+      // Wait 2.5 seconds thinking gap
+      podcastTimerRef.current = setTimeout(async () => {
+        if (isCancelled) return;
+        setIsFlipped(true);
+
+        // Read back + tip
+        const backSpoken = currentCard.back_text + (currentCard.tip ? `. Önemli İpucu: ${currentCard.tip}` : '');
+        await play(backSpoken, speed);
+        if (isCancelled) return;
+
+        // Wait 2.8 seconds and advance
+        podcastTimerRef.current = setTimeout(() => {
+          if (isCancelled) return;
+          handleReview(2);
+        }, 2800);
+      }, 2500);
+    };
+
+    runPodcastSequence();
+
+    return () => {
+      isCancelled = true;
+      if (podcastTimerRef.current) clearTimeout(podcastTimerRef.current);
+      stop();
+    };
+  }, [podcastMode, currentIndex, completed, cards, speed]);
+
+  const togglePodcast = () => {
+    if (podcastMode) {
+      if (podcastTimerRef.current) clearTimeout(podcastTimerRef.current);
+      stop();
+      setPodcastMode(false);
+    } else {
+      setPodcastMode(true);
+    }
   };
 
   const handleReview = async (quality: number) => {
     if (cards.length === 0) return;
+    if (podcastTimerRef.current) clearTimeout(podcastTimerRef.current);
+    stop();
+
     if (quality === 0) haptics.impact('medium');
     else if (quality === 1) haptics.impact('light');
     else haptics.notification('success');
@@ -233,14 +289,72 @@ function StudyContent() {
           </Link>
         </motion.div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.25rem' }}>
           
-          {/* Progress Indicator */}
-          <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-            <div style={{ flex: 1, height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${((currentIndex + 1) / cards.length) * 100}%`, background: '#38bdf8', transition: 'width 0.3s' }} />
+          {/* Top Control Bar: Progress, Podcast Mode & Audio Speed */}
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+              
+              {/* Podcast / Auto-Play Toggle Button */}
+              <button
+                onClick={togglePodcast}
+                className="btn-interactive"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '6px 14px',
+                  borderRadius: '10px',
+                  background: podcastMode 
+                    ? 'linear-gradient(135deg, rgba(16,185,129,0.25), rgba(56,189,248,0.25))' 
+                    : 'rgba(255,255,255,0.06)',
+                  border: podcastMode 
+                    ? '1px solid rgba(16,185,129,0.6)' 
+                    : '1px solid rgba(255,255,255,0.12)',
+                  color: podcastMode ? '#6ee7b7' : '#94a3b8',
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: podcastMode ? '0 0 15px rgba(16,185,129,0.25)' : 'none',
+                }}
+              >
+                <Headphones size={15} className={podcastMode && isPlaying ? "animate-pulse" : ""} />
+                <span>{podcastMode ? '🎧 Podcast Aktif (Oto-Dinle)' : '🎧 Podcast Modu'}</span>
+              </button>
+
+              {/* Natural Audio Speed Pills */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(255,255,255,0.04)', padding: '2px 4px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <span style={{ fontSize: '0.7rem', color: '#64748b', marginRight: '4px' }}>Hız:</span>
+                {[0.8, 1.0, 1.25].map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => setSpeed(s)}
+                    style={{
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '2px 8px',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      background: speed === s ? 'rgba(56,189,248,0.2)' : 'transparent',
+                      color: speed === s ? '#38bdf8' : '#94a3b8',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {s}x
+                  </button>
+                ))}
+              </div>
+
             </div>
-            <span style={{ fontWeight: 700, color: '#f1f5f9' }}>{currentIndex + 1} / {cards.length}</span>
+
+            {/* Progress Bar */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+              <div style={{ flex: 1, height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${((currentIndex + 1) / cards.length) * 100}%`, background: '#38bdf8', transition: 'width 0.3s' }} />
+              </div>
+              <span style={{ fontWeight: 700, color: '#f1f5f9' }}>{currentIndex + 1} / {cards.length}</span>
+            </div>
           </div>
 
           {/* Swipeable & Flippable Card */}
@@ -251,10 +365,8 @@ function StudyContent() {
             dragElastic={0.65}
             onDragEnd={(e, info) => {
               if (info.offset.x > 100 || info.velocity.x > 500) {
-                // Swiped RIGHT -> İyi (Biliyorum)
                 handleReview(2);
               } else if (info.offset.x < -100 || info.velocity.x < -500) {
-                // Swiped LEFT -> Tekrar
                 handleReview(0);
               }
             }}
@@ -300,18 +412,52 @@ function StudyContent() {
                       {currentCard.subject} · {currentCard.topic}
                     </span>
                   </div>
+                  
+                  {/* Natural Human Voice Button */}
                   <button 
-                    onClick={(e) => speak(currentCard.front_text, e)}
-                    style={{ background: 'rgba(255,255,255,0.06)', border: 'none', borderRadius: '6px', padding: '6px', color: '#94a3b8', cursor: 'pointer' }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggle(currentCard.front_text);
+                    }}
+                    style={{ 
+                      background: isPlaying && currentText === currentCard.front_text 
+                        ? 'rgba(56,189,248,0.2)' 
+                        : 'rgba(255,255,255,0.06)', 
+                      border: isPlaying && currentText === currentCard.front_text 
+                        ? '1px solid rgba(56,189,248,0.4)' 
+                        : 'none', 
+                      borderRadius: '8px', 
+                      padding: '8px', 
+                      color: isPlaying && currentText === currentCard.front_text ? '#38bdf8' : '#94a3b8', 
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      transition: 'all 0.2s ease',
+                    }}
+                    title="İnsansı sesle oku"
                   >
-                    <Volume2 size={16} />
+                    {isPlaying && currentText === currentCard.front_text ? (
+                      <VolumeX size={17} className="animate-pulse" />
+                    ) : (
+                      <Volume2 size={17} />
+                    )}
                   </button>
                 </div>
 
                 <div style={{ textAlign: 'center', margin: '2rem 0' }}>
-                  <h2 style={{ fontSize: 'clamp(1.15rem, 3.5vw, 1.45rem)', color: '#fff', textAlign: 'center', padding: '0 0.5rem', lineHeight: 1.5, margin: 0 }}>
-                    {currentCard.front_text}
-                  </h2>
+                  <FormattedCardContent
+                    text={currentCard.front_text}
+                    isFlipped={isFlipped}
+                    style={{
+                      fontSize: 'clamp(1.15rem, 3.5vw, 1.45rem)',
+                      color: '#fff',
+                      textAlign: 'center',
+                      padding: '0 0.5rem',
+                      lineHeight: 1.5,
+                      margin: 0,
+                    }}
+                  />
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '0.75rem' }}>
@@ -343,23 +489,51 @@ function StudyContent() {
                   <span style={{ fontSize: '0.75rem', color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '3px 8px', borderRadius: '4px', fontWeight: 700 }}>
                     ✓ Cevap & Çözüm
                   </span>
+                  
+                  {/* Natural Human Voice Button for Back */}
                   <button 
-                    onClick={(e) => speak(currentCard.back_text, e)}
-                    style={{ background: 'rgba(255,255,255,0.06)', border: 'none', borderRadius: '6px', padding: '6px', color: '#94a3b8', cursor: 'pointer' }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const fullBackText = currentCard.back_text + (currentCard.tip ? `. Önemli İpucu: ${currentCard.tip}` : '');
+                      toggle(fullBackText);
+                    }}
+                    style={{ 
+                      background: isPlaying ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.06)', 
+                      border: isPlaying ? '1px solid rgba(16,185,129,0.4)' : 'none', 
+                      borderRadius: '8px', 
+                      padding: '8px', 
+                      color: isPlaying ? '#10b981' : '#94a3b8', 
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      transition: 'all 0.2s ease',
+                    }}
+                    title="İnsansı sesle oku"
                   >
-                    <Volume2 size={16} />
+                    {isPlaying ? <VolumeX size={17} className="animate-pulse" /> : <Volume2 size={17} />}
                   </button>
                 </div>
 
                 <div style={{ margin: '1rem 0', maxHeight: '180px', overflowY: 'auto' }}>
-                  <p style={{ fontSize: 'clamp(1rem, 3vw, 1.25rem)', color: '#f1f5f9', textAlign: 'center', padding: '0 0.5rem', lineHeight: 1.5, margin: 0, whiteSpace: 'pre-line' }}>
-                    {currentCard.back_text}
-                  </p>
+                  <FormattedCardContent
+                    text={currentCard.back_text}
+                    isFlipped={isFlipped}
+                    style={{
+                      fontSize: 'clamp(1rem, 3vw, 1.25rem)',
+                      color: '#f1f5f9',
+                      textAlign: 'center',
+                      padding: '0 0.5rem',
+                      lineHeight: 1.5,
+                      margin: 0,
+                    }}
+                  />
 
                   {currentCard.tip && (
                     <div style={{ marginTop: '0.75rem', padding: '0.65rem 0.85rem', borderRadius: '10px', background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.25)', display: 'flex', gap: '0.5rem', alignItems: 'flex-start', textAlign: 'left' }}>
                       <Lightbulb size={16} color="#f59e0b" style={{ flexShrink: 0, marginTop: '2px' }} />
                       <span style={{ fontSize: '0.8rem', color: '#fde68a', lineHeight: 1.4 }}>
+                        <strong style={{ color: '#f59e0b', marginRight: '4px' }}>Hafıza Çivisi:</strong>
                         {currentCard.tip}
                       </span>
                     </div>

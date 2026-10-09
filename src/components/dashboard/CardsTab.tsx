@@ -10,6 +10,7 @@ import {
   X, 
   Check, 
   Volume2, 
+  VolumeX,
   Sparkles, 
   Zap, 
   Flame, 
@@ -21,6 +22,8 @@ import {
   GraduationCap
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { useNaturalAudio } from '@/lib/audio-player';
+import FormattedCardContent from '@/components/FormattedCardContent';
 
 interface FlashCard {
   id: string;
@@ -118,17 +121,13 @@ export default function CardsTab() {
     fetchFlashcards();
   }, [fetchFlashcards]);
 
-  // Text to Speech
+  // Natural Human Audio hook
+  const { isPlaying, currentText, toggle: toggleAudio, stop: stopAudio } = useNaturalAudio();
+
+  // Text to Speech with Natural Human Voice
   const speak = (text: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
-    try {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'tr-TR';
-      utterance.rate = 0.95;
-      window.speechSynthesis.speak(utterance);
-    } catch (_) {}
+    toggleAudio(text);
   };
 
   // Start study session
@@ -429,17 +428,31 @@ export default function CardsTab() {
                 </div>
                 <button 
                   onClick={(e) => speak(currentCard.front_text, e)}
-                  title="Sesli Dinle"
-                  style={{ background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: '8px', padding: '6px', color: '#94a3b8', cursor: 'pointer' }}
+                  title="İnsansı sesle dinle"
+                  style={{ 
+                    background: isPlaying && currentText === currentCard.front_text ? 'rgba(56,189,248,0.2)' : 'rgba(255,255,255,0.05)', 
+                    border: isPlaying && currentText === currentCard.front_text ? '1px solid rgba(56,189,248,0.4)' : 'none', 
+                    borderRadius: '8px', 
+                    padding: '6px', 
+                    color: isPlaying && currentText === currentCard.front_text ? '#38bdf8' : '#94a3b8', 
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
                 >
-                  <Volume2 size={18} />
+                  {isPlaying && currentText === currentCard.front_text ? (
+                    <VolumeX size={18} className="animate-pulse" />
+                  ) : (
+                    <Volume2 size={18} />
+                  )}
                 </button>
               </div>
 
               <div style={{ textAlign: 'center', margin: '2rem 0' }}>
-                <p style={{ color: '#f8fafc', fontSize: '1.25rem', fontWeight: 600, lineHeight: 1.6, margin: 0 }}>
-                  {currentCard.front_text}
-                </p>
+                <FormattedCardContent
+                  text={currentCard.front_text}
+                  isFlipped={flipped}
+                  style={{ color: '#f8fafc', fontSize: '1.25rem', fontWeight: 600, lineHeight: 1.6 }}
+                />
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
@@ -474,23 +487,34 @@ export default function CardsTab() {
                   ✓ Çözüm / Doğru Cevap
                 </span>
                 <button 
-                  onClick={(e) => speak(currentCard.back_text, e)}
-                  title="Sesli Dinle"
-                  style={{ background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: '8px', padding: '6px', color: '#94a3b8', cursor: 'pointer' }}
+                  onClick={(e) => speak(currentCard.back_text + (currentCard.tip ? '. İpucu: ' + currentCard.tip : ''), e)}
+                  title="İnsansı sesle dinle"
+                  style={{ 
+                    background: isPlaying ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.05)', 
+                    border: isPlaying ? '1px solid rgba(16,185,129,0.4)' : 'none', 
+                    borderRadius: '8px', 
+                    padding: '6px', 
+                    color: isPlaying ? '#10b981' : '#94a3b8', 
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
                 >
-                  <Volume2 size={18} />
+                  {isPlaying ? <VolumeX size={18} className="animate-pulse" /> : <Volume2 size={18} />}
                 </button>
               </div>
 
               <div style={{ margin: '1rem 0', maxHeight: '180px', overflowY: 'auto' }}>
-                <p style={{ color: '#f1f5f9', fontSize: '1.05rem', fontWeight: 500, lineHeight: 1.6, margin: 0, whiteSpace: 'pre-line' }}>
-                  {currentCard.back_text}
-                </p>
+                <FormattedCardContent
+                  text={currentCard.back_text}
+                  isFlipped={flipped}
+                  style={{ color: '#f1f5f9', fontSize: '1.05rem', fontWeight: 500, lineHeight: 1.6 }}
+                />
 
                 {currentCard.tip && (
                   <div style={{ marginTop: '1rem', padding: '0.75rem 1rem', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.25)', display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
                     <Lightbulb size={18} color="#f59e0b" style={{ flexShrink: 0, marginTop: '2px' }} />
                     <span style={{ fontSize: '0.85rem', color: '#fde68a', lineHeight: 1.5 }}>
+                      <strong style={{ color: '#f59e0b', marginRight: '4px' }}>Hafıza Çivisi:</strong>
                       {currentCard.tip}
                     </span>
                   </div>
