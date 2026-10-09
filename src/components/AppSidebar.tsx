@@ -51,6 +51,8 @@ const STUDENT_NAV_GROUPS: {
     color: '#f59e0b', // amber
     items: [
       { emoji: '⚔️', label: 'Bilgi Arenası', href: '/duello' },
+      { emoji: '🛡️', label: 'Klanlar', href: '/klanlar' },
+      { emoji: '💬', label: 'Topluluk Forumu', href: '/forum' },
       { emoji: '🎧', label: 'Çalışma Odaları', href: '/calisma-odalari' },
       { emoji: '🏫', label: 'Sınıfım', href: '/dashboard?tab=sinif' },
       { emoji: '🏆', label: 'Lig Sıralaması', href: '/ligler' },
@@ -90,6 +92,8 @@ const MAARIF_NAV_GROUPS: {
     color: '#f59e0b', // amber
     items: [
       { emoji: '⚔️', label: 'Bilgi Arenası', href: '/duello' },
+      { emoji: '🛡️', label: 'Klanlar', href: '/klanlar' },
+      { emoji: '💬', label: 'Topluluk Forumu', href: '/forum' },
       { emoji: '🏆', label: 'Ligler', href: '/ligler' },
       { emoji: '🛍️', label: 'Mağaza', href: '/magaza' },
     ],

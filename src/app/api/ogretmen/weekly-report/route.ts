@@ -29,6 +29,22 @@ export async function GET(req: Request) {
     const weekStartStr = weekStart.toISOString().split('T')[0];
     const weekEndStr = weekEnd.toISOString().split('T')[0];
 
+    // Tablo güvencesi
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS class_weekly_reports (
+        id SERIAL PRIMARY KEY,
+        class_id TEXT NOT NULL,
+        teacher_id TEXT NOT NULL,
+        week_start DATE NOT NULL,
+        week_end DATE NOT NULL,
+        top_weaknesses JSONB DEFAULT '[]',
+        top_improvers JSONB DEFAULT '[]',
+        active_student_rate DECIMAL(5,2) DEFAULT 0,
+        ai_recommendations JSONB DEFAULT '[]',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+
     // Kaydedilmiş rapor var mı?
     const savedReport = await db.prepare(`
       SELECT * FROM class_weekly_reports

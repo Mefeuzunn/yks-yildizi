@@ -190,6 +190,27 @@ export default function ScheduleTab() {
   const [editDay, setEditDay]               = useState(0);
   const [editTime, setEditTime]             = useState(7);
   const [showMobileTimeline, setShowMobileTimeline] = useState(false);
+  const [showAiPlanModal, setShowAiPlanModal] = useState(false);
+  const [aiPlanGenerating, setAiPlanGenerating] = useState(false);
+
+  const handleGenerateAiPlan = async () => {
+    setShowAiPlanModal(false);
+    setAiPlanGenerating(true);
+    try {
+      toast.info('Yapay zeka planı hazırlanıyor...');
+      const res = await fetch('/api/user/calendar/generate', { method: 'POST' });
+      if (res.ok) {
+        toast.success('Yapay zeka planı oluşturuldu!');
+        window.location.reload();
+      } else {
+        toast.error('Plan oluşturulurken hata meydana geldi.');
+      }
+    } catch (e) {
+      toast.error('Hata oluştu!');
+    } finally {
+      setAiPlanGenerating(false);
+    }
+  };
   
   // Current hour highlight
   const nowHour = new Date().getHours();
@@ -251,30 +272,18 @@ export default function ScheduleTab() {
           </p>
         </div>
         <button 
-          onClick={async () => {
-            if (confirm('Yapay zeka analizlerine göre eski program silinip yepyeni bir adaptif takvim çizilecek. Onaylıyor musun?')) {
-              try {
-                toast.info('Yapay zeka planı hazırlanıyor...');
-                const res = await fetch('/api/user/calendar/generate', { method: 'POST' });
-                if (res.ok) {
-                  toast.success('Yapay zeka planı oluşturuldu!');
-                  window.location.reload();
-                } else {
-                  toast.error('Plan oluşturulurken hata meydana geldi.');
-                }
-              } catch (e) {
-                toast.error('Hata oluştu!');
-              }
-            }
-          }}
+          onClick={() => setShowAiPlanModal(true)}
+          disabled={aiPlanGenerating}
           style={{
             background: 'linear-gradient(135deg, #a855f7, #ec4899)',
             border: 'none', borderRadius: '12px', padding: '12px 20px',
             color: '#fff', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px',
-            cursor: 'pointer', boxShadow: '0 4px 15px rgba(168, 85, 247, 0.4)'
+            cursor: aiPlanGenerating ? 'not-allowed' : 'pointer',
+            opacity: aiPlanGenerating ? 0.7 : 1,
+            boxShadow: '0 4px 15px rgba(168, 85, 247, 0.4)'
           }}
         >
-          <Sparkles size={18} /> Yapay Zeka Planı Çiz
+          <Sparkles size={18} /> {aiPlanGenerating ? 'Plan Çiziliyor...' : 'Yapay Zeka Planı Çiz'}
         </button>
       </div>
 
@@ -878,6 +887,75 @@ export default function ScheduleTab() {
                 <button onClick={()=>{updateBlock(editBlock.id,{title:editTitle,duration:editDuration,color:editColor,notes:editNotes,day:editDay,time:editTime});setEditBlock(null);}}
                   style={{flex:1,padding:'10px 16px',borderRadius:'12px',backgroundColor:editColor,border:'none',color:'#fff',fontWeight:700,cursor:'pointer',fontSize:'14px',display:'flex',alignItems:'center',justifyContent:'center',gap:'8px',boxShadow:'0 0 20px '+editColor+'40'}}>
                   Kaydet
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Yapay Zeka Planı Onay Modalı */}
+        {showAiPlanModal && (
+          <div style={{
+            position:'fixed',inset:0,zIndex:9999,
+            backgroundColor:'rgba(0,0,0,0.75)',backdropFilter:'blur(8px)',
+            display:'flex',alignItems:'center',justifyContent:'center',padding:'16px'
+          }}>
+            <motion.div
+              initial={{opacity:0,scale:0.95,y:10}}
+              animate={{opacity:1,scale:1,y:0}}
+              exit={{opacity:0,scale:0.95,y:10}}
+              style={{
+                backgroundColor:'#0f172a',
+                border:'1px solid rgba(168, 85, 247, 0.35)',
+                borderRadius:'24px',
+                padding:'2rem',
+                maxWidth:'440px',
+                width:'100%',
+                boxShadow:'0 25px 50px -12px rgba(0,0,0,0.5), 0 0 35px rgba(168, 85, 247, 0.2)',
+                textAlign:'center'
+              }}
+            >
+              <div style={{
+                width:'60px',height:'60px',borderRadius:'20px',
+                background:'linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(236, 72, 153, 0.2))',
+                border:'1px solid rgba(168, 85, 247, 0.4)',
+                color:'#c084fc',display:'flex',alignItems:'center',justifyContent:'center',
+                margin:'0 auto 1.25rem'
+              }}>
+                <Sparkles size={28} />
+              </div>
+
+              <h3 style={{color:'#fff',fontSize:'1.3rem',fontWeight:800,marginBottom:'0.5rem'}}>
+                Yapay Zeka Planı Oluşturulsun Mu?
+              </h3>
+              <p style={{color:'#94a3b8',fontSize:'0.875rem',lineHeight:1.6,marginBottom:'1.75rem'}}>
+                Hedef ve eksik analizlerine göre haftalık çalışma takvimin sıfırdan optimize edilip çizilecektir. Mevcut blokların yerini yeni adaptif plan alacaktır.
+              </p>
+
+              <div style={{display:'flex',gap:'10px'}}>
+                <button
+                  type="button"
+                  onClick={()=>setShowAiPlanModal(false)}
+                  style={{
+                    flex:1,padding:'12px',borderRadius:'14px',
+                    backgroundColor:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',
+                    color:'#e2e8f0',fontWeight:700,fontSize:'14px',cursor:'pointer'
+                  }}
+                >
+                  Vazgeç
+                </button>
+                <button
+                  type="button"
+                  onClick={handleGenerateAiPlan}
+                  disabled={aiPlanGenerating}
+                  style={{
+                    flex:1,padding:'12px',borderRadius:'14px',
+                    background:'linear-gradient(135deg, #a855f7, #ec4899)',border:'none',
+                    color:'#fff',fontWeight:700,fontSize:'14px',cursor:'pointer',
+                    boxShadow:'0 4px 15px rgba(168, 85, 247, 0.4)'
+                  }}
+                >
+                  {aiPlanGenerating ? 'Hazırlanıyor...' : 'Evet, Oluştur'}
                 </button>
               </div>
             </motion.div>

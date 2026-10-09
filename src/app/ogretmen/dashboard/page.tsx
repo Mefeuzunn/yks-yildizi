@@ -855,6 +855,7 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
   const [newNoteCategory, setNewNoteCategory] = React.useState('rehberlik');
   const [savingNote, setSavingNote] = React.useState(false);
   const [deletingNoteId, setDeletingNoteId] = React.useState<string | null>(null);
+  const [confirmDeleteNoteId, setConfirmDeleteNoteId] = React.useState<string | null>(null);
 
   const fetchDetail = React.useCallback(async (isInitial = false) => {
     if (!studentId) return;
@@ -974,7 +975,7 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
   };
 
   const handleDeleteNote = async (noteId: string) => {
-    if (!confirm('Bu notu silmek istediğinize emin misiniz?')) return;
+    setConfirmDeleteNoteId(null);
     setDeletingNoteId(noteId);
     try {
       const res = await fetch(`/api/ogretmen/ogrenciler/${studentId}/notes?noteId=${noteId}`, {
@@ -2004,26 +2005,61 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
                                     {new Date(n.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                   </span>
                                 </div>
-                                <button
-                                  onClick={() => handleDeleteNote(n.id)}
-                                  disabled={deletingNoteId === n.id}
-                                  style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    color: '#ef4444',
-                                    opacity: 0.6,
-                                    cursor: 'pointer',
-                                    padding: '4px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    transition: 'opacity 0.15s'
-                                  }}
-                                  onMouseEnter={e => { e.currentTarget.style.opacity = '1'; }}
-                                  onMouseLeave={e => { e.currentTarget.style.opacity = '0.6'; }}
-                                  title="Notu Sil"
-                                >
-                                  {deletingNoteId === n.id ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Trash2 size={14} />}
-                                </button>
+                                {confirmDeleteNoteId === n.id ? (
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    <button
+                                      onClick={() => handleDeleteNote(n.id)}
+                                      disabled={deletingNoteId === n.id}
+                                      style={{
+                                        background: '#ef4444',
+                                        color: '#fff',
+                                        border: 'none',
+                                        borderRadius: 6,
+                                        padding: '2px 8px',
+                                        fontSize: '0.75rem',
+                                        fontWeight: 700,
+                                        cursor: 'pointer'
+                                      }}
+                                    >
+                                      {deletingNoteId === n.id ? '...' : 'Sil'}
+                                    </button>
+                                    <button
+                                      onClick={() => setConfirmDeleteNoteId(null)}
+                                      style={{
+                                        background: 'rgba(255,255,255,0.1)',
+                                        color: '#94a3b8',
+                                        border: 'none',
+                                        borderRadius: 6,
+                                        padding: '2px 6px',
+                                        fontSize: '0.75rem',
+                                        cursor: 'pointer'
+                                      }}
+                                    >
+                                      İptal
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <button
+                                    onClick={() => setConfirmDeleteNoteId(n.id)}
+                                    disabled={deletingNoteId === n.id}
+                                    style={{
+                                      background: 'none',
+                                      border: 'none',
+                                      color: '#ef4444',
+                                      opacity: 0.6,
+                                      cursor: 'pointer',
+                                      padding: '4px',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      transition: 'opacity 0.15s'
+                                    }}
+                                    onMouseEnter={e => { e.currentTarget.style.opacity = '1'; }}
+                                    onMouseLeave={e => { e.currentTarget.style.opacity = '0.6'; }}
+                                    title="Notu Sil"
+                                  >
+                                    {deletingNoteId === n.id ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Trash2 size={14} />}
+                                  </button>
+                                )}
                               </div>
                               <p style={{ color: '#e2e8f0', fontSize: '0.85rem', lineHeight: 1.6, margin: 0, whiteSpace: 'pre-wrap' }}>
                                 {n.note}
@@ -2213,6 +2249,8 @@ function TeacherDashboardContent() {
   const [etutDuration, setEtutDuration] = useState<number>(40);
   const [etutTitle, setEtutTitle] = useState<string>('');
   const [startingEtut, setStartingEtut] = useState(false);
+  const [deleteConfirmModal, setDeleteConfirmModal] = useState<{ open: boolean; title: string; message: string; onConfirm: () => Promise<void> } | null>(null);
+  const [deleteConfirmLoading, setDeleteConfirmLoading] = useState(false);
 
   const handleOpenEditClass = (c: ClassItem) => {
     setEditingClass(c);
@@ -2510,11 +2548,22 @@ function TeacherDashboardContent() {
   };
 
   const handleDeleteClass = async (classId: string, className: string) => {
-    if (!confirm(`"${className}" sınıfını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`)) return;
-    try {
-      const res = await fetch(`/api/ogretmen/siniflar?id=${classId}`, { method: 'DELETE' });
-      if (res.ok) { fetchClasses(); fetchDashboard(); }
-    } catch (e) { console.error(e); }
+    setDeleteConfirmModal({
+      open: true,
+      title: 'Sınıfı Sil',
+      message: `"${className}" sınıfını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`,
+      onConfirm: async () => {
+        setDeleteConfirmLoading(true);
+        try {
+          const res = await fetch(`/api/ogretmen/siniflar?id=${classId}`, { method: 'DELETE' });
+          if (res.ok) { fetchClasses(); fetchDashboard(); toast.success('Sınıf silindi.'); }
+        } catch (e) { console.error(e); }
+        finally {
+          setDeleteConfirmLoading(false);
+          setDeleteConfirmModal(null);
+        }
+      }
+    });
   };
 
   useEffect(() => {
@@ -2701,17 +2750,28 @@ function TeacherDashboardContent() {
 
   const handleDeleteAssignment = async (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    if (!confirm('Bu ödevi ve tüm öğrenci teslimlerini silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) return;
-    try {
-      const res = await fetch(`/api/ogretmen/odev/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        fetchAssignments();
-        fetchDashboard();
-        if (activeModal === 'odevDetay') setActiveModal(null);
+    setDeleteConfirmModal({
+      open: true,
+      title: 'Ödevi Sil',
+      message: 'Bu ödevi ve tüm öğrenci teslimlerini silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.',
+      onConfirm: async () => {
+        setDeleteConfirmLoading(true);
+        try {
+          const res = await fetch(`/api/ogretmen/odev/${id}`, { method: 'DELETE' });
+          if (res.ok) {
+            fetchAssignments();
+            fetchDashboard();
+            if (activeModal === 'odevDetay') setActiveModal(null);
+            toast.success('Ödev silindi.');
+          }
+        } catch (e) {
+          console.error('Delete assignment error:', e);
+        } finally {
+          setDeleteConfirmLoading(false);
+          setDeleteConfirmModal(null);
+        }
       }
-    } catch (e) {
-      console.error('Delete assignment error:', e);
-    }
+    });
   };
 
   const handleUpdateAnnouncement = async (e: React.FormEvent) => {
@@ -2739,16 +2799,27 @@ function TeacherDashboardContent() {
 
   const handleDeleteAnnouncement = async (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    if (!confirm('Bu duyuruyu silmek istediğinizden emin misiniz?')) return;
-    try {
-      const res = await fetch(`/api/ogretmen/duyurular?id=${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        fetchAnnouncements();
-        fetchDashboard();
+    setDeleteConfirmModal({
+      open: true,
+      title: 'Duyuruyu Sil',
+      message: 'Bu duyuruyu silmek istediğinizden emin misiniz?',
+      onConfirm: async () => {
+        setDeleteConfirmLoading(true);
+        try {
+          const res = await fetch(`/api/ogretmen/duyurular?id=${id}`, { method: 'DELETE' });
+          if (res.ok) {
+            fetchAnnouncements();
+            fetchDashboard();
+            toast.success('Duyuru silindi.');
+          }
+        } catch (e) {
+          console.error('Delete announcement error:', e);
+        } finally {
+          setDeleteConfirmLoading(false);
+          setDeleteConfirmModal(null);
+        }
       }
-    } catch (e) {
-      console.error('Delete announcement error:', e);
-    }
+    });
   };
 
   const copyToClipboard = (code: string) => {
@@ -4510,6 +4581,42 @@ function TeacherDashboardContent() {
       {/* ══════════════════════════════════════════
           MODALS
       ══════════════════════════════════════════ */}
+
+      {/* Silme Onay Modalı */}
+      <Modal open={!!deleteConfirmModal?.open} onClose={() => setDeleteConfirmModal(null)} title={deleteConfirmModal?.title || 'Onay'}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6, margin: 0 }}>
+            {deleteConfirmModal?.message}
+          </p>
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+            <button
+              type="button"
+              onClick={() => setDeleteConfirmModal(null)}
+              style={{
+                padding: '8px 16px', borderRadius: '10px',
+                background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+                color: '#e2e8f0', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer'
+              }}
+            >
+              Vazgeç
+            </button>
+            <button
+              type="button"
+              onClick={() => deleteConfirmModal?.onConfirm()}
+              disabled={deleteConfirmLoading}
+              style={{
+                padding: '8px 18px', borderRadius: '10px',
+                background: '#ef4444', border: 'none',
+                color: '#fff', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 6,
+                boxShadow: '0 4px 12px rgba(239,68,68,0.3)'
+              }}
+            >
+              {deleteConfirmLoading ? <Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> : 'Evet, Sil'}
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Yeni Sınıf */}
       <Modal open={activeModal === 'sinif'} onClose={() => setActiveModal(null)} title="Yeni Sınıf Oluştur">

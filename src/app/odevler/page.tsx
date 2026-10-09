@@ -7,7 +7,7 @@ export default function OdevlerRedirect() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/sinifim');
+    router.replace('/odevlerim');
   }, [router]);
 
   return null;

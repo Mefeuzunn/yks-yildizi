@@ -28,6 +28,7 @@ export default function SinifimTab() {
   const [joinSuccess, setJoinSuccess] = useState('');
   const [joinSubmitting, setJoinSubmitting] = useState(false);
   const [leavingClass, setLeavingClass] = useState(false);
+  const [confirmLeaveModal, setConfirmLeaveModal] = useState(false);
 
   const fetchClassData = async () => {
     try {
@@ -103,7 +104,7 @@ export default function SinifimTab() {
   };
 
   const handleLeaveClass = async () => {
-    if (!confirm('Bu sınıftan ayrılmak istediğinize emin misiniz?')) return;
+    setConfirmLeaveModal(false);
     setLeavingClass(true);
     try {
       const res = await fetch('/api/student/leave-class', { method: 'POST' });
@@ -374,7 +375,7 @@ export default function SinifimTab() {
           </div>
 
           <button
-            onClick={handleLeaveClass}
+            onClick={() => setConfirmLeaveModal(true)}
             disabled={leavingClass}
             style={{
               background: 'rgba(239, 68, 68, 0.08)',
@@ -728,6 +729,76 @@ export default function SinifimTab() {
           </motion.div>
         )}
 
+      </AnimatePresence>
+
+      {/* Sınıftan Ayrıl Onay Modalı */}
+      <AnimatePresence>
+        {confirmLeaveModal && (
+          <div style={{
+            position: 'fixed', inset: 0, zIndex: 9999,
+            background: 'rgba(0, 0, 0, 0.75)', backdropFilter: 'blur(8px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
+          }}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              style={{
+                background: '#0f172a',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                borderRadius: '24px',
+                padding: '2rem',
+                maxWidth: '420px',
+                width: '100%',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 30px rgba(239, 68, 68, 0.15)',
+                textAlign: 'center'
+              }}
+            >
+              <div style={{
+                width: '56px', height: '56px', borderRadius: '18px',
+                background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)',
+                color: '#f87171', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                margin: '0 auto 1.25rem'
+              }}>
+                <LogOut size={26} />
+              </div>
+
+              <h3 style={{ color: '#fff', fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.5rem' }}>
+                Sınıftan Ayrılmak İstiyor Musun?
+              </h3>
+              <p style={{ color: '#94a3b8', fontSize: '0.875rem', lineHeight: 1.6, marginBottom: '1.75rem' }}>
+                Bu sınıftan ayrıldığında öğretmenin atadığı ödevlere ve sınıf sıralamasına erişimin sonlandırılacaktır.
+              </p>
+
+              <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setConfirmLeaveModal(false)}
+                  style={{
+                    flex: 1, padding: '0.85rem', borderRadius: '14px',
+                    background: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(255, 255, 255, 0.1)',
+                    color: '#e2e8f0', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer'
+                  }}
+                >
+                  Vazgeç
+                </button>
+                <button
+                  type="button"
+                  onClick={handleLeaveClass}
+                  disabled={leavingClass}
+                  style={{
+                    flex: 1, padding: '0.85rem', borderRadius: '14px',
+                    background: 'linear-gradient(135deg, #ef4444, #dc2626)', border: 'none',
+                    color: '#fff', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer',
+                    boxShadow: '0 4px 15px rgba(239, 68, 68, 0.4)'
+                  }}
+                >
+                  {leavingClass ? 'Ayrılınıyor...' : 'Evet, Ayrıl'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
       </AnimatePresence>
     </motion.div>
   );

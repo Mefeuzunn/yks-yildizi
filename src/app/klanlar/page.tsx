@@ -35,6 +35,7 @@ export default function KlanlarPage() {
   const [inviteLoading, setInviteLoading] = useState(false);
   const [inviteMsg, setInviteMsg] = useState('');
   const [pendingInvites, setPendingInvites] = useState<any[]>([]);
+  const [confirmLeaveClanModal, setConfirmLeaveClanModal] = useState(false);
 
   useEffect(() => {
     fetchAll();
@@ -124,7 +125,7 @@ export default function KlanlarPage() {
   }
 
   async function leaveClan() {
-    if (!confirm('Klandan ayrılmak istediğinden emin misin?')) return;
+    setConfirmLeaveClanModal(false);
     try {
       const res = await fetch('/api/clans/leave', { method: 'POST' });
       const data = await res.json();
@@ -390,7 +391,7 @@ export default function KlanlarPage() {
                       <span style={{ color: '#64748b', fontSize: '0.85rem' }}>• {myClan.member_count} Üye</span>
                     </div>
                   </div>
-                  <button onClick={leaveClan} style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '10px', padding: '8px 14px', color: '#f87171', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600, fontSize: '0.8rem', marginLeft: 'auto' }}>
+                  <button onClick={() => setConfirmLeaveClanModal(true)} style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '10px', padding: '8px 14px', color: '#f87171', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600, fontSize: '0.8rem', marginLeft: 'auto' }}>
                     <LogOut size={14} /> Ayrıl
                   </button>
                 </div>
@@ -514,6 +515,73 @@ export default function KlanlarPage() {
               )}
             </motion.div>
           </motion.div>
+        )}
+
+        {/* Klandan Ayrıl Onay Modalı */}
+        {confirmLeaveClanModal && (
+          <div style={{
+            position: 'fixed', inset: 0, zIndex: 9999,
+            backgroundColor: 'rgba(0, 0, 0, 0.75)', backdropFilter: 'blur(8px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px'
+          }}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              style={{
+                backgroundColor: '#0f172a',
+                border: '1px solid rgba(239, 68, 68, 0.35)',
+                borderRadius: '24px',
+                padding: '2rem',
+                maxWidth: '420px',
+                width: '100%',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 30px rgba(239, 68, 68, 0.15)',
+                textAlign: 'center'
+              }}
+            >
+              <div style={{
+                width: '56px', height: '56px', borderRadius: '18px',
+                background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)',
+                color: '#f87171', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                margin: '0 auto 1.25rem'
+              }}>
+                <LogOut size={26} />
+              </div>
+
+              <h3 style={{ color: '#fff', fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.5rem' }}>
+                Klandan Ayrılmak İstiyor Musun?
+              </h3>
+              <p style={{ color: '#94a3b8', fontSize: '0.875rem', lineHeight: 1.6, marginBottom: '1.75rem' }}>
+                Klandan ayrıldığında haftalık klan XP katkın ve klan sohbetine erişimin sonlanacaktır.
+              </p>
+
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => setConfirmLeaveClanModal(false)}
+                  style={{
+                    flex: 1, padding: '12px', borderRadius: '14px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(255, 255, 255, 0.1)',
+                    color: '#e2e8f0', fontWeight: 700, fontSize: '14px', cursor: 'pointer'
+                  }}
+                >
+                  Vazgeç
+                </button>
+                <button
+                  type="button"
+                  onClick={leaveClan}
+                  style={{
+                    flex: 1, padding: '12px', borderRadius: '14px',
+                    background: 'linear-gradient(135deg, #ef4444, #dc2626)', border: 'none',
+                    color: '#fff', fontWeight: 700, fontSize: '14px', cursor: 'pointer',
+                    boxShadow: '0 4px 15px rgba(239, 68, 68, 0.4)'
+                  }}
+                >
+                  Evet, Ayrıl
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>
