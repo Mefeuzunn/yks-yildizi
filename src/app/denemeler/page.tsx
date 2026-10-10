@@ -25,10 +25,11 @@ type MockExam = {
 // Mapper: database to UI
 const mapExamFromDb = (e: any, alan: string): MockExam => {
   const isTYT = e.type === 'TYT';
-  const turkNet = e.turkishNet !== undefined ? e.turkishNet : (e.turkish_net || 0);
-  const mthNet = e.mathNet !== undefined ? e.mathNet : (e.math_net || 0);
-  const socNet = e.socialNet !== undefined ? e.socialNet : (e.social_net || 0);
-  const sciNet = e.scienceNet !== undefined ? e.scienceNet : (e.science_net || 0);
+  const details = e.details || {};
+  const turkNet = details.turkce !== undefined ? Number(details.turkce) : (e.turkishNet !== undefined ? e.turkishNet : (e.turkish_net || 0));
+  const mthNet = details.matematik !== undefined ? Number(details.matematik) : (e.mathNet !== undefined ? e.mathNet : (e.math_net || 0));
+  const socNet = details.sosyal !== undefined ? Number(details.sosyal) : (e.socialNet !== undefined ? e.socialNet : (e.social_net || 0));
+  const sciNet = details.fen !== undefined ? Number(details.fen) : (e.scienceNet !== undefined ? e.scienceNet : (e.science_net || 0));
   const totNet = e.totalNet !== undefined ? e.totalNet : (e.total_net || 0);
 
   if (isTYT) {
@@ -52,31 +53,31 @@ const mapExamFromDb = (e: any, alan: string): MockExam => {
     if (alan === 'Sayisal') {
       return {
         ...base,
-        aytMatematik: mthNet,
-        fizik: turkNet,
-        kimya: sciNet,
-        biyoloji: socNet
+        aytMatematik: details.aytMatematik !== undefined ? Number(details.aytMatematik) : mthNet,
+        fizik: details.fizik !== undefined ? Number(details.fizik) : turkNet,
+        kimya: details.kimya !== undefined ? Number(details.kimya) : sciNet,
+        biyoloji: details.biyoloji !== undefined ? Number(details.biyoloji) : socNet
       };
     } else if (alan === 'Esit Agirlik') {
       return {
         ...base,
-        aytMatematik: mthNet,
-        edebiyat: turkNet,
-        tarih1: sciNet,
-        cografya1: socNet
+        aytMatematik: details.aytMatematik !== undefined ? Number(details.aytMatematik) : mthNet,
+        edebiyat: details.edebiyat !== undefined ? Number(details.edebiyat) : turkNet,
+        tarih1: details.tarih1 !== undefined ? Number(details.tarih1) : sciNet,
+        cografya1: details.cografya1 !== undefined ? Number(details.cografya1) : socNet
       };
     } else if (alan === 'Sozel') {
       return {
         ...base,
-        edebiyat: turkNet,
-        tarih1: sciNet,
-        cografya1: socNet,
-        tarih2: mthNet
+        edebiyat: details.edebiyat !== undefined ? Number(details.edebiyat) : turkNet,
+        tarih1: details.tarih1 !== undefined ? Number(details.tarih1) : sciNet,
+        cografya1: details.cografya1 !== undefined ? Number(details.cografya1) : socNet,
+        tarih2: details.tarih2 !== undefined ? Number(details.tarih2) : mthNet
       };
     } else {
       return {
         ...base,
-        yabanciDil: mthNet
+        yabanciDil: details.yabanciDil !== undefined ? Number(details.yabanciDil) : (details.dil !== undefined ? Number(details.dil) : mthNet)
       };
     }
   }
@@ -445,6 +446,8 @@ export default function DenemelerPage() {
         examObj.math_net = parseFloat(newExam.yabanciDil) || 0;
       }
     }
+
+    examObj.details = { ...newExam };
 
     try {
       const res = await fetch('/api/user/exams', {

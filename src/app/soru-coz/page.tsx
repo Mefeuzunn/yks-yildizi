@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Brain, CheckCircle2, XCircle, ArrowRight, Lightbulb, 
@@ -178,7 +179,11 @@ function Scratchpad() {
 }
 
 // --- Main Page Component ---
-export default function SoruCozPage() {
+function SoruCozContent() {
+  const searchParams = useSearchParams();
+  const initialSubject = searchParams.get('subject') || 'all';
+  const initialTopic = searchParams.get('topic') || '';
+
   const [question, setQuestion] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -194,7 +199,8 @@ export default function SoruCozPage() {
   const [unlockedBadges, setUnlockedBadges] = useState<any[]>([]);
 
   // Filters
-  const [filterSubject, setFilterSubject] = useState('all');
+  const [filterSubject, setFilterSubject] = useState(initialSubject);
+  const [targetTopic, setTargetTopic] = useState(initialTopic);
   const [filterDifficulty, setFilterDifficulty] = useState('all');
 
   // Timer & Speed States
@@ -213,8 +219,10 @@ export default function SoruCozPage() {
     setSolvedSeconds(0);
     setSpeedEvaluation(null);
 
+    const topicQuery = targetTopic ? `&topic=${encodeURIComponent(targetTopic)}` : '';
+
     try {
-      const res = await fetch(`/api/questions/generate?subject=${filterSubject}&zorluk=${filterDifficulty}`);
+      const res = await fetch(`/api/questions/generate?subject=${filterSubject}&zorluk=${filterDifficulty}${topicQuery}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setQuestion(data);
@@ -227,7 +235,7 @@ export default function SoruCozPage() {
 
   useEffect(() => {
     fetchQuestion();
-  }, [filterSubject, filterDifficulty]);
+  }, [filterSubject, filterDifficulty, targetTopic]);
 
   // Countup Timer Effect
   useEffect(() => {
@@ -479,7 +487,10 @@ export default function SoruCozPage() {
             <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Ders:</span>
             <select 
               value={filterSubject}
-              onChange={e => setFilterSubject(e.target.value)}
+              onChange={e => {
+                setFilterSubject(e.target.value);
+                setTargetTopic('');
+              }}
               style={{
                 width: 'auto',
                 padding: '0.4rem 1.8rem 0.4rem 0.75rem',
@@ -494,9 +505,15 @@ export default function SoruCozPage() {
             >
               <option value="all">Tüm Dersler</option>
               <option value="Matematik">Matematik</option>
+              <option value="Geometri">Geometri</option>
               <option value="Fizik">Fizik</option>
               <option value="Kimya">Kimya</option>
+              <option value="Biyoloji">Biyoloji</option>
               <option value="Türkçe">Türkçe</option>
+              <option value="Türk Dili ve Edebiyatı">Türk Dili ve Edebiyatı</option>
+              <option value="Tarih">Tarih</option>
+              <option value="Coğrafya">Coğrafya</option>
+              <option value="Felsefe & Din">Felsefe & Din</option>
             </select>
           </div>
 
@@ -526,6 +543,41 @@ export default function SoruCozPage() {
           </div>
         </div>
       </div>
+
+      {/* Active Target Topic Indicator */}
+      {targetTopic && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.1))',
+          border: '1px solid rgba(139, 92, 246, 0.3)',
+          borderRadius: '14px',
+          padding: '0.65rem 1.25rem',
+          marginBottom: '1rem',
+          fontSize: '0.85rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#c7d2fe', fontWeight: 600 }}>
+            <Sparkles size={16} color="#818cf8" />
+            <span>🎯 Hedef Konu Odağı: <strong style={{ color: '#fff' }}>{filterSubject !== 'all' ? `${filterSubject} - ` : ''}{targetTopic}</strong></span>
+          </div>
+          <button
+            onClick={() => setTargetTopic('')}
+            style={{
+              background: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.15)',
+              borderRadius: '6px',
+              padding: '4px 10px',
+              color: '#94a3b8',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              cursor: 'pointer'
+            }}
+          >
+            Filtreyi Kaldır
+          </button>
+        </div>
+      )}
 
       {/* Main Workspace grid */}
       <div className="soru-workspace-grid" style={{ flex: 1, display: 'grid', gridTemplateColumns: isSidebarOpen ? '1fr 420px' : '1fr', gap: '1.5rem', transition: 'all 0.3s', alignItems: 'stretch' }}>
@@ -1073,5 +1125,17 @@ export default function SoruCozPage() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+export default function SoruCozPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight: 'calc(100vh - 80px)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#818cf8', fontSize: '1rem', fontWeight: 600 }}>
+        Soru yükleniyor...
+      </div>
+    }>
+      <SoruCozContent />
+    </Suspense>
   );
 }

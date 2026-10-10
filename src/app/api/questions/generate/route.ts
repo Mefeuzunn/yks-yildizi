@@ -242,9 +242,11 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const zorluk = searchParams.get('zorluk');
     const rawSubject = searchParams.get('subject');
+    const rawTopic = searchParams.get('topic');
     const subject = rawSubject && rawSubject !== 'all' ? normalizeSubject(rawSubject) : null;
+    const topic = rawTopic && rawTopic !== 'all' ? rawTopic.trim() : null;
 
-    let query = `SELECT ss.* FROM soru_sablonlari ss JOIN dersler d ON ss.ders_id = d.id`;
+    let query = `SELECT ss.* FROM soru_sablonlari ss JOIN dersler d ON ss.ders_id = d.id LEFT JOIN konular k ON ss.konu_id = k.id`;
     const conditions: string[] = [];
     const params: any[] = [];
 
@@ -256,6 +258,11 @@ export async function GET(req: Request) {
     if (subject) {
       conditions.push('(d.isim = ? OR LOWER(d.isim) LIKE ?)');
       params.push(subject, `%${subject.toLowerCase()}%`);
+    }
+
+    if (topic) {
+      conditions.push('(k.isim = ? OR LOWER(k.isim) LIKE ?)');
+      params.push(topic, `%${topic.toLowerCase()}%`);
     }
 
     if (conditions.length > 0) {
@@ -277,6 +284,10 @@ export async function GET(req: Request) {
         qConds.push(`(LOWER(subject) = LOWER(?) OR LOWER(subject) LIKE '%' || LOWER(?) || '%')`);
         qParams.push(subject, subject);
       }
+      if (topic) {
+        qConds.push(`(LOWER(topic) = LOWER(?) OR LOWER(topic) LIKE '%' || LOWER(?) || '%')`);
+        qParams.push(topic, topic);
+      }
       if (zorluk && zorluk !== 'all') {
         qConds.push(`difficulty = ?`);
         qParams.push(parseInt(zorluk));
@@ -289,6 +300,10 @@ export async function GET(req: Request) {
       const staticStmt = await db.prepare(qQuery);
       let staticQ = staticStmt.get(...qParams) as any;
 
+      if (!staticQ && topic && subject) {
+        // Topic tam eşleşmediyse sadece branş bazlı dene
+        staticQ = await db.prepare(`SELECT * FROM questions WHERE (LOWER(subject) = LOWER(?) OR LOWER(subject) LIKE '%' || LOWER(?) || '%') ORDER BY RANDOM() LIMIT 1`).get(subject, subject) as any;
+      }
       if (!staticQ && subject) {
         // Zorluk kısıtı olmadan o branştan getir
         staticQ = await db.prepare(`SELECT * FROM questions WHERE (LOWER(subject) = LOWER(?) OR LOWER(subject) LIKE '%' || LOWER(?) || '%') ORDER BY RANDOM() LIMIT 1`).get(subject, subject) as any;

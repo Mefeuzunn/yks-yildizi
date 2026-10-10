@@ -93,6 +93,83 @@ export default function PuanHesaplamaPage() {
     }
   };
 
+  const [savingExam, setSavingExam] = useState<string | null>(null);
+
+  const handleSaveAsMockExam = async (type: 'TYT' | 'AYT') => {
+    setSavingExam(type);
+    setSavedSuccess(null);
+    try {
+      if (type === 'TYT') {
+        const tytTotal = results.tytNet;
+        const res = await fetch('/api/user/exams', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            exam_type: 'TYT',
+            exam_name: `TYT Denemesi (${results.tytNet.toFixed(1)} Net)`,
+            turkish_net: tyt.turkce.n,
+            math_net: tyt.matematik.n,
+            social_net: tyt.sosyal.n,
+            science_net: tyt.fen.n,
+            total_net: tytTotal,
+            details: {
+              turkce: tyt.turkce.n,
+              matematik: tyt.matematik.n,
+              sosyal: tyt.sosyal.n,
+              fen: tyt.fen.n
+            }
+          })
+        });
+        if (res.ok) {
+          setSavedSuccess('✅ TYT denemen başarıyla Denemeler sayfana kaydedildi! Net grafiğine eklendi.');
+        } else {
+          setSavedSuccess('Kaydetmek için giriş yapmalısınız.');
+        }
+      } else {
+        const aytDetails = {
+          aytMatematik: ayt.matematik.n,
+          fizik: ayt.fizik.n,
+          kimya: ayt.kimya.n,
+          biyoloji: ayt.biyoloji.n,
+          edebiyat: ayt.edebiyat.n,
+          tarih1: ayt.tarih1.n,
+          cografya1: ayt.cografya1.n,
+          tarih2: ayt.tarih2.n,
+          cografya2: ayt.cografya2.n,
+          felsefe: ayt.felsefe.n,
+          din: ayt.din.n,
+          yabanciDil: ayt.dil.n
+        };
+        const maxAytNet = Math.max(results.aytSayNet, results.aytEaNet, results.aytSozNet, ayt.dil.n);
+        const res = await fetch('/api/user/exams', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            exam_type: 'AYT',
+            exam_name: `AYT Denemesi (${maxAytNet.toFixed(1)} Net)`,
+            math_net: ayt.matematik.n,
+            turkish_net: ayt.edebiyat.n || ayt.fizik.n,
+            social_net: ayt.tarih1.n || ayt.biyoloji.n,
+            science_net: ayt.kimya.n || ayt.cografya1.n,
+            total_net: maxAytNet,
+            details: aytDetails
+          })
+        });
+        if (res.ok) {
+          setSavedSuccess('✅ AYT denemen başarıyla Denemeler sayfana kaydedildi! Net grafiğine eklendi.');
+        } else {
+          setSavedSuccess('Kaydetmek için giriş yapmalısınız.');
+        }
+      }
+      setTimeout(() => setSavedSuccess(null), 5000);
+    } catch (e) {
+      setSavedSuccess('Deneme kaydedilirken bağlantı hatası oluştu.');
+      setTimeout(() => setSavedSuccess(null), 5000);
+    } finally {
+      setSavingExam(null);
+    }
+  };
+
   // Handle Input Changes
   const handleInputChange = (exam: 'tyt' | 'ayt', subject: string, field: 'd' | 'y', value: string, maxQuestions: number) => {
     const numValue = value === '' ? '' : Math.min(Math.max(0, Number(value)), maxQuestions);
@@ -394,30 +471,103 @@ export default function PuanHesaplamaPage() {
                 }}
               >
                 {saving ? <Loader2 size={18} className="animate-spin" /> : <BookmarkPlus size={18} />}
-                {saving ? 'Kaydediliyor...' : 'Bu Hesaplamayı Kaydet'}
+                {saving ? 'Kaydediliyor...' : 'Bu Hesaplamayı Profilime Kaydet'}
               </button>
 
-              <Link
-                href="/dashboard?tab=tercih_robotu"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  padding: '10px 16px',
-                  borderRadius: '12px',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  color: '#e2e8f0',
-                  fontWeight: 600,
-                  fontSize: '0.875rem',
-                  textDecoration: 'none',
-                  transition: 'all 0.2s',
-                }}
-              >
-                <span>Tercih Robotunda Bölümleri İncele</span>
-                <ArrowRight size={16} />
-              </Link>
+              {/* Direct Save to Denemeler (Mock Exams) */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                <button
+                  onClick={() => handleSaveAsMockExam('TYT')}
+                  disabled={!!savingExam || results.tytNet <= 0}
+                  style={{
+                    padding: '10px 12px',
+                    borderRadius: '10px',
+                    background: 'rgba(56, 189, 248, 0.15)',
+                    border: '1px solid rgba(56, 189, 248, 0.35)',
+                    color: '#38bdf8',
+                    fontWeight: 700,
+                    fontSize: '0.82rem',
+                    cursor: results.tytNet <= 0 || savingExam ? 'not-allowed' : 'pointer',
+                    opacity: results.tytNet <= 0 ? 0.5 : 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6
+                  }}
+                >
+                  {savingExam === 'TYT' ? <Loader2 size={14} className="animate-spin" /> : '📈'}
+                  <span>TYT Denememe Ekle</span>
+                </button>
+
+                <button
+                  onClick={() => handleSaveAsMockExam('AYT')}
+                  disabled={!!savingExam || (results.aytSayNet <= 0 && results.aytEaNet <= 0 && results.aytSozNet <= 0 && ayt.dil.n <= 0)}
+                  style={{
+                    padding: '10px 12px',
+                    borderRadius: '10px',
+                    background: 'rgba(16, 185, 129, 0.15)',
+                    border: '1px solid rgba(16, 185, 129, 0.35)',
+                    color: '#34d399',
+                    fontWeight: 700,
+                    fontSize: '0.82rem',
+                    cursor: (results.aytSayNet <= 0 && results.aytEaNet <= 0 && results.aytSozNet <= 0 && ayt.dil.n <= 0) || savingExam ? 'not-allowed' : 'pointer',
+                    opacity: (results.aytSayNet <= 0 && results.aytEaNet <= 0 && results.aytSozNet <= 0 && ayt.dil.n <= 0) ? 0.5 : 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6
+                  }}
+                >
+                  {savingExam === 'AYT' ? <Loader2 size={14} className="animate-spin" /> : '📊'}
+                  <span>AYT Denememe Ekle</span>
+                </button>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                <Link
+                  href="/denemeler"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    padding: '9px 12px',
+                    borderRadius: '10px',
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    color: '#94a3b8',
+                    fontWeight: 600,
+                    fontSize: '0.8rem',
+                    textDecoration: 'none',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  <span>Denemelerim</span>
+                  <ArrowRight size={13} />
+                </Link>
+
+                <Link
+                  href="/dashboard?tab=tercih_robotu"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    padding: '9px 12px',
+                    borderRadius: '10px',
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    color: '#cbd5e1',
+                    fontWeight: 600,
+                    fontSize: '0.8rem',
+                    textDecoration: 'none',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  <span>Tercih Robotu</span>
+                  <ArrowRight size={13} />
+                </Link>
+              </div>
 
               {savedSuccess && (
                 <div style={{

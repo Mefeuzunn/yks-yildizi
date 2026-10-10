@@ -11,20 +11,32 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
     }
 
+    try {
+      await db.prepare("ALTER TABLE mock_exams ADD COLUMN IF NOT EXISTS details JSONB DEFAULT '{}'").run();
+    } catch (_) {}
+
     const exams = await db.prepare('SELECT * FROM mock_exams WHERE user_id = ? ORDER BY exam_date ASC').all(userId) as any[];
     
     // CamelCase map
-    const mapped = exams.map(e => ({
-      id: e.id,
-      name: e.exam_name,
-      date: new Date(e.exam_date).toISOString().split('T')[0],
-      type: e.exam_type,
-      turkishNet: e.turkish_net,
-      socialNet: e.social_net,
-      mathNet: e.math_net,
-      scienceNet: e.science_net,
-      totalNet: e.total_net
-    }));
+    const mapped = exams.map(e => {
+      let parsedDetails = {};
+      try {
+        parsedDetails = typeof e.details === 'string' ? JSON.parse(e.details) : (e.details || {});
+      } catch (_) {}
+
+      return {
+        id: e.id,
+        name: e.exam_name,
+        date: new Date(e.exam_date).toISOString().split('T')[0],
+        type: e.exam_type,
+        turkishNet: e.turkish_net,
+        socialNet: e.social_net,
+        mathNet: e.math_net,
+        scienceNet: e.science_net,
+        totalNet: e.total_net,
+        details: parsedDetails
+      };
+    });
 
     return NextResponse.json(mapped, { status: 200 });
   } catch (error) {
@@ -40,14 +52,41 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
     }
 
+    try {
+      await db.prepare("ALTER TABLE mock_exams ADD COLUMN IF NOT EXISTS details JSONB DEFAULT '{}'").run();
+    } catch (_) {}
+
     const body = await req.json();
-    const { exam_type, exam_name, turkish_net, math_net, social_net, science_net, total_net, exam_date } = body;
+    const { 
+      exam_type, 
+      exam_name, 
+      turkish_net = 0, 
+      math_net = 0, 
+      social_net = 0, 
+      science_net = 0, 
+      total_net = 0, 
+      exam_date,
+      details = {}
+    } = body;
+
+    const detailsJson = JSON.stringify(details || {});
 
     const stmt = await db.prepare(`
-      INSERT INTO mock_exams (user_id, exam_type, exam_name, turkish_net, math_net, social_net, science_net, total_net, exam_date)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO mock_exams (user_id, exam_type, exam_name, turkish_net, math_net, social_net, science_net, total_net, exam_date, details)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
-    const info = await stmt.run(userId, exam_type, exam_name, turkish_net, math_net, social_net, science_net, total_net, exam_date || new Date().toISOString());
+    const info = await stmt.run(
+      userId, 
+      exam_type, 
+      exam_name || `${exam_type} Denemesi`, 
+      Number(turkish_net) || 0, 
+      Number(math_net) || 0, 
+      Number(social_net) || 0, 
+      Number(science_net) || 0, 
+      Number(total_net) || 0, 
+      exam_date || new Date().toISOString(),
+      detailsJson
+    );
 
     return NextResponse.json({ success: true, id: info.lastInsertRowid }, { status: 201 });
   } catch (error) {

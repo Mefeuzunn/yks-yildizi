@@ -11,6 +11,14 @@ export const curriculumData = {
       { topic: "Kümeler", subtopics: ["Alt Küme", "Kümelerde İşlemler", "Kartezyen Çarpım"] },
       { topic: "Fonksiyonlar", subtopics: ["Fonksiyon Türleri", "Bileşke ve Ters Fonksiyon"] }
     ],
+    Geometri: [
+      { topic: "Doğruda ve Üçgende Açılar", subtopics: ["Doğruda Açılar", "Üçgende Açı Kuralları", "Açı Kenar Bağıntıları"] },
+      { topic: "Özel Üçgenler", subtopics: ["Dik Üçgen (Pisagor, Öklid)", "İkizkenar ve Eşkenar Üçgen"] },
+      { topic: "Üçgende Benzerlik ve Alan", subtopics: ["Benzerlik Teoremleri", "Üçgende Alan Bağıntıları"] },
+      { topic: "Çokgenler ve Dörtgenler", subtopics: ["Düzgün Çokgenler", "Yamuk", "Paralelkenar", "Eşkenar Dörtgen", "Dikdörtgen", "Kare", "Deltoid"] },
+      { topic: "Çember ve Daire", subtopics: ["Çemberde Açı", "Çemberde Uzunluk", "Dairede Alan ve Çevre"] },
+      { topic: "Katı Cisimler", subtopics: ["Prizmalar", "Piramitler", "Küre Alan ve Hacim"] }
+    ],
     Fizik: [
       { topic: "Fizik Bilimine Giriş", subtopics: ["Temel Büyüklükler", "Vektörler (Giriş)"] },
       { topic: "Madde ve Özellikleri", subtopics: ["Özkütle", "Dayanıklılık", "Adhezyon Kohezyon"] },
@@ -34,6 +42,34 @@ export const curriculumData = {
       { topic: "Hücre Bölünmeleri", subtopics: ["Mitoz", "Eşeysiz Üreme", "Mayoz ve Eşeyli Üreme"] },
       { topic: "Kalıtım", subtopics: ["Mendel Genetiği", "Eşeye Bağlı Kalıtım", "Soyağaçları"] },
       { topic: "Ekosistem Ekolojisi", subtopics: ["Besin Zinciri", "Madde Döngüleri"] }
+    ],
+    Türkçe: [
+      { topic: "Sözcükte ve Cümlede Anlam", subtopics: ["Sözcükte Anlam Olayları", "Cümlede Anlam İlişkileri", "Örtülü Anlam"] },
+      { topic: "Paragrafta Anlam", subtopics: ["Ana Düşünce", "Yardımcı Düşünceler", "Paragrafta Yapı", "Anlatım Teknikleri"] },
+      { topic: "Ses Bilgisi", subtopics: ["Ünlü Düşmesi ve Türemesi", "Ünsüz Benzeşmesi ve Yumuşaması", "Büyük ve Küçük Ünlü Uyumu"] },
+      { topic: "Yazım Kuralları", subtopics: ["Büyük Harflerin Kullanımı", "De / Da ve Ki Bağlaçları", "Birleşik Sözcükler"] },
+      { topic: "Noktalama İşaretleri", subtopics: ["Nokta, Virgül, Noktalı Virgül", "İki Nokta, Üç Nokta", "Kesme İşareti"] },
+      { topic: "Sözcük Türleri ve Cümle Bilgisi", subtopics: ["İsim, Sıfat, Zamir, Zarf", "Edat, Bağlaç, Ünlem", "Fiiller ve Fiilimsiler", "Cümlenin Ögeleri"] }
+    ],
+    Tarih: [
+      { topic: "Tarih Bilimi ve İlk Uygarlıklar", subtopics: ["Tarih Bilimine Giriş", "İlk Çağ Medeniyetleri"] },
+      { topic: "İlk ve Orta Çağlarda Türk Dünyası", subtopics: ["Orta Asya Kültür Merkezleri", "İlk Türk Devletleri Teşkilatı"] },
+      { topic: "İslam Medeniyeti ve Türk İslam Devletleri", subtopics: ["İslamiyet'in Doğuşu", "Karahanlı, Gazneli, Büyük Selçuklu"] },
+      { topic: "Osmanlı Devleti Kuruluş ve Yükselme", subtopics: ["Beylikten Devlete", "İstanbul'un Fethi ve Dünya Gücü Osmanlı"] },
+      { topic: "Milli Mücadele ve Atatürk İnkılapları", subtopics: ["I. Dünya Savaşı ve Mondros", "Kongreler ve TBMM", "Kurtuluş Savaşı", "İnkılaplar"] }
+    ],
+    Coğrafya: [
+      { topic: "Doğa, İnsan ve Harita Bilgisi", subtopics: ["Coğrafyanın Konusu", "Harita Projeksiyonları", "İzohipsler"] },
+      { topic: "Dünya'nın Hareketleri ve Coğrafi Konum", subtopics: ["Günlük ve Yıllık Hareket", "Yerel Saat Hesapları"] },
+      { topic: "İklim Bilgisi", subtopics: ["Sıcaklık, Basınç, Rüzgarlar", "Nem ve Yağış", "Türkiye'nin İklimi"] },
+      { topic: "İç ve Dış Kuvvetler", subtopics: ["Levha Tektoniği, Volkanizma", "Akarsu, Rüzgar, Buzul Şekilleri"] },
+      { topic: "Nüfus, Yerleşme ve Afetler", subtopics: ["Nüfus Piramitleri", "Göçler", "Doğal Afetler ve Korunma"] }
+    ],
+    "Felsefe & Din": [
+      { topic: "Felsefeye Giriş ve Bilgi Felsefesi", subtopics: ["Felsefi Düşünce", "Doğruluk ve Bilginin Kaynakları"] },
+      { topic: "Varlık ve Ahlak Felsefesi", subtopics: ["Ontoloji Temel Sorunları", "Etik ve Özgürlük"] },
+      { topic: "Din ve Siyaset Felsefesi", subtopics: ["Tanrı Kanıtlamaları", "Devlet ve İdeal Düzen"] },
+      { topic: "İslam İnanç ve İbadet Esasları", subtopics: ["Tevhid ve Esma-i Hüsna", "Namaz, Oruç, Zekat", "Ahlaki Erdemler"] }
     ]
   },
   AYT: {
@@ -48,6 +84,12 @@ export const curriculumData = {
       { topic: "Limit ve Süreklilik", subtopics: ["Limit Özellikleri", "Belirsizlikler", "Süreklilik Şartı"] },
       { topic: "Türev", subtopics: ["Türev Alma Kuralları", "Teğet ve Normal Denklemi", "Artan Azalan Fonksiyonlar", "Maksimum Minimum Problemleri"] },
       { topic: "İntegral", subtopics: ["Belirsiz İntegral", "Belirli İntegral", "İntegralde Alan Hesaplama"] }
+    ],
+    Geometri: [
+      { topic: "Noktanın ve Doğrunun Analitiği", subtopics: ["İki Nokta Arası Uzaklık", "Eğim ve Doğru Denklemi", "Noktanın Doğruya Uzaklığı"] },
+      { topic: "Dönüşümlerle Geometri", subtopics: ["Öteleme", "Dönme", "Simetri ve Yansıma"] },
+      { topic: "Çemberin Analitik İncelenmesi", subtopics: ["Standart Çember Denklemi", "Genel Çember Denklemi", "Doğru ile Çemberin Durumu"] },
+      { topic: "Uzay Geometri ve Katı Cisimler", subtopics: ["Dönel Cisimler", "Küre Kesitleri", "Prizma ve Piramit Hacimleri"] }
     ],
     Fizik: [
       { topic: "Vektörler ve Bağıl Hareket", subtopics: ["Vektörel İşlemler", "Bağıl Hız", "Nehir Problemleri"] },
@@ -86,6 +128,25 @@ export const curriculumData = {
       { topic: "Hücresel Solunum", subtopics: ["Glikoliz", "Krebs Döngüsü", "ETS", "Fermantasyon"] },
       { topic: "Fotosentez ve Kemosentez", subtopics: ["Fotosentez Reaksiyonları", "Kemosentez"] },
       { topic: "Bitki Biyolojisi", subtopics: ["Bitkisel Dokular", "Bitkisel Organlar", "Taşıma", "Bitkilerde Üreme"] }
+    ],
+    "Türk Dili ve Edebiyatı": [
+      { topic: "Şiir Bilgisi ve Edebi Sanatlar", subtopics: ["Nazım Birimi, Ölçü, Uyak", "Edebi Sanatlar (Teşbih, İstiare, Tezat)"] },
+      { topic: "İslamiyet Öncesi ve Halk Edebiyatı", subtopics: ["Koşuk, Sagu, Sav, Destan", "Anonim, Âşık ve Tekke Edebiyatı"] },
+      { topic: "Divan Edebiyatı", subtopics: ["Gazel, Kaside, Mesnevi", "Divan Şairleri ve Akımlar"] },
+      { topic: "Tanzimat ve Servet-i Fünun Edebiyatı", subtopics: ["Şinasi, Namık Kemal", "Tevfik Fikret, Cenap Şahabettin", "Halit Ziya Romanı"] },
+      { topic: "Milli Edebiyat ve Cumhuriyet Dönemi", subtopics: ["Genç Kalemler, Yeni Lisan", "Cumhuriyet Şiir Toplulukları", "Cumhuriyet Romanı"] }
+    ],
+    Tarih: [
+      { topic: "Klasik Çağda Osmanlı Devleti", subtopics: ["Merkez Teşkilatı, Tımar Sistemi", "Hukuk ve Kültür"] },
+      { topic: "Değişen Dünya Dengeleri ve Osmanlı", subtopics: ["XVII. ve XVIII. Yüzyıl Islahatları", "Fransız İhtilali ve Sanayi Devrimi"] },
+      { topic: "XX. Yüzyıl Başlarında Osmanlı ve I. Dünya Savaşı", subtopics: ["Trablusgarp ve Balkan Savaşları", "I. Dünya Savaşı Cepheleri"] },
+      { topic: "Milli Mücadele Muharebeleri", subtopics: ["Doğu, Güney ve Batı Cephesi", "Mudanya ve Lozan Barış Antlaşması"] }
+    ],
+    Coğrafya: [
+      { topic: "Ekosistem ve Madde Döngüleri", subtopics: ["Biyoçeşitlilik", "Su, Karbon, Azot Döngüleri"] },
+      { topic: "Şehirler, Fonksiyonları ve Türkiye Ekonomisi", subtopics: ["Küresel Şehirler", "Türkiye'de Tarım, Hayvancılık, Sanayi"] },
+      { topic: "Küresel Ticaret ve Bölgeler", subtopics: ["Hammadde, Üretim ve Pazar Alanları", "Ulaşım Sistemleri ve Ticaret"] },
+      { topic: "Çevre ve Toplum", subtopics: ["Doğal Kaynak Kullanımı", "Çevre Sorunları ve Küresel İklim Değişimi"] }
     ]
   }
 };
