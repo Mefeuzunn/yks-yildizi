@@ -4,7 +4,8 @@ import React, { useEffect, useState, useRef, use, useCallback } from 'react';
 import { 
   ArrowLeft, Users, MessageSquare, Send, Timer, Pause, Play, 
   RotateCcw, X, Volume2, VolumeX, CloudRain, Headphones, Waves, 
-  Sparkles, Radio, Shield, Coffee, CheckCircle2, BookOpen, Lamp, Eye
+  Sparkles, Radio, Shield, Coffee, CheckCircle2, BookOpen, Lamp, Eye,
+  Maximize2, Minimize2
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
@@ -43,6 +44,34 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
   const [mySeatId, setMySeatId] = useState<string | null>(null);
   const [userSubject, setUserSubject] = useState<string>('AYT Matematik');
   const [avatarConfig, setAvatarConfig] = useState<any>(null);
+  const [isZenMode, setIsZenMode] = useState(false);
+
+  const toggleZenMode = () => {
+    haptics.impact('medium');
+    const nextState = !isZenMode;
+    setIsZenMode(nextState);
+    if (typeof document !== 'undefined') {
+      if (nextState) {
+        if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        }
+      } else {
+        if (document.fullscreenElement && document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        }
+      }
+    }
+  };
+
+  useEffect(() => {
+    const handleFsChange = () => {
+      if (typeof document !== 'undefined' && !document.fullscreenElement && isZenMode) {
+        setIsZenMode(false);
+      }
+    };
+    document.addEventListener('fullscreenchange', handleFsChange);
+    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+  }, [isZenMode]);
 
   useEffect(() => {
     userSubjectRef.current = userSubject;
@@ -755,7 +784,22 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
   }
 
   return (
-    <div className="flex h-[calc(100dvh-70px)] sm:h-[calc(100vh-80px)] overflow-hidden relative bg-[#080c14]">
+    <div className={`flex overflow-hidden relative bg-[#080c14] ${
+      isZenMode 
+        ? 'fixed inset-0 z-50 h-screen w-screen' 
+        : 'h-[calc(100dvh-70px)] sm:h-[calc(100vh-80px)]'
+    }`}>
+      {/* Floating Zen Mode Exit Button */}
+      {isZenMode && (
+        <button
+          onClick={toggleZenMode}
+          className="fixed top-4 right-4 z-50 px-3.5 py-1.5 rounded-full bg-black/85 hover:bg-black text-amber-300 hover:text-white border border-amber-500/40 text-xs font-black shadow-2xl backdrop-blur-md flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+        >
+          <Minimize2 size={13} />
+          <span>Zen Modundan Çık</span>
+        </button>
+      )}
+
       {/* ── Left Stage: Atmospheric Screen & Pomodoro Timer ── */}
       <div className="flex-1 flex flex-col p-2.5 sm:p-5 lg:p-7 overflow-y-auto pb-32 lg:pb-8 custom-scrollbar relative z-10">
         {/* Floating Focus Status Toast */}
@@ -831,6 +875,20 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>{participants.length} <span className="hidden min-[480px]:inline">Öğrenci Salonda</span><span className="min-[480px]:hidden">Odakta</span></span>
             </div>
+
+            {/* Zen Fullscreen Focus Mode Button */}
+            <button
+              onClick={toggleZenMode}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm active:scale-95 ${
+                isZenMode
+                  ? 'bg-amber-500 text-black font-extrabold shadow-amber-500/25'
+                  : 'bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 border border-purple-500/30'
+              }`}
+              title={isZenMode ? 'Zen Modundan Çık' : 'Tam Ekran Zen Odak Modu'}
+            >
+              {isZenMode ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+              <span className="hidden sm:inline">{isZenMode ? 'Zen Moddan Çık' : 'Zen Odak'}</span>
+            </button>
           </div>
         </div>
 
@@ -1107,7 +1165,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
       </div>
 
       {/* ── Right Panel: Chat & Participants (Desktop Sidebar) ── */}
-      <div className="hidden lg:flex w-84 bg-[#0b0f19] border-l border-white/10 flex-col h-full relative z-20">
+      <div className={`${isZenMode ? '!hidden' : 'hidden lg:flex'} w-84 bg-[#0b0f19] border-l border-white/10 flex-col h-full relative z-20`}>
         {/* Tab Headers */}
         <div className="p-3 border-b border-white/10 bg-white/[0.015] flex gap-2">
           <button
@@ -1226,19 +1284,21 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
       </div>
 
       {/* ── Mobile Floating Chat Button ── */}
-      <button
-        onClick={() => {
-          haptics.selection();
-          setShowMobileDrawer(true);
-        }}
-        className="lg:hidden fixed bottom-[calc(76px+env(safe-area-inset-bottom,20px))] left-4 z-40 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-2.5 rounded-full shadow-[0_8px_25px_rgba(99,102,241,0.5)] flex items-center gap-2 font-bold text-xs border border-white/20 cursor-pointer"
-      >
-        <MessageSquare className="w-4 h-4" />
-        <span>Sohbet & Kişiler</span>
-        <span className="bg-black/30 px-1.5 py-0.5 rounded-full text-[10px]">
-          {participants.length}
-        </span>
-      </button>
+      {!isZenMode && (
+        <button
+          onClick={() => {
+            haptics.selection();
+            setShowMobileDrawer(true);
+          }}
+          className="lg:hidden fixed bottom-[calc(76px+env(safe-area-inset-bottom,20px))] left-4 z-40 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-2.5 rounded-full shadow-[0_8px_25px_rgba(99,102,241,0.5)] flex items-center gap-2 font-bold text-xs border border-white/20 cursor-pointer"
+        >
+          <MessageSquare className="w-4 h-4" />
+          <span>Sohbet & Kişiler</span>
+          <span className="bg-black/30 px-1.5 py-0.5 rounded-full text-[10px]">
+            {participants.length}
+          </span>
+        </button>
+      )}
 
       {/* ── Mobile Bottom Sheet Drawer ── */}
       {showMobileDrawer && (

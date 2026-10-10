@@ -16,6 +16,7 @@ import QuickStatusSelectorModal from './QuickStatusSelectorModal';
 import TableSynergyModal from './TableSynergyModal';
 import LibraryQuestsModal, { LibraryQuestProgress } from './LibraryQuestsModal';
 import LibraryCountdownWidget from './LibraryCountdownWidget';
+import FatigueAlertModal from './FatigueAlertModal';
 import { haptics } from '@/lib/haptics';
 import { libraryAudio } from '@/lib/library-audio';
 
@@ -82,6 +83,8 @@ export default function LibraryStudyHall({
   const [activeSynergyTable, setActiveSynergyTable] = useState<number | null>(null);
   const [isStatusSelectorOpen, setIsStatusSelectorOpen] = useState(false);
   const [isQuestsOpen, setIsQuestsOpen] = useState(false);
+  const [isFatigueOpen, setIsFatigueOpen] = useState(false);
+  const [continuousFocusMinutes, setContinuousFocusMinutes] = useState(0);
   const [confirmModal, setConfirmModal] = useState<{
     type: 'leave' | 'switch';
     targetSeatId?: string | null;
@@ -340,6 +343,38 @@ export default function LibraryStudyHall({
     if (questProgress.neuroUsed && !questProgress.claimedQuests.includes('quest_neuro')) count++;
     return count;
   }, [questProgress]);
+
+  // ── Find top focus student (Salon Şampiyonu) ──
+  const championStudentId = useMemo(() => {
+    let topId: string | null = null;
+    let maxMinutes = 0;
+    Object.values(seatMap).forEach(p => {
+      const mins = p.focusMinutes || 0;
+      if (mins > maxMinutes && mins >= 20) {
+        maxMinutes = mins;
+        topId = p.id;
+      }
+    });
+    return topId;
+  }, [seatMap]);
+
+  // ── Cognitive Fatigue Monitor (75 min threshold) ──
+  useEffect(() => {
+    if (timerActive && mySeatId) {
+      const interval = setInterval(() => {
+        setContinuousFocusMinutes(prev => {
+          const next = prev + 1;
+          if (next === 75) {
+            setIsFatigueOpen(true);
+          }
+          return next;
+        });
+      }, 60000);
+      return () => clearInterval(interval);
+    } else {
+      setContinuousFocusMinutes(0);
+    }
+  }, [timerActive, mySeatId]);
 
   const occupiedCount = Object.keys(seatMap).length;
 
@@ -669,6 +704,7 @@ export default function LibraryStudyHall({
                           seatLabel={seatLetter}
                           isCurrentUser={isMe}
                           lampOn={true}
+                          isHallChampion={occupant.id === championStudentId}
                           onStatusClick={isMe ? () => setIsStatusSelectorOpen(true) : undefined}
                           user={{
                             id: occupant.id,
@@ -779,6 +815,14 @@ export default function LibraryStudyHall({
         onClose={() => setIsQuestsOpen(false)}
         progress={questProgress}
         onClaimReward={handleClaimReward}
+      />
+
+      {/* ── Smart Cognitive Fatigue Alert Modal ── */}
+      <FatigueAlertModal
+        isOpen={isFatigueOpen}
+        onClose={() => setIsFatigueOpen(false)}
+        focusMinutes={continuousFocusMinutes || 75}
+        onStartBreak={() => handleStatusSelect('☕ 5 Dk Zihin Molası', 'break')}
       />
 
     </div>

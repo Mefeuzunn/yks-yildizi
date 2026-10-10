@@ -35,6 +35,7 @@ export interface SeatedStudentProps {
   seatId: string;
   tableNumber?: number;
   seatLabel?: string;
+  isHallChampion?: boolean;
 }
 
 const SeatedStudentAvatar = React.memo(function SeatedStudentAvatar({
@@ -46,6 +47,7 @@ const SeatedStudentAvatar = React.memo(function SeatedStudentAvatar({
   seatId,
   tableNumber = 1,
   seatLabel = 'A',
+  isHallChampion = false,
 }: SeatedStudentProps) {
   const config = user.avatarConfig || {};
   const outfitColor = config.outfitColor || (isCurrentUser ? '#38bdf8' : '#8b5cf6');
@@ -96,6 +98,20 @@ const SeatedStudentAvatar = React.memo(function SeatedStudentAvatar({
             {user.tempInteraction === 'fire' && <span className="text-orange-400">🔥 Odak Tavan!</span>}
             {user.tempInteraction === 'brain' && <span className="text-purple-300">🧠 Zihin Açık!</span>}
             {user.tempInteraction === 'star' && <span className="text-amber-300">⭐ Sen de Yıldızsın!</span>}
+          </motion.div>
+        )}
+
+        {/* Salon Şampiyonu Altın Taç (Hall Champion Crown) */}
+        {isHallChampion && (
+          <motion.div
+            initial={{ scale: 0, y: -6 }}
+            animate={{ scale: [1, 1.08, 1], y: [0, -2, 0] }}
+            transition={{ repeat: Infinity, duration: 2.2, ease: 'easeInOut' }}
+            className="mb-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500/30 to-yellow-500/30 border border-amber-400/50 shadow-[0_0_12px_rgba(245,158,11,0.5)] flex items-center gap-1 backdrop-blur-md"
+            title="Salonun En Çok Odaklanan Şampiyonu!"
+          >
+            <span className="text-xs">👑</span>
+            <span className="text-[9px] font-black text-amber-300 tracking-wider">ŞAMPİYON</span>
           </motion.div>
         )}
 
