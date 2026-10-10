@@ -735,6 +735,8 @@ export default function DenemelerPage() {
               </ResponsiveContainer>
             )}
           </div>
+        </div>
+
         {/* YÖK Atlas YKS Tahmini Sıralama & Hedef Projeksiyon Kartı */}
         <div
           className="premium-card"
