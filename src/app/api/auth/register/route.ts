@@ -5,9 +5,19 @@ import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
 import { cookies } from 'next/headers';
+import { rateLimit } from '@/lib/rate-limit';
 
 export async function POST(req: Request) {
   try {
+    const rawIp = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || req.headers.get('x-real-ip') || '127.0.0.1';
+    const limitResult = rateLimit(`register_${rawIp}`, 5, 10 * 60 * 1000); // 10 dakikada maksimum 5 kayıt
+    if (!limitResult.success) {
+      return NextResponse.json(
+        { error: 'Çok fazla kayıt denemesi yapıldı. Lütfen 10 dakika sonra tekrar deneyin.' },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     let {
       username,

@@ -9,8 +9,8 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   try {
-    const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
-    const limitResult = rateLimit(`login_${ip}`, 20, 60 * 1000); // 20 attempts per minute
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || req.headers.get('x-real-ip') || '127.0.0.1';
+    const limitResult = rateLimit(`login_${ip}`, 10, 60 * 1000); // 10 attempts per minute
     
     if (!limitResult.success) {
       return NextResponse.json(
