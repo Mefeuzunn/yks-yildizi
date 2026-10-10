@@ -7,6 +7,7 @@ import {
   PieChart, LineChart, Calendar, X, Plus, Sparkles, BookOpen, 
   Award, Zap, CheckCircle2, AlertCircle, RefreshCw
 } from 'lucide-react';
+import SpeedAnalyticsTab from './SpeedAnalyticsTab';
 
 const SUBJECT_CONFIG: Record<string, { emoji: string; color: string }> = {
   'Matematik':   { emoji: '📐', color: '#3b82f6' },
@@ -24,6 +25,7 @@ const SUBJECT_CONFIG: Record<string, { emoji: string; color: string }> = {
 };
 
 export default function AnalysisTab() {
+  const [subTab, setSubTab] = useState<'overview' | 'speed'>('overview');
   const [examType, setExamType] = useState<'TYT' | 'AYT'>('TYT');
   const [selectedExam, setSelectedExam] = useState<any>(null);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -268,7 +270,53 @@ export default function AnalysisTab() {
         </div>
       </div>
 
-      {/* ─── 4 Ana KPI Kartı (Gerçek Verilerle Canlı) ─── */}
+      {/* ─── Segmented Switcher: Netler vs Hız Analitiği ─── */}
+      <div style={{ display: 'flex', gap: '8px', padding: '4px', backgroundColor: 'rgba(255, 255, 255, 0.04)', borderRadius: '14px', width: 'fit-content', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+        <button
+          onClick={() => setSubTab('overview')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '7px 16px',
+            borderRadius: '10px',
+            border: 'none',
+            fontSize: '0.84rem',
+            fontWeight: 800,
+            cursor: 'pointer',
+            backgroundColor: subTab === 'overview' ? 'var(--primary, #6366f1)' : 'transparent',
+            color: subTab === 'overview' ? '#ffffff' : 'var(--text-muted, #94a3b8)',
+            transition: 'all 0.2s',
+          }}
+        >
+          <BarChart3 size={15} /> Deneme Netleri & Odak
+        </button>
+        <button
+          onClick={() => setSubTab('speed')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '7px 16px',
+            borderRadius: '10px',
+            border: 'none',
+            fontSize: '0.84rem',
+            fontWeight: 800,
+            cursor: 'pointer',
+            backgroundColor: subTab === 'speed' ? '#0284c7' : 'transparent',
+            color: subTab === 'speed' ? '#ffffff' : 'var(--text-muted, #94a3b8)',
+            transition: 'all 0.2s',
+          }}
+        >
+          <Zap size={15} fill={subTab === 'speed' ? '#ffffff' : 'none'} /> Soru Hızı & Zaman Yönetimi
+        </button>
+      </div>
+
+      {subTab === 'speed' ? (
+        <SpeedAnalyticsTab />
+      ) : (
+        <>
+          {/* ─── 4 Ana KPI Kartı (Gerçek Verilerle Canlı) ─── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
         {[
           { 
@@ -798,6 +846,8 @@ export default function AnalysisTab() {
         </div>
 
       </div>
+        </>
+      )}
 
     </motion.div>
   );

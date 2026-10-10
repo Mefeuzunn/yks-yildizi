@@ -4,7 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Stars, Html } from '@react-three/drei';
 import * as THREE from 'three';
-import { Zap } from 'lucide-react';
+import { Zap, Orbit, Clock } from 'lucide-react';
+import SpeedAnalyticsTab from '@/components/dashboard/SpeedAnalyticsTab';
 
 // Planet Component (GPU & Battery Optimized)
 function Planet({ position, size, color, speed, name, progress, isEco }: any) {
@@ -107,8 +108,18 @@ function SolarSystem({ planets, isEco }: { planets: any[]; isEco: boolean }) {
 }
 
 export default function AnalizPage() {
+  const [activeTab, setActiveTab] = useState<'speed' | 'galaxy'>('speed');
   const [isTabVisible, setIsTabVisible] = useState(true);
   const [isEco, setIsEco] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const t = params.get('tab');
+      if (t === 'galaxy') setActiveTab('galaxy');
+      else if (t === 'speed') setActiveTab('speed');
+    }
+  }, []);
 
   const [planets, setPlanets] = useState<any[]>([
     { name: 'Matematik', color: '#38bdf8', distance: 4.5, size: 0.65, speed: 0.45, progress: 65 },
@@ -193,70 +204,138 @@ export default function AnalizPage() {
   }, []);
 
   return (
-    <div style={{ width: '100%', height: 'calc(100vh - 80px)', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ width: '100%', minHeight: 'calc(100vh - 80px)', position: 'relative', overflowX: 'hidden' }}>
       
-      {/* Overlay UI - Left */}
-      <div style={{ position: 'absolute', top: '2rem', left: '2rem', zIndex: 10, pointerEvents: 'none' }}>
-        <h1 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 800, color: '#fff', textShadow: '0 0 20px rgba(255,255,255,0.5)', margin: 0 }}>
-          3D Gelişim Galaksisi
-        </h1>
-        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem', maxWidth: '380px', marginTop: '0.5rem', lineHeight: 1.6 }}>
-          Gezegenlerin büyüklüğü ve hızı derslerdeki gerçek başarı yüzdenizi temsil eder. Farenizi veya parmağınızı sürükleyerek galakside gezinebilirsiniz.
-        </p>
-      </div>
-
-      {/* Overlay UI - Right (Live HUD Card) */}
-      <div className="mobile-hidden" style={{ position: 'absolute', top: '2rem', right: '2rem', zIndex: 10, backgroundColor: 'rgba(15, 21, 35, 0.75)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '16px 20px', minWidth: '240px', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-          <h4 style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-            🪐 Gezegen Yetkinlikleri
-          </h4>
+      {/* Top Segmented Tab Switcher */}
+      <div style={{ display: 'flex', justifyContent: 'center', padding: '1.25rem 1rem 0.5rem', zIndex: 40, position: 'relative' }}>
+        <div
+          style={{
+            display: 'inline-flex',
+            padding: '5px',
+            borderRadius: '16px',
+            backgroundColor: 'rgba(15, 23, 42, 0.85)',
+            backdropFilter: 'blur(16px)',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.35)',
+            gap: '6px',
+          }}
+        >
           <button
-            onClick={toggleEco}
-            title="Pil Tasarruf Modunu Değiştir"
+            onClick={() => setActiveTab('speed')}
             style={{
-              padding: '3px 8px',
-              borderRadius: '6px',
-              fontSize: '11px',
-              fontWeight: 700,
+              padding: '8px 18px',
+              borderRadius: '12px',
+              border: 'none',
+              fontSize: '0.85rem',
+              fontWeight: 800,
+              cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '4px',
-              background: isEco ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.06)',
-              color: isEco ? '#10b981' : '#94a3b8',
-              border: `1px solid ${isEco ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.1)'}`
+              gap: '6px',
+              background: activeTab === 'speed' ? 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)' : 'transparent',
+              color: activeTab === 'speed' ? '#ffffff' : '#94a3b8',
+              boxShadow: activeTab === 'speed' ? '0 4px 14px rgba(2, 132, 199, 0.35)' : 'none',
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
           >
-            <Zap size={11} /> {isEco ? 'Eko Mod' : 'Standart'}
+            <Zap size={14} fill={activeTab === 'speed' ? '#ffffff' : 'none'} />
+            Soru Hızı & Zaman Yönetimi
           </button>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {planets.map(p => (
-            <div key={p.name} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem' }}>
-                <span style={{ color: 'rgba(255,255,255,0.85)', fontWeight: 600 }}>{p.name}</span>
-                <span style={{ color: p.color, fontWeight: 700 }}>%{p.progress}</span>
-              </div>
-              <div style={{ height: '4px', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: '99px', overflow: 'hidden' }}>
-                <div style={{ width: `${p.progress}%`, height: '100%', backgroundColor: p.color, borderRadius: '99px', transition: 'width 0.8s ease' }} />
-              </div>
-            </div>
-          ))}
+          
+          <button
+            onClick={() => setActiveTab('galaxy')}
+            style={{
+              padding: '8px 18px',
+              borderRadius: '12px',
+              border: 'none',
+              fontSize: '0.85rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: activeTab === 'galaxy' ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' : 'transparent',
+              color: activeTab === 'galaxy' ? '#ffffff' : '#94a3b8',
+              boxShadow: activeTab === 'galaxy' ? '0 4px 14px rgba(245, 158, 11, 0.35)' : 'none',
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+          >
+            <Orbit size={14} />
+            3D Gelişim Galaksisi
+          </button>
         </div>
       </div>
 
-      <Canvas
-        frameloop={isTabVisible ? 'always' : 'demand'}
-        dpr={isEco ? 1 : [1, 1.25]}
-        performance={{ min: 0.5 }}
-        camera={{ position: [0, 8, 15], fov: 60 }}
-      >
-        <color attach="background" args={['#050510']} />
-        <Stars radius={100} depth={50} count={isEco ? 700 : 1600} factor={4} saturation={0} fade speed={isEco ? 0.2 : 0.4} />
-        <OrbitControls enablePan={false} maxDistance={35} minDistance={5} />
-        <SolarSystem planets={planets} isEco={isEco} />
-      </Canvas>
+      {activeTab === 'speed' ? (
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1rem 1rem calc(85px + env(safe-area-inset-bottom, 20px))' }}>
+          <SpeedAnalyticsTab />
+        </div>
+      ) : (
+        <div style={{ width: '100%', height: 'calc(100vh - 150px)', position: 'relative', overflow: 'hidden' }}>
+          {/* Overlay UI - Left */}
+          <div style={{ position: 'absolute', top: '1.5rem', left: '2rem', zIndex: 10, pointerEvents: 'none' }}>
+            <h1 style={{ fontSize: 'clamp(1.6rem, 3.5vw, 2.2rem)', fontWeight: 800, color: '#fff', textShadow: '0 0 20px rgba(255,255,255,0.5)', margin: 0 }}>
+              3D Gelişim Galaksisi
+            </h1>
+            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', maxWidth: '380px', marginTop: '0.5rem', lineHeight: 1.6 }}>
+              Gezegenlerin büyüklüğü ve hızı derslerdeki gerçek başarı yüzdenizi temsil eder. Farenizi veya parmağınızı sürükleyerek galakside gezinebilirsiniz.
+            </p>
+          </div>
+
+          {/* Overlay UI - Right (Live HUD Card) */}
+          <div className="mobile-hidden" style={{ position: 'absolute', top: '1.5rem', right: '2rem', zIndex: 10, backgroundColor: 'rgba(15, 21, 35, 0.75)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '16px 20px', minWidth: '240px', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <h4 style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                🪐 Gezegen Yetkinlikleri
+              </h4>
+              <button
+                onClick={toggleEco}
+                title="Pil Tasarruf Modunu Değiştir"
+                style={{
+                  padding: '3px 8px',
+                  borderRadius: '6px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  background: isEco ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.06)',
+                  color: isEco ? '#10b981' : '#94a3b8',
+                  border: `1px solid ${isEco ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.1)'}`
+                }}
+              >
+                <Zap size={11} /> {isEco ? 'Eko Mod' : 'Standart'}
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {planets.map(p => (
+                <div key={p.name} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem' }}>
+                    <span style={{ color: 'rgba(255,255,255,0.85)', fontWeight: 600 }}>{p.name}</span>
+                    <span style={{ color: p.color, fontWeight: 700 }}>%{p.progress}</span>
+                  </div>
+                  <div style={{ height: '4px', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: '99px', overflow: 'hidden' }}>
+                    <div style={{ width: `${p.progress}%`, height: '100%', backgroundColor: p.color, borderRadius: '99px', transition: 'width 0.8s ease' }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <Canvas
+            frameloop={isTabVisible ? 'always' : 'demand'}
+            dpr={isEco ? 1 : [1, 1.25]}
+            performance={{ min: 0.5 }}
+            camera={{ position: [0, 8, 15], fov: 60 }}
+          >
+            <color attach="background" args={['#050510']} />
+            <Stars radius={100} depth={50} count={isEco ? 700 : 1600} factor={4} saturation={0} fade speed={isEco ? 0.2 : 0.4} />
+            <OrbitControls enablePan={false} maxDistance={35} minDistance={5} />
+            <SolarSystem planets={planets} isEco={isEco} />
+          </Canvas>
+        </div>
+      )}
     </div>
   );
 }

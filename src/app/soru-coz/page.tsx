@@ -5,12 +5,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Brain, CheckCircle2, XCircle, ArrowRight, Lightbulb, 
   RefreshCw, Star, MessageSquare, Timer, Edit3, Trash2, 
-  ChevronRight, Sparkles, SlidersHorizontal, Check, X
+  ChevronRight, Sparkles, SlidersHorizontal, Check, X,
+  Zap, Gauge, AlertTriangle, TrendingUp
 } from 'lucide-react';
 import AstraTutorChat from '@/components/AstraTutorChat';
 import { useAuth } from '@/context/AuthContext';
 import { BADGES } from '@/lib/badges';
 import { haptics } from '@/lib/haptics';
+import { evaluateQuestionSpeed, getSubjectBenchmark, SpeedEvaluation } from '@/lib/speed-benchmarks';
 
 // --- Scratchpad Sub-component ---
 function Scratchpad() {
@@ -195,8 +197,10 @@ export default function SoruCozPage() {
   const [filterSubject, setFilterSubject] = useState('all');
   const [filterDifficulty, setFilterDifficulty] = useState('all');
 
-  // Timer
+  // Timer & Speed States
   const [timerSeconds, setTimerSeconds] = useState(0);
+  const [solvedSeconds, setSolvedSeconds] = useState(0);
+  const [speedEvaluation, setSpeedEvaluation] = useState<SpeedEvaluation | null>(null);
 
   const { user, checkAuth } = useAuth();
 
@@ -206,6 +210,8 @@ export default function SoruCozPage() {
     setSelectedOption(null);
     setIsCorrect(false);
     setTimerSeconds(0);
+    setSolvedSeconds(0);
+    setSpeedEvaluation(null);
 
     try {
       const res = await fetch(`/api/questions/generate?subject=${filterSubject}&zorluk=${filterDifficulty}`);
@@ -242,6 +248,27 @@ export default function SoruCozPage() {
     const correct = option === question.dogruCevap;
     setIsCorrect(correct);
     setIsAnswered(true);
+
+    const currentDuration = timerSeconds;
+    setSolvedSeconds(currentDuration);
+    const subjectName = question.subject || (filterSubject !== 'all' ? filterSubject : 'Matematik');
+    const speedEval = evaluateQuestionSpeed(subjectName, currentDuration);
+    setSpeedEvaluation(speedEval);
+
+    // Speed log telemetry
+    try {
+      fetch('/api/user/speed-log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question_id: question.id || null,
+          subject: subjectName,
+          topic: question.topic || 'Genel',
+          duration_seconds: currentDuration,
+          is_correct: correct,
+        })
+      }).catch(e => console.error('Hız kaydı hatası:', e));
+    } catch (_) {}
 
     if (correct) {
       haptics.notification('success');
@@ -556,25 +583,59 @@ export default function SoruCozPage() {
                   </span>
                 </div>
                 
-                {/* Stopwatch indicator */}
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    color: isAnswered ? '#64748b' : '#38bdf8',
-                    backgroundColor: 'rgba(8, 12, 20, 0.65)',
-                    border: '1px solid rgba(255, 255, 255, 0.06)',
-                    padding: '4px 12px',
-                    borderRadius: '10px',
-                    fontSize: '0.85rem',
-                    fontWeight: 700,
-                    fontVariantNumeric: 'tabular-nums',
-                  }}
-                >
-                  <Timer size={15} />
-                  <span>{formatTime(timerSeconds)}</span>
-                </div>
+                {/* Stopwatch & Speedometer indicator */}
+                {(() => {
+                  const subjectName = question.subject || (filterSubject !== 'all' ? filterSubject : 'Matematik');
+                  const bench = getSubjectBenchmark(subjectName);
+                  const activeSeconds = isAnswered ? solvedSeconds : timerSeconds;
+                  const liveEval = evaluateQuestionSpeed(subjectName, activeSeconds);
+                  
+                  return (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      {/* Live Speed Badge */}
+                      <div
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 5,
+                          backgroundColor: liveEval.badgeBg,
+                          border: `1px solid ${liveEval.badgeBorder}`,
+                          color: liveEval.color,
+                          padding: '4px 10px',
+                          borderRadius: '10px',
+                          fontSize: '0.76rem',
+                          fontWeight: 800,
+                          transition: 'all 0.3s ease',
+                        }}
+                        title={`ÖSYM İdeal Süresi: ${bench.targetSeconds} saniye`}
+                      >
+                        <Zap size={12} fill={liveEval.color} />
+                        <span>{liveEval.badgeText}</span>
+                        <span style={{ opacity: 0.65, fontWeight: 600 }}>({bench.targetSeconds}s)</span>
+                      </div>
+
+                      {/* Timer Display */}
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          color: isAnswered ? '#94a3b8' : activeSeconds > bench.warningThreshold ? '#f87171' : '#38bdf8',
+                          backgroundColor: 'rgba(8, 12, 20, 0.65)',
+                          border: `1px solid ${activeSeconds > bench.warningThreshold && !isAnswered ? 'rgba(239, 68, 68, 0.35)' : 'rgba(255, 255, 255, 0.06)'}`,
+                          padding: '4px 12px',
+                          borderRadius: '10px',
+                          fontSize: '0.85rem',
+                          fontWeight: 700,
+                          fontVariantNumeric: 'tabular-nums',
+                        }}
+                      >
+                        <Timer size={15} />
+                        <span>{formatTime(activeSeconds)}</span>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Question Content */}
@@ -697,6 +758,109 @@ export default function SoruCozPage() {
                     exit={{ opacity: 0, height: 0 }}
                     style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden' }}
                   >
+                    {/* Soru Çözüm Hızı & Zaman Yönetimi Geri Bildirim Kartı */}
+                    {speedEvaluation && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        style={{
+                          padding: '1rem 1.25rem',
+                          marginBottom: '1.25rem',
+                          borderRadius: '16px',
+                          background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(22, 32, 53, 0.75) 100%)',
+                          border: `1px solid ${speedEvaluation.badgeBorder}`,
+                          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.25)',
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.65rem', marginBottom: '0.65rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <div
+                              style={{
+                                width: '36px',
+                                height: '36px',
+                                borderRadius: '10px',
+                                backgroundColor: speedEvaluation.badgeBg,
+                                border: `1px solid ${speedEvaluation.badgeBorder}`,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: speedEvaluation.color,
+                              }}
+                            >
+                              <Gauge size={20} />
+                            </div>
+                            <div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                                <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#ffffff' }}>
+                                  {solvedSeconds} Saniyede Tamamlandı
+                                </span>
+                                <span
+                                  style={{
+                                    fontSize: '0.75rem',
+                                    padding: '2px 8px',
+                                    borderRadius: '20px',
+                                    backgroundColor: speedEvaluation.badgeBg,
+                                    border: `1px solid ${speedEvaluation.badgeBorder}`,
+                                    color: speedEvaluation.color,
+                                    fontWeight: 800,
+                                  }}
+                                >
+                                  {speedEvaluation.label}
+                                </span>
+                              </div>
+                              <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: 2 }}>
+                                ÖSYM {question.subject || 'Ders'} Hedefi: <strong>{speedEvaluation.targetSeconds} sn</strong> •{' '}
+                                {speedEvaluation.differenceSeconds <= 0 ? (
+                                  <span style={{ color: '#34d399', fontWeight: 700 }}>
+                                    +{Math.abs(speedEvaluation.differenceSeconds)} sn zaman tasarrufu ⚡
+                                  </span>
+                                ) : (
+                                  <span style={{ color: '#fca5a5', fontWeight: 600 }}>
+                                    {speedEvaluation.differenceSeconds} sn hedef aşımı ⏳
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {isCorrect && speedEvaluation.differenceSeconds <= 0 && (
+                            <div
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 4,
+                                padding: '4px 10px',
+                                borderRadius: '8px',
+                                background: 'rgba(16, 185, 129, 0.15)',
+                                border: '1px solid rgba(16, 185, 129, 0.3)',
+                                color: '#6ee7b7',
+                                fontSize: '0.78rem',
+                                fontWeight: 700,
+                              }}
+                            >
+                              <Sparkles size={13} />
+                              Hızlı & Doğru Çözüm
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Coach Tip */}
+                        <div
+                          style={{
+                            fontSize: '0.82rem',
+                            color: '#cbd5e1',
+                            lineHeight: 1.5,
+                            padding: '0.65rem 0.85rem',
+                            borderRadius: '10px',
+                            background: 'rgba(255, 255, 255, 0.03)',
+                            borderLeft: `3px solid ${speedEvaluation.color}`,
+                          }}
+                        >
+                          💡 <strong>Astra Zaman Koçu:</strong> {speedEvaluation.advice}
+                        </div>
+                      </motion.div>
+                    )}
+
                     <div
                       style={{
                         display: 'flex',
