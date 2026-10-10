@@ -170,6 +170,35 @@ export async function PUT(
       submittedAt || existingSub?.submitted_at || (finalStatus === 'completed' || finalStatus === 'graded' ? new Date().toISOString() : null)
     );
 
+    // Öğrenciye anlık sistem içi bildirim gönder
+    try {
+      const notifId = crypto.randomUUID();
+      const notifTitle = finalScore !== null 
+        ? `🎯 Ödevin Notlandırıldı: ${finalScore}/100` 
+        : (finalStatus === 'completed' || finalStatus === 'graded')
+          ? `✅ Ödevin Onaylandı`
+          : `💬 Ödevine Geri Bildirim Geldi`;
+
+      const notifBody = finalFeedback && finalFeedback.trim()
+        ? `"${assignment.title}" için öğretmeninin notu: "${finalFeedback.trim().substring(0, 70)}${finalFeedback.trim().length > 70 ? '...' : ''}"`
+        : `"${assignment.title}" ödevin öğretmeniniz (${user.username || 'Öğretmen'}) tarafından incelendi.`;
+
+      await db.prepare(`
+        INSERT INTO user_notifications (id, user_id, title, body, type, icon, url, is_read, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, false, NOW())
+      `).run(
+        notifId,
+        studentId,
+        notifTitle,
+        notifBody,
+        'assignment_graded',
+        '🎯',
+        '/odevlerim'
+      );
+    } catch (notifErr) {
+      console.error('Bildirim gönderim hatası (ödev değerlendirme):', notifErr);
+    }
+
     return NextResponse.json({ 
       success: true, 
       message: 'Ödev durumu ve geri bildirimi güncellendi',

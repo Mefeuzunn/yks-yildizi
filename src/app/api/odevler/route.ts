@@ -13,7 +13,9 @@ export async function GET(req: Request) {
       SELECT a.id, a.title, a.description, a.due_date, a.created_at,
              a.questions_json, a.subject, a.topic,
              s.status, s.score, s.submitted_at,
-             u.username as teacher_name
+             COALESCE(s.feedback, '') as feedback,
+             u.username as teacher_name,
+             COALESCE(u.brans, 'Öğretmen') as teacher_brans
       FROM assignment_submissions s
       JOIN assignments a ON s.assignment_id = a.id
       JOIN users u ON a.teacher_id = u.id

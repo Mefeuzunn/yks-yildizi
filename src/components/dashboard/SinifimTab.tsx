@@ -5,11 +5,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Users, Megaphone, FolderOpen, ClipboardList, Clock, 
   CheckCircle, ArrowRight, Loader2, BookOpen, ExternalLink,
-  Sparkles, KeyRound, LogOut, AlertCircle, Trophy, Check
+  Sparkles, KeyRound, LogOut, AlertCircle, Trophy, Check, MessageSquare
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
-type Tab = 'duyurular' | 'odevler' | 'kaynaklar' | 'arkadaslar';
+type Tab = 'duyurular' | 'odevler' | 'notlar' | 'kaynaklar' | 'arkadaslar';
 
 export default function SinifimTab() {
   const { user } = useAuth();
@@ -21,6 +21,10 @@ export default function SinifimTab() {
   // Ödevler verisi
   const [assignments, setAssignments] = useState<any[]>([]);
   const [assignmentsLoading, setAssignmentsLoading] = useState(true);
+  
+  // Öğretmen notları
+  const [teacherNotes, setTeacherNotes] = useState<any[]>([]);
+  const [notesLoading, setNotesLoading] = useState(true);
   
   // Sınıf kodu katılma state'i
   const [classCodeInput, setClassCodeInput] = useState('');
@@ -60,10 +64,26 @@ export default function SinifimTab() {
     }
   };
 
+  const fetchNotes = async () => {
+    try {
+      setNotesLoading(true);
+      const res = await fetch('/api/student/notes');
+      if (res.ok) {
+        const data = await res.json();
+        setTeacherNotes(data.notes || []);
+      }
+    } catch (e) {
+      console.error('Fetch notes error:', e);
+    } finally {
+      setNotesLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (user?.role === 'ogrenci') {
       fetchClassData();
       fetchAssignments();
+      fetchNotes();
     } else {
       setLoading(false);
     }
@@ -308,7 +328,8 @@ export default function SinifimTab() {
 
   const tabs: { key: Tab; label: string; icon: any; count?: number }[] = [
     { key: 'duyurular', label: 'Duyurular', icon: Megaphone, count: announcements.length },
-    { key: 'odevler', label: 'Ödevlerim', icon: ClipboardList, count: assignments.filter(a => a.status !== 'submitted').length },
+    { key: 'odevler', label: 'Ödevlerim', icon: ClipboardList, count: assignments.filter(a => a.status !== 'submitted' && a.status !== 'completed' && a.status !== 'graded').length },
+    { key: 'notlar', label: 'Öğretmen Görüşleri', icon: MessageSquare, count: teacherNotes.length },
     { key: 'kaynaklar', label: 'Ders Kaynakları', icon: FolderOpen, count: resources.length },
     { key: 'arkadaslar', label: 'Sınıf Sıralaması', icon: Users, count: classmates.length },
   ];
@@ -556,6 +577,21 @@ export default function SinifimTab() {
                             <span style={{ color: '#38bdf8', fontWeight: 700 }}>Not: {assignment.score} / 100</span>
                           )}
                         </div>
+
+                        {assignment.feedback && (
+                          <div style={{
+                            marginTop: '0.65rem',
+                            padding: '8px 12px',
+                            background: 'rgba(99,102,241,0.1)',
+                            border: '1px solid rgba(99,102,241,0.25)',
+                            borderRadius: 8,
+                            fontSize: '0.8rem',
+                            color: '#c4b5fd'
+                          }}>
+                            <span style={{ fontWeight: 700, color: '#a5b4fc' }}>💬 Öğretmen Geri Bildirimi: </span>
+                            "{assignment.feedback}"
+                          </div>
+                        )}
                       </div>
 
                       <div>
@@ -583,6 +619,82 @@ export default function SinifimTab() {
                             <CheckCircle size={16} /> Ödevi Teslim Et
                           </button>
                         )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {/* ─── ÖĞRETMEN GÖRÜŞLERİ & NOTLARI ─── */}
+        {activeTab === 'notlar' && (
+          <motion.div
+            key="notlar"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            {notesLoading ? (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
+                <Loader2 className="animate-spin" size={32} color="#8b5cf6" />
+              </div>
+            ) : teacherNotes.length === 0 ? (
+              <div style={{
+                background: 'rgba(255,255,255,0.02)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                borderRadius: '16px', padding: '3.5rem 2rem', textAlign: 'center', color: '#64748b'
+              }}>
+                <MessageSquare size={44} color="#8b5cf6" style={{ margin: '0 auto 1rem', opacity: 0.6 }} />
+                <h3 style={{ color: '#e2e8f0', fontSize: '1.1rem', marginBottom: '0.25rem' }}>Öğretmen Görüşü Bulunmuyor</h3>
+                <p style={{ margin: 0, fontSize: '0.85rem' }}>Öğretmeniniz sizin için rehberlik notu veya tavsiye yazdığında burada görünecektir.</p>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 340px), 1fr))', gap: '1.25rem' }}>
+                {teacherNotes.map((n) => {
+                  const catBadge = 
+                    n.category === 'rehberlik' ? { label: '🎯 Rehberlik & Strateji', color: '#38bdf8', bg: 'rgba(56,189,248,0.15)' } :
+                    n.category === 'akademik' ? { label: '📈 Akademik Gelişim', color: '#10b981', bg: 'rgba(16,185,129,0.15)' } :
+                    n.category === 'motivasyon' ? { label: '🔥 Moral & Motivasyon', color: '#f59e0b', bg: 'rgba(245,158,11,0.15)' } :
+                    { label: '📌 Genel Tavsiye', color: '#a78bfa', bg: 'rgba(167,139,250,0.15)' };
+
+                  return (
+                    <div
+                      key={n.id}
+                      style={{
+                        background: 'rgba(255,255,255,0.03)',
+                        border: '1px solid rgba(255,255,255,0.07)',
+                        borderRadius: '14px',
+                        padding: '1.4rem',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        gap: '1rem'
+                      }}
+                    >
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem', flexWrap: 'wrap', gap: 6 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '0.8rem' }}>
+                              {n.teacher_name?.charAt(0)?.toUpperCase() || 'Ö'}
+                            </div>
+                            <div>
+                              <div style={{ color: '#fff', fontSize: '0.85rem', fontWeight: 700 }}>{n.teacher_name}</div>
+                              <div style={{ color: '#94a3b8', fontSize: '0.72rem' }}>{n.teacher_brans}</div>
+                            </div>
+                          </div>
+                          <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: catBadge.bg, color: catBadge.color, border: `1px solid ${catBadge.color}40` }}>
+                            {catBadge.label}
+                          </span>
+                        </div>
+                        <div style={{ padding: '12px', background: 'rgba(0,0,0,0.25)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.04)', color: '#f1f5f9', fontSize: '0.85rem', lineHeight: 1.6 }}>
+                          "{n.note}"
+                        </div>
+                      </div>
+                      <div style={{ color: '#64748b', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: 4, paddingTop: '0.4rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                        <Clock size={12} /> {new Date(n.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}
                       </div>
                     </div>
                   );

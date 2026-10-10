@@ -87,6 +87,27 @@ export async function POST(
       RETURNING id, teacher_id, student_id, note, category, is_shared_with_parent, created_at, updated_at
     `).get(teacherId, studentId, note.trim(), category || 'genel', isSharedWithParent !== false);
 
+    // Öğrenciye anlık sistem içi bildirim gönder
+    try {
+      const notifId = crypto.randomUUID();
+      const teacherName = user.username || 'Öğretmeniniz';
+      const previewText = note.trim().length > 60 ? `${note.trim().substring(0, 60)}...` : note.trim();
+      await db.prepare(`
+        INSERT INTO user_notifications (id, user_id, title, body, type, icon, url, is_read, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, false, NOW())
+      `).run(
+        notifId,
+        studentId,
+        '👨‍🏫 Öğretmeninden Yeni Not!',
+        `${teacherName} senin için gelişim tavsiyesi paylaştı: "${previewText}"`,
+        'teacher_note',
+        '📝',
+        '/odevlerim'
+      );
+    } catch (notifErr) {
+      console.error('Bildirim gönderim hatası (öğretmen notu):', notifErr);
+    }
+
     return NextResponse.json({ success: true, note: createdNote }, { status: 201 });
   } catch (e: any) {
     console.error('Create student note error:', e);
