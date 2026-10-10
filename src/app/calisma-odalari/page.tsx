@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import AvatarWardrobeModal from '@/components/library/AvatarWardrobeModal';
+import LibraryCountdownWidget from '@/components/library/LibraryCountdownWidget';
 
 interface Room {
   id: string;
@@ -240,6 +241,11 @@ export default function CalismaOdalariLobby() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Akıllı YKS Geri Sayım & Hedef İlerleme Barı */}
+      <div className="flex justify-center mb-6">
+        <LibraryCountdownWidget userTarget={user?.hedef || 'YKS 2026'} />
       </div>
 
       {/* Filter Tabs */}

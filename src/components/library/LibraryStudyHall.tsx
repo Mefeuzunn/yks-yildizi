@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BookOpen, Users, Moon, Sun, Sunset, CloudRain, 
   Sparkles, Coffee, Volume2, Shield, Radio, Check, 
-  RotateCcw, Flame, LogOut, ArrowRight, Lamp, Compass, Shirt, Headphones
+  RotateCcw, Flame, LogOut, ArrowRight, Lamp, Compass, Shirt, Headphones,
+  Trophy
 } from 'lucide-react';
 import SeatedStudentAvatar, { EmptyLibraryDesk, AvatarConfig } from './SeatedStudentAvatar';
 import StudentDeskCardModal, { DeskCardStudent, LibraryGiftType } from './StudentDeskCardModal';
@@ -13,6 +14,8 @@ import AvatarWardrobeModal from './AvatarWardrobeModal';
 import LeaveDeskConfirmModal from './LeaveDeskConfirmModal';
 import QuickStatusSelectorModal from './QuickStatusSelectorModal';
 import TableSynergyModal from './TableSynergyModal';
+import LibraryQuestsModal, { LibraryQuestProgress } from './LibraryQuestsModal';
+import LibraryCountdownWidget from './LibraryCountdownWidget';
 import { haptics } from '@/lib/haptics';
 import { libraryAudio } from '@/lib/library-audio';
 
@@ -78,10 +81,44 @@ export default function LibraryStudyHall({
   const [isWardrobeOpen, setIsWardrobeOpen] = useState(false);
   const [activeSynergyTable, setActiveSynergyTable] = useState<number | null>(null);
   const [isStatusSelectorOpen, setIsStatusSelectorOpen] = useState(false);
+  const [isQuestsOpen, setIsQuestsOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState<{
     type: 'leave' | 'switch';
     targetSeatId?: string | null;
   } | null>(null);
+
+  // ── Daily Quests & Gamification State ──
+  const [questProgress, setQuestProgress] = useState<LibraryQuestProgress>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const todayKey = new Date().toISOString().split('T')[0];
+        const saved = localStorage.getItem(`yks_library_quests_${todayKey}`);
+        if (saved) return JSON.parse(saved);
+      } catch (_) {}
+    }
+    return {
+      giftsSent: 0,
+      focusMinutes: 0,
+      synergyJoined: false,
+      statusUpdated: false,
+      neuroUsed: false,
+      claimedQuests: [],
+      claimedBadges: [],
+      totalGiftsLifetime: 0,
+      nightOwlSession: false,
+      fullTableJoined: false,
+    };
+  });
+
+  // Save quest progress to localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const todayKey = new Date().toISOString().split('T')[0];
+        localStorage.setItem(`yks_library_quests_${todayKey}`, JSON.stringify(questProgress));
+      } catch (_) {}
+    }
+  }, [questProgress]);
 
   // ── Determine Day / Sunset / Night Lighting based on real local time ──
   const timeOfDay = useMemo(() => {
@@ -194,6 +231,13 @@ export default function LibraryStudyHall({
     else if (action === 'brain') libraryAudio.playBrain();
     else if (action === 'star') libraryAudio.playStar();
     
+    // Update daily quests: gifts sent
+    setQuestProgress(prev => ({
+      ...prev,
+      giftsSent: (prev.giftsSent || 0) + 1,
+      totalGiftsLifetime: (prev.totalGiftsLifetime || 0) + 1,
+    }));
+
     onSendInteraction?.(receiverId, action);
     setTimeout(() => {
       setLocalInteractions(prev => {
@@ -205,6 +249,9 @@ export default function LibraryStudyHall({
   };
 
   const handleStatusSelect = (newStatus: string, statusType?: 'focusing' | 'break') => {
+    // Update daily quests: activity status shared
+    setQuestProgress(prev => ({ ...prev, statusUpdated: true }));
+
     onSubjectChange?.(newStatus);
     if (roomId) {
       fetch(`/api/rooms/${roomId}/join`, {
@@ -218,6 +265,81 @@ export default function LibraryStudyHall({
       }).catch(() => {});
     }
   };
+
+  // ── Track Table Synergy & Night Owl quests ──
+  useEffect(() => {
+    if (!mySeatId) return;
+    const tableNum = parseInt(mySeatId.replace('t', '').split('-')[0]) || 1;
+    const tableSeats = ['A', 'B', 'C', 'D'].map(s => `t${tableNum}-s${s}`);
+    const tableOccupants = tableSeats.filter(s => !!seatMap[s]);
+    
+    setQuestProgress(prev => {
+      let changed = false;
+      const next = { ...prev };
+      if (tableOccupants.length >= 2 && !prev.synergyJoined) {
+        next.synergyJoined = true;
+        changed = true;
+      }
+      if (tableOccupants.length >= 4 && !prev.fullTableJoined) {
+        next.fullTableJoined = true;
+        changed = true;
+      }
+      if (timeOfDay === 'night' && !prev.nightOwlSession) {
+        next.nightOwlSession = true;
+        changed = true;
+      }
+      return changed ? next : prev;
+    });
+  }, [mySeatId, seatMap, timeOfDay]);
+
+  // ── Track Focus Time toward quests ──
+  useEffect(() => {
+    if (timerActive) {
+      const interval = setInterval(() => {
+        setQuestProgress(prev => ({
+          ...prev,
+          focusMinutes: (prev.focusMinutes || 0) + 1,
+        }));
+      }, 60000);
+      return () => clearInterval(interval);
+    }
+  }, [timerActive]);
+
+  // ── Claim Quest or Badge Reward ──
+  const handleClaimReward = async (id: string, xp: number, lp: number, type: 'quest' | 'badge') => {
+    try {
+      await fetch('/api/user/xp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'add_xp', amount: xp }),
+      });
+    } catch (_) {}
+
+    setQuestProgress(prev => {
+      if (type === 'quest') {
+        return {
+          ...prev,
+          claimedQuests: prev.claimedQuests.includes(id) ? prev.claimedQuests : [...prev.claimedQuests, id],
+        };
+      } else {
+        return {
+          ...prev,
+          claimedBadges: prev.claimedBadges.includes(id) ? prev.claimedBadges : [...prev.claimedBadges, id],
+        };
+      }
+    });
+  };
+
+  // ── Unclaimed Quests Counter ──
+  const unclaimedQuestsCount = useMemo(() => {
+    let count = 0;
+    if ((questProgress.giftsSent || 0) >= 1 && !questProgress.claimedQuests.includes('quest_gift')) count++;
+    if ((questProgress.focusMinutes || 0) >= 25 && !questProgress.claimedQuests.includes('quest_focus25')) count++;
+    if (questProgress.synergyJoined && !questProgress.claimedQuests.includes('quest_synergy')) count++;
+    if (questProgress.statusUpdated && !questProgress.claimedQuests.includes('quest_status')) count++;
+    if (questProgress.neuroUsed && !questProgress.claimedQuests.includes('quest_neuro')) count++;
+    return count;
+  }, [questProgress]);
 
   const occupiedCount = Object.keys(seatMap).length;
 
@@ -267,6 +389,7 @@ export default function LibraryStudyHall({
             <button
               onClick={() => {
                 haptics.impact('light');
+                setQuestProgress(prev => ({ ...prev, neuroUsed: true }));
                 onOpenNeuroStudio();
               }}
               className="px-3 py-1.5 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-200 border border-indigo-500/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm hover:scale-[1.02] active:scale-95"
@@ -291,6 +414,24 @@ export default function LibraryStudyHall({
               <span>Davet Et</span>
             </button>
           )}
+
+          {/* Library Quests Button */}
+          <button
+            onClick={() => {
+              haptics.impact('light');
+              setIsQuestsOpen(true);
+            }}
+            className="relative px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm hover:scale-[1.02] active:scale-95"
+            title="Günlük salon görevlerini ve kazanılan rozetleri gör"
+          >
+            <Trophy size={13} />
+            <span>Salon Görevleri</span>
+            {unclaimedQuestsCount > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full bg-rose-500 text-white text-[10px] font-black animate-pulse shadow-sm">
+                {unclaimedQuestsCount}
+              </span>
+            )}
+          </button>
 
           {mySeatId ? (
             <div className="flex items-center gap-2">
@@ -349,6 +490,13 @@ export default function LibraryStudyHall({
           )}
         </div>
       </div>
+
+      {/* ── Akıllı YKS Geri Sayım & Hedef İlerleme Widget'ı ── */}
+      <LibraryCountdownWidget
+        userTarget={currentUserTarget}
+        onOpenQuests={() => setIsQuestsOpen(true)}
+        unclaimedQuestsCount={unclaimedQuestsCount}
+      />
 
       {/* ── Main Library Hall Scenic Stage ── */}
       <div 
@@ -623,6 +771,14 @@ export default function LibraryStudyHall({
         onClose={() => setIsStatusSelectorOpen(false)}
         currentStatus={userSubject}
         onSelectStatus={handleStatusSelect}
+      />
+
+      {/* ── Library Daily Quests & Milestones Modal ── */}
+      <LibraryQuestsModal
+        isOpen={isQuestsOpen}
+        onClose={() => setIsQuestsOpen(false)}
+        progress={questProgress}
+        onClaimReward={handleClaimReward}
       />
 
     </div>
