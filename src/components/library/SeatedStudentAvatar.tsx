@@ -557,6 +557,17 @@ const SeatedStudentAvatar = React.memo(function SeatedStudentAvatar({
               {seatLabel}
             </text>
           </g>
+
+          {/* ── Center Brass Student Nameplate ── */}
+          <g id="desk-nameplate" transform="translate(54, 150)">
+            <rect x="0" y="0" width="52" height="11" rx="2.5" fill="#451a03" stroke="#b45309" strokeWidth="0.9" />
+            <rect x="1" y="1" width="50" height="9" rx="1.5" fill="#291203" stroke="#78350f" strokeWidth="0.5" />
+            <circle cx="3" cy="5.5" r="0.8" fill="#d97706" />
+            <circle cx="49" cy="5.5" r="0.8" fill="#d97706" />
+            <text x="26" y="7.5" fill={isCurrentUser ? "#38bdf8" : "#fef08a"} fontSize="5.5" fontWeight="900" textAnchor="middle" fontFamily="sans-serif" letterSpacing="0.3">
+              {isCurrentUser ? '★ SEN ★' : user.username.slice(0, 9).toUpperCase()}
+            </text>
+          </g>
         </g>
       </svg>
     </motion.div>

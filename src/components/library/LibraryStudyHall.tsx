@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BookOpen, Users, Moon, Sun, Sunset, CloudRain, 
   Sparkles, Coffee, Volume2, Shield, Radio, Check, 
-  RotateCcw, Flame, LogOut, ArrowRight, Lamp, Compass, Shirt
+  RotateCcw, Flame, LogOut, ArrowRight, Lamp, Compass, Shirt, Headphones
 } from 'lucide-react';
 import SeatedStudentAvatar, { EmptyLibraryDesk, AvatarConfig } from './SeatedStudentAvatar';
 import StudentDeskCardModal, { DeskCardStudent } from './StudentDeskCardModal';
@@ -44,6 +44,7 @@ interface LibraryStudyHallProps {
   avatarConfig?: AvatarConfig;
   onUpdateAvatarConfig?: (config: AvatarConfig) => void;
   onOpenInvite?: () => void;
+  onOpenNeuroStudio?: () => void;
 }
 
 // 4 Tables x 4 Seats = 16 Seats Total
@@ -68,6 +69,7 @@ export default function LibraryStudyHall({
   avatarConfig,
   onUpdateAvatarConfig,
   onOpenInvite,
+  onOpenNeuroStudio,
 }: LibraryStudyHallProps) {
   const [selectedStudent, setSelectedStudent] = useState<DeskCardStudent | null>(null);
   const [localInteractions, setLocalInteractions] = useState<Record<string, 'coffee' | 'wave' | 'energy'>>({});
@@ -238,6 +240,21 @@ export default function LibraryStudyHall({
             <span>Gardırop & Masa</span>
           </button>
 
+          {/* Neuro-Acoustic Studio Button */}
+          {onOpenNeuroStudio && (
+            <button
+              onClick={() => {
+                haptics.impact('light');
+                onOpenNeuroStudio();
+              }}
+              className="px-3 py-1.5 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-200 border border-indigo-500/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm hover:scale-[1.02] active:scale-95"
+              title="40Hz Gama & 10Hz Alfa beyin dalgaları ve ses mikseri"
+            >
+              <Headphones size={13} />
+              <span>Nöro-Akustik (40Hz)</span>
+            </button>
+          )}
+
           {/* Invite Friends Button */}
           {onOpenInvite && (
             <button
@@ -392,16 +409,50 @@ export default function LibraryStudyHall({
 
           {/* ── The 4 Study Tables Grid (2x2 Layout) ── */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-8 lg:gap-10">
-            {[1, 2, 3, 4].map(tableNum => (
-              <div
-                key={tableNum}
-                className="relative p-2.5 min-[390px]:p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-black/40 border border-white/10 backdrop-blur-md shadow-2xl flex flex-col items-center"
-              >
-                {/* Table Center Brass Plaque */}
-                <div className="mb-2 sm:mb-3 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-gradient-to-r from-amber-950/60 to-yellow-950/60 border border-amber-600/30 text-amber-300 text-[10px] sm:text-[11px] font-black tracking-wider flex items-center gap-1.5 shadow-sm">
-                  <Compass size={12} className="text-amber-400" />
-                  <span>MASA {tableNum} · SESSİZ BÖLÜM</span>
-                </div>
+            {[1, 2, 3, 4].map(tableNum => {
+              const tableOccupants = SEATS_PER_TABLE.map(s => seatMap[`t${tableNum}-s${s}`]).filter(Boolean);
+              const seatCount = tableOccupants.length;
+              const hasSynergy = seatCount >= 2;
+              const isSuperSynergy = seatCount >= 4;
+
+              return (
+                <div
+                  key={tableNum}
+                  className={`relative p-2.5 min-[390px]:p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-black/40 backdrop-blur-md shadow-2xl flex flex-col items-center transition-all duration-500 ${
+                    isSuperSynergy
+                      ? 'border border-amber-500/40 shadow-[0_0_35px_rgba(245,158,11,0.2)]'
+                      : hasSynergy
+                      ? 'border border-emerald-500/35 shadow-[0_0_25px_rgba(16,185,129,0.15)]'
+                      : 'border border-white/10'
+                  }`}
+                >
+                  {/* Table Center Brass Plaque & Synergy Pill */}
+                  <div className="mb-2 sm:mb-3 flex items-center gap-2 flex-wrap justify-center">
+                    <div className="px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-gradient-to-r from-amber-950/60 to-yellow-950/60 border border-amber-600/30 text-amber-300 text-[10px] sm:text-[11px] font-black tracking-wider flex items-center gap-1.5 shadow-sm">
+                      <Compass size={12} className="text-amber-400" />
+                      <span>MASA {tableNum} · SESSİZ BÖLÜM</span>
+                    </div>
+
+                    {isSuperSynergy ? (
+                      <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500/25 to-yellow-500/20 border border-amber-400/50 text-amber-300 text-[10px] font-black flex items-center gap-1 shadow-[0_0_12px_rgba(245,158,11,0.35)] animate-pulse"
+                      >
+                        <Flame size={11} className="text-amber-400 fill-amber-400" />
+                        <span>Dolu Masa (+%25 XP)</span>
+                      </motion.div>
+                    ) : hasSynergy ? (
+                      <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-extrabold flex items-center gap-1 shadow-sm"
+                      >
+                        <Sparkles size={11} className="text-emerald-400" />
+                        <span>Masa Sinerjisi (+%15 XP)</span>
+                      </motion.div>
+                    ) : null}
+                  </div>
 
                 {/* 4 Seats Grid for this Table (2 Top, 2 Bottom) */}
                 <div className="grid grid-cols-2 gap-2 min-[390px]:gap-3 sm:gap-6 w-full justify-items-center">

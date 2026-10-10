@@ -12,6 +12,7 @@ import { haptics } from '@/lib/haptics';
 import { motion, AnimatePresence } from 'framer-motion';
 import LibraryStudyHall from '@/components/library/LibraryStudyHall';
 import InviteFriendsModal from '@/components/library/InviteFriendsModal';
+import NeuroAcousticStudioModal from '@/components/library/NeuroAcousticStudioModal';
 import { libraryAudio } from '@/lib/library-audio';
 
 export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: string }> }) {
@@ -24,6 +25,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
   const [showMobileDrawer, setShowMobileDrawer] = useState(false);
   const [activeSideTab, setActiveSideTab] = useState<'chat' | 'users'>('chat');
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showNeuroStudio, setShowNeuroStudio] = useState(false);
   const [focusToast, setFocusToast] = useState<string | null>(null);
   const [completedSessionModal, setCompletedSessionModal] = useState<{
     minutes: number;
@@ -848,6 +850,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
               avatarConfig={avatarConfig}
               onUpdateAvatarConfig={handleUpdateAvatarConfig}
               onOpenInvite={() => setShowInviteModal(true)}
+              onOpenNeuroStudio={() => setShowNeuroStudio(true)}
             />
 
             {/* ── Compact Docked Focus Bar & Ambience Controls ── */}
@@ -931,6 +934,18 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
                   })}
                 </div>
 
+                <button
+                  onClick={() => {
+                    haptics.impact('light');
+                    setShowNeuroStudio(true);
+                  }}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-emerald-500/15 hover:from-indigo-500/30 hover:to-purple-500/30 text-indigo-300 border border-indigo-500/40 text-[11px] sm:text-xs font-black transition-all cursor-pointer shadow-sm active:scale-95 whitespace-nowrap shrink-0"
+                  title="40Hz Gama & 10Hz Alfa Beyin Dalgaları ve Ses Mikseri"
+                >
+                  <Headphones className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>40Hz Gama & Mikser</span>
+                </button>
+
                 {ambientSound !== 'none' && (
                   <div className="flex items-center gap-1.5 ml-1 sm:ml-2">
                     <input
@@ -983,6 +998,18 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
                     </button>
                   );
                 })}
+
+                <button
+                  onClick={() => {
+                    haptics.impact('light');
+                    setShowNeuroStudio(true);
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-emerald-500/15 hover:from-indigo-500/30 hover:to-purple-500/30 text-indigo-300 border border-indigo-500/40 text-xs font-black transition-all cursor-pointer shadow-sm active:scale-95"
+                  title="40Hz Gama & 10Hz Alfa Beyin Dalgaları ve Ses Mikseri"
+                >
+                  <Headphones className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>40Hz Gama Stüdyo</span>
+                </button>
               </div>
 
               {ambientSound !== 'none' && (
@@ -1374,6 +1401,12 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
           </div>
         )}
       </AnimatePresence>
+
+      {/* ── Neuro-Acoustic Studio Modal (40Hz & Multi-Track Mixer) ── */}
+      <NeuroAcousticStudioModal
+        isOpen={showNeuroStudio}
+        onClose={() => setShowNeuroStudio(false)}
+      />
     </div>
   );
 }
