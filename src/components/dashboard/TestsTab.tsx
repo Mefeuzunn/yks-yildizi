@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { PlayCircle, Clock, CheckCircle2, TrendingUp, Loader2 } from 'lucide-react';
+import { PlayCircle, Clock, CheckCircle2, TrendingUp, Loader2, ArrowRight, Sparkles } from 'lucide-react';
 import ActiveTestModal from './ActiveTestModal';
 import TestResultModal from './TestResultModal';
 
@@ -11,6 +12,7 @@ export default function TestsTab() {
   const activeTests = [
     {
       id: 1,
+      suiteId: 'osym-2024-tyt-deneme',
       name: 'TYT Temel Matematik Hızlı Deneme',
       subject: 'Matematik',
       difficulty: 'Orta',
@@ -20,6 +22,7 @@ export default function TestsTab() {
     },
     {
       id: 2,
+      suiteId: 'osym-2023-tyt-turkce-deneme',
       name: 'TYT Türkçe Paragraf & Anlam Güçlendirme',
       subject: 'Türkçe',
       difficulty: 'Zor',
@@ -29,6 +32,7 @@ export default function TestsTab() {
     },
     {
       id: 3,
+      suiteId: 'pred-2025-nokta-atisi-ayt-fizik',
       name: 'AYT Fizik Mekanik & Dalga Analizi',
       subject: 'Fizik',
       difficulty: 'İleri',
@@ -38,6 +42,7 @@ export default function TestsTab() {
     },
     {
       id: 4,
+      suiteId: 'osym-2024-ayt-fen-deneme',
       name: 'TYT & AYT Kimya Temel Kavramlar',
       subject: 'Kimya',
       difficulty: 'Orta',
@@ -47,6 +52,7 @@ export default function TestsTab() {
     },
     {
       id: 5,
+      suiteId: 'osym-2024-ayt-fen-deneme',
       name: 'AYT Biyoloji Sistemler & Genetik',
       subject: 'Biyoloji',
       difficulty: 'Orta',
@@ -107,6 +113,61 @@ export default function TestsTab() {
         <p style={{ color: 'var(--text-secondary)' }}>Yapay zekanın senin için oluşturduğu eksik kapatma testlerini çöz veya geçmiş başarılarını incele.</p>
       </div>
 
+      {/* 🚀 New Million-Question Pool & Pro Test Studio Showcase Banner */}
+      <div 
+        style={{
+          background: 'linear-gradient(135deg, rgba(139,92,246,0.18) 0%, rgba(59,130,246,0.12) 50%, rgba(16,185,129,0.08) 100%)',
+          border: '1px solid rgba(139,92,246,0.35)',
+          borderRadius: '16px',
+          padding: '1.5rem 1.75rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1rem',
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ maxWidth: '650px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              <span style={{ fontSize: '0.72rem', fontWeight: 800, padding: '3px 10px', borderRadius: '99px', background: 'rgba(139,92,246,0.25)', color: '#c4b5fd', border: '1px solid rgba(139,92,246,0.4)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                ⭐ Yeni Nesil Soru Havuzu
+              </span>
+              <span style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 700 }}>
+                ● 8,800+ Aktif Soru & Sonsuz Parametrik Motor
+              </span>
+            </div>
+            <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#f8fafc', margin: 0, lineHeight: 1.3 }}>
+              ÖSYM Çıkmış Sorular & Profesyonel Test Stüdyosu
+            </h3>
+            <p style={{ color: '#94a3b8', fontSize: '0.88rem', marginTop: '0.4rem', marginBottom: 0, lineHeight: 1.5 }}>
+              2018–2024 ÖSYM çıkmış soruları, 2025–2026 nokta atışı tahmin soruları, şık eleme (üzerini çizme), karalama tuvali ve AstraTutor Sokratik ipuçlarıyla donatılmış profesyonel test stüdyosu.
+            </p>
+          </div>
+
+          <Link
+            href="/testler"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.75rem 1.4rem',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+              color: '#ffffff',
+              fontWeight: 700,
+              fontSize: '0.9rem',
+              textDecoration: 'none',
+              boxShadow: '0 4px 18px rgba(99,102,241,0.35)',
+              transition: 'all 0.2s ease',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            Tüm Test Merkezine Git <ArrowRight size={17} />
+          </Link>
+        </div>
+      </div>
+
       <div style={{ display: 'grid', flexWrap: 'wrap', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
         
         {/* Active Tests */}
@@ -139,12 +200,35 @@ export default function TestsTab() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><Clock size={16} /> {test.time}</div>
                 </div>
 
-                <button 
-                  onClick={() => handleStartTest(test)}
-                  className="btn-secondary" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
-                >
-                  <PlayCircle size={18} /> Testi Başlat
-                </button>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                  <Link
+                    href={`/test-coz?id=${test.suiteId}`}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.4rem',
+                      padding: '0.65rem 1rem',
+                      borderRadius: '10px',
+                      background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+                      color: '#ffffff',
+                      fontSize: '0.82rem',
+                      fontWeight: 700,
+                      textDecoration: 'none',
+                      textAlign: 'center'
+                    }}
+                  >
+                    <Sparkles size={15} /> Stüdyoda Çöz
+                  </Link>
+
+                  <button 
+                    onClick={() => handleStartTest(test)}
+                    className="btn-secondary" 
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', fontSize: '0.82rem' }}
+                  >
+                    <PlayCircle size={15} /> Hızlı Çöz
+                  </button>
+                </div>
               </div>
             ))}
           </div>

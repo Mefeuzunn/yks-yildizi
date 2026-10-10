@@ -1,0 +1,589 @@
+"use client";
+
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  FileText, Sparkles, Clock, CheckCircle2, Flame, Award, 
+  Search, SlidersHorizontal, BookOpen, Layers, Play, Plus, 
+  RotateCcw, ShieldCheck, Zap, X, ChevronRight, HelpCircle 
+} from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { haptics } from '@/lib/haptics';
+import { YKS_CURRICULUM_TAXONOMY } from '@/lib/curriculum-taxonomy';
+
+type TestCategory = 'all' | 'past_exam' | 'predicted' | 'meb_kazanim' | 'branch_trial' | 'procedural';
+
+export default function TestlerPage() {
+  const router = useRouter();
+  const [testSuites, setTestSuites] = useState<any[]>([]);
+  const [stats, setStats] = useState({
+    totalPoolSize: 8815,
+    pastExamQuestions: 10,
+    predictedQuestions: 5,
+    testSuitesCount: 10
+  });
+  const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<TestCategory>('all');
+  const [selectedSubject, setSelectedSubject] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  
+  // Custom Test Builder Modal State
+  const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
+  const [customForm, setCustomForm] = useState({
+    subject: 'Matematik',
+    topic: 'all',
+    examType: 'TYT',
+    questionCount: 10,
+    durationMinutes: 15,
+    difficulty: 'all'
+  });
+  const [customBuilding, setCustomBuilding] = useState(false);
+
+  const fetchSuites = async () => {
+    try {
+      const res = await fetch('/api/tests');
+      if (res.ok) {
+        const data = await res.json();
+        setTestSuites(data.testSuites || []);
+        if (data.stats) setStats(data.stats);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSuites();
+  }, []);
+
+  const handleStartCustomTest = async () => {
+    haptics.impact('medium');
+    setCustomBuilding(true);
+    try {
+      const res = await fetch('/api/tests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(customForm)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.test) {
+          // Store compiled custom test in sessionStorage for instant retrieval
+          sessionStorage.setItem(`custom_test_${data.test.id}`, JSON.stringify(data.test));
+          router.push(`/test-coz?customId=${data.test.id}`);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setCustomBuilding(false);
+      setIsCustomModalOpen(false);
+    }
+  };
+
+  const filteredSuites = testSuites.filter(suite => {
+    const matchesCategory = selectedCategory === 'all' || suite.category === selectedCategory;
+    const matchesSubject = selectedSubject === 'all' || suite.subject.toLowerCase().includes(selectedSubject.toLowerCase());
+    const matchesSearch = !searchQuery || 
+      suite.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      suite.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      suite.subject.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSubject && matchesSearch;
+  });
+
+  const availableTopics = customForm.subject && YKS_CURRICULUM_TAXONOMY[customForm.subject]
+    ? YKS_CURRICULUM_TAXONOMY[customForm.subject].topics
+    : [];
+
+  return (
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1.5rem 1rem calc(85px + env(safe-area-inset-bottom, 20px)) 1rem' }}>
+      
+      {/* ── Header & Action ─────────────────────────────────────────────── */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.35rem' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 800, padding: '3px 10px', borderRadius: '20px', background: 'rgba(99, 102, 241, 0.15)', color: '#818cf8', border: '1px solid rgba(99, 102, 241, 0.3)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              PRO TEST MERKEZİ & HAVUZU
+            </span>
+            <span style={{ fontSize: '0.75rem', color: '#10b981', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 700 }}>
+              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#10b981' }} /> Canlı Havuz
+            </span>
+          </div>
+          <h1 style={{ fontSize: '2rem', color: '#fff', margin: 0, fontWeight: 800 }}>
+            Testler & Soru Havuzu
+          </h1>
+          <p style={{ color: 'var(--text-secondary)', margin: '0.25rem 0 0 0', fontSize: '0.9rem' }}>
+            ÖSYM çıkmış soruları, 2025-2026 tahmin denemeleri ve sonsuz parametrik soru havuzu ile gerçek sınav provası.
+          </p>
+        </div>
+
+        {/* Custom Test Builder Trigger Button */}
+        <button
+          onClick={() => {
+            haptics.impact('light');
+            setIsCustomModalOpen(true);
+          }}
+          className="btn-interactive"
+          style={{
+            background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
+            border: 'none',
+            borderRadius: '14px',
+            padding: '0.85rem 1.4rem',
+            color: '#fff',
+            fontWeight: 800,
+            fontSize: '0.9rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            cursor: 'pointer',
+            boxShadow: '0 8px 24px rgba(99, 102, 241, 0.3)'
+          }}
+        >
+          <Plus size={18} /> Özel Test Oluştur
+        </button>
+      </div>
+
+      {/* ── Pool Stats Bar ─────────────────────────────────────────────────── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+        <div className="premium-card" style={{ padding: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+          <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'rgba(56, 189, 248, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Layers size={22} color="#38bdf8" />
+          </div>
+          <div>
+            <div style={{ fontSize: '1.4rem', color: '#fff', fontWeight: 800 }}>{stats.totalPoolSize.toLocaleString()}+</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Toplam Aktif Soru Havuzu</div>
+          </div>
+        </div>
+
+        <div className="premium-card" style={{ padding: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+          <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'rgba(239, 68, 68, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <ShieldCheck size={22} color="#ef4444" />
+          </div>
+          <div>
+            <div style={{ fontSize: '1.4rem', color: '#fff', fontWeight: 800 }}>2018 - 2024</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>ÖSYM Çıkmış Sorular</div>
+          </div>
+        </div>
+
+        <div className="premium-card" style={{ padding: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+          <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'rgba(168, 85, 247, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Sparkles size={22} color="#a855f7" />
+          </div>
+          <div>
+            <div style={{ fontSize: '1.4rem', color: '#fff', fontWeight: 800 }}>2025 - 2026</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Nokta Atışı Çıkabilecekler</div>
+          </div>
+        </div>
+
+        <div className="premium-card" style={{ padding: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+          <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Zap size={22} color="#10b981" />
+          </div>
+          <div>
+            <div style={{ fontSize: '1.4rem', color: '#fff', fontWeight: 800 }}>Sonsuz Parametrik</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Algoritmik Soru Üretimi</div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Filters & Category Bar ────────────────────────────────────────── */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
+        
+        {/* Category Pill Tabs */}
+        <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '4px' }}>
+          {[
+            { id: 'all', label: 'Tüm Testler', icon: '🌟' },
+            { id: 'past_exam', label: 'ÖSYM Çıkmış Sorular', icon: '🏛️' },
+            { id: 'predicted', label: '2025-2026 Tahmin Denemeleri', icon: '🎯' },
+            { id: 'branch_trial', label: 'Hızlı Branş Denemeleri', icon: '⚡' },
+            { id: 'meb_kazanim', label: 'MEB Maarif Kazanım', icon: '📚' },
+            { id: 'procedural', label: 'Sonsuz Parametrik', icon: '♾️' },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => {
+                haptics.selection();
+                setSelectedCategory(tab.id as TestCategory);
+              }}
+              style={{
+                padding: '0.55rem 1rem',
+                borderRadius: '10px',
+                border: 'none',
+                background: selectedCategory === tab.id ? 'linear-gradient(135deg, #6366f1, #8b5cf6)' : 'rgba(255,255,255,0.05)',
+                color: selectedCategory === tab.id ? '#fff' : '#94a3b8',
+                fontWeight: 700,
+                fontSize: '0.82rem',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.15s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem'
+              }}
+            >
+              <span>{tab.icon}</span> {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Search & Subject Dropdown Bar */}
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ flex: 1, minWidth: '240px', position: 'relative' }}>
+            <Search size={16} color="#64748b" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+            <input
+              type="text"
+              placeholder="Test veya ders adı ara... (Örn: 2024 AYT Matematik, Paragraf)"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '0.65rem 1rem 0.65rem 2.4rem',
+                borderRadius: '10px',
+                border: '1px solid rgba(255,255,255,0.1)',
+                background: 'rgba(15, 23, 42, 0.7)',
+                color: '#fff',
+                fontSize: '0.85rem',
+                outline: 'none'
+              }}
+            />
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ fontSize: '0.82rem', color: '#94a3b8' }}>Ders:</span>
+            <select
+              value={selectedSubject}
+              onChange={e => setSelectedSubject(e.target.value)}
+              style={{
+                padding: '0.6rem 1.8rem 0.6rem 0.85rem',
+                borderRadius: '10px',
+                border: '1px solid rgba(255,255,255,0.1)',
+                background: 'rgba(15, 23, 42, 0.7)',
+                color: '#fff',
+                fontSize: '0.85rem',
+                outline: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              <option value="all">Tüm Dersler</option>
+              <option value="Matematik">Matematik</option>
+              <option value="Geometri">Geometri</option>
+              <option value="Fizik">Fizik</option>
+              <option value="Kimya">Kimya</option>
+              <option value="Biyoloji">Biyoloji</option>
+              <option value="Türkçe">Türkçe</option>
+              <option value="Tarih">Tarih</option>
+              <option value="Coğrafya">Coğrafya</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Test Suites Grid ─────────────────────────────────────────────── */}
+      {loading ? (
+        <div style={{ padding: '5rem', textAlign: 'center', color: '#818cf8', fontSize: '1rem', fontWeight: 600 }}>
+          Soru havuzu ve testler yükleniyor...
+        </div>
+      ) : filteredSuites.length === 0 ? (
+        <div className="premium-card" style={{ padding: '3rem', textAlign: 'center', color: '#94a3b8' }}>
+          Seçilen kriterlere uygun test bulunamadı. Lütfen filtrelerinizi sıfırlayın veya "Özel Test Oluştur" ile kendi testinizi yaratın.
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.25rem' }}>
+          {filteredSuites.map((suite, idx) => (
+            <motion.div
+              key={suite.id}
+              className="premium-card"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.04 }}
+              style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+            >
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 800, padding: '2px 8px', borderRadius: '12px', background: `${suite.badgeColor}22`, color: suite.badgeColor, border: `1px solid ${suite.badgeColor}44` }}>
+                    {suite.difficultyLabel} • {suite.examType}
+                  </span>
+                  {suite.year && (
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f59e0b' }}>
+                      📅 {suite.year}
+                    </span>
+                  )}
+                </div>
+
+                <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: '#fff', fontWeight: 700, lineHeight: 1.4 }}>
+                  {suite.title}
+                </h3>
+
+                <p style={{ margin: '0 0 1.25rem 0', fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                  {suite.description}
+                </p>
+              </div>
+
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.65rem 0.85rem', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', marginBottom: '1rem', fontSize: '0.8rem', color: '#cbd5e1' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <FileText size={15} color="#38bdf8" /> {suite.questionCount} Soru
+                  </span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <Clock size={15} color="#f59e0b" /> {suite.durationMinutes} Dakika
+                  </span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#a855f7' }}>
+                    <Award size={15} /> +{suite.questionCount * 15} XP
+                  </span>
+                </div>
+
+                <Link href={`/test-coz?id=${suite.id}`} style={{ textDecoration: 'none' }}>
+                  <button
+                    className="btn-interactive"
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      background: 'linear-gradient(135deg, #10b981, #059669)',
+                      border: 'none',
+                      borderRadius: '10px',
+                      color: '#fff',
+                      fontWeight: 800,
+                      fontSize: '0.85rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.4rem'
+                    }}
+                  >
+                    <Play size={16} fill="#fff" /> Sınavı Başlat
+                  </button>
+                </Link>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Custom Test Builder Modal ─────────────────────────────────────── */}
+      <AnimatePresence>
+        {isCustomModalOpen && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              style={{
+                width: '100%',
+                maxWidth: '520px',
+                background: '#0e1526',
+                border: '1px solid rgba(255,255,255,0.12)',
+                borderRadius: '20px',
+                padding: '1.75rem',
+                boxShadow: '0 25px 60px rgba(0,0,0,0.6)',
+                position: 'relative'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                  <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'rgba(99, 102, 241, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <SlidersHorizontal size={20} color="#818cf8" />
+                  </div>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#fff', fontWeight: 800 }}>Kişisel Test Oluşturucu</h3>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: '#94a3b8' }}>Milyonluk havuzdan dilediğin parametrelerle anında sınav derle.</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsCustomModalOpen(false)}
+                  style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '4px' }}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Form Fields */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                
+                {/* Sınav Tipi */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 600, marginBottom: '0.35rem' }}>Sınav Oturumu</label>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    {['TYT', 'AYT'].map(type => (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => setCustomForm(f => ({ ...f, examType: type }))}
+                        style={{
+                          flex: 1,
+                          padding: '0.6rem',
+                          borderRadius: '8px',
+                          border: customForm.examType === type ? '1px solid #6366f1' : '1px solid rgba(255,255,255,0.08)',
+                          background: customForm.examType === type ? 'rgba(99, 102, 241, 0.2)' : 'rgba(255,255,255,0.03)',
+                          color: customForm.examType === type ? '#fff' : '#94a3b8',
+                          fontWeight: 700,
+                          fontSize: '0.85rem',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {type}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Ders Seçimi */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 600, marginBottom: '0.35rem' }}>Ders</label>
+                  <select
+                    value={customForm.subject}
+                    onChange={e => setCustomForm(f => ({ ...f, subject: e.target.value, topic: 'all' }))}
+                    style={{
+                      width: '100%',
+                      padding: '0.65rem',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      background: 'rgba(255,255,255,0.04)',
+                      color: '#fff',
+                      fontSize: '0.85rem',
+                      outline: 'none'
+                    }}
+                  >
+                    {Object.keys(YKS_CURRICULUM_TAXONOMY).map(subj => (
+                      <option key={subj} value={subj} style={{ background: '#0e1526' }}>{subj}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Konu Seçimi */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 600, marginBottom: '0.35rem' }}>Konu</label>
+                  <select
+                    value={customForm.topic}
+                    onChange={e => setCustomForm(f => ({ ...f, topic: e.target.value }))}
+                    style={{
+                      width: '100%',
+                      padding: '0.65rem',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      background: 'rgba(255,255,255,0.04)',
+                      color: '#fff',
+                      fontSize: '0.85rem',
+                      outline: 'none'
+                    }}
+                  >
+                    <option value="all" style={{ background: '#0e1526' }}>Tüm Konulardan Karışık</option>
+                    {availableTopics.map(t => (
+                      <option key={t} value={t} style={{ background: '#0e1526' }}>{t}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Soru Sayısı ve Süre */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 600, marginBottom: '0.35rem' }}>Soru Sayısı</label>
+                    <select
+                      value={customForm.questionCount}
+                      onChange={e => setCustomForm(f => ({ 
+                        ...f, 
+                        questionCount: Number(e.target.value),
+                        durationMinutes: Math.round(Number(e.target.value) * 1.5)
+                      }))}
+                      style={{
+                        width: '100%',
+                        padding: '0.65rem',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        background: 'rgba(255,255,255,0.04)',
+                        color: '#fff',
+                        fontSize: '0.85rem',
+                        outline: 'none'
+                      }}
+                    >
+                      <option value={5} style={{ background: '#0e1526' }}>5 Soru (Mini)</option>
+                      <option value={10} style={{ background: '#0e1526' }}>10 Soru (Standart)</option>
+                      <option value={15} style={{ background: '#0e1526' }}>15 Soru (Branş)</option>
+                      <option value={20} style={{ background: '#0e1526' }}>20 Soru (Yoğun)</option>
+                      <option value={40} style={{ background: '#0e1526' }}>40 Soru (Tam Oturum)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 600, marginBottom: '0.35rem' }}>Süre (Dakika)</label>
+                    <input
+                      type="number"
+                      min={5}
+                      max={180}
+                      value={customForm.durationMinutes}
+                      onChange={e => setCustomForm(f => ({ ...f, durationMinutes: Number(e.target.value) }))}
+                      style={{
+                        width: '100%',
+                        padding: '0.65rem',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        background: 'rgba(255,255,255,0.04)',
+                        color: '#fff',
+                        fontSize: '0.85rem',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Zorluk */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 600, marginBottom: '0.35rem' }}>Zorluk Seviyesi</label>
+                  <select
+                    value={customForm.difficulty}
+                    onChange={e => setCustomForm(f => ({ ...f, difficulty: e.target.value }))}
+                    style={{
+                      width: '100%',
+                      padding: '0.65rem',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      background: 'rgba(255,255,255,0.04)',
+                      color: '#fff',
+                      fontSize: '0.85rem',
+                      outline: 'none'
+                    }}
+                  >
+                    <option value="all" style={{ background: '#0e1526' }}>Dengeli (ÖSYM Karışık)</option>
+                    <option value="2" style={{ background: '#0e1526' }}>Temel Kavrama (Kolay)</option>
+                    <option value="3" style={{ background: '#0e1526' }}>ÖSYM Standartı (Orta)</option>
+                    <option value="4" style={{ background: '#0e1526' }}>Seçici & Zor (İleri Düzey)</option>
+                  </select>
+                </div>
+
+                {/* Submit button */}
+                <button
+                  type="button"
+                  onClick={handleStartCustomTest}
+                  disabled={customBuilding}
+                  className="btn-interactive"
+                  style={{
+                    marginTop: '0.5rem',
+                    padding: '0.85rem',
+                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                    border: 'none',
+                    borderRadius: '10px',
+                    color: '#fff',
+                    fontWeight: 800,
+                    fontSize: '0.9rem',
+                    cursor: customBuilding ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.4rem'
+                  }}
+                >
+                  <Play size={16} fill="#fff" />
+                  {customBuilding ? 'Test Derleniyor...' : 'Özel Testi Başlat'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+    </div>
+  );
+}

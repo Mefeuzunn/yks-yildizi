@@ -30,7 +30,7 @@ const MORE_TABS = [
   { emoji: '📋', label: 'Ödevlerim', href: '/odevlerim' },
   { emoji: '❌', label: 'Yanlışlarım', href: '/dashboard?tab=mistakes' },
   { emoji: '📚', label: 'Konular', href: '/dashboard?tab=topics' },
-  { emoji: '📝', label: 'Testlerim', href: '/dashboard?tab=tests' },
+  { emoji: '📝', label: 'Testler & Soru Havuzu', href: '/testler' },
   { emoji: '🏆', label: 'Ligler', href: '/ligler' },
   { emoji: '🛍️', label: 'Mağaza', href: '/magaza' },
   { emoji: '🎴', label: 'Hafıza Kartları', href: '/dashboard?tab=cards' },

@@ -28,7 +28,7 @@ const STUDENT_NAV_GROUPS: {
     items: [
       { emoji: '📈', label: 'Denemeler', href: '/denemeler' },
       { emoji: '📚', label: 'Konular', href: '/dashboard?tab=topics' },
-      { emoji: '📝', label: 'Testlerim', href: '/dashboard?tab=tests' },
+      { emoji: '📝', label: 'Testler & Soru Havuzu', href: '/testler' },
       { emoji: '❌', label: 'Yanlışlarım', href: '/dashboard?tab=mistakes' },
       { emoji: '🎴', label: 'Hafıza Kartları', href: '/dashboard?tab=cards' },
       { emoji: '🍅', label: 'Odaklanma', href: '/dashboard?tab=focus' },
