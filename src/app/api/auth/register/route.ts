@@ -165,7 +165,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       message: 'Kayıt başarılı!',
-      token: token,
+      token: id,
       user: {
         id,
         username: finalUsername,

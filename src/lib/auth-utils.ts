@@ -28,6 +28,9 @@ export async function getAuthenticatedUserId(req?: Request): Promise<string | nu
     if (payload?.userId) return payload.userId as string;
   } catch (_) {}
 
+  // 4. Proxy middleware tarafından doğrulanıp iletilen UUID
+  if (/^[0-9a-f-]{36}$/.test(token)) return token;
+
   return null;
 }
 

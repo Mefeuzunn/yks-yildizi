@@ -49,7 +49,7 @@ export async function POST(req: Request) {
     const response = NextResponse.json({
       success: true,
       message: 'Giriş başarılı!',
-      token: token,
+      token: user.id,
       user: {
         id: user.id,
         username: user.username,

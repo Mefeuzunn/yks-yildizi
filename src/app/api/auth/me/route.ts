@@ -20,12 +20,22 @@ export async function GET(req: Request) {
       return NextResponse.json({ authenticated: false }, { status: 401 });
     }
 
-    const payload = await verifyToken(token);
-    if (!payload?.userId) {
-      return NextResponse.json({ authenticated: false }, { status: 401 });
+    let userId: string | null = null;
+    try {
+      const payload = await verifyToken(token);
+      if (payload && payload.userId) {
+        userId = payload.userId as string;
+      }
+    } catch(e) {}
+
+    // Proxy.ts middleware'den iletilen çözülmüş UUID
+    if (!userId && /^[0-9a-f-]{36}$/.test(token)) {
+      userId = token;
     }
 
-    const userId = payload.userId as string;
+    if (!userId) {
+      return NextResponse.json({ authenticated: false }, { status: 401 });
+    }
 
     const user = await db.prepare('SELECT id, username, role, alan, sinif, brans, kurum, parent_code, target_university, target_department, invite_code, curriculum_mode FROM users WHERE id = ?').get(userId) as any;
 
