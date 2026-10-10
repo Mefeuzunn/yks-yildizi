@@ -11,8 +11,11 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
     }
 
-    const userStmt = await db.prepare(`SELECT id, username, role, alan, sinif FROM users WHERE id = ?`);
-    const user = userStmt.get(userId) as any;
+    const userStmt = await db.prepare(`
+      SELECT id, username, email, role, alan, sinif, target_university, target_department, parent_code, created_at 
+      FROM users WHERE id = ?
+    `);
+    const user = await userStmt.get(userId) as any;
 
     if (!user) {
       return NextResponse.json({ error: 'Kullanıcı bulunamadı.' }, { status: 404 });

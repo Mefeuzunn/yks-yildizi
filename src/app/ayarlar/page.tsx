@@ -2,13 +2,19 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, User, Bell, Palette, Shield, Save, Loader2, CheckCircle2, AlertCircle, CreditCard, Trash2, Smartphone, ExternalLink, Trophy, Flame, Moon, Clock, Zap, Battery, BatteryCharging, Cpu, Sparkles } from 'lucide-react';
+import { 
+  Settings, User, Bell, Palette, Shield, Save, Loader2, CheckCircle2, 
+  AlertCircle, CreditCard, Trash2, Smartphone, ExternalLink, Trophy, 
+  Flame, Moon, Clock, Zap, Battery, BatteryCharging, Cpu, Sparkles,
+  Target, School, Lock, Eye, EyeOff, Copy, Check, RefreshCw
+} from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { PushNotificationToggle } from '@/components/PWAComponents';
 import { usePowerState, toggleBatterySaver } from '@/components/BatteryOptimizer';
+import Link from 'next/link';
 
 export default function AyarlarPage() {
-  const { user } = useAuth();
+  const { user: authUser, logout } = useAuth();
   const powerState = usePowerState();
   const [batteryLevel, setBatteryLevel] = useState<number | null>(null);
   const [isCharging, setIsCharging] = useState<boolean | null>(null);
@@ -17,6 +23,17 @@ export default function AyarlarPage() {
   const [theme, setTheme] = useState('dark');
   const [accent, setAccent] = useState('#38bdf8');
   
+  // Profil & Akademik States
+  const [alan, setAlan] = useState('Sayisal');
+  const [sinif, setSinif] = useState('12');
+  const [targetUniversity, setTargetUniversity] = useState('');
+  const [targetDepartment, setTargetDepartment] = useState('');
+  const [email, setEmail] = useState('');
+  const [brans, setBrans] = useState('');
+  const [kurum, setKurum] = useState('');
+  const [parentCode, setParentCode] = useState('');
+  const [copiedParentCode, setCopiedParentCode] = useState(false);
+
   // Bildirim states
   const [notifFocus, setNotifFocus] = useState(true);
   const [notifDaily, setNotifDaily] = useState(true);
@@ -33,6 +50,10 @@ export default function AyarlarPage() {
   // Güvenlik states
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPw, setShowCurrentPw] = useState(false);
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [savingPassword, setSavingPassword] = useState(false);
 
   // UI states
   const [loading, setLoading] = useState(true);
@@ -41,40 +62,99 @@ export default function AyarlarPage() {
   
   // Hesap Silme state
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   const avatars = ['Felix', 'Aneka', 'Bandit', 'Jasper', 'Max'];
 
-  useEffect(() => {
-    fetch('/api/user/settings')
-      .then(res => res.json())
-      .then(data => {
-        if (data && !data.error) {
-          setTheme(data.theme || 'dark');
-          setAccent(data.accent_color || '#38bdf8');
-          setAvatarSeed(data.avatar_seed || 'Felix');
-        }
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+  const TOP_UNIVERSITIES = [
+    'Boğaziçi Üniversitesi',
+    'Orta Doğu Teknik Üniversitesi (ODTÜ)',
+    'İstanbul Teknik Üniversitesi (İTÜ)',
+    'Hacettepe Üniversitesi',
+    'Koç Üniversitesi',
+    'Sabancı Üniversitesi',
+    'Bilkent Üniversitesi',
+    'İstanbul Üniversitesi',
+    'Ankara Üniversitesi',
+    'Ege Üniversitesi',
+    'Yıldız Teknik Üniversitesi',
+    'Gazi Üniversitesi',
+    'Dokuz Eylül Üniversitesi',
+    'Marmara Üniversitesi',
+    'Cerrahpaşa Tıp Fakültesi'
+  ];
 
-    fetch('/api/notifications/settings')
-      .then(res => res.json())
-      .then(d => {
-        if (d?.settings) {
-          const s = d.settings;
-          setNotifFocus(s.notif_focus ?? true);
-          setNotifDaily(s.notif_daily_reminder ?? true);
-          setNotifStreak(s.notif_streak_warning ?? true);
-          setNotifHomework(s.notif_homework ?? true);
-          setNotifDuel(s.notif_duel ?? true);
-          setNotifSound(s.notif_sound ?? true);
-          setQuietHoursEnabled(s.quiet_hours_enabled ?? true);
-          setQuietHoursStart(s.quiet_hours_start || '23:00');
-          setQuietHoursEnd(s.quiet_hours_end || '08:00');
-          setFrequencyLimit(s.frequency_limit || 'smart');
+  const TOP_DEPARTMENTS = [
+    'Bilgisayar Mühendisliği',
+    'Tıp Fakültesi',
+    'Hukuk Fakültesi',
+    'Elektrik-Elektronik Mühendisliği',
+    'Diş Hekimliği',
+    'Endüstri Mühendisliği',
+    'İktisat / Ekonomi',
+    'İşletme',
+    'Psikoloji',
+    'Mimarlık',
+    'Yazılım Mühendisliği',
+    'Eczacılık',
+    'Moleküler Biyoloji ve Genetik',
+    'İngilizce Öğretmenliği',
+    'Havacılık ve Uzay Mühendisliği'
+  ];
+
+  useEffect(() => {
+    // 1. Profil ve genel ayarları yükle
+    Promise.all([
+      fetch('/api/user/profile').then(r => r.json()),
+      fetch('/api/user/settings').then(r => r.json()),
+      fetch('/api/notifications/settings').then(r => r.json())
+    ]).then(([profileRes, settingsRes, notifRes]) => {
+      if (profileRes?.user) {
+        const u = profileRes.user;
+        setAlan(u.alan || 'Sayisal');
+        setSinif(u.sinif || '12');
+        setTargetUniversity(u.target_university || '');
+        setTargetDepartment(u.target_department || '');
+        setEmail(u.email || '');
+        setBrans(u.brans || '');
+        setKurum(u.kurum || '');
+        setParentCode(u.parent_code || '');
+      }
+
+      if (settingsRes && !settingsRes.error) {
+        const currentTheme = settingsRes.theme || 'dark';
+        const currentAccent = settingsRes.accent_color || '#38bdf8';
+        setTheme(currentTheme);
+        setAccent(currentAccent);
+        setAvatarSeed(settingsRes.avatar_seed || 'Felix');
+
+        // Canlı CSS uygulaması
+        if (typeof document !== 'undefined') {
+          document.documentElement.setAttribute('data-theme', currentTheme);
+          document.documentElement.style.setProperty('--brand-primary', currentAccent);
+          document.documentElement.style.setProperty('--brand-accent', currentAccent);
         }
-      })
-      .catch(() => {});
+      }
+
+      if (notifRes?.settings) {
+        const s = notifRes.settings;
+        setNotifFocus(s.notif_focus ?? true);
+        setNotifDaily(s.notif_daily_reminder ?? true);
+        setNotifStreak(s.notif_streak_warning ?? true);
+        setNotifHomework(s.notif_homework ?? true);
+        setNotifDuel(s.notif_duel ?? true);
+        setNotifSound(s.notif_sound ?? true);
+        setQuietHoursEnabled(s.quiet_hours_enabled ?? true);
+        setQuietHoursStart(s.quiet_hours_start || '23:00');
+        setQuietHoursEnd(s.quiet_hours_end || '08:00');
+        setFrequencyLimit(s.frequency_limit || 'smart');
+      }
+
+      setLoading(false);
+    }).catch(err => {
+      console.error('Ayarlar yükleme hatası:', err);
+      setLoading(false);
+    });
   }, []);
 
   useEffect(() => {
@@ -88,14 +168,31 @@ export default function AyarlarPage() {
     }
   }, []);
 
+  // Canlı tema ve renk önizleme
+  const handleThemeChange = (newTheme: string) => {
+    setTheme(newTheme);
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute('data-theme', newTheme);
+    }
+  };
+
+  const handleAccentChange = (newAccent: string) => {
+    setAccent(newAccent);
+    if (typeof document !== 'undefined') {
+      document.documentElement.style.setProperty('--brand-primary', newAccent);
+      document.documentElement.style.setProperty('--brand-accent', newAccent);
+    }
+  };
+
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
+    setTimeout(() => setToast(null), 3500);
   };
 
   const handleSave = async () => {
     setSaving(true);
     try {
+      // 1. Ayarları Kaydet
       await fetch('/api/user/settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -106,6 +203,22 @@ export default function AyarlarPage() {
         })
       });
 
+      // 2. Profil & Hedefleri Kaydet
+      const profileRes = await fetch('/api/user/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          alan,
+          sinif,
+          target_university: targetUniversity,
+          target_department: targetDepartment,
+          email,
+          brans,
+          kurum
+        })
+      });
+
+      // 3. Bildirim Tercihlerini Kaydet
       await fetch('/api/notifications/settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -124,7 +237,11 @@ export default function AyarlarPage() {
         })
       });
 
-      showToast('Ayarlar ve bildirim tercihleri başarıyla kaydedildi!');
+      if (profileRes.ok) {
+        showToast('Tüm profil, hedef ve sistem ayarlarınız başarıyla kaydedildi!');
+      } else {
+        showToast('Ayarlar kaydedildi ancak profil güncellenirken uyarı oluştu.', 'error');
+      }
     } catch (err) {
       console.error(err);
       showToast('Ayarlar kaydedilirken bir hata oluştu.', 'error');
@@ -132,22 +249,89 @@ export default function AyarlarPage() {
     setSaving(false);
   };
 
-  const handleDeleteAccount = () => {
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentPassword || !newPassword) {
+      showToast('Lütfen mevcut şifrenizi ve yeni şifrenizi girin.', 'error');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      showToast('Yeni şifre en az 6 karakter olmalıdır.', 'error');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      showToast('Yeni şifre ile şifre tekrarı uyuşmuyor.', 'error');
+      return;
+    }
+
+    setSavingPassword(true);
+    try {
+      const res = await fetch('/api/user/password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword, newPassword })
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        showToast(data.message || 'Şifreniz başarıyla güncellendi!');
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      } else {
+        showToast(data.error || 'Şifre güncellenemedi.', 'error');
+      }
+    } catch (e) {
+      showToast('Sunucu bağlantı hatası oluştu.', 'error');
+    } finally {
+      setSavingPassword(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
     if (!confirmDelete) {
       setConfirmDelete(true);
       return;
     }
-    // API call to delete account goes here
-    showToast('Hesap silme talebi alındı. (Sadece arayüz)', 'success');
-    setConfirmDelete(false);
+
+    setDeletingAccount(true);
+    try {
+      const res = await fetch('/api/user/account', { method: 'DELETE' });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(data.message || 'Hesabınız silindi. Yönlendiriliyorsunuz...');
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 1500);
+      } else {
+        showToast(data.error || 'Hesap silinirken hata oluştu.', 'error');
+        setDeletingAccount(false);
+      }
+    } catch (e) {
+      showToast('Hesap silme işlemi başarısız oldu.', 'error');
+      setDeletingAccount(false);
+    }
+  };
+
+  const copyParentCode = () => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(parentCode).catch(() => {});
+    }
+    setCopiedParentCode(true);
+    showToast('Veli bağlantı kodu panoya kopyalandı!');
+    setTimeout(() => setCopiedParentCode(false), 2500);
   };
 
   if (loading) return <div style={{display:'flex',justifyContent:'center',marginTop:'5rem'}}><Loader2 className="animate-spin" size={48} color="#38bdf8"/></div>;
 
+  const isMaarif = sinif === '9' || sinif === '10' || sinif === '11';
+
   return (
-    <div className="ayarlar-page-wrap" style={{ maxWidth: '1000px', margin: '0 auto', padding: '2rem 1rem', display: 'flex', flexWrap: 'wrap', gap: '2rem', position: 'relative' }}>
+    <div className="ayarlar-page-wrap" style={{ maxWidth: '1040px', margin: '0 auto', padding: '2rem 1rem', display: 'flex', flexWrap: 'wrap', gap: '2rem', position: 'relative' }}>
       
-      {/* Toast Notification */}
+      {/* Toast Bildirimi */}
       <AnimatePresence>
         {toast && (
           <motion.div
@@ -159,9 +343,9 @@ export default function AyarlarPage() {
               bottom: 'calc(76px + env(safe-area-inset-bottom))',
               right: '1.5rem',
               maxWidth: 'calc(100vw - 3rem)',
-              background: toast.type === 'success' ? 'rgba(16, 185, 129, 0.9)' : 'rgba(239, 68, 68, 0.9)',
+              background: toast.type === 'success' ? 'rgba(16, 185, 129, 0.95)' : 'rgba(239, 68, 68, 0.95)',
               color: '#fff',
-              padding: '1rem 1.5rem',
+              padding: '0.9rem 1.4rem',
               borderRadius: '12px',
               display: 'flex',
               alignItems: 'center',
@@ -172,65 +356,92 @@ export default function AyarlarPage() {
             }}
           >
             {toast.type === 'success' ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
-            <span style={{ fontWeight: 500 }}>{toast.message}</span>
+            <span style={{ fontWeight: 500, fontSize: '0.9rem' }}>{toast.message}</span>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Sidebar */}
-      <div style={{ flex: '1 1 250px', maxWidth: '300px', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        <h1 style={{ fontSize: '1.5rem', color: '#fff', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Settings size={24} color="#a855f7" /> Ayarlar
+      {/* Sol Sidebar Menü */}
+      <div style={{ flex: '1 1 240px', maxWidth: '280px', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+        <h1 style={{ fontSize: '1.4rem', color: '#fff', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}>
+          <Settings size={22} color="#a855f7" /> Ayarlar & Profil
         </h1>
         
         {[
-          { id: 'profil', icon: User, label: 'Profil & Avatar' },
-          { id: 'hesap', icon: CreditCard, label: 'Hesap' },
-          { id: 'tema', icon: Palette, label: 'Görünüm (Tema)' },
+          { id: 'profil', icon: User, label: 'Profil & Hedefler' },
+          { id: 'tema', icon: Palette, label: 'Görünüm & Tema' },
           { id: 'performans', icon: Zap, label: 'Pil & Performans' },
           { id: 'bildirim', icon: Bell, label: 'Bildirimler' },
-          { id: 'guvenlik', icon: Shield, label: 'Güvenlik' }
+          { id: 'guvenlik', icon: Shield, label: 'Güvenlik & Şifre' },
+          { id: 'hesap', icon: CreditCard, label: 'Hesap & Gizlilik' }
         ].map(tab => (
           <button 
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             style={{ 
-              display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem', 
+              display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.9rem 1rem', 
               borderRadius: '12px', 
               background: activeTab === tab.id ? 'rgba(139, 92, 246, 0.2)' : 'transparent', 
               color: activeTab === tab.id ? '#fff' : 'var(--text-secondary)', 
-              border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 600, 
-              transition: 'all 0.2s' 
+              border: activeTab === tab.id ? '1px solid rgba(139, 92, 246, 0.35)' : '1px solid transparent', 
+              cursor: 'pointer', textAlign: 'left', fontWeight: 600, 
+              transition: 'all 0.2s',
+              fontSize: '0.925rem'
             }}
           >
-            <tab.icon size={20} /> {tab.label}
+            <tab.icon size={19} color={activeTab === tab.id ? '#c4b5fd' : undefined} /> {tab.label}
           </button>
         ))}
       </div>
 
-      {/* Content Area */}
-      <div style={{ flex: 1 }}>
+      {/* Sağ İçerik Alanı */}
+      <div style={{ flex: '1 1 600px', minWidth: '320px' }}>
         <motion.div 
           key={activeTab}
-          initial={{ opacity: 0, x: 20 }}
+          initial={{ opacity: 0, x: 15 }}
           animate={{ opacity: 1, x: 0 }}
           className="premium-card"
-          style={{ padding: '3rem' }}
+          style={{ padding: '2.5rem 2rem' }}
         >
+          {/* ───────────────── 1. PROFİL & HEDEFLER ───────────────── */}
           {activeTab === 'profil' && (
             <div>
-              <h2 style={{ fontSize: '1.5rem', color: '#fff', marginBottom: '2rem' }}>Profil & Avatar</h2>
-              
-              <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', marginBottom: '3rem' }}>
-                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}`} alt="Avatar" style={{ width: '120px', height: '120px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', padding: '0.5rem', border: `2px solid ${accent}` }} />
+              <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>
-                  <h3 style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>Hazır Avatarlar</h3>
-                  <div style={{ display: 'flex', gap: '1rem' }}>
+                  <h2 style={{ fontSize: '1.4rem', color: '#fff', margin: 0, fontWeight: 700 }}>Profil & Hedef Ayarları</h2>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: '4px 0 0' }}>
+                    Sınav alanınızı, sınıfınızı ve hedef üniversitenizi özelleştirin.
+                  </p>
+                </div>
+                <Link 
+                  href="/magaza" 
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.825rem', color: '#f59e0b', background: 'rgba(245,158,11,0.1)', padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(245,158,11,0.3)', textDecoration: 'none', fontWeight: 600 }}
+                >
+                  <Sparkles size={14} /> Gardıroba Git
+                </Link>
+              </div>
+              
+              {/* Avatar Seçici */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.75rem', marginBottom: '2.5rem', background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <img 
+                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}`} 
+                  alt="Avatar" 
+                  style={{ width: '96px', height: '96px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', padding: '0.4rem', border: `3px solid ${accent}` }} 
+                />
+                <div style={{ flex: 1 }}>
+                  <h3 style={{ fontSize: '0.95rem', color: '#fff', marginBottom: '0.5rem', fontWeight: 600 }}>Avatar Stili</h3>
+                  <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
                     {avatars.map(seed => (
                       <button 
                         key={seed}
                         onClick={() => setAvatarSeed(seed)}
-                        style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: 'none', cursor: 'pointer', overflow: 'hidden' }}
+                        style={{ 
+                          width: '42px', height: '42px', borderRadius: '50%', 
+                          background: avatarSeed === seed ? 'rgba(139,92,246,0.3)' : 'rgba(255,255,255,0.08)', 
+                          border: avatarSeed === seed ? `2px solid ${accent}` : '1px solid rgba(255,255,255,0.15)', 
+                          cursor: 'pointer', overflow: 'hidden', padding: 0 
+                        }}
+                        title={seed}
                       >
                         <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}`} alt={seed} style={{ width: '100%', height: '100%' }} />
                       </button>
@@ -239,33 +450,146 @@ export default function AyarlarPage() {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Kullanıcı Adı</label>
-                  <input type="text" className="premium-input" defaultValue={user?.username || ''} disabled />
+              {/* Form Alanları */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600 }}>Kullanıcı Adı</label>
+                    <input type="text" className="premium-input" value={authUser?.username || ''} disabled style={{ opacity: 0.7, cursor: 'not-allowed' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600 }}>E-posta Adresi</label>
+                    <input 
+                      type="email" 
+                      className="premium-input" 
+                      placeholder="adiniz@ornek.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </div>
                 </div>
-                
-                {user?.role === 'ogrenci' && (
-                  <div style={{ background: 'rgba(16, 185, 129, 0.05)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                      <label style={{ color: '#10b981', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        👨‍👩‍👧 Veli Bağlantı Kodu
-                      </label>
-                      <button 
-                        onClick={() => {
-                          navigator.clipboard.writeText(user?.parent_code || '');
-                          showToast('Bağlantı kodu kopyalandı!');
-                        }}
-                        style={{ padding: '0.25rem 0.75rem', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.2)', fontSize: '0.75rem', cursor: 'pointer' }}
-                      >
-                        Kopyala
-                      </button>
+
+                {authUser?.role !== 'ogretmen' && (
+                  <>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600 }}>Sınıf Seviyesi</label>
+                        <select 
+                          className="premium-input" 
+                          value={sinif} 
+                          onChange={(e) => setSinif(e.target.value)}
+                          style={{ appearance: 'none', cursor: 'pointer' }}
+                        >
+                          <option value="9">9. Sınıf</option>
+                          <option value="10">10. Sınıf</option>
+                          <option value="11">11. Sınıf</option>
+                          <option value="12">12. Sınıf</option>
+                          <option value="Mezun">Mezun</option>
+                        </select>
+                        <span style={{ fontSize: '0.75rem', color: isMaarif ? '#10b981' : '#f59e0b', marginTop: '4px', display: 'block' }}>
+                          {isMaarif ? '✓ Maarif Modeli müfredatı otomatik aktiftir.' : '✓ Klasik YKS (TYT / AYT) müfredatı aktiftir.'}
+                        </span>
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600 }}>Sınav Alanı</label>
+                        <select 
+                          className="premium-input" 
+                          value={alan} 
+                          onChange={(e) => setAlan(e.target.value)}
+                          style={{ appearance: 'none', cursor: 'pointer' }}
+                        >
+                          <option value="Sayisal">Sayısal (MF)</option>
+                          <option value="Esit Agirlik">Eşit Ağırlık (TM)</option>
+                          <option value="Sozel">Sözel (TS)</option>
+                          <option value="Dil">Yabancı Dil (DİL)</option>
+                          <option value="Yok">Genel / Henüz Seçilmedi</option>
+                        </select>
+                      </div>
                     </div>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginBottom: '1rem' }}>
-                      Bu kodu veliniz ile paylaşın. Veliniz sisteme kayıt olmadan, sadece bu kod ile netlerinizi ve gelişiminizi takip edebilir.
-                    </p>
-                    <div style={{ fontSize: '1.5rem', letterSpacing: '4px', fontWeight: 800, color: '#fff', textAlign: 'center', background: 'rgba(0,0,0,0.5)', padding: '1rem', borderRadius: '8px' }}>
-                      {user?.parent_code || 'YÜKLENİYOR...'}
+
+                    {/* Hedef Üniversite & Bölüm */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <School size={15} color="#38bdf8" /> Hedef Üniversite
+                        </label>
+                        <input 
+                          type="text" 
+                          list="top-unis"
+                          className="premium-input" 
+                          placeholder="Örn: Boğaziçi Üniversitesi"
+                          value={targetUniversity}
+                          onChange={(e) => setTargetUniversity(e.target.value)}
+                        />
+                        <datalist id="top-unis">
+                          {TOP_UNIVERSITIES.map(u => <option key={u} value={u} />)}
+                        </datalist>
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <Target size={15} color="#a855f7" /> Hedef Bölüm
+                        </label>
+                        <input 
+                          type="text" 
+                          list="top-depts"
+                          className="premium-input" 
+                          placeholder="Örn: Bilgisayar Mühendisliği"
+                          value={targetDepartment}
+                          onChange={(e) => setTargetDepartment(e.target.value)}
+                        />
+                        <datalist id="top-depts">
+                          {TOP_DEPARTMENTS.map(d => <option key={d} value={d} />)}
+                        </datalist>
+                      </div>
+                    </div>
+
+                    {/* Veli Bağlantı Kodu */}
+                    <div style={{ background: 'rgba(16, 185, 129, 0.05)', padding: '1.25rem 1.5rem', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.25)', marginTop: '0.5rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <label style={{ color: '#10b981', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.95rem' }}>
+                          👨‍👩‍👧 Canlı Veli Takip Kodu
+                        </label>
+                        <button 
+                          onClick={copyParentCode}
+                          style={{ padding: '0.3rem 0.85rem', background: copiedParentCode ? '#059669' : 'rgba(16, 185, 129, 0.15)', color: '#10b981', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.3)', fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}
+                        >
+                          {copiedParentCode ? <Check size={14} /> : <Copy size={14} />}
+                          {copiedParentCode ? 'Kopyalandı' : 'Kopyala'}
+                        </button>
+                      </div>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.825rem', marginBottom: '0.85rem', lineHeight: 1.4 }}>
+                        Aileniz bu kodla sisteme şifresiz giriş yaparak sadece deneme netlerinizi ve günlük çalışma sürelerinizi izleyebilir.
+                      </p>
+                      <div style={{ fontSize: '1.4rem', letterSpacing: '3px', fontWeight: 800, color: '#34d399', textAlign: 'center', background: 'rgba(0,0,0,0.4)', padding: '0.75rem', borderRadius: '8px', border: '1px dashed rgba(16, 185, 129, 0.3)' }}>
+                        {parentCode || 'YÜKLENİYOR...'}
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {authUser?.role === 'ogretmen' && (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600 }}>Öğretmenlik Branşı</label>
+                      <input 
+                        type="text" 
+                        className="premium-input" 
+                        placeholder="Örn: Fizik, Matematik..."
+                        value={brans}
+                        onChange={(e) => setBrans(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600 }}>Görev Yapılan Kurum / Okul</label>
+                      <input 
+                        type="text" 
+                        className="premium-input" 
+                        placeholder="Örn: Fen Lisesi, Anadolu Lisesi..."
+                        value={kurum}
+                        onChange={(e) => setKurum(e.target.value)}
+                      />
                     </div>
                   </div>
                 )}
@@ -273,96 +597,93 @@ export default function AyarlarPage() {
             </div>
           )}
 
-          {activeTab === 'hesap' && (
-            <div>
-              <h2 style={{ fontSize: '1.5rem', color: '#fff', marginBottom: '2rem' }}>Hesap Bilgileri</h2>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                    <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '0.875rem', marginBottom: '0.5rem' }}>Kullanıcı Adı</label>
-                    <div style={{ color: '#fff', fontSize: '1.125rem', fontWeight: 500 }}>{user?.username || 'Bilinmiyor'}</div>
-                  </div>
-                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                    <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '0.875rem', marginBottom: '0.5rem' }}>Rol</label>
-                    <div style={{ color: '#fff', fontSize: '1.125rem', fontWeight: 500, textTransform: 'capitalize' }}>
-                      {user?.role === 'ogrenci' ? 'Öğrenci' : user?.role === 'veli' ? 'Veli' : user?.role || 'Bilinmiyor'}
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '0.875rem', marginBottom: '0.5rem' }}>Hesap Oluşturulma Tarihi</label>
-                  <div style={{ color: '#fff', fontSize: '1.125rem', fontWeight: 500 }}>
-                    {user?.created_at ? new Date(user.created_at).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Bilinmiyor'}
-                  </div>
-                </div>
-
-                <div style={{ marginTop: '2rem', padding: '1.5rem', background: 'rgba(239, 68, 68, 0.05)', borderRadius: '12px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
-                  <h3 style={{ color: '#ef4444', fontSize: '1.125rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <AlertCircle size={20} /> Tehlikeli Bölge
-                  </h3>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
-                    Hesabınızı sildiğinizde tüm verileriniz kalıcı olarak yok edilir. Bu işlem geri alınamaz.
-                  </p>
-                  
-                  {confirmDelete ? (
-                    <div style={{ display: 'flex', gap: '1rem' }}>
-                      <button onClick={handleDeleteAccount} style={{ flex: 1, padding: '0.75rem', background: '#ef4444', color: '#fff', borderRadius: '8px', border: 'none', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                        <Trash2 size={18} /> Evet, Hesabımı Sil
-                      </button>
-                      <button onClick={() => setConfirmDelete(false)} style={{ flex: 1, padding: '0.75rem', background: 'rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px', border: 'none', fontWeight: 600, cursor: 'pointer' }}>
-                        İptal Et
-                      </button>
-                    </div>
-                  ) : (
-                    <button onClick={handleDeleteAccount} style={{ padding: '0.75rem 1.5rem', background: 'transparent', color: '#ef4444', borderRadius: '8px', border: '1px solid rgba(239, 68, 68, 0.5)', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <Trash2 size={18} /> Hesabı Sil
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
+          {/* ───────────────── 2. GÖRÜNÜM & TEMA ───────────────── */}
           {activeTab === 'tema' && (
             <div>
-              <h2 style={{ fontSize: '1.5rem', color: '#fff', marginBottom: '2rem' }}>Görünüm ve Tema</h2>
+              <h2 style={{ fontSize: '1.4rem', color: '#fff', marginBottom: '0.5rem', fontWeight: 700 }}>Görünüm ve Tema</h2>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '2rem' }}>
+                Göz yormayan karanlık mod veya parlak çalışma alanını seçin, vurgu renginizi belirleyin.
+              </p>
               
-              <div style={{ marginBottom: '2rem' }}>
-                <label style={{ display: 'block', marginBottom: '1rem', color: 'var(--text-secondary)' }}>Ana Tema</label>
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                  <button onClick={() => setTheme('dark')} style={{ flex: 1, padding: '1.5rem', background: theme === 'dark' ? 'rgba(255,255,255,0.05)' : 'transparent', border: theme === 'dark' ? `2px solid ${accent}` : '2px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff', cursor: 'pointer' }}>
-                    Karanlık Uzay (Varsayılan)
+              <div style={{ marginBottom: '2.5rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.9rem' }}>Arayüz Teması</label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <button 
+                    onClick={() => handleThemeChange('dark')} 
+                    style={{ 
+                      padding: '1.5rem 1rem', 
+                      background: theme === 'dark' ? 'rgba(56, 189, 248, 0.08)' : 'rgba(255,255,255,0.02)', 
+                      border: theme === 'dark' ? `2px solid ${accent}` : '1px solid rgba(255,255,255,0.1)', 
+                      borderRadius: '14px', 
+                      color: '#fff', 
+                      cursor: 'pointer',
+                      textAlign: 'center',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <div style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>🌙</div>
+                    <div style={{ fontWeight: 700, fontSize: '1rem', color: theme === 'dark' ? accent : '#fff' }}>Karanlık Uzay</div>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '4px' }}>Gece çalışmaları ve OLED ekranlar için ideal</div>
                   </button>
-                  <button onClick={() => setTheme('light')} style={{ flex: 1, padding: '1.5rem', background: theme === 'light' ? 'rgba(255,255,255,0.05)' : 'transparent', border: theme === 'light' ? `2px solid ${accent}` : '2px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff', cursor: 'pointer' }}>
-                    Aydınlık Odak
+
+                  <button 
+                    onClick={() => handleThemeChange('light')} 
+                    style={{ 
+                      padding: '1.5rem 1rem', 
+                      background: theme === 'light' ? 'rgba(56, 189, 248, 0.08)' : 'rgba(255,255,255,0.02)', 
+                      border: theme === 'light' ? `2px solid ${accent}` : '1px solid rgba(255,255,255,0.1)', 
+                      borderRadius: '14px', 
+                      color: '#fff', 
+                      cursor: 'pointer',
+                      textAlign: 'center',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <div style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>☀️</div>
+                    <div style={{ fontWeight: 700, fontSize: '1rem', color: theme === 'light' ? accent : '#fff' }}>Aydınlık Odak</div>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '4px' }}>Gündüz deneme çözümleri ve net okuma için</div>
                   </button>
                 </div>
               </div>
 
               <div>
-                <label style={{ display: 'block', marginBottom: '1rem', color: 'var(--text-secondary)' }}>Vurgu Rengi</label>
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                  {['#38bdf8', '#8b5cf6', '#ec4899', '#10b981', '#f59e0b'].map(c => (
+                <label style={{ display: 'block', marginBottom: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.9rem' }}>Kişisel Vurgu Rengi</label>
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                  {[
+                    { color: '#38bdf8', name: 'Gök Mavisi' },
+                    { color: '#8b5cf6', name: 'Mor Gece' },
+                    { color: '#ec4899', name: 'Neon Pembe' },
+                    { color: '#10b981', name: 'Zümrüt Yeşil' },
+                    { color: '#f59e0b', name: 'Altın Kehribar' }
+                  ].map(item => (
                     <button 
-                      key={c}
-                      onClick={() => setAccent(c)}
-                      style={{ width: '48px', height: '48px', borderRadius: '50%', background: c, border: accent === c ? '4px solid #fff' : '4px solid transparent', cursor: 'pointer', boxShadow: accent === c ? `0 0 15px ${c}` : 'none' }}
-                    />
+                      key={item.color}
+                      onClick={() => handleAccentChange(item.color)}
+                      style={{ 
+                        display: 'flex', alignItems: 'center', gap: '8px',
+                        padding: '8px 16px', borderRadius: '24px',
+                        background: accent === item.color ? `${item.color}25` : 'rgba(255,255,255,0.03)',
+                        border: accent === item.color ? `2px solid ${item.color}` : '1px solid rgba(255,255,255,0.1)',
+                        cursor: 'pointer', color: '#fff', fontSize: '0.85rem', fontWeight: 600
+                      }}
+                    >
+                      <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: item.color }} />
+                      <span>{item.name}</span>
+                    </button>
                   ))}
                 </div>
               </div>
             </div>
           )}
 
+          {/* ───────────────── 3. PİL & PERFORMANS ───────────────── */}
           {activeTab === 'performans' && (
             <div>
               <div style={{ marginBottom: '2rem' }}>
-                <h2 style={{ fontSize: '1.5rem', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                  <Zap size={24} color="#f59e0b" /> Pil, Güç & Performans Motoru
+                <h2 style={{ fontSize: '1.4rem', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 700 }}>
+                  <Zap size={22} color="#f59e0b" /> Pil, Güç & Performans Motoru
                 </h2>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: 6, lineHeight: 1.5 }}>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: 6, lineHeight: 1.5 }}>
                   Mobil ve web deneyiminizde cihazınızın aşırı ısınmasını ve pilinin tükenmesini önleyen akıllı donanım kalkanı.
                 </p>
               </div>
@@ -400,15 +721,15 @@ export default function AyarlarPage() {
               <div style={{ padding: '1.5rem', background: powerState.eco ? 'rgba(16, 185, 129, 0.08)' : 'rgba(255,255,255,0.03)', borderRadius: '16px', border: powerState.eco ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(255,255,255,0.08)', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                 <div style={{ flex: '1 1 300px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                    <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#fff' }}>Pil Tasarruf Modunu (Eco Mode) Aç</span>
+                    <span style={{ fontSize: '1.05rem', fontWeight: 700, color: '#fff' }}>Pil Tasarruf Modunu (Eco Mode) Aç</span>
                     {powerState.eco && (
                       <span style={{ fontSize: '0.7rem', padding: '2px 8px', borderRadius: '20px', background: 'rgba(16,185,129,0.2)', color: '#34d399', fontWeight: 700 }}>
                         AKTİF
                       </span>
                     )}
                   </div>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0, lineHeight: 1.45 }}>
-                    Gereksiz GPU gölgelerini kapatır, 3D simülasyonları 1x DPR pil moduna alır ve arka plan işlem yükünü sıfıra indirir. Pil seviyesi %20 altına düştüğünde de otomatik devreye girer.
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.825rem', margin: 0, lineHeight: 1.45 }}>
+                    Gereksiz GPU gölgelerini kapatır, 3D simülasyonları 1x DPR pil moduna alır ve arka plan işlem yükünü sıfıra indirir.
                   </p>
                 </div>
 
@@ -440,35 +761,30 @@ export default function AyarlarPage() {
               </div>
 
               {/* Akıllı Optimizasyon Detayları */}
-              <h3 style={{ fontSize: '1rem', color: '#fff', marginBottom: '1rem' }}>Mevcut Pil Tasarruf Korumaları</h3>
+              <h3 style={{ fontSize: '0.95rem', color: '#fff', marginBottom: '1rem', fontWeight: 600 }}>Mevcut Pil Tasarruf Korumaları</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {[
                   {
                     icon: '🧊',
                     title: 'Akıllı Arka Plan Dondurucu (Background Guardian)',
-                    desc: 'Uygulama arka plana atıldığında veya ekran kilitlendiğinde tüm CSS animasyonları, Three.js 3D döngüleri ve zamanlayıcılar anında dondurularak 0 CPU tüketimi sağlanır.'
+                    desc: 'Uygulama arka plana atıldığında veya ekran kilitlendiğinde tüm CSS animasyonları, 3D döngüleri ve zamanlayıcılar anında dondurularak 0 CPU tüketimi sağlanır.'
                   },
                   {
                     icon: '🚀',
                     title: 'Mobil GPU & Backdrop-Blur Kısıtlayıcı',
-                    desc: 'Mobil tarayıcılarda telefonun ısınmasına yol açan ağır çok katmanlı bulanıklık efektleri (backdrop-filter) hafifletilerek grafik işlemcinin yükü hafifletilir.'
+                    desc: 'Mobil tarayıcılarda telefonun ısınmasına yol açan ağır çok katmanlı bulanıklık efektleri hafifletilerek grafik işlemcinin yükü hafifletilir.'
                   },
                   {
                     icon: '🌌',
-                    title: '3D Galaksi & Simülasyon Ölçekleme',
-                    desc: 'Beceri Galaksisi ve PhET simülasyonlarında 5,000 partikül yerine hafifletilmiş 1,600 partiküllü sahne kullanılır ve ekran yenileme sıklığı optimize edilir.'
-                  },
-                  {
-                    icon: '📴',
-                    title: 'Ağ Telsizi & Heartbeat Uyku Modu',
-                    desc: 'Ders sayacı duraklatıldığında veya oturum bittiğinde sunucuya yapılan tüm periyodik kalp atışları kesilir; mobil Wi-Fi/Hücresel çipinin uyku moduna geçmesine izin verilir.'
+                    title: '3D Galaksi & PhET Simülasyon Ölçekleme',
+                    desc: 'Beceri Galaksisi ve PhET simülasyonlarında yoğun partiküller optimize edilir ve ekran yenileme sıklığı dinamik dengelenir.'
                   }
                 ].map((item, idx) => (
                   <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', padding: '1rem 1.25rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                    <span style={{ fontSize: '1.4rem' }}>{item.icon}</span>
+                    <span style={{ fontSize: '1.3rem' }}>{item.icon}</span>
                     <div>
-                      <div style={{ color: '#e2e8f0', fontWeight: 600, fontSize: '0.9rem', marginBottom: 2 }}>{item.title}</div>
-                      <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', lineHeight: 1.4 }}>{item.desc}</div>
+                      <div style={{ color: '#e2e8f0', fontWeight: 600, fontSize: '0.875rem', marginBottom: 2 }}>{item.title}</div>
+                      <div style={{ color: 'var(--text-muted)', fontSize: '0.78rem', lineHeight: 1.4 }}>{item.desc}</div>
                     </div>
                   </div>
                 ))}
@@ -476,12 +792,13 @@ export default function AyarlarPage() {
             </div>
           )}
 
+          {/* ───────────────── 4. BİLDİRİMLER ───────────────── */}
           {activeTab === 'bildirim' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>
-                  <h2 style={{ fontSize: '1.5rem', color: '#fff', margin: 0 }}>Bildirim & Hatırlatıcı Motoru</h2>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: 4 }}>
+                  <h2 style={{ fontSize: '1.4rem', color: '#fff', margin: 0, fontWeight: 700 }}>Bildirim & Hatırlatıcı Motoru</h2>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: 4 }}>
                     Odaklanma, ders programı, ödev teslimleri ve yangın serisi hatırlatıcılarını özelleştirin.
                   </p>
                 </div>
@@ -515,7 +832,7 @@ export default function AyarlarPage() {
                   }}
                 >
                   <Bell size={14} />
-                  {isTestingPush ? 'Gönderiliyor...' : 'Cihazıma Test Bildirimi Gönder'}
+                  {isTestingPush ? 'Gönderiliyor...' : 'Test Bildirimi Gönder'}
                 </button>
               </div>
 
@@ -526,7 +843,7 @@ export default function AyarlarPage() {
                   <PushNotificationToggle />
                 </div>
 
-                {/* ─── 🌙 Sessiz Saatler (Rahatsız Etme) ─── */}
+                {/* Sessiz Saatler */}
                 <div style={{ padding: '1.25rem 1.5rem', background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.6))', borderRadius: '14px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: quietHoursEnabled ? '12px' : 0 }}>
                     <div style={{ paddingRight: '1rem' }}>
@@ -541,7 +858,6 @@ export default function AyarlarPage() {
                       </p>
                     </div>
 
-                    {/* Toggle */}
                     <div 
                       onClick={() => setQuietHoursEnabled(!quietHoursEnabled)}
                       style={{ width: '48px', height: '24px', background: quietHoursEnabled ? accent : 'rgba(255,255,255,0.1)', borderRadius: '12px', position: 'relative', cursor: 'pointer', transition: 'background 0.3s', flexShrink: 0 }}
@@ -592,7 +908,7 @@ export default function AyarlarPage() {
                   )}
                 </div>
 
-                {/* ─── 🛡️ Akıllı Spam Önleme & Gönderim Sıklığı ─── */}
+                {/* Akıllı Kota */}
                 <div style={{ padding: '1.25rem 1.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.06)' }}>
                   <div style={{ marginBottom: '12px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -638,7 +954,7 @@ export default function AyarlarPage() {
                   </div>
                 </div>
 
-                {/* ─── Kategori Bazlı Tercihler ─── */}
+                {/* Kategori Bazlı Tercihler */}
                 {[
                   { title: '🍅 Odak & Pomodoro Bildirimleri', desc: 'Oturum tamamlandığında ve mola bittiğinde sesli ve titreşimli uyar.', state: notifFocus, setter: setNotifFocus },
                   { title: '☀️ Sabah Çalışma & Ders Hatırlatıcısı', desc: 'Her sabah 08:30\'da günlük ders hedeflerini ve programını anımsat.', state: notifDaily, setter: setNotifDaily },
@@ -647,12 +963,11 @@ export default function AyarlarPage() {
                   { title: '⚔️ Düello & Arena Davetleri', desc: 'Birisi seni Bilgi Arenası\'nda düelloya davet ettiğinde anında bildir.', state: notifDuel, setter: setNotifDuel },
                   { title: '🔊 Ses Efektleri & Çan Sesleri', desc: 'Oturum bitişlerinde kristal netliğinde sentetik melodi çal.', state: notifSound, setter: setNotifSound },
                 ].map((item, i) => (
-                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 1.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.15rem 1.4rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
                     <div style={{ paddingRight: '1rem' }}>
-                      <h4 style={{ color: '#fff', marginBottom: '0.25rem', fontSize: '0.95rem', fontWeight: 600 }}>{item.title}</h4>
-                      <p style={{ color: 'var(--text-muted)', fontSize: '0.825rem', margin: 0, lineHeight: 1.4 }}>{item.desc}</p>
+                      <h4 style={{ color: '#fff', marginBottom: '0.2rem', fontSize: '0.925rem', fontWeight: 600 }}>{item.title}</h4>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', margin: 0, lineHeight: 1.4 }}>{item.desc}</p>
                     </div>
-                    {/* Toggle */}
                     <div 
                       onClick={() => item.setter(!item.state)}
                       style={{ width: '48px', height: '24px', background: item.state ? accent : 'rgba(255,255,255,0.1)', borderRadius: '12px', position: 'relative', cursor: 'pointer', transition: 'background 0.3s', flexShrink: 0 }}
@@ -665,36 +980,200 @@ export default function AyarlarPage() {
             </div>
           )}
 
+          {/* ───────────────── 5. GÜVENLİK & ŞİFRE ───────────────── */}
           {activeTab === 'guvenlik' && (
             <div>
-              <h2 style={{ fontSize: '1.5rem', color: '#fff', marginBottom: '2rem' }}>Güvenlik & Şifre</h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.4rem', color: '#fff', marginBottom: '0.5rem', fontWeight: 700 }}>Güvenlik & Şifre Değiştir</h2>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '2rem' }}>
+                Hesap güvenliğiniz için şifrenizi en az 6 karakterli ve güçlü tutmanızı öneririz.
+              </p>
+
+              <form onSubmit={handlePasswordChange} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '500px' }}>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Mevcut Şifre</label>
+                  <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600 }}>Mevcut Şifreniz</label>
+                  <div style={{ position: 'relative' }}>
+                    <input 
+                      type={showCurrentPw ? "text" : "password"} 
+                      className="premium-input" 
+                      placeholder="Mevcut şifrenizi girin" 
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      required
+                    />
+                    <button 
+                      type="button" 
+                      onClick={() => setShowCurrentPw(!showCurrentPw)}
+                      style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
+                    >
+                      {showCurrentPw ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600 }}>Yeni Şifre</label>
+                  <div style={{ position: 'relative' }}>
+                    <input 
+                      type={showNewPw ? "text" : "password"} 
+                      className="premium-input" 
+                      placeholder="En az 6 karakter yeni şifre" 
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                    />
+                    <button 
+                      type="button" 
+                      onClick={() => setShowNewPw(!showNewPw)}
+                      style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
+                    >
+                      {showNewPw ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600 }}>Yeni Şifre Tekrarı</label>
                   <input 
-                    type="password" 
+                    type={showNewPw ? "text" : "password"} 
                     className="premium-input" 
-                    placeholder="••••••••" 
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    placeholder="Yeni şifrenizi tekrar doğrulayın" 
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
                   />
                 </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Yeni Şifre</label>
-                  <input 
-                    type="password" 
-                    className="premium-input" 
-                    placeholder="Yeni şifrenizi girin" 
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                  />
+
+                <button 
+                  type="submit" 
+                  disabled={savingPassword}
+                  className="btn-interactive"
+                  style={{
+                    padding: '0.8rem 1.5rem',
+                    borderRadius: '10px',
+                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                    color: '#fff',
+                    fontWeight: 700,
+                    border: 'none',
+                    cursor: savingPassword ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    boxShadow: '0 4px 14px rgba(16,185,129,0.3)',
+                    marginTop: '0.5rem'
+                  }}
+                >
+                  {savingPassword ? <Loader2 size={18} className="animate-spin" /> : <Lock size={18} />}
+                  {savingPassword ? 'Şifre Güncelleniyor...' : 'Şifreyi Değiştir'}
+                </button>
+              </form>
+            </div>
+          )}
+
+          {/* ───────────────── 6. HESAP & TEHLİKELİ BÖLGE ───────────────── */}
+          {activeTab === 'hesap' && (
+            <div>
+              <h2 style={{ fontSize: '1.4rem', color: '#fff', marginBottom: '0.5rem', fontWeight: 700 }}>Hesap & Gizlilik Bilgileri</h2>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '2rem' }}>
+                YKS Yıldızı hesap ayrıntılarınız ve oturum yönetimi.
+              </p>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '1.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.35rem' }}>Kullanıcı Adı</label>
+                    <div style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 600 }}>{authUser?.username || 'Bilinmiyor'}</div>
+                  </div>
+                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '1.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.35rem' }}>Hesap Türü / Rol</label>
+                    <div style={{ color: '#38bdf8', fontSize: '1.1rem', fontWeight: 600 }}>
+                      {authUser?.role === 'ogrenci' ? 'Öğrenci Hesabı' : authUser?.role === 'veli' ? 'Veli Hesabı' : authUser?.role === 'ogretmen' ? 'Öğretmen Hesabı' : authUser?.role || 'Bilinmiyor'}
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '1.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <label style={{ display: 'block', color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.35rem' }}>Hesap Kayıt Tarihi</label>
+                  <div style={{ color: '#fff', fontSize: '1rem', fontWeight: 500 }}>
+                    {authUser?.created_at ? new Date(authUser.created_at).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Aktif Dönem'}
+                  </div>
+                </div>
+
+                {/* Çıkış Yap Butonu */}
+                <div style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                  <div>
+                    <h4 style={{ color: '#fff', margin: 0, fontSize: '0.95rem', fontWeight: 600 }}>Güvenli Oturum Kapatma</h4>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', margin: '3px 0 0' }}>Mevcut cihazdaki aktif oturumunuzu güvenle sonlandırır.</p>
+                  </div>
+                  <button 
+                    onClick={logout}
+                    style={{ padding: '0.65rem 1.25rem', background: 'rgba(255,255,255,0.06)', color: '#fff', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '8px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}
+                  >
+                    Oturumu Kapat
+                  </button>
+                </div>
+
+                {/* Tehlikeli Bölge */}
+                <div style={{ marginTop: '1.5rem', padding: '1.5rem', background: 'rgba(239, 68, 68, 0.05)', borderRadius: '12px', border: '1px solid rgba(239, 68, 68, 0.25)' }}>
+                  <h3 style={{ color: '#ef4444', fontSize: '1.05rem', margin: '0 0 0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}>
+                    <AlertCircle size={20} /> Tehlikeli Bölge: Hesabı Sil
+                  </h3>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.825rem', marginBottom: '1.25rem', lineHeight: 1.4 }}>
+                    Hesabınızı sildiğinizde çözdüğünüz denemeler, soru geçmişiniz, kupa ve puanlarınız kalıcı olarak veritabanından yok edilir. Bu işlem geri alınamaz.
+                  </p>
+                  
+                  {confirmDelete ? (
+                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                      <button 
+                        onClick={handleDeleteAccount} 
+                        disabled={deletingAccount}
+                        style={{ padding: '0.75rem 1.5rem', background: '#ef4444', color: '#fff', borderRadius: '8px', border: 'none', fontWeight: 600, cursor: deletingAccount ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: '0.875rem' }}
+                      >
+                        {deletingAccount ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                        {deletingAccount ? 'Siliniyor...' : 'Evet, Hesabımı Kalıcı Olarak Sil'}
+                      </button>
+                      <button 
+                        onClick={() => setConfirmDelete(false)} 
+                        disabled={deletingAccount}
+                        style={{ padding: '0.75rem 1.25rem', background: 'rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px', border: 'none', fontWeight: 600, cursor: 'pointer', fontSize: '0.875rem' }}
+                      >
+                        İptal Et
+                      </button>
+                    </div>
+                  ) : (
+                    <button 
+                      onClick={() => setConfirmDelete(true)} 
+                      style={{ padding: '0.65rem 1.25rem', background: 'transparent', color: '#ef4444', borderRadius: '8px', border: '1px solid rgba(239, 68, 68, 0.5)', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}
+                    >
+                      <Trash2 size={16} /> Hesabımı Sil
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
           )}
 
-          <div style={{ marginTop: '3rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'flex-end' }}>
-            <button onClick={handleSave} disabled={saving} className="btn-interactive" style={{ background: `linear-gradient(135deg, ${accent}, ${accent}dd)`, color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem', border: 'none' }}>
+          {/* Ana Kaydet Butonu (Tüm sekmeler için) */}
+          <div style={{ marginTop: '2.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'flex-end' }}>
+            <button 
+              onClick={handleSave} 
+              disabled={saving} 
+              className="btn-interactive" 
+              style={{ 
+                background: `linear-gradient(135deg, ${accent}, ${accent}dd)`, 
+                color: '#fff', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.5rem', 
+                border: 'none',
+                padding: '0.85rem 1.75rem',
+                borderRadius: '10px',
+                fontWeight: 700,
+                fontSize: '0.925rem',
+                cursor: saving ? 'not-allowed' : 'pointer',
+                boxShadow: `0 4px 15px ${accent}44`
+              }}
+            >
               {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
               {saving ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet'}
             </button>
@@ -705,12 +1184,19 @@ export default function AyarlarPage() {
 
       <style jsx>{`
         @media (max-width: 768px) {
-          .ayarlar-page-wrap { padding-bottom: calc(85px + env(safe-area-inset-bottom, 20px)) !important; padding: 1rem 0.75rem calc(85px + env(safe-area-inset-bottom, 20px)) !important; }
-          .ayarlar-header { flex-direction: column !important; align-items: flex-start !important; }
-          .ayarlar-grid { grid-template-columns: 1fr !important; }
+          .ayarlar-page-wrap { 
+            padding-bottom: calc(85px + env(safe-area-inset-bottom, 20px)) !important; 
+            padding: 1rem 0.75rem calc(85px + env(safe-area-inset-bottom, 20px)) !important; 
+          }
+          .ayarlar-header { 
+            flex-direction: column !important; 
+            align-items: flex-start !important; 
+          }
           .ayarlar-page-wrap input,
           .ayarlar-page-wrap select,
-          .ayarlar-page-wrap textarea { font-size: 16px !important; }
+          .ayarlar-page-wrap textarea { 
+            font-size: 16px !important; 
+          }
         }
       `}</style>
     </div>
