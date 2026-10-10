@@ -1,26 +1,14 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import db from '@/lib/yks-db-async';
 import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
-import { verifyToken } from '@/lib/jwt';
+import { getAuthenticatedTeacherId } from '@/lib/auth-utils';
 
 export const dynamic = 'force-dynamic';
 
-async function getTeacherId(): Promise<string | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('yks_session')?.value;
-  if (!token) return null;
+export async function GET(req: Request) {
   try {
-    const payload = await verifyToken(token);
-    if (payload?.userId) return payload.userId as string;
-  } catch (_) {}
-  return token;
-}
-
-export async function GET() {
-  try {
-    const teacherId = await getTeacherId();
+    const teacherId = await getAuthenticatedTeacherId(req);
     if (!teacherId) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
 
     const user = await db.prepare('SELECT id, role FROM users WHERE id = ?').get(teacherId) as any;
@@ -51,15 +39,15 @@ export async function GET() {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const teacherId = await getTeacherId();
+    const teacherId = await getAuthenticatedTeacherId(req);
     if (!teacherId) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
 
     const user = await db.prepare('SELECT id, role FROM users WHERE id = ?').get(teacherId) as any;
     if (!user || user.role !== 'ogretmen') return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
 
-    const body = await request.json();
+    const body = await req.json();
     const { class_name } = body;
     if (!class_name?.trim()) return NextResponse.json({ error: 'Sınıf adı gerekli' }, { status: 400 });
 
@@ -77,15 +65,15 @@ export async function POST(request: Request) {
   }
 }
 
-export async function DELETE(request: Request) {
+export async function DELETE(req: Request) {
   try {
-    const teacherId = await getTeacherId();
+    const teacherId = await getAuthenticatedTeacherId(req);
     if (!teacherId) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
 
-    const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(teacherId) as any;
+    const user = await db.prepare('SELECT id, role FROM users WHERE id = ?').get(teacherId) as any;
     if (!user || user.role !== 'ogretmen') return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
 
-    const { searchParams } = new URL(request.url);
+    const { searchParams } = new URL(req.url);
     const classId = searchParams.get('id');
     if (!classId) return NextResponse.json({ error: 'Sınıf ID gerekli' }, { status: 400 });
 
@@ -100,15 +88,15 @@ export async function DELETE(request: Request) {
   }
 }
 
-export async function PUT(request: Request) {
+export async function PUT(req: Request) {
   try {
-    const teacherId = await getTeacherId();
+    const teacherId = await getAuthenticatedTeacherId(req);
     if (!teacherId) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
 
     const user = await db.prepare('SELECT id, role FROM users WHERE id = ?').get(teacherId) as any;
     if (!user || user.role !== 'ogretmen') return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 403 });
 
-    const body = await request.json();
+    const body = await req.json();
     const { id, class_name } = body;
     if (!id) return NextResponse.json({ error: 'Sınıf ID gerekli' }, { status: 400 });
     if (!class_name || !class_name.trim()) return NextResponse.json({ error: 'Sınıf adı boş olamaz' }, { status: 400 });
@@ -126,4 +114,3 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });
   }
 }
-

@@ -1,24 +1,12 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import db from '@/lib/yks-db-async';
-import { verifyToken } from '@/lib/jwt';
+import { getAuthenticatedTeacherId } from '@/lib/auth-utils';
 
 export const dynamic = 'force-dynamic';
 
-async function getTeacherId(): Promise<string | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('yks_session')?.value;
-  if (!token) return null;
+export async function GET(req: Request) {
   try {
-    const payload = await verifyToken(token);
-    if (payload?.userId) return payload.userId as string;
-  } catch (_) {}
-  return token;
-}
-
-export async function GET() {
-  try {
-    const teacherId = await getTeacherId();
+    const teacherId = await getAuthenticatedTeacherId(req);
     if (!teacherId) return NextResponse.json({ error: 'Oturum bulunamadı' }, { status: 401 });
 
     const user = await db.prepare('SELECT id, role FROM users WHERE id = ?').get(teacherId) as any;
