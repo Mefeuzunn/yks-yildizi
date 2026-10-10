@@ -422,6 +422,21 @@ export default function CalismaOdalariLobby() {
 
                   <button
                     type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      const url = typeof window !== 'undefined' ? `${window.location.origin}/calisma-odalari/${room.id}` : '';
+                      const msg = `📚 Selam! YKS Yıldızı Sanal Kütüphanesi'nde "${room.name}" odasındayım. Bir masa seç, birlikte canlı odaklanıp ders çalışalım: ${url}`;
+                      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+                    }}
+                    title="WhatsApp ile Davet Gönder"
+                    className="p-3.5 rounded-2xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/25 hover:border-emerald-500/40 text-emerald-400 hover:text-emerald-300 transition-all flex items-center justify-center cursor-pointer active:scale-95"
+                  >
+                    <Share2 className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    type="button"
                     onClick={(e) => handleCopyRoomLink(room.id, e)}
                     title="Oda Davet Bağlantısını Kopyala"
                     className="p-3.5 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 text-gray-300 hover:text-white transition-all flex items-center justify-center cursor-pointer active:scale-95"
@@ -429,7 +444,7 @@ export default function CalismaOdalariLobby() {
                     {copiedRoomId === room.id ? (
                       <Check className="w-4 h-4 text-emerald-400" />
                     ) : (
-                      <Share2 className="w-4 h-4" />
+                      <Copy className="w-4 h-4" />
                     )}
                   </button>
                 </div>

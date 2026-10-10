@@ -2420,6 +2420,33 @@ function TeacherDashboardContent() {
     document.body.removeChild(link);
   };
 
+  const handleExportAssignmentsCSV = () => {
+    if (!assignments.length) {
+      toast.warning('Dışa aktarılacak ödev bulunamadı.');
+      return;
+    }
+    const headers = ['Ödev Başlığı', 'Sınıf', 'Kategori', 'Ders', 'Konu', 'Son Teslim Tarihi', 'Teslim Eden', 'Toplam'];
+    const rows = assignments.map(a => [
+      `"${(a.title || '').replace(/"/g, '""')}"`,
+      `"${(a.class_name || classes.find(c => c.id === a.class_id)?.class_name || '').replace(/"/g, '""')}"`,
+      `"${(a.category || 'Genel').replace(/"/g, '""')}"`,
+      `"${(a.subject || '').replace(/"/g, '""')}"`,
+      `"${(a.topic || '').replace(/"/g, '""')}"`,
+      `"${a.due_date ? new Date(a.due_date).toLocaleDateString('tr-TR') : ''}"`,
+      a.submission_count || 0,
+      a.total_students || 0
+    ]);
+    const csvContent = '\uFEFF' + [headers.join(';'), ...rows.map(r => r.join(';'))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `YKS_Yildizi_Odevler_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const toggleLeaderboard = async (classId: string) => {
     if (expandedLeaderboard === classId) {
       setExpandedLeaderboard(null);
@@ -3739,9 +3766,31 @@ function TeacherDashboardContent() {
                   <h2 style={{ color: '#fff', fontSize: '1.4rem', fontWeight: 700, margin: 0 }}>Ödevler</h2>
                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', margin: '4px 0 0' }}>Sınıflara atanan ödevlerin teslim durumu, notlandırma ve kategori yönetimi</p>
                 </div>
-                <button onClick={() => setActiveModal('odev')} className="btn-interactive" style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#000', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', fontWeight: 700 }}>
-                  <Plus size={16} /> Ödev Ata
-                </button>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <button
+                    onClick={handleExportAssignmentsCSV}
+                    title="Ödev raporunu CSV/Excel formatında indir"
+                    style={{
+                      background: 'rgba(16,185,129,0.12)',
+                      border: '1px solid rgba(16,185,129,0.3)',
+                      borderRadius: 10,
+                      padding: '0.5rem 0.9rem',
+                      color: '#34d399',
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <Download size={15} /> CSV İndir
+                  </button>
+                  <button onClick={() => setActiveModal('odev')} className="btn-interactive" style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#000', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', fontWeight: 700 }}>
+                    <Plus size={16} /> Ödev Ata
+                  </button>
+                </div>
               </div>
 
               {/* Kategori Filtre Çubuğu */}
