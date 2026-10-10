@@ -20,17 +20,12 @@ export async function GET(req: Request) {
       return NextResponse.json({ authenticated: false }, { status: 401 });
     }
 
-    let userId = token;
-    try {
-      const payload = await verifyToken(token);
-      if (payload && payload.userId) {
-        userId = payload.userId as string;
-      }
-    } catch(e) {}
-
-    if (!userId) {
+    const payload = await verifyToken(token);
+    if (!payload?.userId) {
       return NextResponse.json({ authenticated: false }, { status: 401 });
     }
+
+    const userId = payload.userId as string;
 
     const user = await db.prepare('SELECT id, username, role, alan, sinif, brans, kurum, parent_code, target_university, target_department, invite_code, curriculum_mode FROM users WHERE id = ?').get(userId) as any;
 

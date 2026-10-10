@@ -128,8 +128,9 @@ export async function POST(req: Request) {
     // Oturum JWT oluştur ve çerezleri kaydet (anında giriş)
     const token = await signToken({ userId: id, role });
     const cookieStore = await cookies();
-    const cookieOpts = {
+    const cookieOpts: any = {
       secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 30, // 30 gün
       path: '/'
     };
@@ -154,7 +155,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       message: 'Kayıt başarılı!',
-      token: id,
+      token: token,
       user: {
         id,
         username: finalUsername,

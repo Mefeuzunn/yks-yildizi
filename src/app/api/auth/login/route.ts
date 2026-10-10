@@ -49,7 +49,7 @@ export async function POST(req: Request) {
     const response = NextResponse.json({
       success: true,
       message: 'Giriş başarılı!',
-      token: user.id,
+      token: token,
       user: {
         id: user.id,
         username: user.username,
@@ -61,8 +61,9 @@ export async function POST(req: Request) {
     }, { status: 200 });
 
     const isProd = process.env.NODE_ENV === 'production';
-    const cookieOpts = {
+    const cookieOpts: any = {
       secure: isProd,
+      sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 30, // 30 gün
       path: '/'
     };

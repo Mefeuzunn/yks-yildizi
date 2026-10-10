@@ -28,10 +28,6 @@ export async function getAuthenticatedUserId(req?: Request): Promise<string | nu
     if (payload?.userId) return payload.userId as string;
   } catch (_) {}
 
-  // 4. Legacy fallback: token zaten raw UUID ise direkt kullan
-  // (UUID formatı: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
-  if (/^[0-9a-f-]{36}$/.test(token)) return token;
-
   return null;
 }
 
