@@ -26,11 +26,12 @@ export interface SeatedStudentProps {
     avatarConfig?: AvatarConfig;
     focusMinutes?: number;
     status?: 'focusing' | 'break' | 'afk';
-    tempInteraction?: 'coffee' | 'wave' | 'energy' | null;
+    tempInteraction?: 'coffee' | 'wave' | 'energy' | 'fire' | 'brain' | 'star' | null;
   };
   isCurrentUser?: boolean;
   lampOn?: boolean;
   onClick?: () => void;
+  onStatusClick?: () => void;
   seatId: string;
   tableNumber?: number;
   seatLabel?: string;
@@ -41,6 +42,7 @@ const SeatedStudentAvatar = React.memo(function SeatedStudentAvatar({
   isCurrentUser = false,
   lampOn = true,
   onClick,
+  onStatusClick,
   seatId,
   tableNumber = 1,
   seatLabel = 'A',
@@ -80,17 +82,20 @@ const SeatedStudentAvatar = React.memo(function SeatedStudentAvatar({
     >
       {/* ── Overhead Info Badge (Floating HUD) ── */}
       <div className="absolute -top-3 z-30 flex flex-col items-center pointer-events-none transition-transform group-hover:scale-105">
-        {/* Interaction Bubble (Coffee / Wave / Energy) */}
+        {/* Interaction Bubble (Coffee / Wave / Energy / Fire / Brain / Star) */}
         {user.tempInteraction && (
           <motion.div
             initial={{ opacity: 0, y: 10, scale: 0.5 }}
-            animate={{ opacity: 1, y: -16, scale: 1.2 }}
+            animate={{ opacity: 1, y: -18, scale: 1.15 }}
             exit={{ opacity: 0 }}
-            className="mb-1 px-2.5 py-1 rounded-full bg-black/80 border border-white/20 shadow-lg text-xs font-bold flex items-center gap-1.5"
+            className="mb-1 px-3 py-1 rounded-full bg-black/90 border border-white/25 shadow-xl text-xs font-black flex items-center gap-1.5"
           >
-            {user.tempInteraction === 'coffee' && <span>☕ Teşekkürler!</span>}
-            {user.tempInteraction === 'wave' && <span>👋 Selam!</span>}
-            {user.tempInteraction === 'energy' && <span>⚡ +100 Odak!</span>}
+            {user.tempInteraction === 'coffee' && <span className="text-amber-300">☕ Teşekkürler!</span>}
+            {user.tempInteraction === 'wave' && <span className="text-sky-300">👋 Selam!</span>}
+            {user.tempInteraction === 'energy' && <span className="text-yellow-300">⚡ +100 Odak!</span>}
+            {user.tempInteraction === 'fire' && <span className="text-orange-400">🔥 Odak Tavan!</span>}
+            {user.tempInteraction === 'brain' && <span className="text-purple-300">🧠 Zihin Açık!</span>}
+            {user.tempInteraction === 'star' && <span className="text-amber-300">⭐ Sen de Yıldızsın!</span>}
           </motion.div>
         )}
 
@@ -111,19 +116,45 @@ const SeatedStudentAvatar = React.memo(function SeatedStudentAvatar({
           )}
         </div>
 
-        {/* Focus Subject / Status Tag */}
-        <div className="flex items-center gap-1 mt-0.5">
-          {user.subject && (
-            <span className="text-[9px] px-1.5 py-0.2 rounded bg-white/10 text-gray-300 border border-white/5 font-semibold truncate max-w-[100px]">
-              {user.subject}
-            </span>
+        {/* Canlı Durum & Aktivite Baloncuğu (Floating Activity Bubble) */}
+        <motion.div
+          animate={{ y: [0, -3, 0] }}
+          transition={{ repeat: Infinity, duration: 2.8, ease: 'easeInOut' }}
+          onClick={(e) => {
+            if (isCurrentUser && onStatusClick) {
+              e.stopPropagation();
+              onStatusClick();
+            }
+          }}
+          className={`mt-1 px-2.5 py-0.5 rounded-full backdrop-blur-md shadow-md border text-[10px] font-bold flex items-center gap-1.5 transition-all ${
+            isCurrentUser && onStatusClick ? 'pointer-events-auto cursor-pointer hover:scale-105 active:scale-95' : ''
+          } ${
+            status === 'break'
+              ? 'bg-amber-500/25 text-amber-200 border-amber-400/40 shadow-[0_0_10px_rgba(245,158,11,0.3)]'
+              : isCurrentUser
+              ? 'bg-gradient-to-r from-sky-500/25 to-indigo-500/25 text-sky-200 border-sky-400/50 shadow-[0_0_12px_rgba(56,189,248,0.25)]'
+              : 'bg-black/85 text-gray-200 border-white/20'
+          }`}
+          title={isCurrentUser ? 'Canlı durumunu değiştirmek için tıkla' : undefined}
+        >
+          {status === 'break' ? (
+            <>
+              <Coffee size={10} className="text-amber-400" />
+              <span>5 Dk Mola</span>
+            </>
+          ) : (
+            <>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+              <span className="truncate max-w-[85px] sm:max-w-[110px]">
+                {user.subject || 'Genel Tekrar'}
+              </span>
+            </>
           )}
-          {status === 'break' && (
-            <span className="text-[9px] px-1 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold flex items-center gap-0.5">
-              <Coffee size={9} /> Mola
-            </span>
+
+          {isCurrentUser && (
+            <span className="text-[8px] opacity-75 text-sky-300">✏️</span>
           )}
-        </div>
+        </motion.div>
       </div>
 
       {/* ── Desk Lamp Light Cone (Glow on Table) ── */}

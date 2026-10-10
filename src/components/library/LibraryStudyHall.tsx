@@ -8,9 +8,11 @@ import {
   RotateCcw, Flame, LogOut, ArrowRight, Lamp, Compass, Shirt, Headphones
 } from 'lucide-react';
 import SeatedStudentAvatar, { EmptyLibraryDesk, AvatarConfig } from './SeatedStudentAvatar';
-import StudentDeskCardModal, { DeskCardStudent } from './StudentDeskCardModal';
+import StudentDeskCardModal, { DeskCardStudent, LibraryGiftType } from './StudentDeskCardModal';
 import AvatarWardrobeModal from './AvatarWardrobeModal';
 import LeaveDeskConfirmModal from './LeaveDeskConfirmModal';
+import QuickStatusSelectorModal from './QuickStatusSelectorModal';
+import TableSynergyModal from './TableSynergyModal';
 import { haptics } from '@/lib/haptics';
 import { libraryAudio } from '@/lib/library-audio';
 
@@ -38,7 +40,7 @@ interface LibraryStudyHallProps {
   onSubjectChange?: (subject: string) => void;
   onSeatChange?: (seatId: string | null) => void;
   mySeatId?: string | null;
-  onSendInteraction?: (receiverId: string, action: 'coffee' | 'wave' | 'energy') => void;
+  onSendInteraction?: (receiverId: string, action: LibraryGiftType) => void;
   timerActive?: boolean;
   timeLeftFormatted?: string;
   avatarConfig?: AvatarConfig;
@@ -72,8 +74,10 @@ export default function LibraryStudyHall({
   onOpenNeuroStudio,
 }: LibraryStudyHallProps) {
   const [selectedStudent, setSelectedStudent] = useState<DeskCardStudent | null>(null);
-  const [localInteractions, setLocalInteractions] = useState<Record<string, 'coffee' | 'wave' | 'energy'>>({});
+  const [localInteractions, setLocalInteractions] = useState<Record<string, LibraryGiftType>>({});
   const [isWardrobeOpen, setIsWardrobeOpen] = useState(false);
+  const [activeSynergyTable, setActiveSynergyTable] = useState<number | null>(null);
+  const [isStatusSelectorOpen, setIsStatusSelectorOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState<{
     type: 'leave' | 'switch';
     targetSeatId?: string | null;
@@ -180,12 +184,15 @@ export default function LibraryStudyHall({
     }
   };
 
-  // Handle silent interaction (coffee / wave / energy)
-  const handleSendInteraction = (receiverId: string, action: 'coffee' | 'wave' | 'energy') => {
+  // Handle silent interaction (coffee / wave / energy / fire / brain / star)
+  const handleSendInteraction = (receiverId: string, action: LibraryGiftType) => {
     setLocalInteractions(prev => ({ ...prev, [receiverId]: action }));
     if (action === 'coffee') libraryAudio.playCoffee();
     else if (action === 'energy') libraryAudio.playEnergy();
     else if (action === 'wave') libraryAudio.playWave();
+    else if (action === 'fire') libraryAudio.playFire();
+    else if (action === 'brain') libraryAudio.playBrain();
+    else if (action === 'star') libraryAudio.playStar();
     
     onSendInteraction?.(receiverId, action);
     setTimeout(() => {
@@ -195,6 +202,21 @@ export default function LibraryStudyHall({
         return next;
       });
     }, 4500);
+  };
+
+  const handleStatusSelect = (newStatus: string, statusType?: 'focusing' | 'break') => {
+    onSubjectChange?.(newStatus);
+    if (roomId) {
+      fetch(`/api/rooms/${roomId}/join`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'status_update',
+          currentSubject: newStatus,
+          status: statusType || 'focusing',
+        }),
+      }).catch(() => {});
+    }
   };
 
   const occupiedCount = Object.keys(seatMap).length;
@@ -276,6 +298,17 @@ export default function LibraryStudyHall({
                 <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
                 <span>Masadasın ({mySeatId.replace('t', 'Masa ').replace('-s', ' / Koltuk ')})</span>
               </div>
+              <button
+                onClick={() => {
+                  haptics.impact('light');
+                  setIsStatusSelectorOpen(true);
+                }}
+                className="px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-200 border border-amber-500/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm hover:scale-[1.02] active:scale-95"
+                title="Masadaki canlı aktivite baloncuğunu (ör. 35. Paragraf Sorusu, Limit-Türev) seç"
+              >
+                <span>💬</span>
+                <span>Durum Bildir</span>
+              </button>
               <button
                 onClick={handleLeaveSeat}
                 className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
@@ -428,29 +461,47 @@ export default function LibraryStudyHall({
                 >
                   {/* Table Center Brass Plaque & Synergy Pill */}
                   <div className="mb-2 sm:mb-3 flex items-center gap-2 flex-wrap justify-center">
-                    <div className="px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-gradient-to-r from-amber-950/60 to-yellow-950/60 border border-amber-600/30 text-amber-300 text-[10px] sm:text-[11px] font-black tracking-wider flex items-center gap-1.5 shadow-sm">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        haptics.impact('light');
+                        setActiveSynergyTable(tableNum);
+                      }}
+                      className="px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-gradient-to-r from-amber-950/60 to-yellow-950/60 border border-amber-600/30 text-amber-300 text-[10px] sm:text-[11px] font-black tracking-wider flex items-center gap-1.5 shadow-sm hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                      title="Masa sinerjisini ve masadaki öğrencileri incele"
+                    >
                       <Compass size={12} className="text-amber-400" />
                       <span>MASA {tableNum} · SESSİZ BÖLÜM</span>
-                    </div>
+                    </button>
 
                     {isSuperSynergy ? (
-                      <motion.div
+                      <motion.button
+                        type="button"
+                        onClick={() => {
+                          haptics.impact('light');
+                          setActiveSynergyTable(tableNum);
+                        }}
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        className="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500/25 to-yellow-500/20 border border-amber-400/50 text-amber-300 text-[10px] font-black flex items-center gap-1 shadow-[0_0_12px_rgba(245,158,11,0.35)] animate-pulse"
+                        className="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500/25 to-yellow-500/20 border border-amber-400/50 text-amber-300 text-[10px] font-black flex items-center gap-1 shadow-[0_0_12px_rgba(245,158,11,0.35)] animate-pulse cursor-pointer hover:scale-105 transition-transform"
                       >
                         <Flame size={11} className="text-amber-400 fill-amber-400" />
                         <span>Dolu Masa (+%25 XP)</span>
-                      </motion.div>
+                      </motion.button>
                     ) : hasSynergy ? (
-                      <motion.div
+                      <motion.button
+                        type="button"
+                        onClick={() => {
+                          haptics.impact('light');
+                          setActiveSynergyTable(tableNum);
+                        }}
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-extrabold flex items-center gap-1 shadow-sm"
+                        className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-extrabold flex items-center gap-1 shadow-sm cursor-pointer hover:scale-105 transition-transform"
                       >
                         <Sparkles size={11} className="text-emerald-400" />
                         <span>Masa Sinerjisi (+%15 XP)</span>
-                      </motion.div>
+                      </motion.button>
                     ) : null}
                   </div>
 
@@ -470,6 +521,7 @@ export default function LibraryStudyHall({
                           seatLabel={seatLetter}
                           isCurrentUser={isMe}
                           lampOn={true}
+                          onStatusClick={isMe ? () => setIsStatusSelectorOpen(true) : undefined}
                           user={{
                             id: occupant.id,
                             username: occupant.username,
@@ -555,14 +607,22 @@ export default function LibraryStudyHall({
         target={currentUserTarget}
       />
 
-      {/* ── Leave or Switch Desk Confirmation Modal ── */}
-      <LeaveDeskConfirmModal
-        isOpen={!!confirmModal}
-        type={confirmModal?.type || 'leave'}
-        currentSeatId={mySeatId || null}
-        targetSeatId={confirmModal?.targetSeatId || null}
-        onConfirm={handleConfirmAction}
-        onCancel={handleCancelAction}
+      {/* ── Table Synergy & Collective XP Bonus Modal ── */}
+      <TableSynergyModal
+        isOpen={activeSynergyTable !== null}
+        onClose={() => setActiveSynergyTable(null)}
+        tableNumber={activeSynergyTable || 1}
+        occupants={activeSynergyTable ? SEATS_PER_TABLE.map(s => seatMap[`t${activeSynergyTable}-s${s}`]).filter(Boolean) : []}
+        currentUserId={currentUserId}
+        onSendInteraction={handleSendInteraction}
+      />
+
+      {/* ── Quick Live Activity & Speech Bubble Selector Modal ── */}
+      <QuickStatusSelectorModal
+        isOpen={isStatusSelectorOpen}
+        onClose={() => setIsStatusSelectorOpen(false)}
+        currentStatus={userSubject}
+        onSelectStatus={handleStatusSelect}
       />
 
     </div>

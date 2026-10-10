@@ -60,6 +60,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         SET seat_id = NULL, last_active = CURRENT_TIMESTAMP
         WHERE room_id = ? AND user_id = ?
       `).run(roomId, userId);
+    } else if (action === 'status_update') {
+      await db.prepare(`
+        UPDATE room_participants 
+        SET current_subject = COALESCE(?, current_subject),
+            status = COALESCE(?, status),
+            last_active = CURRENT_TIMESTAMP
+        WHERE room_id = ? AND user_id = ?
+      `).run(currentSubject || null, status || null, roomId, userId);
     } else if (action === 'leave') {
       await db.prepare('DELETE FROM room_participants WHERE room_id = ? AND user_id = ?').run(roomId, userId);
     }
@@ -93,7 +101,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }));
 
     // Broadcast updated participants list
-    if (action === 'join' || action === 'leave' || action === 'sit' || action === 'stand') {
+    if (action === 'join' || action === 'leave' || action === 'sit' || action === 'stand' || action === 'status_update') {
       broadcastRoomEvent(roomId, 'room-users', participants);
     }
 

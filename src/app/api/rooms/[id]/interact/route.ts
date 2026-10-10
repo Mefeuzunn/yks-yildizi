@@ -38,7 +38,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     } else if (actionType === 'wave') {
       text = `👋 ${senderName}, ${receiverName}'e sessizce selam verdi.`;
     } else if (actionType === 'energy') {
-      text = `⚡ ${senderName}, ${receiverName}'e odak enerjisi gönderdi!`;
+      text = `⚡ ${senderName}, ${receiverName}'e +100 odak enerjisi gönderdi!`;
+    } else if (actionType === 'fire') {
+      text = `🔥 ${senderName}, ${receiverName}'e yüksek odak alevi gönderdi!`;
+    } else if (actionType === 'brain') {
+      text = `🧠 ${senderName}, ${receiverName}'e zihin açıklığı ve başarı diledi!`;
+    } else if (actionType === 'star') {
+      text = `⭐ ${senderName}, ${receiverName}'e masa yıldızı rozeti takdim etti!`;
+    } else {
+      text = `✨ ${senderName}, ${receiverName}'e masa desteği gönderdi.`;
     }
 
     const msgId = uuidv4();

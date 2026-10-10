@@ -2,8 +2,10 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Coffee, Hand, Zap, Target, BookOpen, Award, Flame, Check } from 'lucide-react';
+import { X, Coffee, Hand, Zap, Target, BookOpen, Award, Flame, Check, Brain, Star } from 'lucide-react';
 import { haptics } from '@/lib/haptics';
+
+export type LibraryGiftType = 'coffee' | 'wave' | 'energy' | 'fire' | 'brain' | 'star';
 
 export interface DeskCardStudent {
   id: string;
@@ -20,7 +22,7 @@ export interface DeskCardStudent {
 interface StudentDeskCardModalProps {
   student: DeskCardStudent | null;
   onClose: () => void;
-  onSendInteraction: (studentId: string, action: 'coffee' | 'wave' | 'energy') => void;
+  onSendInteraction: (studentId: string, action: LibraryGiftType) => void;
   isCurrentUser?: boolean;
 }
 
@@ -30,18 +32,18 @@ export default function StudentDeskCardModal({
   onSendInteraction,
   isCurrentUser = false,
 }: StudentDeskCardModalProps) {
-  const [sentAction, setSentAction] = useState<string | null>(null);
+  const [sentAction, setSentAction] = useState<LibraryGiftType | null>(null);
 
   if (!student) return null;
 
-  const handleAction = (action: 'coffee' | 'wave' | 'energy') => {
+  const handleAction = (action: LibraryGiftType) => {
     haptics.notification('success');
     setSentAction(action);
     onSendInteraction(student.id, action);
     setTimeout(() => {
       setSentAction(null);
       onClose();
-    }, 1200);
+    }, 1300);
   };
 
   return (
@@ -139,8 +141,11 @@ export default function StudentDeskCardModal({
                   <Check size={18} />
                   <span>
                     {sentAction === 'coffee' && 'Kahve masasına bırakıldı! ☕'}
+                    {sentAction === 'fire' && 'Yüksek odak alevi gönderildi! 🔥'}
+                    {sentAction === 'brain' && 'Zihin açıklığı dilendi! 🧠'}
+                    {sentAction === 'star' && 'Masa yıldızı rozeti takdim edildi! ⭐'}
                     {sentAction === 'wave' && 'Sessizce selam verildi! 👋'}
-                    {sentAction === 'energy' && 'Odak enerjisi gönderildi! ⚡'}
+                    {sentAction === 'energy' && '+100 Odak enerjisi gönderildi! ⚡'}
                   </span>
                 </div>
               ) : (
@@ -150,7 +155,31 @@ export default function StudentDeskCardModal({
                     className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-200 hover:text-white border border-white/10 flex flex-col items-center gap-1 text-xs font-bold transition-all cursor-pointer active:scale-95"
                   >
                     <Coffee size={18} className="text-amber-400" />
-                    <span>Kahve Ver</span>
+                    <span>Kahve</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleAction('fire')}
+                    className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-200 hover:text-white border border-white/10 flex flex-col items-center gap-1 text-xs font-bold transition-all cursor-pointer active:scale-95"
+                  >
+                    <Flame size={18} className="text-orange-400 fill-orange-400/30" />
+                    <span>Odak Alevi</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleAction('brain')}
+                    className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-200 hover:text-white border border-white/10 flex flex-col items-center gap-1 text-xs font-bold transition-all cursor-pointer active:scale-95"
+                  >
+                    <Brain size={18} className="text-purple-400" />
+                    <span>Zihin Açık</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleAction('star')}
+                    className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-200 hover:text-white border border-white/10 flex flex-col items-center gap-1 text-xs font-bold transition-all cursor-pointer active:scale-95"
+                  >
+                    <Star size={18} className="text-yellow-400 fill-yellow-400/30" />
+                    <span>Masa Yıldızı</span>
                   </button>
 
                   <button
@@ -166,7 +195,7 @@ export default function StudentDeskCardModal({
                     className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-200 hover:text-white border border-white/10 flex flex-col items-center gap-1 text-xs font-bold transition-all cursor-pointer active:scale-95"
                   >
                     <Zap size={18} className="text-yellow-400 fill-current" />
-                    <span>Enerji At</span>
+                    <span>+100 Enerji</span>
                   </button>
                 </div>
               )}

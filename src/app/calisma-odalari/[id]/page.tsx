@@ -292,6 +292,9 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
             if (payload.data.actionType === 'coffee') libraryAudio.playCoffee();
             else if (payload.data.actionType === 'energy') libraryAudio.playEnergy();
             else if (payload.data.actionType === 'wave') libraryAudio.playWave();
+            else if (payload.data.actionType === 'fire') libraryAudio.playFire();
+            else if (payload.data.actionType === 'brain') libraryAudio.playBrain();
+            else if (payload.data.actionType === 'star') libraryAudio.playStar();
           }
         } else if (payload.type === 'update-timer' && payload.data) {
           if (payload.data.timerState === 'active') {
@@ -670,7 +673,10 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
     }
   };
 
-  const handleSendInteraction = async (receiverId: string, actionType: 'coffee' | 'wave' | 'energy') => {
+  const handleSendInteraction = async (
+    receiverId: string, 
+    actionType: 'coffee' | 'wave' | 'energy' | 'fire' | 'brain' | 'star'
+  ) => {
     try {
       await fetch(`/api/rooms/${id}/interact`, {
         method: 'POST',
