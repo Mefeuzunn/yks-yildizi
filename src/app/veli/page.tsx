@@ -23,6 +23,8 @@ export default function VeliDashboardPage() {
   const [liveSession, setLiveSession] = useState<any>(null);
   const [todaySummary, setTodaySummary] = useState<any>(null);
   const [teacherNotes, setTeacherNotes] = useState<any[]>([]);
+  const [assignments, setAssignments] = useState<any[]>([]);
+  const [assignmentStats, setAssignmentStats] = useState<any>(null);
   const [maarifCompetencies, setMaarifCompetencies] = useState<any[]>([]);
   const [aiLetter, setAiLetter] = useState<string>('');
   
@@ -60,6 +62,8 @@ export default function VeliDashboardPage() {
             setLiveSession(data.liveSession || null);
             setTodaySummary(data.todaySummary || null);
             if (data.teacherNotes) setTeacherNotes(data.teacherNotes);
+            if (data.assignments) setAssignments(data.assignments);
+            if (data.assignmentStats) setAssignmentStats(data.assignmentStats);
           }
         }
       } catch (_) {}
@@ -85,6 +89,8 @@ export default function VeliDashboardPage() {
         setLiveSession(data.liveSession || null);
         setTodaySummary(data.todaySummary || null);
         setTeacherNotes(data.teacherNotes || []);
+        setAssignments(data.assignments || []);
+        setAssignmentStats(data.assignmentStats || null);
         setMaarifCompetencies(data.maarifCompetencies || []);
         setParentCode(codeToUse);
         
@@ -118,6 +124,8 @@ export default function VeliDashboardPage() {
     setLiveSession(null);
     setTodaySummary(null);
     setTeacherNotes([]);
+    setAssignments([]);
+    setAssignmentStats(null);
     setMaarifCompetencies([]);
     setParentCode('');
     setInputCode('');
@@ -136,14 +144,18 @@ export default function VeliDashboardPage() {
     
     const todayFocus = todaySummary?.focusMinutes || 0;
     const todaySolved = todaySummary?.questionsSolved || 0;
+    const targetUni = student?.target_university ? `${student.target_university}${student.target_department ? ` - ${student.target_department}` : ''}` : '';
+    const hwRate = assignmentStats ? `%${assignmentStats.rate} (${assignmentStats.completed}/${assignmentStats.total} Teslim)` : '';
 
     const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
 
     const reportText = `📊 *YKS YILDIZI - VELİ BİLGİLENDİRME RAPORU*\n\n` +
       `👤 *Öğrenci:* ${username} (${alan} - ${sinif}. Sınıf)\n` +
+      (targetUni ? `🎯 *Hedef:* ${targetUni}\n` : '') +
       `🔥 *Çalışma Serisi:* ${streak} Gün Kesintisiz\n` +
       `⏱️ *Bugünkü Odak:* ${todayFocus} Dakika (${todaySolved} Soru Çözüldü)\n` +
-      `📝 *Toplam Çözülen Soru:* ${solved} Soru\n` +
+      (hwRate ? `📝 *Ödev Durumu:* ${hwRate}\n` : '') +
+      `📚 *Toplam Çözülen Soru:* ${solved} Soru\n` +
       `🎯 *Son Deneme Neti:* ${lastNet}\n\n` +
       (liveSession?.isLive ? `🟢 *Şu An Canlı:* ${liveSession.subject} dersi çalışıyor (${liveSession.elapsedMinutes} dk)\n\n` : '') +
       (teacherNotes?.length > 0 ? `👨‍🏫 *Öğretmen Tavsiyesi:* "${teacherNotes[0].note.slice(0, 150)}..." (${teacherNotes[0].teacher_name})\n\n` : '') +
@@ -295,6 +307,11 @@ export default function VeliDashboardPage() {
             <div>
               <div style={{ color: '#fff', fontWeight: 700, fontSize: '0.875rem' }}>{studentData.student.username}</div>
               <div style={{ color: '#34d399', fontSize: '0.75rem', fontWeight: 600 }}>{studentData.student.alan} - {studentData.student.sinif}. Sınıf</div>
+              {studentData.student.target_university && (
+                <div style={{ color: '#f59e0b', fontSize: '0.7rem', fontWeight: 600, marginTop: 1 }}>
+                  🎯 {studentData.student.target_university} {studentData.student.target_department ? `• ${studentData.student.target_department}` : ''}
+                </div>
+              )}
             </div>
           </div>
           <button
@@ -605,6 +622,118 @@ export default function VeliDashboardPage() {
             <MessageSquare size={28} color="#6366f1" style={{ margin: '0 auto 8px auto', opacity: 0.8 }} />
             Öğretmenler tarafından veliyle paylaşılan not henüz bulunmuyor.
             <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: '#64748b' }}>Öğretmen öğrenci için gelişim notu girdiğinde bu alanda otomatik listelenecektir.</p>
+          </div>
+        )}
+      </div>
+
+      {/* ── ÖDEV & GÖREV TAKİP KARNESİ (ASSIGNMENTS & HOMEWORK PROGRESS) ── */}
+      <div
+        className="premium-card"
+        style={{
+          backgroundColor: 'rgba(15, 21, 35, 0.75)',
+          border: '1px solid rgba(16, 185, 129, 0.25)',
+          borderRadius: '20px',
+          padding: '2rem',
+          backdropFilter: 'blur(16px)',
+          boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)',
+          marginBottom: '1.75rem',
+          background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.04), rgba(15, 21, 35, 0.8))'
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #10b981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.2rem', boxShadow: '0 0 16px rgba(16, 185, 129, 0.3)' }}>
+              📝
+            </div>
+            <div>
+              <h2 style={{ fontSize: '1.25rem', color: '#fff', margin: 0, fontWeight: 800 }}>
+                Ödev & Görev Takip Karnesi
+              </h2>
+              <p style={{ color: '#94a3b8', fontSize: '0.8rem', margin: '2px 0 0' }}>
+                Öğretmenler tarafından atanan ödevlerin teslim durumu, notlandırma ve öğretmen geri bildirimleri.
+              </p>
+            </div>
+          </div>
+          {assignmentStats && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '0.75rem', color: '#34d399', background: 'rgba(16, 185, 129, 0.15)', padding: '4px 12px', borderRadius: '20px', border: '1px solid rgba(16, 185, 129, 0.3)', fontWeight: 700 }}>
+                %{assignmentStats.rate} Tamamlama Başarısı
+              </span>
+              <span style={{ fontSize: '0.75rem', color: '#94a3b8', background: 'rgba(255, 255, 255, 0.05)', padding: '4px 10px', borderRadius: '20px' }}>
+                {assignmentStats.completed}/{assignmentStats.total} Teslim
+              </span>
+            </div>
+          )}
+        </div>
+
+        {assignments && assignments.length > 0 ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1rem' }}>
+            {assignments.map((as: any, idx: number) => {
+              const isGraded = as.status === 'graded';
+              const isCompleted = as.status === 'completed' || as.status === 'submitted' || isGraded;
+
+              return (
+                <div
+                  key={as.assignment_id || idx}
+                  style={{
+                    padding: '1.25rem',
+                    borderRadius: '14px',
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    gap: '0.75rem'
+                  }}
+                >
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem', gap: 8 }}>
+                      <div>
+                        <div style={{ color: '#fff', fontWeight: 800, fontSize: '0.95rem' }}>{as.title}</div>
+                        <div style={{ fontSize: '0.75rem', color: '#38bdf8', marginTop: 2, display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <span>{as.subject || 'Ders'} {as.topic ? `• ${as.topic}` : ''}</span>
+                          <span style={{ color: '#64748b' }}>({as.teacher_name} - {as.teacher_brans})</span>
+                        </div>
+                      </div>
+                      <span style={{
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        padding: '3px 8px',
+                        borderRadius: 6,
+                        background: isGraded ? 'rgba(16,185,129,0.2)' : isCompleted ? 'rgba(56,189,248,0.2)' : 'rgba(245,158,11,0.2)',
+                        color: isGraded ? '#34d399' : isCompleted ? '#38bdf8' : '#fcd34d',
+                        border: `1px solid ${isGraded ? 'rgba(16,185,129,0.35)' : isCompleted ? 'rgba(56,189,248,0.35)' : 'rgba(245,158,11,0.35)'}`,
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {isGraded ? `✅ Not: ${as.score}/100` : isCompleted ? '✅ Teslim Edildi' : '⏳ Bekliyor'}
+                      </span>
+                    </div>
+
+                    {as.description && (
+                      <p style={{ color: '#94a3b8', fontSize: '0.8rem', margin: '4px 0 0', lineHeight: 1.5 }}>
+                        {as.description}
+                      </p>
+                    )}
+
+                    {as.feedback && (
+                      <div style={{ marginTop: '0.65rem', padding: '8px 12px', borderRadius: 8, background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', color: '#c7d2fe', fontSize: '0.78rem', lineHeight: 1.5 }}>
+                        <strong>💬 Öğretmen Notu:</strong> "{as.feedback}"
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#64748b', fontSize: '0.72rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '0.5rem' }}>
+                    <span>{as.due_date ? `Son Teslim: ${new Date(as.due_date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}` : 'Tarih belirtilmedi'}</span>
+                    {as.submitted_at && <span>Teslim: {new Date(as.submitted_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}</span>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div style={{ padding: '2rem', textAlign: 'center', background: 'rgba(255,255,255,0.02)', borderRadius: '14px', border: '1px dashed rgba(255,255,255,0.08)', color: '#94a3b8', fontSize: '0.85rem' }}>
+            <div style={{ fontSize: '1.8rem', marginBottom: 8 }}>📚</div>
+            Öğrenciye atanmış aktif ödev bulunmuyor.
           </div>
         )}
       </div>

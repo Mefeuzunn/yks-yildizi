@@ -23,7 +23,7 @@ export async function GET(req: Request) {
     const cleanCode = code.trim().toUpperCase();
 
     const student = await db.prepare(
-      "SELECT id, username, alan, sinif FROM users WHERE UPPER(parent_code) = ? AND role = 'ogrenci'"
+      "SELECT id, username, alan, sinif, target_university, target_department FROM users WHERE UPPER(parent_code) = ? AND role = 'ogrenci'"
     ).get(cleanCode) as any;
 
     if (!student) {
@@ -141,6 +141,40 @@ export async function GET(req: Request) {
       `).all(student.id) as any[];
     } catch (_) {}
 
+    // Student Assignments: Çocuğa verilen ödevler ve teslim durumu
+    let assignments: any[] = [];
+    let assignmentStats = { total: 0, completed: 0, pending: 0, rate: 100 };
+    try {
+      assignments = await db.prepare(`
+        SELECT 
+          a.id as assignment_id,
+          a.title,
+          a.description,
+          a.subject,
+          a.topic,
+          a.category,
+          a.due_date,
+          u.username as teacher_name,
+          COALESCE(u.brans, 'Öğretmen') as teacher_brans,
+          asub.status,
+          asub.score,
+          COALESCE(asub.feedback, '') as feedback,
+          asub.submitted_at
+        FROM assignment_submissions asub
+        JOIN assignments a ON asub.assignment_id = a.id
+        JOIN users u ON a.teacher_id = u.id
+        WHERE asub.student_id = ?
+        ORDER BY a.created_at DESC
+        LIMIT 10
+      `).all(student.id) as any[];
+
+      const total = assignments.length;
+      const completed = assignments.filter((a: any) => a.status === 'completed' || a.status === 'submitted' || a.status === 'graded').length;
+      const pending = total - completed;
+      const rate = total > 0 ? Math.round((completed / total) * 100) : 100;
+      assignmentStats = { total, completed, pending, rate };
+    } catch (_) {}
+
     // Maarif Modeli Yetkinlik Puanları
     const streakDays = stats?.streak_days || 0;
     const successRate = stats?.success_rate || 70;
@@ -157,12 +191,16 @@ export async function GET(req: Request) {
       student: { 
         username: student.username, 
         alan: student.alan, 
-        sinif: student.sinif, 
+        sinif: student.sinif,
+        target_university: student.target_university || null,
+        target_department: student.target_department || null,
         stats: stats || null 
       },
       liveSession,
       todaySummary,
       teacherNotes: teacherNotes || [],
+      assignments: assignments || [],
+      assignmentStats,
       maarifCompetencies,
       exams: exams || [],
       timeline: timeline || [],

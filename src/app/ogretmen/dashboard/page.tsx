@@ -500,7 +500,7 @@ function ClassMockExamAnalyticsWidget({ classId }: { classId: string | null }) {
   );
 }
 
-function ClassroomLivePulseWidget({ onSelectStudent }: { onSelectStudent?: (studentId: string) => void }) {
+function ClassroomLivePulseWidget({ onSelectStudent, onStartEtut }: { onSelectStudent?: (studentId: string) => void; onStartEtut?: () => void }) {
   const [pulseData, setPulseData] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
   const [cheeringId, setCheeringId] = React.useState<string | null>(null);
@@ -582,10 +582,30 @@ function ClassroomLivePulseWidget({ onSelectStudent }: { onSelectStudent?: (stud
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
           <span style={{ padding: '4px 12px', borderRadius: 20, background: activeCount > 0 ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${activeCount > 0 ? 'rgba(16,185,129,0.35)' : 'rgba(255,255,255,0.1)'}`, color: activeCount > 0 ? '#34d399' : '#94a3b8', fontSize: 12, fontWeight: 700 }}>
             {activeCount > 0 ? `🟢 ${activeCount} Öğrenci Masada` : '⚪ Şu an aktif öğrenci yok'}
           </span>
+          {onStartEtut && (
+            <button
+              onClick={onStartEtut}
+              style={{
+                background: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(5,150,105,0.2))',
+                border: '1px solid rgba(16,185,129,0.4)',
+                color: '#34d399',
+                borderRadius: 8,
+                padding: '6px 12px',
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 5
+              }}
+            >
+              <span>🚀 Canlı Etüt Başlat</span>
+            </button>
+          )}
           <button
             onClick={() => fetchPulse(false)}
             title="Yenile"
@@ -3269,7 +3289,16 @@ function TeacherDashboardContent() {
             </div>
 
             {/* Canlı Sınıf Nabzı (Live Classroom Pulse) */}
-            <ClassroomLivePulseWidget onSelectStudent={(id) => setSelectedStudentId(id)} />
+            <ClassroomLivePulseWidget 
+              onSelectStudent={(id) => setSelectedStudentId(id)} 
+              onStartEtut={() => {
+                if (classes && classes.length > 0) {
+                  setEtutModal({ classId: classes[0].id, className: classes[0].class_name });
+                } else {
+                  toast.error('Önce bir sınıfınız olmalıdır.');
+                }
+              }}
+            />
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem', marginBottom: '1.5rem' }}>
 
