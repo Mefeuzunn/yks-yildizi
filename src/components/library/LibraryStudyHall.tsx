@@ -514,7 +514,8 @@ export default function LibraryStudyHall({
                 {/* Wooden Table Runner Detail */}
                 <div className="w-full h-1 mt-4 rounded-full bg-gradient-to-r from-transparent via-amber-800/40 to-transparent" />
               </div>
-            ))}
+            );
+          })}
           </div>
 
           {/* Unseated Attendees Audience Bar */}
