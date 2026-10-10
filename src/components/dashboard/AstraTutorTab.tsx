@@ -595,6 +595,81 @@ export default function AstraTutorTab() {
                 </div>
               </motion.div>
             ))}
+
+            {/* Proaktif Eksik Pekiştirme Kartı */}
+            {messages.length === 1 && activeMode === 'ders' && studentMemory?.topWeak && (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="max-w-[92%] sm:max-w-[85%] p-5 rounded-3xl bg-gradient-to-br from-indigo-950/70 via-purple-950/40 to-slate-950/80 border border-indigo-500/30 shadow-[0_0_35px_rgba(99,102,241,0.18)] backdrop-blur-xl"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-xl shadow-lg flex-shrink-0">
+                    🎯
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-sm sm:text-base font-bold text-white">
+                        Kişiselleştirilmiş Eksik Analizi
+                      </h3>
+                      <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">
+                        Öncelikli Pekiştirme
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      Son denemelerin ve soru çözüm geçmişine göre tespit edildi
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 mb-4 text-xs sm:text-sm text-gray-200 leading-relaxed">
+                  Son çalışmalarında <strong className="text-amber-300">{studentMemory.topWeak.subject} · {studentMemory.topWeak.topic}</strong> konusunda <span className="text-rose-400 font-bold">{studentMemory.topWeak.errorCount} hata</span> tespit ettim. Sınavda net kaybetmemek için bu konuyu 5 dakikada pekiştirelim mi?
+                </div>
+
+                <div className="flex flex-wrap gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => handleSendPrompt(`${studentMemory.topWeak.subject} dersindeki "${studentMemory.topWeak.topic}" konusunu bana YKS formatında 5 dakikalık hap bilgiyle özetle, en çok düşülen 2 sınav tuzağını göster ve 1 adet örnek YKS sorusu çöz.`)}
+                    className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white text-xs sm:text-sm font-bold shadow-lg shadow-indigo-500/25 transition-all flex items-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    <Sparkles className="w-4 h-4 text-amber-300 flex-shrink-0" />
+                    <span>Hemen {studentMemory.topWeak.topic} Pekiştirmesi Başlat 🚀</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSendPrompt(`"${studentMemory.topWeak.topic}" konusuna ait YKS'de çıkmış veya çıkabilecek 2 özgün soru sor, ben çözeyim sonra adım adım değerlendir.`)}
+                    className="px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-gray-200 text-xs sm:text-sm font-semibold border border-white/10 transition-all flex items-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    <span>📝 2 Pratik Soru Çöz</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSendPrompt(`"${studentMemory.topWeak.topic}" konusu için 3 dakikalık formül ve altın kurallar hap kartı çıkar.`)}
+                    className="px-3.5 py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-xs sm:text-sm font-semibold border border-amber-500/30 transition-all flex items-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    <span>💡 3 Dk Formül Kartı</span>
+                  </button>
+                </div>
+
+                {studentMemory.weakTopics && studentMemory.weakTopics.length > 1 && (
+                  <div className="mt-4 pt-3 border-t border-white/10 flex items-center gap-2 flex-wrap">
+                    <span className="text-[11px] text-gray-400 font-medium">Diğer Eksiklerin:</span>
+                    {studentMemory.weakTopics.slice(1, 4).map((w: any, idx: number) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => handleSendPrompt(`${w.subject} dersindeki "${w.topic}" konusunu YKS mantığıyla özetle ve 1 kritik sınav tuzağını açıkla.`)}
+                        className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] text-gray-300 border border-white/10 transition-all cursor-pointer hover:border-indigo-400/50"
+                      >
+                        {w.subject} - {w.topic} ({w.errorCount} hata)
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            )}
             
             {/* Typing Indicator */}
             {isTyping && (

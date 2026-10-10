@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, Activity, BookOpen, Target, ShieldCheck, ChevronRight, CheckCircle2, TrendingUp, Lock, Share2 } from 'lucide-react';
+import { FileText, Activity, BookOpen, Target, ShieldCheck, ChevronRight, CheckCircle2, TrendingUp, Lock, Share2, Heart, Coffee, Rocket, Star, MessageSquare } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 export default function VeliDashboardPage() {
@@ -19,6 +19,9 @@ export default function VeliDashboardPage() {
   const [whatsappActive, setWhatsappActive] = useState(false);
   const [smsActive, setSmsActive] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [cheerLoading, setCheerLoading] = useState(false);
+  const [cheerNote, setCheerNote] = useState('');
+  const [selectedCheerType, setSelectedCheerType] = useState<'coffee' | 'rocket' | 'heart' | 'star'>('coffee');
 
   // URL'den kod var mı kontrol et (Örn: /veli?code=YKS-1A2B)
   useEffect(() => {
@@ -75,6 +78,66 @@ export default function VeliDashboardPage() {
     setParentCode('');
     setInputCode('');
     window.history.pushState({}, '', `/veli`);
+  };
+
+  const handleWhatsAppShare = () => {
+    const student = studentData?.student;
+    const username = student?.username || 'Öğrenci';
+    const alan = student?.alan || 'YKS';
+    const sinif = student?.sinif || '12';
+    const solved = student?.stats?.solved_questions || 0;
+    const streak = student?.stats?.streak_days || 0;
+    const lastExamData = studentData?.exams?.length > 0 ? studentData.exams[studentData.exams.length - 1] : null;
+    const lastNet = lastExamData ? `${lastExamData.type}: ${lastExamData.totalNet} Net (${lastExamData.name})` : 'Henüz girilmedi';
+    
+    const totalFocusMin = (subjectFocus || []).reduce((acc: number, item: any) => acc + (Number(item.total_min) || 0), 0);
+    const focusHours = Math.floor(totalFocusMin / 60);
+    const focusMins = totalFocusMin % 60;
+
+    const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
+
+    const reportText = `📊 *YKS YILDIZI - HAFTALIK ÖĞRENCİ GELİŞİM RAPORU*\n\n` +
+      `👤 *Öğrenci:* ${username} (${alan} - ${sinif}. Sınıf)\n` +
+      `🔥 *Çalışma Serisi:* ${streak} Gün Kesintisiz\n` +
+      `⏱️ *Haftalık Odaklanma:* ${focusHours} Saat ${focusMins} Dakika\n` +
+      `📝 *Çözülen Soru:* ${solved} Soru\n` +
+      `🎯 *Son Deneme Neti:* ${lastNet}\n\n` +
+      (aiLetter ? `🤖 *Yapay Zeka Danışman Notu:*\n"${aiLetter.slice(0, 280)}..."\n\n` : '') +
+      `🔗 *Canlı Veli Takip Paneli:*\n${currentUrl}\n\n` +
+      `_YKS Yıldızı Akıllı Veli Portalı_`;
+
+    window.open(`https://wa.me/?text=${encodeURIComponent(reportText)}`, '_blank');
+  };
+
+  const handleSendCheer = async (typeToUse?: 'coffee' | 'rocket' | 'heart' | 'star') => {
+    const cheerType = typeToUse || selectedCheerType;
+    if (!parentCode || cheerLoading) return;
+    setCheerLoading(true);
+    try {
+      const res = await fetch('/api/parent/student', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: parentCode,
+          cheerType,
+          note: cheerNote
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setToastMessage('🎉 Moral desteğiniz başarıyla öğrencinizin bildirim kutusuna ulaştı!');
+        setCheerNote('');
+        setTimeout(() => setToastMessage(null), 4000);
+      } else {
+        setToastMessage(data.error || 'Mesaj iletilemedi.');
+        setTimeout(() => setToastMessage(null), 4000);
+      }
+    } catch {
+      setToastMessage('Bağlantı hatası oluştu.');
+      setTimeout(() => setToastMessage(null), 4000);
+    } finally {
+      setCheerLoading(false);
+    }
   };
 
   if (loading) {
@@ -164,11 +227,18 @@ export default function VeliDashboardPage() {
           </h1>
           <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: '4px 0 0' }}>Öğrencinizin gelişimini şeffaf bir şekilde izliyorsunuz.</p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <button 
+            onClick={handleWhatsAppShare}
+            className="active:scale-[0.98]"
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff', padding: '0.6rem 1.25rem', borderRadius: '12px', border: 'none', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 800, boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)', transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
+          >
+            <Share2 size={16} /> WhatsApp Raporu
+          </button>
           <button 
             onClick={() => window.print()}
             className="active:scale-[0.98]"
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: '#fff', padding: '0.6rem 1.25rem', borderRadius: '12px', border: 'none', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 800, boxShadow: '0 4px 14px rgba(59, 130, 246, 0.35)', transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.06)', color: '#fff', padding: '0.6rem 1.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 700, transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
           >
             <FileText size={16} /> PDF İndir
           </button>
@@ -513,6 +583,117 @@ export default function VeliDashboardPage() {
             </div>
           </div>
 
+        </div>
+
+        {/* Veli Teşvik ve Moral Rozeti Bölümü */}
+        <div
+          className="premium-card"
+          style={{
+            backgroundColor: 'rgba(15, 21, 35, 0.75)',
+            border: '1px solid rgba(244, 63, 94, 0.25)',
+            borderRadius: '20px',
+            padding: '2rem',
+            backdropFilter: 'blur(16px)',
+            boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)',
+            marginTop: '1.5rem',
+            background: 'linear-gradient(135deg, rgba(244,63,94,0.06), rgba(139,92,246,0.04))'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'linear-gradient(135deg, #f43f5e, #e11d48)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem', boxShadow: '0 0 20px rgba(244,63,94,0.3)' }}>
+                💖
+              </div>
+              <div>
+                <h2 style={{ fontSize: '1.2rem', color: '#fff', margin: 0, fontWeight: 800 }}>
+                  Öğrencinize Moral & Teşvik Notu Gönder
+                </h2>
+                <p style={{ color: '#94a3b8', fontSize: '0.8rem', margin: '2px 0 0' }}>
+                  Gönderdiğiniz rozet ve not anında öğrencinizin panosuna bildirim olarak düşer.
+                </p>
+              </div>
+            </div>
+            <span style={{ fontSize: '0.75rem', color: '#fca5a5', background: 'rgba(244,63,94,0.15)', padding: '4px 10px', borderRadius: '20px', border: '1px solid rgba(244,63,94,0.3)', fontWeight: 700 }}>
+              Canlı İletim
+            </span>
+          </div>
+
+          {/* 4 Cheer Badges */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem', marginBottom: '1.25rem' }}>
+            {[
+              { type: 'coffee' as const, icon: '☕', title: 'Sıcak Kahve İkramı', desc: 'Biraz dinlenmeyi hak ettin, mola ver!' },
+              { type: 'rocket' as const, icon: '🚀', title: 'Tam Destek', desc: 'Hedefine doğru tam gaz devam et!' },
+              { type: 'heart' as const, icon: '❤️', title: 'Sevgi & Moral', desc: 'Senin gayretin her şeyden değerli.' },
+              { type: 'star' as const, icon: '⭐', title: 'Haftanın Yıldızı', desc: 'Bu haftaki disiplinin için tebrikler!' },
+            ].map((c) => (
+              <button
+                key={c.type}
+                type="button"
+                onClick={() => setSelectedCheerType(c.type)}
+                style={{
+                  padding: '1rem',
+                  borderRadius: '14px',
+                  background: selectedCheerType === c.type ? 'rgba(244,63,94,0.18)' : 'rgba(255,255,255,0.02)',
+                  border: selectedCheerType === c.type ? '1.5px solid #f43f5e' : '1px solid rgba(255,255,255,0.06)',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'all 0.2s',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '0.75rem'
+                }}
+              >
+                <span style={{ fontSize: '1.8rem', flexShrink: 0 }}>{c.icon}</span>
+                <div>
+                  <div style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>{c.title}</div>
+                  <div style={{ color: '#94a3b8', fontSize: '0.75rem', marginTop: '2px', lineHeight: 1.4 }}>{c.desc}</div>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {/* Optional Note & Submit Button */}
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <input
+              type="text"
+              placeholder="İsteğe bağlı özel bir mesaj ekleyin (Örn: 'Seni çok seviyoruz, başaracaksın!')"
+              value={cheerNote}
+              onChange={(e) => setCheerNote(e.target.value)}
+              style={{
+                flex: '1 1 280px',
+                padding: '0.75rem 1rem',
+                borderRadius: '12px',
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: '#fff',
+                fontSize: '0.9rem',
+                outline: 'none'
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => handleSendCheer()}
+              disabled={cheerLoading}
+              style={{
+                padding: '0.75rem 1.75rem',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #f43f5e, #e11d48)',
+                color: '#fff',
+                fontWeight: 800,
+                fontSize: '0.9rem',
+                border: 'none',
+                cursor: cheerLoading ? 'not-allowed' : 'pointer',
+                boxShadow: '0 4px 16px rgba(244,63,94,0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                opacity: cheerLoading ? 0.7 : 1,
+                transition: 'all 0.2s'
+              }}
+            >
+              <span>{cheerLoading ? 'İletiliyor...' : '💌 Teşvik Gönder'}</span>
+            </button>
+          </div>
         </div>
 
       </div>

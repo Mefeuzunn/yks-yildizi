@@ -30,6 +30,7 @@ export async function GET(req: Request) {
         netTrend: memory.netTrend,
         weakCount: memory.weakTopics.length,
         topWeak: memory.weakTopics[0] || null,
+        weakTopics: memory.weakTopics.slice(0, 5),
         weeklyFocusMinutes: memory.weeklyFocusMinutes,
         streakDays: memory.streakDays,
         league: memory.league

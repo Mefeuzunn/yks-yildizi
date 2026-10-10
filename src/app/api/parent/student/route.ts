@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
 import { rateLimit } from '@/lib/rate-limit';
+import { v4 as uuidv4 } from 'uuid';
 
 export const dynamic = 'force-dynamic';
 
@@ -101,3 +102,45 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Sunucu hatası oluştu.' }, { status: 500 });
   }
 }
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const { code, cheerType, note } = body;
+
+    if (!code) {
+      return NextResponse.json({ error: 'Bağlantı kodu gereklidir.' }, { status: 400 });
+    }
+
+    const cleanCode = code.trim().toUpperCase();
+    const student = await db.prepare(
+      "SELECT id, username FROM users WHERE UPPER(parent_code) = ? AND role = 'ogrenci'"
+    ).get(cleanCode) as any;
+
+    if (!student) {
+      return NextResponse.json({ error: 'Öğrenci bulunamadı.' }, { status: 404 });
+    }
+
+    const CHEERS: Record<string, { icon: string; title: string; defaultBody: string }> = {
+      coffee: { icon: '☕', title: 'Velinden Sıcak Kahve İkramı!', defaultBody: 'Ailen seninle gurur duyuyor, harika bir çalışma serisi yakaladın! Bir fincan kahve eşliğinde mola vermeyi unutma.' },
+      rocket: { icon: '🚀', title: 'Tam Destek: Yolu Açık Olsun!', defaultBody: 'Emeklerinin karşılığını alacaksın, senin arkandayız! Hedeflerine doğru tam gaz devam.' },
+      heart: { icon: '❤️', title: 'Velinden Sevgi ve Moral Notu!', defaultBody: 'Bugün çok güzel çalıştın. Sonuç ne olursa olsun senin azmin her şeyden değerli.' },
+      star: { icon: '⭐', title: 'Haftanın Yıldızı Sensin!', defaultBody: 'Bu haftaki disiplin ve soru çözüm performansın için seni tebrik ediyoruz!' },
+    };
+
+    const selectedCheer = CHEERS[cheerType] || CHEERS.heart;
+    const finalBody = note && note.trim().length > 0 ? `${selectedCheer.defaultBody}\n\n"${note.trim()}"` : selectedCheer.defaultBody;
+
+    const notifId = uuidv4();
+    await db.prepare(`
+      INSERT INTO user_notifications (id, user_id, title, body, type, icon, url, is_read, created_at)
+      VALUES (?, ?, ?, ?, 'parent_cheer', ?, '/dashboard', false, NOW())
+    `).run(notifId, student.id, selectedCheer.title, finalBody, selectedCheer.icon);
+
+    return NextResponse.json({ success: true, message: 'Moral mesajınız öğrencinize başarıyla ulaştı!' });
+  } catch (error) {
+    console.error('Parent Cheer POST Error:', error);
+    return NextResponse.json({ error: 'Sunucu hatası oluştu.' }, { status: 500 });
+  }
+}
+

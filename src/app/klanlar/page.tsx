@@ -397,6 +397,65 @@ export default function KlanlarPage() {
                 </div>
               </div>
 
+              {/* Haftalık Klan Odaklanma Hedefi & Sandığı */}
+              <div style={{ ...card, background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(99,102,241,0.04))', border: '1px solid rgba(16,185,129,0.25)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'linear-gradient(135deg, #10b981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
+                      🎁
+                    </div>
+                    <div>
+                      <h3 style={{ color: '#fff', margin: 0, fontSize: '1rem', fontWeight: 700 }}>Haftalık Klan Odak Sandığı</h3>
+                      <p style={{ color: '#94a3b8', margin: 0, fontSize: '0.75rem' }}>Tüm klan üyelerinin ortak çalışma süresi</p>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(255,255,255,0.05)', padding: '4px 10px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <span style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 800 }}>
+                      {Math.floor((myClanDetails?.focusStats?.totalWeeklyFocusMinutes || 0) / 60)} sa {(myClanDetails?.focusStats?.totalWeeklyFocusMinutes || 0) % 60} dk
+                    </span>
+                    <span style={{ color: '#64748b', fontSize: '0.75rem' }}>/ 50 saat hedef</span>
+                  </div>
+                </div>
+
+                {/* Progress bar */}
+                <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: '99px', height: '10px', overflow: 'hidden', position: 'relative', marginBottom: '0.75rem' }}>
+                  <div style={{
+                    width: `${Math.min(100, Math.round(((myClanDetails?.focusStats?.totalWeeklyFocusMinutes || 0) / (myClanDetails?.focusStats?.weeklyGoalMinutes || 3000)) * 100))}%`,
+                    height: '100%',
+                    background: 'linear-gradient(90deg, #10b981, #6366f1, #f59e0b)',
+                    borderRadius: '99px',
+                    transition: 'width 0.8s ease'
+                  }} />
+                </div>
+
+                {/* Milestone Chest Badges */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', marginTop: '0.5rem' }}>
+                  <div style={{ padding: '0.5rem', borderRadius: '8px', background: (myClanDetails?.focusStats?.totalWeeklyFocusMinutes || 0) >= 900 ? 'rgba(205,124,58,0.2)' : 'rgba(255,255,255,0.02)', border: (myClanDetails?.focusStats?.totalWeeklyFocusMinutes || 0) >= 900 ? '1px solid rgba(205,124,58,0.5)' : '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
+                    <div style={{ fontSize: '1rem' }}>🥉</div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: (myClanDetails?.focusStats?.totalWeeklyFocusMinutes || 0) >= 900 ? '#f59e0b' : '#64748b' }}>Bronz (15 sa)</div>
+                    <div style={{ fontSize: '0.65rem', color: (myClanDetails?.focusStats?.totalWeeklyFocusMinutes || 0) >= 900 ? '#34d399' : '#64748b' }}>
+                      {(myClanDetails?.focusStats?.totalWeeklyFocusMinutes || 0) >= 900 ? '✓ Açıldı' : 'Kilitli'}
+                    </div>
+                  </div>
+
+                  <div style={{ padding: '0.5rem', borderRadius: '8px', background: (myClanDetails?.focusStats?.totalWeeklyFocusMinutes || 0) >= 1800 ? 'rgba(148,163,184,0.2)' : 'rgba(255,255,255,0.02)', border: (myClanDetails?.focusStats?.totalWeeklyFocusMinutes || 0) >= 1800 ? '1px solid rgba(148,163,184,0.5)' : '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
+                    <div style={{ fontSize: '1rem' }}>🥈</div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: (myClanDetails?.focusStats?.totalWeeklyFocusMinutes || 0) >= 1800 ? '#e2e8f0' : '#64748b' }}>Gümüş (30 sa)</div>
+                    <div style={{ fontSize: '0.65rem', color: (myClanDetails?.focusStats?.totalWeeklyFocusMinutes || 0) >= 1800 ? '#34d399' : '#64748b' }}>
+                      {(myClanDetails?.focusStats?.totalWeeklyFocusMinutes || 0) >= 1800 ? '✓ Açıldı' : 'Kilitli'}
+                    </div>
+                  </div>
+
+                  <div style={{ padding: '0.5rem', borderRadius: '8px', background: (myClanDetails?.focusStats?.totalWeeklyFocusMinutes || 0) >= 3000 ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.02)', border: (myClanDetails?.focusStats?.totalWeeklyFocusMinutes || 0) >= 3000 ? '1px solid rgba(245,158,11,0.5)' : '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
+                    <div style={{ fontSize: '1rem' }}>🥇</div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: (myClanDetails?.focusStats?.totalWeeklyFocusMinutes || 0) >= 3000 ? '#fbbf24' : '#64748b' }}>Altın (50 sa)</div>
+                    <div style={{ fontSize: '0.65rem', color: (myClanDetails?.focusStats?.totalWeeklyFocusMinutes || 0) >= 3000 ? '#34d399' : '#64748b' }}>
+                      {(myClanDetails?.focusStats?.totalWeeklyFocusMinutes || 0) >= 3000 ? '✓ +200 XP' : 'Kilitli'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Davet Sistemi */}
               <div style={card}>
                 <h3 style={{ color: '#fff', margin: '0 0 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -427,15 +486,23 @@ export default function KlanlarPage() {
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   {(myClanDetails?.members || []).sort((a: any, b: any) => b.weekly_contribution - a.weekly_contribution).map((m: any, i: number) => (
-                    <div key={m.user_id || i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0.75rem', borderRadius: '8px', background: 'rgba(255,255,255,0.03)' }}>
-                      <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(139,92,246,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c4b5fd', fontWeight: 700, fontSize: '0.85rem' }}>
+                    <div key={m.user_id || i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 0.85rem', borderRadius: '10px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, rgba(139,92,246,0.3), rgba(99,102,241,0.2))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c4b5fd', fontWeight: 700, fontSize: '0.9rem', flexShrink: 0 }}>
                         {m.username?.charAt(0)?.toUpperCase()}
                       </div>
-                      <div style={{ flex: 1 }}>
-                        <span style={{ color: '#fff', fontWeight: 600, fontSize: '0.9rem' }}>{m.username}</span>
-                        {m.role === 'leader' && <span style={{ marginLeft: '0.5rem', color: '#f59e0b', fontSize: '0.7rem' }}>👑 Lider</span>}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                          <span style={{ color: '#fff', fontWeight: 600, fontSize: '0.9rem' }}>{m.username}</span>
+                          {m.role === 'leader' && <span style={{ color: '#f59e0b', fontSize: '0.7rem' }}>👑 Lider</span>}
+                          {i === 0 && (m.weekly_focus_min || 0) > 0 && <span style={{ color: '#38bdf8', fontSize: '0.65rem', background: 'rgba(56,189,248,0.15)', padding: '2px 6px', borderRadius: '4px', border: '1px solid rgba(56,189,248,0.3)' }}>⭐ Odak Yıldızı</span>}
+                        </div>
+                        <div style={{ color: '#64748b', fontSize: '0.75rem', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <span>⏱️ {Math.floor((m.weekly_focus_min || 0) / 60)}s {(m.weekly_focus_min || 0) % 60}dk çalışma</span>
+                        </div>
                       </div>
-                      <span style={{ color: '#a78bfa', fontWeight: 700, fontSize: '0.85rem' }}>+{m.weekly_contribution} XP</span>
+                      <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                        <span style={{ color: '#a78bfa', fontWeight: 700, fontSize: '0.9rem', display: 'block' }}>+{m.weekly_contribution} XP</span>
+                      </div>
                     </div>
                   ))}
                 </div>

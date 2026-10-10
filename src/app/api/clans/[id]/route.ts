@@ -22,13 +22,20 @@ export async function GET(
     }
 
     const members = await db.prepare(`
-      SELECT cm.user_id, cm.role, cm.weekly_contribution, u.username, s.league 
+      SELECT cm.user_id, cm.role, cm.weekly_contribution, u.username, s.league,
+             COALESCE((
+               SELECT SUM(duration_min)
+               FROM focus_sessions
+               WHERE user_id = cm.user_id AND created_at >= NOW() - INTERVAL '7 days'
+             ), 0) as weekly_focus_min
       FROM clan_members cm
       JOIN users u ON cm.user_id = u.id
       LEFT JOIN user_stats s ON cm.user_id = s.user_id
       WHERE cm.clan_id = ?
       ORDER BY cm.weekly_contribution DESC
-    `).all(id);
+    `).all(id) as any[];
+
+    const totalClanFocusMinutes = members.reduce((acc, m) => acc + (Number(m.weekly_focus_min) || 0), 0);
 
     const logs = await db.prepare(`
       SELECT * FROM clan_weekly_log 
@@ -37,7 +44,16 @@ export async function GET(
       LIMIT 20
     `).all(id);
 
-    return NextResponse.json({ clan, members, logs });
+    return NextResponse.json({ 
+      clan, 
+      members, 
+      logs,
+      focusStats: {
+        totalWeeklyFocusMinutes: totalClanFocusMinutes,
+        weeklyGoalMinutes: 3000,
+        chestTier: totalClanFocusMinutes >= 3000 ? 'gold' : totalClanFocusMinutes >= 1800 ? 'silver' : totalClanFocusMinutes >= 900 ? 'bronze' : 'none'
+      }
+    });
   } catch (error) {
     console.error('Clan Detail GET Error:', error);
     return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });
