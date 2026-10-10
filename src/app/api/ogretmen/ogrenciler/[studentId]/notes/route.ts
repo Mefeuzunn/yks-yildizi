@@ -13,10 +13,14 @@ async function ensureNotesTable() {
         student_id TEXT NOT NULL,
         note TEXT NOT NULL,
         category TEXT DEFAULT 'genel',
+        is_shared_with_parent BOOLEAN DEFAULT true,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `).run();
+    try {
+      await db.prepare("ALTER TABLE teacher_student_notes ADD COLUMN IF NOT EXISTS is_shared_with_parent BOOLEAN DEFAULT true").run();
+    } catch (_) {}
   } catch (e) {
     console.error('Error ensuring teacher_student_notes table:', e);
   }
@@ -40,7 +44,7 @@ export async function GET(
     await ensureNotesTable();
 
     const notes = await db.prepare(`
-      SELECT id, teacher_id, student_id, note, category, created_at, updated_at
+      SELECT id, teacher_id, student_id, note, category, is_shared_with_parent, created_at, updated_at
       FROM teacher_student_notes
       WHERE teacher_id = ? AND student_id = ?
       ORDER BY created_at DESC
@@ -69,7 +73,7 @@ export async function POST(
     if (!studentId) return NextResponse.json({ error: 'Öğrenci ID gerekli' }, { status: 400 });
 
     const body = await req.json();
-    const { note, category = 'genel' } = body;
+    const { note, category = 'genel', isSharedWithParent = true } = body;
 
     if (!note || !note.trim()) {
       return NextResponse.json({ error: 'Not içeriği boş olamaz' }, { status: 400 });
@@ -78,10 +82,10 @@ export async function POST(
     await ensureNotesTable();
 
     const createdNote = await db.prepare(`
-      INSERT INTO teacher_student_notes (teacher_id, student_id, note, category)
-      VALUES (?, ?, ?, ?)
-      RETURNING id, teacher_id, student_id, note, category, created_at, updated_at
-    `).get(teacherId, studentId, note.trim(), category || 'genel');
+      INSERT INTO teacher_student_notes (teacher_id, student_id, note, category, is_shared_with_parent)
+      VALUES (?, ?, ?, ?, ?)
+      RETURNING id, teacher_id, student_id, note, category, is_shared_with_parent, created_at, updated_at
+    `).get(teacherId, studentId, note.trim(), category || 'genel', isSharedWithParent !== false);
 
     return NextResponse.json({ success: true, note: createdNote }, { status: 201 });
   } catch (e: any) {

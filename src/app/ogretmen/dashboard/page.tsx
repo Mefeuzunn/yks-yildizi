@@ -500,6 +500,186 @@ function ClassMockExamAnalyticsWidget({ classId }: { classId: string | null }) {
   );
 }
 
+function ClassroomLivePulseWidget({ onSelectStudent }: { onSelectStudent?: (studentId: string) => void }) {
+  const [pulseData, setPulseData] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [cheeringId, setCheeringId] = React.useState<string | null>(null);
+
+  const fetchPulse = React.useCallback(async (isInitial = false) => {
+    if (isInitial) setLoading(true);
+    try {
+      const res = await fetch('/api/ogretmen/live-pulse');
+      if (res.ok) {
+        const d = await res.json();
+        setPulseData(d);
+      }
+    } catch (_) {}
+    finally {
+      if (isInitial) setLoading(false);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    fetchPulse(true);
+    const interval = setInterval(() => {
+      if (!document.hidden) fetchPulse(false);
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [fetchPulse]);
+
+  const handleSendCheer = async (studentId: string, studentName: string, cheerType: string) => {
+    setCheeringId(`${studentId}_${cheerType}`);
+    try {
+      const res = await fetch('/api/ogretmen/live-pulse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId, cheerType })
+      });
+      const d = await res.json();
+      if (res.ok && d.success) {
+        toast.success(`👏 ${studentName} adlı öğrenciye canlı motivasyon iletildi!`);
+      } else {
+        toast.error(d.error || 'İletilemedi');
+      }
+    } catch (_) {
+      toast.error('Bağlantı hatası oluştu');
+    } finally {
+      setCheeringId(null);
+    }
+  };
+
+  const activeStudents = pulseData?.activeStudents || [];
+  const activeCount = pulseData?.activeCount || 0;
+
+  return (
+    <div style={{
+      background: 'rgba(15, 21, 35, 0.75)',
+      border: '1px solid rgba(16, 185, 129, 0.3)',
+      borderRadius: '18px',
+      padding: '1.5rem',
+      marginBottom: '1.5rem',
+      backdropFilter: 'blur(16px)',
+      boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)',
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
+      <div style={{ position: 'absolute', top: 0, right: 0, width: 200, height: 200, background: 'radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 38, height: 38, borderRadius: 10, background: 'linear-gradient(135deg, #10b981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, boxShadow: '0 0 16px rgba(16,185,129,0.4)' }}>
+            📡
+          </div>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <h3 style={{ color: '#fff', fontWeight: 800, margin: 0, fontSize: 16 }}>Canlı Sınıf Nabzı</h3>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '2px 8px', borderRadius: 12, background: 'rgba(16,185,129,0.2)', color: '#34d399', fontSize: 11, fontWeight: 700 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981', display: 'inline-block' }} />
+                Canlı İzleme
+              </span>
+            </div>
+            <p style={{ color: '#94a3b8', fontSize: 12, margin: '2px 0 0' }}>Şu an ders çalışma odalarında aktif olan öğrencileriniz ve odak süreleri</p>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ padding: '4px 12px', borderRadius: 20, background: activeCount > 0 ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${activeCount > 0 ? 'rgba(16,185,129,0.35)' : 'rgba(255,255,255,0.1)'}`, color: activeCount > 0 ? '#34d399' : '#94a3b8', fontSize: 12, fontWeight: 700 }}>
+            {activeCount > 0 ? `🟢 ${activeCount} Öğrenci Masada` : '⚪ Şu an aktif öğrenci yok'}
+          </span>
+          <button
+            onClick={() => fetchPulse(false)}
+            title="Yenile"
+            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', borderRadius: 8, padding: '6px 10px', fontSize: 12, cursor: 'pointer' }}
+          >
+            🔄
+          </button>
+        </div>
+      </div>
+
+      {loading ? (
+        <div style={{ padding: 24, textAlign: 'center', color: '#64748b', fontSize: 13 }}>Canlı sınıf nabzı taranıyor...</div>
+      ) : activeStudents.length === 0 ? (
+        <div style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: 12, border: '1px dashed rgba(255,255,255,0.08)', textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>
+          Şu an hiçbir öğrenciniz çalışma odasında aktif değil. Öğrencileriniz çalışma başlattığında anlık olarak burada listelenecektir.
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
+          {activeStudents.map((st: any) => (
+            <div
+              key={st.student_id}
+              style={{
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(16,185,129,0.25)',
+                borderRadius: 12,
+                padding: '12px 14px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                gap: 10,
+                transition: 'border-color 0.2s'
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <button
+                    onClick={() => onSelectStudent?.(st.student_id)}
+                    style={{ background: 'none', border: 'none', padding: 0, color: '#fff', fontWeight: 800, fontSize: 14, cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 6 }}
+                  >
+                    <span>{st.username}</span>
+                    <span style={{ fontSize: 11, color: '#38bdf8', background: 'rgba(56,189,248,0.1)', padding: '1px 6px', borderRadius: 4 }}>
+                      {st.class_name}
+                    </span>
+                  </button>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#34d399', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: 10 }}>
+                    {st.elapsed_minutes} dk
+                  </span>
+                </div>
+                <div style={{ color: '#cbd5e1', fontSize: 12, fontWeight: 600 }}>
+                  📚 {st.subject} {st.topic ? `· ${st.topic}` : ''}
+                </div>
+              </div>
+
+              {/* Quick Cheer Action */}
+              <div style={{ display: 'flex', gap: 6, borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 8 }}>
+                {[
+                  { key: 'clap', icon: '👏', label: 'Tebrik' },
+                  { key: 'fire', icon: '🔥', label: 'Harikasın' },
+                  { key: 'rocket', icon: '🚀', label: 'Devam' },
+                ].map(action => (
+                  <button
+                    key={action.key}
+                    disabled={cheeringId === `${st.student_id}_${action.key}`}
+                    onClick={() => handleSendCheer(st.student_id, st.username, action.key)}
+                    style={{
+                      flex: 1,
+                      padding: '4px 6px',
+                      borderRadius: 6,
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      color: '#94a3b8',
+                      fontSize: 11,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 4,
+                      transition: 'all 0.15s'
+                    }}
+                  >
+                    <span>{action.icon}</span>
+                    <span>{action.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 
 function TeacherProfileTab() {
   const { logout } = useAuth();
@@ -853,6 +1033,7 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
   const [loadingNotes, setLoadingNotes] = React.useState(false);
   const [newNoteText, setNewNoteText] = React.useState('');
   const [newNoteCategory, setNewNoteCategory] = React.useState('rehberlik');
+  const [isSharedWithParent, setIsSharedWithParent] = React.useState(true);
   const [savingNote, setSavingNote] = React.useState(false);
   const [deletingNoteId, setDeletingNoteId] = React.useState<string | null>(null);
   const [confirmDeleteNoteId, setConfirmDeleteNoteId] = React.useState<string | null>(null);
@@ -951,7 +1132,11 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
       const res = await fetch(`/api/ogretmen/ogrenciler/${studentId}/notes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ note: newNoteText.trim(), category: newNoteCategory }),
+        body: JSON.stringify({
+          note: newNoteText.trim(),
+          category: newNoteCategory,
+          isSharedWithParent
+        }),
       });
       if (res.ok) {
         toast.success('Öğretmen notu kaydedildi.');
@@ -1862,7 +2047,7 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
                     fontSize: '0.82rem'
                   }}>
                     <BrainCircuit size={18} color="#818cf8" style={{ flexShrink: 0 }} />
-                    <span>Bu alandaki rehberlik ve takip notları yalnızca sizin tarafınızdan görüntülenebilir. Öğrenci veya veli bu notları göremez.</span>
+                    <span>Öğrencinin güçlü ve eksik yönleri, deneme analizi veya motivasyonu hakkında not kaydedin. "Veli İle Paylaş" seçeneğini işaretlerseniz not veli takip portalına otomatik yansıtılır.</span>
                   </div>
 
                   {/* Yeni Not Ekleme Kartı */}
@@ -1919,7 +2104,19 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
                       }}
                     />
 
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, flexWrap: 'wrap', gap: 10 }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', userSelect: 'none' }}>
+                        <input
+                          type="checkbox"
+                          checked={isSharedWithParent}
+                          onChange={e => setIsSharedWithParent(e.target.checked)}
+                          style={{ width: 16, height: 16, accentColor: '#10b981', cursor: 'pointer' }}
+                        />
+                        <span style={{ fontSize: '0.82rem', color: isSharedWithParent ? '#34d399' : '#94a3b8', fontWeight: 600 }}>
+                          👨‍👩‍👧 Veli İle Paylaş (Veli Takip Portalında Görüntülensin)
+                        </span>
+                      </label>
+
                       <button
                         onClick={handleAddNote}
                         disabled={savingNote || !newNoteText.trim()}
@@ -1989,7 +2186,7 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
                               }}
                             >
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                                   <span style={{
                                     fontSize: '0.72rem',
                                     fontWeight: 700,
@@ -2000,6 +2197,17 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
                                     border: `1px solid ${meta.col}35`
                                   }}>
                                     {meta.label}
+                                  </span>
+                                  <span style={{
+                                    fontSize: '0.7rem',
+                                    fontWeight: 700,
+                                    padding: '2px 8px',
+                                    borderRadius: 6,
+                                    background: n.is_shared_with_parent !== false ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.05)',
+                                    color: n.is_shared_with_parent !== false ? '#34d399' : '#64748b',
+                                    border: `1px solid ${n.is_shared_with_parent !== false ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.08)'}`
+                                  }}>
+                                    {n.is_shared_with_parent !== false ? '👨‍👩‍👧 Veli Görüyor' : '🔒 Sadece Öğretmen'}
                                   </span>
                                   <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
                                     {new Date(n.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
@@ -3059,6 +3267,9 @@ function TeacherDashboardContent() {
               <StatCard label="Ortalama Başarı" value={`%${(stats?.avgSuccess ?? 0).toFixed(1)}`} icon={TrendingUp} color="#10b981" />
               <StatCard label="Yaklaşan Teslim" value={stats?.upcomingDeadlines?.length ?? 0} icon={Clock} color="#f43f5e" sub="7 gün içinde" />
             </div>
+
+            {/* Canlı Sınıf Nabzı (Live Classroom Pulse) */}
+            <ClassroomLivePulseWidget onSelectStudent={(id) => setSelectedStudentId(id)} />
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem', marginBottom: '1.5rem' }}>
 

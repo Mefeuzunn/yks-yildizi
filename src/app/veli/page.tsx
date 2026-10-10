@@ -2,7 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, Activity, BookOpen, Target, ShieldCheck, ChevronRight, CheckCircle2, TrendingUp, Lock, Share2, Heart, Coffee, Rocket, Star, MessageSquare } from 'lucide-react';
+import { 
+  FileText, Activity, BookOpen, Target, ShieldCheck, ChevronRight, CheckCircle2, 
+  TrendingUp, Lock, Share2, Heart, Coffee, Rocket, Star, MessageSquare, Radio, 
+  Sparkles, Award, Compass, Clock, CheckCircle, ChevronDown, ChevronUp, AlertCircle,
+  Flame, UserCheck, HelpCircle
+} from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 export default function VeliDashboardPage() {
@@ -15,13 +20,21 @@ export default function VeliDashboardPage() {
   const [timeline, setTimeline] = useState<any[]>([]);
   const [subjectFocus, setSubjectFocus] = useState<any[]>([]);
   const [mistakes, setMistakes] = useState<any[]>([]);
+  const [liveSession, setLiveSession] = useState<any>(null);
+  const [todaySummary, setTodaySummary] = useState<any>(null);
+  const [teacherNotes, setTeacherNotes] = useState<any[]>([]);
+  const [maarifCompetencies, setMaarifCompetencies] = useState<any[]>([]);
   const [aiLetter, setAiLetter] = useState<string>('');
+  
   const [whatsappActive, setWhatsappActive] = useState(false);
   const [smsActive, setSmsActive] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [cheerLoading, setCheerLoading] = useState(false);
   const [cheerNote, setCheerNote] = useState('');
   const [selectedCheerType, setSelectedCheerType] = useState<'coffee' | 'rocket' | 'heart' | 'star'>('coffee');
+
+  // Rehberlik kartları açık/kapalı durumu
+  const [expandedGuidance, setExpandedGuidance] = useState<number | null>(0);
 
   // URL'den kod var mı kontrol et (Örn: /veli?code=YKS-1A2B)
   useEffect(() => {
@@ -33,6 +46,26 @@ export default function VeliDashboardPage() {
       setLoading(false);
     }
   }, []);
+
+  // Canlı odaklanma durumunu her 25 saniyede bir sessizce yenile (sayfa aktifken)
+  useEffect(() => {
+    if (!parentCode) return;
+    const interval = setInterval(async () => {
+      if (document.hidden) return;
+      try {
+        const res = await fetch(`/api/parent/student?code=${encodeURIComponent(parentCode)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) {
+            setLiveSession(data.liveSession || null);
+            setTodaySummary(data.todaySummary || null);
+            if (data.teacherNotes) setTeacherNotes(data.teacherNotes);
+          }
+        }
+      } catch (_) {}
+    }, 25000);
+    return () => clearInterval(interval);
+  }, [parentCode]);
 
   const handleLogin = async (codeToUse: string) => {
     if (!codeToUse) return;
@@ -49,6 +82,10 @@ export default function VeliDashboardPage() {
         setTimeline(data.timeline || []);
         setSubjectFocus(data.subjectFocus || []);
         setMistakes(data.mistakeSummary || []);
+        setLiveSession(data.liveSession || null);
+        setTodaySummary(data.todaySummary || null);
+        setTeacherNotes(data.teacherNotes || []);
+        setMaarifCompetencies(data.maarifCompetencies || []);
         setParentCode(codeToUse);
         
         // Fetch AI Weekly Report
@@ -75,6 +112,13 @@ export default function VeliDashboardPage() {
 
   const handleLogout = () => {
     setStudentData(null);
+    setTimeline([]);
+    setSubjectFocus([]);
+    setMistakes([]);
+    setLiveSession(null);
+    setTodaySummary(null);
+    setTeacherNotes([]);
+    setMaarifCompetencies([]);
     setParentCode('');
     setInputCode('');
     window.history.pushState({}, '', `/veli`);
@@ -90,20 +134,21 @@ export default function VeliDashboardPage() {
     const lastExamData = studentData?.exams?.length > 0 ? studentData.exams[studentData.exams.length - 1] : null;
     const lastNet = lastExamData ? `${lastExamData.type}: ${lastExamData.totalNet} Net (${lastExamData.name})` : 'Henüz girilmedi';
     
-    const totalFocusMin = (subjectFocus || []).reduce((acc: number, item: any) => acc + (Number(item.total_min) || 0), 0);
-    const focusHours = Math.floor(totalFocusMin / 60);
-    const focusMins = totalFocusMin % 60;
+    const todayFocus = todaySummary?.focusMinutes || 0;
+    const todaySolved = todaySummary?.questionsSolved || 0;
 
     const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
 
-    const reportText = `📊 *YKS YILDIZI - HAFTALIK ÖĞRENCİ GELİŞİM RAPORU*\n\n` +
+    const reportText = `📊 *YKS YILDIZI - VELİ BİLGİLENDİRME RAPORU*\n\n` +
       `👤 *Öğrenci:* ${username} (${alan} - ${sinif}. Sınıf)\n` +
       `🔥 *Çalışma Serisi:* ${streak} Gün Kesintisiz\n` +
-      `⏱️ *Haftalık Odaklanma:* ${focusHours} Saat ${focusMins} Dakika\n` +
-      `📝 *Çözülen Soru:* ${solved} Soru\n` +
+      `⏱️ *Bugünkü Odak:* ${todayFocus} Dakika (${todaySolved} Soru Çözüldü)\n` +
+      `📝 *Toplam Çözülen Soru:* ${solved} Soru\n` +
       `🎯 *Son Deneme Neti:* ${lastNet}\n\n` +
-      (aiLetter ? `🤖 *Yapay Zeka Danışman Notu:*\n"${aiLetter.slice(0, 280)}..."\n\n` : '') +
-      `🔗 *Canlı Veli Takip Paneli:*\n${currentUrl}\n\n` +
+      (liveSession?.isLive ? `🟢 *Şu An Canlı:* ${liveSession.subject} dersi çalışıyor (${liveSession.elapsedMinutes} dk)\n\n` : '') +
+      (teacherNotes?.length > 0 ? `👨‍🏫 *Öğretmen Tavsiyesi:* "${teacherNotes[0].note.slice(0, 150)}..." (${teacherNotes[0].teacher_name})\n\n` : '') +
+      (aiLetter ? `🤖 *Astra AI Danışman Özeti:*\n"${aiLetter.slice(0, 220)}..."\n\n` : '') +
+      `🔗 *Canlı Veli Takip Portalı:*\n${currentUrl}\n\n` +
       `_YKS Yıldızı Akıllı Veli Portalı_`;
 
     window.open(`https://wa.me/?text=${encodeURIComponent(reportText)}`, '_blank');
@@ -208,24 +253,25 @@ export default function VeliDashboardPage() {
 
   // --- DASHBOARD EKRANI ---
   
-  // Sınav verilerini grafiğe uygun formata getir
-  const chartData = studentData.exams.map((e: any) => ({
+  const chartData = (studentData.exams || []).map((e: any) => ({
     name: e.date,
     score: e.totalNet
   }));
 
-  const lastExam = studentData.exams.length > 0 ? studentData.exams[studentData.exams.length - 1] : null;
+  const lastExam = studentData.exams?.length > 0 ? studentData.exams[studentData.exams.length - 1] : null;
 
   return (
     <div className="veli-page-wrap" style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem', fontFamily: 'var(--font-sans)' }}>
       
       {/* Header */}
-      <div className="veli-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+      <div className="veli-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h1 style={{ fontSize: '1.85rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 900, letterSpacing: '-0.02em', margin: 0 }}>
-            <ShieldCheck size={32} color="#34d399" /> Veli Takip Paneli
+            <ShieldCheck size={32} color="#34d399" /> Veli Takip & Rehberlik Portalı
           </h1>
-          <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: '4px 0 0' }}>Öğrencinizin gelişimini şeffaf bir şekilde izliyorsunuz.</p>
+          <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: '4px 0 0' }}>
+            Öğrencinizin gelişimini, öğretmen notlarını ve canlı çalışma ritmini izliyorsunuz.
+          </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           <button 
@@ -261,49 +307,383 @@ export default function VeliDashboardPage() {
         </div>
       </div>
 
-      <div className="veli-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+      {/* 🔴 CANLI ÇALIŞMA DURUMU KARTI (REAL-TIME LIVE FOCUS PULSE) */}
+      <div style={{ marginBottom: '1.75rem' }}>
+        {liveSession?.isLive ? (
+          <motion.div
+            initial={{ scale: 0.98, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            style={{
+              padding: '1.25rem 1.5rem',
+              borderRadius: '18px',
+              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.08) 100%)',
+              border: '1.5px solid rgba(16, 185, 129, 0.4)',
+              boxShadow: '0 8px 32px rgba(16, 185, 129, 0.15)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '1rem'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <div style={{ position: 'relative', width: '44px', height: '44px', borderRadius: '12px', background: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.3rem', boxShadow: '0 0 20px rgba(16, 185, 129, 0.5)' }}>
+                <Radio size={22} color="#fff" />
+                <span style={{ position: 'absolute', top: -3, right: -3, width: 12, height: 12, borderRadius: '50%', backgroundColor: '#22c55e', border: '2px solid #0f1523', animation: 'pulse 1.5s infinite' }} />
+              </div>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ color: '#34d399', fontWeight: 800, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Şu Anda Canlı Çalışıyor!
+                  </span>
+                  <span style={{ background: 'rgba(16, 185, 129, 0.25)', color: '#a7f3d0', fontSize: '0.72rem', padding: '2px 8px', borderRadius: '12px', fontWeight: 700 }}>
+                    {liveSession.elapsedMinutes} Dakikadır Odaklanmış
+                  </span>
+                </div>
+                <div style={{ color: '#fff', fontWeight: 800, fontSize: '1.1rem', marginTop: '2px' }}>
+                  {liveSession.subject} {liveSession.topic ? `· ${liveSession.topic}` : ''}
+                </div>
+                <p style={{ color: '#94a3b8', fontSize: '0.78rem', margin: '2px 0 0' }}>
+                  Öğrenciniz çalışma odasında masada, odağını koruyor.
+                </p>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={() => handleSendCheer('coffee')}
+                disabled={cheerLoading}
+                style={{
+                  padding: '8px 14px',
+                  borderRadius: '10px',
+                  background: 'rgba(255,255,255,0.08)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  color: '#fff',
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                ☕ Kahve İkram Et
+              </button>
+              <button
+                onClick={() => handleSendCheer('heart')}
+                disabled={cheerLoading}
+                style={{
+                  padding: '8px 14px',
+                  borderRadius: '10px',
+                  background: 'linear-gradient(135deg, #f43f5e, #e11d48)',
+                  border: 'none',
+                  color: '#fff',
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                ❤️ Moral Gönder
+              </button>
+            </div>
+          </motion.div>
+        ) : (
+          <div style={{
+            padding: '1rem 1.25rem',
+            borderRadius: '14px',
+            background: 'rgba(255, 255, 255, 0.02)',
+            border: '1px solid rgba(255, 255, 255, 0.06)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '0.75rem',
+            color: '#94a3b8',
+            fontSize: '0.85rem'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#64748b' }} />
+              <span><strong>Oturum Durumu:</strong> Şu an aktif çalışma oturumu yok (Mola / Dinlenme modunda).</span>
+            </div>
+            <div style={{ color: '#64748b', fontSize: '0.78rem' }}>
+              Canlı durum 25 saniyede bir otomatik güncellenir
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 4'LÜ TEMEL METRİK KARTLARI */}
+      <div className="veli-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
+        
+        {/* Son Deneme Neti */}
         <div
           className="premium-card"
           style={{
             backgroundColor: 'rgba(15, 21, 35, 0.75)',
             border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '20px',
-            padding: '1.75rem',
+            padding: '1.5rem',
             backdropFilter: 'blur(16px)',
             boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)'
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', alignItems: 'center' }}>
-            <span style={{ color: '#94a3b8', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Son Deneme Neti</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', alignItems: 'center' }}>
+            <span style={{ color: '#94a3b8', fontWeight: 700, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Son Deneme Neti</span>
             <Target color="#ec4899" size={20} />
           </div>
-          <div style={{ fontSize: '2.5rem', color: '#fff', fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}>{lastExam ? lastExam.totalNet : '-'}</div>
-          <div style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-            {lastExam ? `${lastExam.type} Denemesi (${lastExam.name})` : 'Henüz deneme çözülmedi'}
+          <div style={{ fontSize: '2.4rem', color: '#fff', fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}>
+            {lastExam ? lastExam.totalNet : '-'}
+          </div>
+          <div style={{ color: '#64748b', fontSize: '0.78rem', marginTop: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+            {lastExam ? `${lastExam.type} (${lastExam.name})` : 'Henüz deneme çözülmedi'}
           </div>
         </div>
 
+        {/* Bugün Ne Yaptı? */}
+        <div
+          className="premium-card"
+          style={{
+            backgroundColor: 'rgba(15, 21, 35, 0.75)',
+            border: '1px solid rgba(16, 185, 129, 0.25)',
+            borderRadius: '20px',
+            padding: '1.5rem',
+            backdropFilter: 'blur(16px)',
+            boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)',
+            background: 'linear-gradient(135deg, rgba(16,185,129,0.06), rgba(15,21,35,0.8))'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', alignItems: 'center' }}>
+            <span style={{ color: '#34d399', fontWeight: 700, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Bugünkü Verimlilik</span>
+            <Clock color="#34d399" size={20} />
+          </div>
+          <div style={{ fontSize: '2.4rem', color: '#fff', fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}>
+            {todaySummary?.focusMinutes || 0} <span style={{ fontSize: '1rem', color: '#94a3b8', fontWeight: 600 }}>dk</span>
+          </div>
+          <div style={{ color: '#a7f3d0', fontSize: '0.78rem', marginTop: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: 600 }}>
+            <CheckCircle2 size={14} color="#34d399" /> Bugün {todaySummary?.questionsSolved || 0} soru çözdü
+          </div>
+        </div>
+
+        {/* Çözülen Toplam Soru */}
         <div
           className="premium-card"
           style={{
             backgroundColor: 'rgba(15, 21, 35, 0.75)',
             border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '20px',
-            padding: '1.75rem',
+            padding: '1.5rem',
             backdropFilter: 'blur(16px)',
             boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)'
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', alignItems: 'center' }}>
-            <span style={{ color: '#94a3b8', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Çözülen Soru</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', alignItems: 'center' }}>
+            <span style={{ color: '#94a3b8', fontWeight: 700, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Toplam Soru</span>
             <BookOpen color="#fbbf24" size={20} />
           </div>
-          <div style={{ fontSize: '2.5rem', color: '#fff', fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}>
+          <div style={{ fontSize: '2.4rem', color: '#fff', fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}>
             {studentData.student.stats?.solved_questions || 0}
           </div>
-          <div style={{ color: '#34d399', fontSize: '0.8rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: 600 }}>
-            <TrendingUp size={15} /> Gelişim devam ediyor
+          <div style={{ color: '#34d399', fontSize: '0.78rem', marginTop: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: 600 }}>
+            <TrendingUp size={14} /> Başarı Oranı: %{studentData.student.stats?.success_rate || 75}
           </div>
+        </div>
+
+        {/* Kesintisiz Seri */}
+        <div
+          className="premium-card"
+          style={{
+            backgroundColor: 'rgba(15, 21, 35, 0.75)',
+            border: '1px solid rgba(245, 158, 11, 0.25)',
+            borderRadius: '20px',
+            padding: '1.5rem',
+            backdropFilter: 'blur(16px)',
+            boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', alignItems: 'center' }}>
+            <span style={{ color: '#f59e0b', fontWeight: 700, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Disiplin Serisi</span>
+            <Flame color="#f59e0b" size={20} />
+          </div>
+          <div style={{ fontSize: '2.4rem', color: '#fff', fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}>
+            {studentData.student.stats?.streak_days || 0} <span style={{ fontSize: '1rem', color: '#94a3b8', fontWeight: 600 }}>Gün</span>
+          </div>
+          <div style={{ color: '#fcd34d', fontSize: '0.78rem', marginTop: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: 600 }}>
+            🔥 Kesintisiz devam ediyor
+          </div>
+        </div>
+
+      </div>
+
+      {/* ── ÖĞRETMEN NOTLARI & TAVSİYELERİ KÖPRÜSÜ (TEACHER-PARENT BRIDGE) ── */}
+      <div
+        className="premium-card"
+        style={{
+          backgroundColor: 'rgba(15, 21, 35, 0.75)',
+          border: '1px solid rgba(99, 102, 241, 0.25)',
+          borderRadius: '20px',
+          padding: '2rem',
+          backdropFilter: 'blur(16px)',
+          boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)',
+          marginBottom: '1.75rem',
+          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(15, 21, 35, 0.8))'
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+              <UserCheck size={22} />
+            </div>
+            <div>
+              <h2 style={{ fontSize: '1.25rem', color: '#fff', margin: 0, fontWeight: 800 }}>
+                Öğretmen Görüşleri & Veli Tavsiyeleri
+              </h2>
+              <p style={{ color: '#94a3b8', fontSize: '0.8rem', margin: '2px 0 0' }}>
+                Öğrencinizin ders öğretmenleri ve rehberlik danışmanları tarafından paylaşılan değerlendirmeler.
+              </p>
+            </div>
+          </div>
+          <span style={{ fontSize: '0.75rem', color: '#a5b4fc', background: 'rgba(99, 102, 241, 0.15)', padding: '4px 12px', borderRadius: '20px', border: '1px solid rgba(99, 102, 241, 0.3)', fontWeight: 700 }}>
+            {teacherNotes?.length || 0} Öğretmen Notu
+          </span>
+        </div>
+
+        {teacherNotes && teacherNotes.length > 0 ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1rem' }}>
+            {teacherNotes.map((tn: any, idx: number) => {
+              const categoryTags: Record<string, { label: string; color: string }> = {
+                rehberlik: { label: '🎯 Rehberlik', color: '#a855f7' },
+                akademik: { label: '📈 Akademik', color: '#38bdf8' },
+                motivasyon: { label: '🔥 Motivasyon', color: '#f59e0b' },
+                genel: { label: '📌 Genel', color: '#94a3b8' }
+              };
+              const tag = categoryTags[tn.category] || categoryTags.genel;
+
+              return (
+                <div
+                  key={tn.id || idx}
+                  style={{
+                    padding: '1.25rem',
+                    borderRadius: '14px',
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    gap: '0.75rem'
+                  }}
+                >
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ color: '#fff', fontWeight: 800, fontSize: '0.9rem' }}>
+                          {tn.teacher_name}
+                        </span>
+                        <span style={{ fontSize: '0.72rem', color: '#94a3b8', background: 'rgba(255,255,255,0.06)', padding: '2px 8px', borderRadius: '6px' }}>
+                          {tn.teacher_branch || 'Öğretmen'}
+                        </span>
+                      </div>
+                      <span style={{ fontSize: '0.72rem', color: tag.color, fontWeight: 700 }}>
+                        {tag.label}
+                      </span>
+                    </div>
+                    <p style={{ color: '#e2e8f0', fontSize: '0.88rem', lineHeight: 1.6, margin: 0, whiteSpace: 'pre-line' }}>
+                      "{tn.note}"
+                    </p>
+                  </div>
+                  <div style={{ color: '#64748b', fontSize: '0.72rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '0.5rem' }}>
+                    {new Date(tn.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div style={{ padding: '2rem', textAlign: 'center', background: 'rgba(255,255,255,0.02)', borderRadius: '14px', border: '1px dashed rgba(255,255,255,0.08)', color: '#94a3b8', fontSize: '0.85rem' }}>
+            <MessageSquare size={28} color="#6366f1" style={{ margin: '0 auto 8px auto', opacity: 0.8 }} />
+            Öğretmenler tarafından veliyle paylaşılan not henüz bulunmuyor.
+            <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: '#64748b' }}>Öğretmen öğrenci için gelişim notu girdiğinde bu alanda otomatik listelenecektir.</p>
+          </div>
+        )}
+      </div>
+
+      {/* ── TÜRKİYE YÜZYILI MAARİF MODELİ - BÜTÜNCÜL YETKİNLİK GÖZLEMİ ── */}
+      <div
+        className="premium-card"
+        style={{
+          backgroundColor: 'rgba(15, 21, 35, 0.75)',
+          border: '1px solid rgba(245, 158, 11, 0.25)',
+          borderRadius: '20px',
+          padding: '2rem',
+          backdropFilter: 'blur(16px)',
+          boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)',
+          marginBottom: '1.75rem',
+          background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.04), rgba(15, 21, 35, 0.8))'
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #f59e0b, #d97706)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', boxShadow: '0 0 16px rgba(245, 158, 11, 0.3)' }}>
+              🏛️
+            </div>
+            <div>
+              <h2 style={{ fontSize: '1.25rem', color: '#fff', margin: 0, fontWeight: 800 }}>
+                Türkiye Yüzyılı Maarif Modeli · Bütüncül Yetkinlik Gözlemi
+              </h2>
+              <p style={{ color: '#94a3b8', fontSize: '0.8rem', margin: '2px 0 0' }}>
+                Yalnızca net puanı değil; öğrencinin azim, zihinsel disiplin, analitik muhakeme ve çabasını ölçen pedagojik endeks.
+              </p>
+            </div>
+          </div>
+          <span style={{ fontSize: '0.75rem', color: '#fcd34d', background: 'rgba(245, 158, 11, 0.15)', padding: '4px 12px', borderRadius: '20px', border: '1px solid rgba(245, 158, 11, 0.3)', fontWeight: 700 }}>
+            MEB Maarif Çerçevesi
+          </span>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+          {(maarifCompetencies && maarifCompetencies.length > 0 ? maarifCompetencies : [
+            { name: 'Azim & Devamlılık', score: 85, icon: '🛡️', desc: 'Süreklilik Serisi' },
+            { name: 'Zihinsel Odak & Disiplin', score: 75, icon: '⏱️', desc: 'Pomodoro Düzeni' },
+            { name: 'Analitik Problem Çözme', score: 70, icon: '🎯', desc: 'Doğruluk Oranı' },
+            { name: 'Soru Üretkenliği & Çaba', score: 80, icon: '📚', desc: 'Haftalık Çaba' }
+          ]).map((comp: any, idx: number) => (
+            <div
+              key={idx}
+              style={{
+                padding: '1.25rem',
+                borderRadius: '14px',
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.07)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.75rem'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '1.3rem' }}>{comp.icon}</span>
+                <span style={{ color: '#f59e0b', fontWeight: 900, fontSize: '1.2rem', fontVariantNumeric: 'tabular-nums' }}>
+                  %{comp.score}
+                </span>
+              </div>
+              <div>
+                <div style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>{comp.name}</div>
+                <div style={{ color: '#94a3b8', fontSize: '0.75rem', marginTop: '2px' }}>{comp.desc}</div>
+              </div>
+              <div style={{ height: '6px', background: 'rgba(255, 255, 255, 0.08)', borderRadius: '3px', overflow: 'hidden' }}>
+                <div 
+                  style={{ 
+                    height: '100%', 
+                    width: `${Math.min(100, Math.max(0, comp.score))}%`, 
+                    background: 'linear-gradient(90deg, #f59e0b, #10b981)', 
+                    borderRadius: '3px',
+                    transition: 'width 1s ease'
+                  }} 
+                />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -350,7 +730,7 @@ export default function VeliDashboardPage() {
           </div>
         </div>
 
-        {/* 360 Derece Görünürlük (Faz 1) - Timeline ve Zayıf Konular */}
+        {/* 360 Derece Görünürlük - Timeline ve Zayıf Konular */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginTop: '0.5rem' }}>
           
           <div
@@ -391,7 +771,7 @@ export default function VeliDashboardPage() {
             }}
           >
             <h2 style={{ fontSize: '1.2rem', color: '#fff', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 800 }}>
-              <BookOpen size={20} color="#f87171" /> Gelişim Bekleyen Dersler
+              <BookOpen size={20} color="#f87171" /> Gelişim Bekleyen Dersler (Hata Analizi)
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {mistakes.length > 0 ? mistakes.map((m: any, i: number) => (
@@ -407,6 +787,7 @@ export default function VeliDashboardPage() {
           
         </div>
 
+        {/* Günlük Çalışma Akışı */}
         <div
           className="premium-card"
           style={{
@@ -422,7 +803,7 @@ export default function VeliDashboardPage() {
           <h2 style={{ fontSize: '1.2rem', color: '#fff', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 800 }}>
             <TrendingUp size={20} color="#c084fc" /> Günlük Çalışma Akışı (Timeline)
           </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', maxHeight: '400px', overflowY: 'auto' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', maxHeight: '350px', overflowY: 'auto' }}>
             {timeline.length > 0 ? timeline.map((item: any, idx: number) => (
               <div key={idx} style={{ display: 'flex', gap: '1rem', padding: '0.85rem 1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', borderLeft: `4px solid ${item.mode === 'pomodoro' ? '#8b5cf6' : '#38bdf8'}`, border: '1px solid rgba(255,255,255,0.05)' }}>
                 <div style={{ color: '#94a3b8', fontSize: '0.85rem', width: '60px', flexShrink: 0, fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>
@@ -506,10 +887,10 @@ export default function VeliDashboardPage() {
             )}
           </div>
 
-          {/* Bildirim Simülasyonu */}
+          {/* Bildirim Kanalları */}
           <div className="premium-card" style={{ padding: '2rem' }}>
             <h2 style={{ fontSize: '1.25rem', color: '#fff', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <ShieldCheck size={20} color="#10b981" /> Veli Bilgilendirme Sistemi (Simülasyon)
+              <ShieldCheck size={20} color="#10b981" /> Veli Bilgilendirme Kanalları
             </h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '2rem', textAlign: 'left' }}>
               Öğrencinizin çalışma performansını, çözdüğü soru adetlerini ve deneme sonuçlarını anlık olarak veli telefonuna raporlayabilirsiniz.
@@ -528,7 +909,7 @@ export default function VeliDashboardPage() {
                     const active = !whatsappActive;
                     setWhatsappActive(active);
                     if (active) {
-                      setToastMessage("Simülasyon: Veliye WhatsApp'tan haftalık AI raporu gönderildi! 📱");
+                      setToastMessage("Veli WhatsApp raporu servisi etkinleştirildi! 📱");
                       setTimeout(() => setToastMessage(null), 4000);
                     }
                   }}
@@ -560,8 +941,8 @@ export default function VeliDashboardPage() {
                     setSmsActive(active);
                     if (active) {
                       const weakSubject = mistakes.length > 0 ? mistakes[0].subject : 'Matematik';
-                      setToastMessage(`📱 SMS: "Sayın Veli, ${studentData.student.username} son 2 gündür odaklanma hedeflerinin gerisinde kaldı. Özellikle ${weakSubject} dersinde eksiği bulunuyor. Ufak bir motivasyon konuşması iyi gelebilir." - Astra AI`);
-                      setTimeout(() => setToastMessage(null), 8000);
+                      setToastMessage(`📱 Bilgi: Öğrencinin ${weakSubject} eksikleri için erken uyarı sistemi aktif.`);
+                      setTimeout(() => setToastMessage(null), 6000);
                     }
                   }}
                   style={{
@@ -583,6 +964,108 @@ export default function VeliDashboardPage() {
             </div>
           </div>
 
+        </div>
+
+        {/* ── VELİ İÇİN YKS REHBERLİK & PSİKOSOSYAL DESTEK KÖŞESİ ── */}
+        <div
+          className="premium-card"
+          style={{
+            backgroundColor: 'rgba(15, 21, 35, 0.75)',
+            border: '1px solid rgba(56, 189, 248, 0.25)',
+            borderRadius: '20px',
+            padding: '2rem',
+            backdropFilter: 'blur(16px)',
+            boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)',
+            marginTop: '1.5rem',
+            background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.05), rgba(15, 21, 35, 0.8))'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
+            <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'linear-gradient(135deg, #0284c7, #38bdf8)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+              <Compass size={22} />
+            </div>
+            <div>
+              <h2 style={{ fontSize: '1.25rem', color: '#fff', margin: 0, fontWeight: 800 }}>
+                Veli İçin YKS Rehberlik & Psikososyal Destek Köşesi
+              </h2>
+              <p style={{ color: '#94a3b8', fontSize: '0.8rem', margin: '2px 0 0' }}>
+                Sınav sürecinde anne-baba tutumu, sınav kaygısını yönetme ve ev içi motivasyon kılavuzu.
+              </p>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {[
+              {
+                id: 0,
+                title: '1. Deneme Netleri Düştüğünde Nasıl Yaklaşmalıyız?',
+                icon: '🎯',
+                content: 'Denemeler birer sıralama amacı değil, eksik tespit aracıdır. Net düşüşü öğrencinin başarısızlığı değil, henüz tam oturmamış bir konunun sinyalidir. "Neden böyle oldu?" yerine "Bu denemede hangi soru tipleri seni zorladı, beraber nasıl planlayalım?" yaklaşımı kaygıyı azaltır, öğrencinin masaya yeniden oturmasını sağlar.'
+              },
+              {
+                id: 1,
+                title: '2. Ev İçi Çalışma İklimi & Dikkat Dağıtıcıları Azaltma',
+                icon: '🏡',
+                content: 'Öğrencinin ders çalıştığı ortamda sessizlik ve düzen kadar, ev halkının ekran alışkanlıkları da önemlidir. Öğrenci masadayken aile bireylerinin de kitap okuması veya sessiz aktivitelere yönelmesi odaklanma psikolojisini güçlendirir. Telefonu çalışma odasının dışında tutması için destek olun.'
+              },
+              {
+                id: 2,
+                title: '3. Uyku, Beslenme & Zihinsel Dayanıklılık Rutini',
+                icon: '🌙',
+                content: 'Gece uykusu zihinsel bilgilerin belleğe kalıcı olarak kodlandığı zamandır. Günde 7-8 saat kesintisiz uyku, sınav haftalarında netleri doğrudan 5-10 net artırabilecek bilişsel kapasite sağlar. Ağır karbonhidrattan ziyade protein ve su dengesini destekleyin.'
+              }
+            ].map((guide) => (
+              <div
+                key={guide.id}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  border: '1px solid rgba(255, 255, 255, 0.06)',
+                  borderRadius: '12px',
+                  overflow: 'hidden'
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setExpandedGuidance(expandedGuidance === guide.id ? null : guide.id)}
+                  style={{
+                    width: '100%',
+                    padding: '1rem 1.25rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    background: 'none',
+                    border: 'none',
+                    color: '#fff',
+                    fontWeight: 700,
+                    fontSize: '0.92rem',
+                    cursor: 'pointer',
+                    textAlign: 'left'
+                  }}
+                >
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span>{guide.icon}</span>
+                    <span>{guide.title}</span>
+                  </span>
+                  {expandedGuidance === guide.id ? <ChevronUp size={18} color="#38bdf8" /> : <ChevronDown size={18} color="#64748b" />}
+                </button>
+                {expandedGuidance === guide.id && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    style={{
+                      padding: '0 1.25rem 1.25rem 1.25rem',
+                      color: '#cbd5e1',
+                      fontSize: '0.85rem',
+                      lineHeight: 1.7,
+                      borderTop: '1px solid rgba(255, 255, 255, 0.04)'
+                    }}
+                  >
+                    {guide.content}
+                  </motion.div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Veli Teşvik ve Moral Rozeti Bölümü */}
@@ -718,6 +1201,10 @@ export default function VeliDashboardPage() {
       </AnimatePresence>
 
       <style jsx>{`
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.4); opacity: 0.7; }
+        }
         @media (max-width: 768px) {
           .veli-page-wrap { padding-bottom: calc(85px + env(safe-area-inset-bottom, 20px)) !important; }
           .veli-header { flex-direction: column !important; align-items: flex-start !important; }

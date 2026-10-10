@@ -84,6 +84,74 @@ export async function GET(req: Request) {
       } catch (_) {}
     }
 
+    // Live Focus Status: Öğrenci şu an canlı çalışıyor mu?
+    let liveSession = { isLive: false, subject: '', topic: '', mode: 'pomodoro', elapsedMin: 0, durationMin: 25, status: 'idle' };
+    try {
+      const active = await db.prepare(`
+        SELECT subject, topic, mode, duration_min, time_left_sec, status, started_at,
+               GREATEST(1, ROUND(EXTRACT(EPOCH FROM (NOW() - started_at)) / 60))::int as elapsed_min
+        FROM active_focus_sessions
+        WHERE user_id = ? AND last_heartbeat >= NOW() - INTERVAL '2 minutes'
+      `).get(student.id) as any;
+      if (active) {
+        liveSession = {
+          isLive: true,
+          subject: active.subject || 'Genel Odaklanma',
+          topic: active.topic || '',
+          mode: active.mode || 'pomodoro',
+          elapsedMin: Number(active.elapsed_min) || 1,
+          durationMin: Number(active.duration_min) || 25,
+          status: active.status || 'focusing',
+        };
+      }
+    } catch (_) {}
+
+    // Today Summary: Bugün kaç dakika odaklandı ve kaç soru çözdü?
+    let todaySummary = { focusMinutes: 0, solvedQuestions: 0 };
+    try {
+      const focusRow = await db.prepare(`
+        SELECT COALESCE(SUM(COALESCE(duration_min, duration_minutes, 0)), 0)::int as mins
+        FROM focus_sessions
+        WHERE user_id = ? AND DATE(COALESCE(started_at, created_at)) = CURRENT_DATE
+      `).get(student.id) as any;
+
+      const questionsRow = await db.prepare(`
+        SELECT COALESCE(SUM(questions_solved), 0)::int as solved
+        FROM daily_stats
+        WHERE user_id = ? AND date = CURRENT_DATE
+      `).get(student.id) as any;
+
+      todaySummary = {
+        focusMinutes: Number(focusRow?.mins) || 0,
+        solvedQuestions: Number(questionsRow?.solved) || 0,
+      };
+    } catch (_) {}
+
+    // Teacher Notes: Çocuğun öğretmenlerinin yazdığı ve veliyle paylaşılan notlar
+    let teacherNotes: any[] = [];
+    try {
+      teacherNotes = await db.prepare(`
+        SELECT tsn.id, tsn.note, tsn.category, tsn.created_at,
+               u.username as teacher_name, COALESCE(u.brans, 'Öğretmen') as teacher_brans
+        FROM teacher_student_notes tsn
+        JOIN users u ON tsn.teacher_id = u.id
+        WHERE tsn.student_id = ? AND (tsn.is_shared_with_parent = true OR tsn.is_shared_with_parent IS NULL)
+        ORDER BY tsn.created_at DESC
+        LIMIT 10
+      `).all(student.id) as any[];
+    } catch (_) {}
+
+    // Maarif Modeli Yetkinlik Puanları
+    const streakDays = stats?.streak_days || 0;
+    const successRate = stats?.success_rate || 70;
+    const totalSolved = stats?.solved_questions || 0;
+    const maarifCompetencies = [
+      { name: 'Çalışma Azmi & İstikrar', score: Math.min(100, Math.max(25, streakDays * 12 + 30)), icon: '🔥', desc: `${streakDays} Gün Seri` },
+      { name: 'Zihinsel Odak & Disiplin', score: Math.min(100, Math.max(30, Math.round(((todaySummary.focusMinutes || 45) / 90) * 100))), icon: '⏱️', desc: 'Pomodoro Düzeni' },
+      { name: 'Analitik Problem Çözme', score: Math.min(100, Math.max(20, Math.round(Number(successRate)))), icon: '🎯', desc: `%${successRate} Doğruluk` },
+      { name: 'Soru Üretkenliği & Çaba', score: Math.min(100, Math.max(25, Math.min(100, Math.round(totalSolved / 3)))), icon: '📚', desc: `${totalSolved} Toplam Soru` },
+    ];
+
     return NextResponse.json({
       success: true,
       student: { 
@@ -92,6 +160,10 @@ export async function GET(req: Request) {
         sinif: student.sinif, 
         stats: stats || null 
       },
+      liveSession,
+      todaySummary,
+      teacherNotes: teacherNotes || [],
+      maarifCompetencies,
       exams: exams || [],
       timeline: timeline || [],
       subjectFocus: subjectFocus || [],
