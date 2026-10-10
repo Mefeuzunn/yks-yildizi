@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LineChart as LucideLineChart, Plus, BarChart2, X, Trash2, GraduationCap, Sparkles, Loader2, Check } from 'lucide-react';
+import { LineChart as LucideLineChart, Plus, BarChart2, X, Trash2, GraduationCap, Sparkles, Loader2, Check, Target, Trophy, TrendingUp, Compass, ArrowUpRight } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
@@ -131,6 +132,7 @@ export default function DenemelerPage() {
   const [ocrMistakes, setOcrMistakes] = useState<any[]>([]);
   
   const [userAlan, setUserAlan] = useState<'Sayisal'|'Esit Agirlik'|'Sozel'|'Dil'>('Sayisal');
+  const [userTarget, setUserTarget] = useState<{ uni: string; dept: string } | null>(null);
   const [activeTab, setActiveTab] = useState<'TYT' | 'AYT'>('TYT');
   const [modalTab, setModalTab] = useState<'TYT' | 'AYT'>('TYT');
   const [isSimulatorOpen, setIsSimulatorOpen] = useState(false);
@@ -347,6 +349,12 @@ export default function DenemelerPage() {
               setUserAlan(tempAlan);
             }
           }
+          if (json.user && (json.user.target_university || json.user.target_department)) {
+            setUserTarget({
+              uni: json.user.target_university || '',
+              dept: json.user.target_department || ''
+            });
+          }
         }
 
         const examsRes = await fetch('/api/user/exams');
@@ -496,6 +504,35 @@ export default function DenemelerPage() {
   const netDiff = lastExam && previousExam ? (lastExam.totalNet - previousExam.totalNet).toFixed(1) : 0;
 
   const currentSubjects = activeTab === 'TYT' ? TYT_SUBJECTS : AYT_SUBJECTS[userAlan];
+
+  const tytExams = exams.filter(e => e.type === 'TYT');
+  const aytExams = exams.filter(e => e.type === 'AYT');
+  const latestTytNet = tytExams.length > 0 ? tytExams[tytExams.length - 1].totalNet : 0;
+  const latestAytNet = aytExams.length > 0 ? aytExams[aytExams.length - 1].totalNet : 0;
+
+  const getRankProjection = () => {
+    if (latestTytNet === 0 && latestAytNet === 0) {
+      return { rankText: 'Veri Bekleniyor', score: 0, color: '#94a3b8', badge: 'Yeni Başlayan' };
+    }
+    const rawScore = 100 + (latestTytNet * 1.33) + (latestAytNet * 3.0) + 50;
+    const score = Math.min(500, Math.round(rawScore));
+    
+    let rankText = '300.000+';
+    let color = '#f87171';
+    let badge = 'Geliştirilmeli';
+
+    if (score >= 480) { rankText = 'İlk 1.500'; color = '#10b981'; badge = 'Zirve Derece'; }
+    else if (score >= 450) { rankText = '1.500 – 8.000'; color = '#34d399'; badge = 'İlk 10 Bin'; }
+    else if (score >= 415) { rankText = '8.000 – 25.000'; color = '#38bdf8'; badge = 'Üst Dilim'; }
+    else if (score >= 375) { rankText = '25.000 – 65.000'; color = '#818cf8'; badge = 'Hedef Yakın'; }
+    else if (score >= 335) { rankText = '65.000 – 130.000'; color = '#fbbf24'; badge = 'İlerleme Var'; }
+    else if (score >= 290) { rankText = '130.000 – 220.000'; color = '#fb923c'; badge = 'Temel Düzey'; }
+    else { rankText = '220.000 – 380.000'; color = '#f87171'; badge = 'Hızlanmalı'; }
+
+    return { rankText, score, color, badge };
+  };
+
+  const rankProjection = getRankProjection();
 
   return (
     <div className="denemeler-page-wrap" style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem', fontFamily: 'var(--font-sans)' }}>
@@ -697,6 +734,110 @@ export default function DenemelerPage() {
                 </AreaChart>
               </ResponsiveContainer>
             )}
+          </div>
+        {/* YÖK Atlas YKS Tahmini Sıralama & Hedef Projeksiyon Kartı */}
+        <div
+          className="premium-card"
+          style={{
+            background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.7) 100%)',
+            border: '1px solid rgba(56, 189, 248, 0.25)',
+            borderRadius: '20px',
+            padding: '1.75rem',
+            backdropFilter: 'blur(16px)',
+            boxShadow: '0 12px 36px rgba(0, 0, 0, 0.35)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.25rem', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+              <div style={{ width: '46px', height: '46px', borderRadius: '12px', background: 'linear-gradient(135deg, #0ea5e9, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 20px rgba(14,165,233,0.3)' }}>
+                <Compass size={24} color="#fff" />
+              </div>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <h3 style={{ fontSize: '1.25rem', color: '#fff', margin: 0, fontWeight: 800 }}>YÖK Atlas Sıralama & Hedef Projeksiyonu</h3>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '2px 8px', borderRadius: '12px', background: `${rankProjection.color}20`, color: rankProjection.color, border: `1px solid ${rankProjection.color}40` }}>
+                    {rankProjection.badge}
+                  </span>
+                </div>
+                <p style={{ color: '#94a3b8', fontSize: '0.825rem', margin: '3px 0 0' }}>
+                  Son denemelerindeki netlerine göre hesaplanan tahmini ÖSYM 2026 yerleştirme tablosu.
+                </p>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <Link 
+                href="/dashboard?tab=hedef"
+                style={{ padding: '0.5rem 1rem', background: 'rgba(56, 189, 248, 0.12)', color: '#38bdf8', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '10px', fontSize: '0.825rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}
+              >
+                <Target size={15} /> Hedef Net Sihirbazı <ArrowUpRight size={13} />
+              </Link>
+              <Link 
+                href="/puan-hesaplama"
+                style={{ padding: '0.5rem 1rem', background: 'rgba(255, 255, 255, 0.05)', color: '#cbd5e1', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '10px', fontSize: '0.825rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}
+              >
+                Detaylı Hesaplayıcı
+              </Link>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+            {/* 1. Tahmini Sıralama Bandı */}
+            <div style={{ background: 'rgba(0,0,0,0.3)', padding: '1.25rem', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ fontSize: '0.78rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 700, marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Trophy size={14} color="#f59e0b" /> Tahmini Sıralama Bandı
+              </div>
+              <div style={{ fontSize: '1.6rem', color: rankProjection.color, fontWeight: 900, letterSpacing: '-0.02em' }}>
+                {rankProjection.rankText}
+              </div>
+              <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '4px' }}>
+                {userAlan} Puanı: <strong style={{ color: '#fff' }}>{rankProjection.score} Puan</strong>
+              </div>
+            </div>
+
+            {/* 2. Hedef Üniversite Durumu */}
+            <div style={{ background: 'rgba(0,0,0,0.3)', padding: '1.25rem', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ fontSize: '0.78rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 700, marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Target size={14} color="#38bdf8" /> Hedef Üniversite & Bölüm
+              </div>
+              {userTarget?.uni || userTarget?.dept ? (
+                <>
+                  <div style={{ fontSize: '1.05rem', color: '#38bdf8', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {userTarget.uni || 'Hedef Üniversite'}
+                  </div>
+                  <div style={{ fontSize: '0.85rem', color: '#c084fc', fontWeight: 600, marginTop: '2px' }}>
+                    {userTarget.dept || 'Hedef Bölüm'}
+                  </div>
+                </>
+              ) : (
+                <div style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '4px' }}>
+                  Henüz hedef belirlenmedi.{' '}
+                  <Link href="/ayarlar" style={{ color: '#38bdf8', textDecoration: 'underline' }}>
+                    Belirle →
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* 3. Mevcut Net Dengesi */}
+            <div style={{ background: 'rgba(0,0,0,0.3)', padding: '1.25rem', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ fontSize: '0.78rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 700, marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <TrendingUp size={14} color="#10b981" /> Son Deneme Netleri
+              </div>
+              <div style={{ display: 'flex', gap: '1.25rem', marginTop: '4px' }}>
+                <div>
+                  <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Son TYT</div>
+                  <div style={{ fontSize: '1.3rem', color: '#34d399', fontWeight: 800 }}>{latestTytNet} Net</div>
+                </div>
+                <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)' }} />
+                <div>
+                  <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Son AYT</div>
+                  <div style={{ fontSize: '1.3rem', color: '#38bdf8', fontWeight: 800 }}>{latestAytNet} Net</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

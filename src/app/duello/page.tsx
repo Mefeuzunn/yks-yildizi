@@ -791,22 +791,31 @@ export default function DuelloPage() {
                    </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem' }}>
-                  <Link href="/dashboard" style={{ flex: 1, textDecoration: 'none' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', marginTop: '2.5rem', flexWrap: 'wrap' }}>
+                  <Link href="/dashboard" style={{ flex: 1, minWidth: '110px', textDecoration: 'none' }}>
                     <button 
                       onClick={() => { setPhase('idle'); setDuelId(null); setWinnerId(null); setParticipants([]); setCurrentRound(1); }}
                       className="active:scale-[0.98]"
-                      style={{ width: '100%', padding: '1.1rem', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '16px', fontSize: '1rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
+                      style={{ width: '100%', padding: '1rem', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '16px', fontSize: '0.95rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
                     >
                       Ana Sayfa
+                    </button>
+                  </Link>
+                  <Link href="/hata-defteri" style={{ flex: 1, minWidth: '120px', textDecoration: 'none' }}>
+                    <button 
+                      onClick={() => { setPhase('idle'); setDuelId(null); setWinnerId(null); setParticipants([]); setCurrentRound(1); }}
+                      className="active:scale-[0.98]"
+                      style={{ width: '100%', padding: '1rem', background: 'rgba(99,102,241,0.15)', color: '#c4b5fd', border: '1px solid rgba(99,102,241,0.3)', borderRadius: '16px', fontSize: '0.95rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
+                    >
+                      📚 Hata Defteri
                     </button>
                   </Link>
                   <button 
                     onClick={() => { setPhase('idle'); setDuelId(null); setWinnerId(null); setParticipants([]); setCurrentRound(1); setTimeout(startMatchmaking, 400); }}
                     className="active:scale-[0.98]"
-                    style={{ flex: 1, padding: '1.1rem', background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)', color: '#fff', border: 'none', borderRadius: '16px', fontSize: '1rem', fontWeight: 800, cursor: 'pointer', boxShadow: '0 8px 25px rgba(239, 68, 68, 0.45)', transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
+                    style={{ flex: 1, minWidth: '130px', padding: '1rem', background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)', color: '#fff', border: 'none', borderRadius: '16px', fontSize: '0.95rem', fontWeight: 800, cursor: 'pointer', boxShadow: '0 8px 25px rgba(239, 68, 68, 0.45)', transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
                   >
-                    Tekrar Oyna
+                    ⚡ Tekrar Oyna
                   </button>
                 </div>
               </div>
