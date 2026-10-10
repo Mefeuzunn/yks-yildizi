@@ -25,12 +25,26 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
   const [activeSideTab, setActiveSideTab] = useState<'chat' | 'users'>('chat');
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [focusToast, setFocusToast] = useState<string | null>(null);
+  const [completedSessionModal, setCompletedSessionModal] = useState<{
+    minutes: number;
+    xpGained: number;
+    subject: string;
+    roomName: string;
+  } | null>(null);
+
+  // Focus Time Tracking Refs (exact seconds focused without drift)
+  const accumulatedFocusSecondsRef = useRef<number>(0);
+  const userSubjectRef = useRef<string>('AYT Matematik');
   
   // Virtual Library Seating & Stage
   const [viewMode, setViewMode] = useState<'library' | 'clock'>('library');
   const [mySeatId, setMySeatId] = useState<string | null>(null);
   const [userSubject, setUserSubject] = useState<string>('AYT Matematik');
   const [avatarConfig, setAvatarConfig] = useState<any>(null);
+
+  useEffect(() => {
+    userSubjectRef.current = userSubject;
+  }, [userSubject]);
   
   const chatRef = useRef<HTMLDivElement>(null);
   const mobileChatRef = useRef<HTMLDivElement>(null);
@@ -345,11 +359,124 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
     }
   }, []);
 
-  // Timer Tick
+  // Save Focus Session to DB (/api/user/focus) & Update Daily Study Time
+  const saveFocusSession = useCallback(async (durationMinutes: number, showModal = false) => {
+    if (durationMinutes < 1) return;
+    accumulatedFocusSecondsRef.current = 0;
+
+    try {
+      const sessionId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `room-${Date.now()}`;
+      const res = await fetch('/api/user/focus', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: sessionId,
+          subject: userSubjectRef.current || 'Genel Çalışma',
+          topic: roomMeta.name,
+          taskName: `${roomMeta.name} - Sanal Kütüphane`,
+          mode: 'pomodoro',
+          durationMin: durationMinutes,
+          questionsSolved: 0,
+          completedAt: new Date().toISOString(),
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        haptics.notification('success');
+        if (showModal) {
+          setCompletedSessionModal({
+            minutes: durationMinutes,
+            xpGained: 25,
+            subject: userSubjectRef.current || 'Genel Çalışma',
+            roomName: roomMeta.name,
+          });
+        } else {
+          setFocusToast(`🎯 Harika! ${durationMinutes} dk odaklanma süren ve +25 XP günlük sürene eklendi!`);
+          setTimeout(() => setFocusToast(null), 4500);
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to save room focus session:', err);
+    }
+  }, [roomMeta.name]);
+
+  // Live Focus Heartbeat Sync with Teacher & Live Presence Dashboard
+  useEffect(() => {
+    if (!user) return;
+    let isAlive = true;
+
+    const sendLiveHeartbeat = (action = 'heartbeat') => {
+      if (typeof document !== 'undefined' && document.hidden) return;
+      fetch('/api/user/focus/live', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action,
+          subject: userSubjectRef.current || 'Genel Çalışma',
+          topic: roomMeta.name,
+          mode: 'pomodoro',
+          status: timerActive ? 'focusing' : (mySeatId ? 'break' : 'paused'),
+          durationMin: Math.max(1, Math.round(initialTime / 60)),
+          timeLeftSec: timeLeft,
+        }),
+      }).catch(() => {});
+    };
+
+    // Send heartbeat immediately if seated or timer is running
+    if (mySeatId || timerActive) {
+      sendLiveHeartbeat('heartbeat');
+    }
+
+    const liveInterval = setInterval(() => {
+      if (isAlive && (mySeatId || timerActive)) {
+        sendLiveHeartbeat('heartbeat');
+      }
+    }, 45000);
+
+    return () => {
+      isAlive = false;
+      clearInterval(liveInterval);
+    };
+  }, [user, mySeatId, timerActive, roomMeta.name, initialTime, timeLeft]);
+
+  // BeforeUnload & Unmount Persistence: Save any remaining focused minutes and stop live session
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      const seconds = accumulatedFocusSecondsRef.current;
+      const mins = Math.floor(seconds / 60);
+      if (mins >= 1) {
+        const body = JSON.stringify({
+          id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `room-${Date.now()}`,
+          subject: userSubjectRef.current || 'Genel Çalışma',
+          topic: roomMeta.name,
+          taskName: `${roomMeta.name} - Sanal Kütüphane`,
+          mode: 'pomodoro',
+          durationMin: mins,
+          questionsSolved: 0,
+          completedAt: new Date().toISOString(),
+        });
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon('/api/user/focus', new Blob([body], { type: 'application/json' }));
+        }
+      }
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon('/api/user/focus/live', new Blob([JSON.stringify({ action: 'stop' })], { type: 'application/json' }));
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      handleBeforeUnload();
+    };
+  }, [roomMeta.name]);
+
+  // Timer Tick & Focus Seconds Tracking
   useEffect(() => {
     let interval: any = null;
     if (timerActive && timeLeft > 0) {
       interval = setInterval(() => {
+        accumulatedFocusSecondsRef.current += 1;
         setTimeLeft(prev => {
           if (prev <= 1) {
             setTimerActive(false);
@@ -367,6 +494,9 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
                 body: JSON.stringify({ action: 'sit', seatId: mySeatId, status: 'break' }),
               }).catch(() => {});
             }
+            // Save completed focus session!
+            const completedMins = Math.max(1, Math.round(initialTime / 60));
+            saveFocusSession(completedMins, true);
             return 0;
           }
           return prev - 1;
@@ -376,7 +506,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
       clearInterval(interval);
     }
     return () => clearInterval(interval);
-  }, [timerActive, timeLeft, id, mySeatId]);
+  }, [timerActive, timeLeft, id, mySeatId, initialTime, saveFocusSession]);
 
   const toggleTimer = () => {
     haptics.impact('light');
@@ -434,8 +564,17 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
           body: JSON.stringify({ timerState: 'paused', timeLeft }),
         }).catch(() => {});
       }
-      setFocusToast('Masadan kalktın. Odaklanma seansın duraklatıldı.');
-      setTimeout(() => setFocusToast(null), 3000);
+
+      // Save accumulated focus time to daily stats if >= 1 minute
+      const secondsSpent = accumulatedFocusSecondsRef.current;
+      const mins = Math.floor(secondsSpent / 60);
+      if (mins >= 1) {
+        saveFocusSession(mins, false);
+      } else {
+        setFocusToast('Masadan kalktın. Odaklanma seansın duraklatıldı.');
+        setTimeout(() => setFocusToast(null), 3000);
+        accumulatedFocusSecondsRef.current = 0;
+      }
     }
 
     // Instant Optimistic Update
@@ -542,6 +681,13 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
   const resetTimer = (newDuration?: number) => {
     haptics.selection();
     const duration = newDuration || initialTime;
+    const secondsSpent = accumulatedFocusSecondsRef.current;
+    const mins = Math.floor(secondsSpent / 60);
+    if (mins >= 1) {
+      saveFocusSession(mins, false);
+    } else {
+      accumulatedFocusSecondsRef.current = 0;
+    }
     setInitialTime(duration);
     setTimerActive(false);
     setTimeLeft(duration);
@@ -1152,6 +1298,82 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
         roomId={id}
         participantCount={participants.length}
       />
+
+      {/* ── Session Complete Celebration Modal ── */}
+      <AnimatePresence>
+        {completedSessionModal && (
+          <div 
+            className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4"
+            onClick={() => setCompletedSessionModal(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              onClick={e => e.stopPropagation()}
+              className="w-full max-w-md p-6 sm:p-7 rounded-3xl bg-[#0f172a] border border-emerald-500/30 shadow-[0_20px_60px_rgba(16,185,129,0.25)] text-center relative overflow-hidden"
+            >
+              {/* Top ambient glow accent */}
+              <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
+
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 mx-auto mb-4 flex items-center justify-center text-black shadow-lg">
+                <Sparkles className="w-8 h-8" />
+              </div>
+
+              <h3 className="text-xl sm:text-2xl font-black text-white mb-1">
+                Tebrikler! Odak Seansı Tamamlandı 🎉
+              </h3>
+              <p className="text-xs sm:text-sm text-gray-300 mb-5">
+                <strong className="text-emerald-400 font-extrabold">{completedSessionModal.minutes} dakikalık</strong> çalışma süren başarıyla günlük istatistiklerine kaydedildi.
+              </p>
+
+              {/* Reward Badges */}
+              <div className="grid grid-cols-2 gap-2.5 mb-5">
+                <div className="p-3 rounded-2xl bg-white/[0.04] border border-white/10 flex flex-col items-center">
+                  <span className="text-[11px] text-gray-400 font-semibold mb-0.5">Kazanılan XP</span>
+                  <span className="text-lg font-black text-amber-300">+{completedSessionModal.xpGained} XP</span>
+                </div>
+                <div className="p-3 rounded-2xl bg-white/[0.04] border border-white/10 flex flex-col items-center">
+                  <span className="text-[11px] text-gray-400 font-semibold mb-0.5">Lig Puanı</span>
+                  <span className="text-lg font-black text-emerald-400">+25 LP</span>
+                </div>
+              </div>
+
+              {/* Subject & Room Badge */}
+              <div className="px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/5 text-xs text-gray-300 mb-6 flex items-center justify-between">
+                <span className="text-gray-400">Çalışılan Ders:</span>
+                <span className="font-bold text-emerald-300">{completedSessionModal.subject}</span>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-2.5">
+                <button
+                  onClick={() => {
+                    setCompletedSessionModal(null);
+                    resetTimer(5 * 60); // 5 min break
+                    setTimerActive(true);
+                  }}
+                  className="flex-1 py-3 px-4 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95"
+                >
+                  <Coffee size={15} />
+                  <span>☕ 5 dk Mola</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setCompletedSessionModal(null);
+                    resetTimer(25 * 60);
+                    setTimerActive(true);
+                  }}
+                  className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-black text-xs sm:text-sm font-black transition-all cursor-pointer shadow-md flex items-center justify-center gap-1.5 active:scale-95"
+                >
+                  <Play size={15} className="fill-current" />
+                  <span>⚡ Yeni Seans</span>
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
