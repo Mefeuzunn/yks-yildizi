@@ -523,7 +523,7 @@ export default function PuanHesaplamaPage() {
                 </button>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px' }}>
                 <Link
                   href="/denemeler"
                   style={{
@@ -531,7 +531,7 @@ export default function PuanHesaplamaPage() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '6px',
-                    padding: '9px 12px',
+                    padding: '9px 10px',
                     borderRadius: '10px',
                     background: 'rgba(255, 255, 255, 0.04)',
                     border: '1px solid rgba(255, 255, 255, 0.08)',
@@ -547,13 +547,13 @@ export default function PuanHesaplamaPage() {
                 </Link>
 
                 <Link
-                  href="/dashboard?tab=tercih_robotu"
+                  href="/dashboard?tab=tercih-robotu"
                   style={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '6px',
-                    padding: '9px 12px',
+                    padding: '9px 10px',
                     borderRadius: '10px',
                     background: 'rgba(255, 255, 255, 0.04)',
                     border: '1px solid rgba(255, 255, 255, 0.08)',
@@ -565,6 +565,28 @@ export default function PuanHesaplamaPage() {
                   }}
                 >
                   <span>Tercih Robotu</span>
+                  <ArrowRight size={13} />
+                </Link>
+
+                <Link
+                  href="/testler"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    padding: '9px 10px',
+                    borderRadius: '10px',
+                    background: 'rgba(139, 92, 246, 0.12)',
+                    border: '1px solid rgba(139, 92, 246, 0.3)',
+                    color: '#c4b5fd',
+                    fontWeight: 700,
+                    fontSize: '0.8rem',
+                    textDecoration: 'none',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  <span>ÖSYM Testleri</span>
                   <ArrowRight size={13} />
                 </Link>
               </div>

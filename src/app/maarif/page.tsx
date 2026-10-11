@@ -55,14 +55,8 @@ export default function MaarifPortalPage() {
   // Geri Sayım Hesaplayıcı (MEB 1. Dönem 1. Ortak Yazılı Sınavları: Örn: 3 Kasım)
   const [daysLeft, setDaysLeft] = useState<number>(24);
 
-  // Güvenlik & İzolasyon: 12. Sınıf ve Mezun öğrenciler klasik YKS'ye yönlendirilir
-  useEffect(() => {
-    if (user && (user.role === 'ogrenci' || !user.role)) {
-      if (user.curriculum_mode === 'legacy_yks' || ['12', 'Mezun'].includes(user.sinif)) {
-        window.location.href = '/dashboard';
-      }
-    }
-  }, [user]);
+  // 12. Sınıf ve Mezun öğrenciler için bilgilendirici kontrol
+  const isLegacyStudent = user && (user.role === 'ogrenci' || !user.role) && (user.curriculum_mode === 'legacy_yks' || ['12', 'Mezun'].includes(user.sinif || ''));
 
   useEffect(() => {
     // Sınav hedef tarihi: 3 Kasım 2026 (veya dinamik)
@@ -164,7 +158,7 @@ export default function MaarifPortalPage() {
             ✨ MEB 2024-2025+ Müfredatı
           </span>
 
-          {user?.curriculum_mode === 'legacy_yks' && (
+          {(user?.curriculum_mode === 'legacy_yks' || isLegacyStudent) && (
             <Link
               href="/dashboard"
               style={{

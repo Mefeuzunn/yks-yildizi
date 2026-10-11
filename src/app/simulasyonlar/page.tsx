@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { getSimulations } from '@/lib/actions/simulations';
 import SimulationFilter, { Category, Subject, Difficulty } from '@/components/simulations/SimulationFilter';
@@ -145,6 +146,27 @@ export default function SimulasyonlarPage() {
             </p>
           </div>
         </div>
+
+        <Link
+          href="/testler"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '10px 18px',
+            borderRadius: '12px',
+            background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(99, 102, 241, 0.15))',
+            color: '#c4b5fd',
+            border: '1px solid rgba(139, 92, 246, 0.35)',
+            fontWeight: 700,
+            fontSize: '13px',
+            textDecoration: 'none',
+            transition: 'all 0.2s ease',
+            boxShadow: '0 4px 15px rgba(139, 92, 246, 0.15)'
+          }}
+        >
+          <Sparkles size={16} /> Fen Deney Testleri & Çıkmış Sorular &rarr;
+        </Link>
       </div>
 
       {/* ── Quick Subject Tabs ── */}

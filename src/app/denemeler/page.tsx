@@ -581,6 +581,27 @@ export default function DenemelerPage() {
           >
             <GraduationCap size={17} /> {userAlan} Alanı
           </div>
+          <Link
+            href="/testler"
+            className="active:scale-[0.98]"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.6rem 1.25rem',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(99, 102, 241, 0.2))',
+              color: '#c4b5fd',
+              border: '1px solid rgba(139, 92, 246, 0.4)',
+              fontSize: '0.875rem',
+              fontWeight: 700,
+              textDecoration: 'none',
+              boxShadow: '0 4px 14px rgba(99, 102, 241, 0.25)',
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+          >
+            <Target size={17} /> Çıkmış & Tahmin Denemeleri
+          </Link>
           <button 
             onClick={() => setIsSimulatorOpen(true)} 
             className="active:scale-[0.98] online-sim-start-btn"
@@ -626,56 +647,116 @@ export default function DenemelerPage() {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div
-        className="denemeler-tabs"
-        style={{
-          display: 'flex',
-          backgroundColor: 'rgba(15, 21, 35, 0.75)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
-          borderRadius: '14px',
-          padding: '5px',
-          marginBottom: '2rem',
-          width: 'fit-content',
-          backdropFilter: 'blur(12px)',
-        }}
-      >
-        <button 
-          onClick={() => setActiveTab('TYT')}
-          className="active:scale-[0.98]"
+      {/* Tabs & Pro Test Quick Bar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
+        <div
+          className="denemeler-tabs"
           style={{
-            padding: '0.55rem 1.75rem',
-            borderRadius: '10px',
-            fontSize: '0.875rem',
-            fontWeight: 800,
-            background: activeTab === 'TYT' ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.15))' : 'transparent',
-            color: activeTab === 'TYT' ? '#34d399' : '#94a3b8',
-            border: activeTab === 'TYT' ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid transparent',
-            cursor: 'pointer',
-            transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-            boxShadow: activeTab === 'TYT' ? '0 2px 10px rgba(16, 185, 129, 0.25)' : 'none',
+            display: 'flex',
+            backgroundColor: 'rgba(15, 21, 35, 0.75)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '14px',
+            padding: '5px',
+            width: 'fit-content',
+            backdropFilter: 'blur(12px)',
           }}
         >
-          TYT (120 Soru)
-        </button>
-        <button 
-          onClick={() => setActiveTab('AYT')}
-          className="active:scale-[0.98]"
-          style={{
-            padding: '0.55rem 1.75rem',
-            borderRadius: '10px',
-            fontSize: '0.875rem',
-            fontWeight: 800,
-            background: activeTab === 'AYT' ? 'linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(6, 182, 212, 0.15))' : 'transparent',
-            color: activeTab === 'AYT' ? '#38bdf8' : '#94a3b8',
-            border: activeTab === 'AYT' ? '1px solid rgba(56, 189, 248, 0.4)' : '1px solid transparent',
-            cursor: 'pointer',
-            transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-            boxShadow: activeTab === 'AYT' ? '0 2px 10px rgba(56, 189, 248, 0.25)' : 'none',
-          }}
-        >
-          AYT (80 Soru)
-        </button>
+          <button 
+            onClick={() => setActiveTab('TYT')}
+            className="active:scale-[0.98]"
+            style={{
+              padding: '0.55rem 1.75rem',
+              borderRadius: '10px',
+              fontSize: '0.875rem',
+              fontWeight: 800,
+              background: activeTab === 'TYT' ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.15))' : 'transparent',
+              color: activeTab === 'TYT' ? '#34d399' : '#94a3b8',
+              border: activeTab === 'TYT' ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid transparent',
+              cursor: 'pointer',
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+              boxShadow: activeTab === 'TYT' ? '0 2px 10px rgba(16, 185, 129, 0.25)' : 'none',
+            }}
+          >
+            TYT (120 Soru)
+          </button>
+          <button 
+            onClick={() => setActiveTab('AYT')}
+            className="active:scale-[0.98]"
+            style={{
+              padding: '0.55rem 1.75rem',
+              borderRadius: '10px',
+              fontSize: '0.875rem',
+              fontWeight: 800,
+              background: activeTab === 'AYT' ? 'linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(6, 182, 212, 0.15))' : 'transparent',
+              color: activeTab === 'AYT' ? '#38bdf8' : '#94a3b8',
+              border: activeTab === 'AYT' ? '1px solid rgba(56, 189, 248, 0.4)' : '1px solid transparent',
+              cursor: 'pointer',
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+              boxShadow: activeTab === 'AYT' ? '0 2px 10px rgba(56, 189, 248, 0.25)' : 'none',
+            }}
+          >
+            AYT (80 Soru)
+          </button>
+        </div>
+
+        {/* Quick Pro Studio Trials */}
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <span style={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 600 }}>Stüdyo Provası:</span>
+          <Link
+            href="/test-coz?id=osym-2024-tyt-deneme"
+            style={{
+              padding: '0.45rem 0.85rem',
+              borderRadius: '99px',
+              background: 'rgba(239, 68, 68, 0.12)',
+              border: '1px solid rgba(239, 68, 68, 0.25)',
+              color: '#fca5a5',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            🏛️ 2024 TYT
+          </Link>
+          <Link
+            href="/test-coz?id=osym-2024-ayt-mat-deneme"
+            style={{
+              padding: '0.45rem 0.85rem',
+              borderRadius: '99px',
+              background: 'rgba(56, 189, 248, 0.12)',
+              border: '1px solid rgba(56, 189, 248, 0.25)',
+              color: '#7dd3fc',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            📐 2024 AYT Mat
+          </Link>
+          <Link
+            href="/test-coz?id=pred-2025-nokta-atisi-ayt-mat"
+            style={{
+              padding: '0.45rem 0.85rem',
+              borderRadius: '99px',
+              background: 'rgba(168, 85, 247, 0.12)',
+              border: '1px solid rgba(168, 85, 247, 0.25)',
+              color: '#d8b4fe',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            🎯 2025 Tahmin
+          </Link>
+        </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem' }}>
