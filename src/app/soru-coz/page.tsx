@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, Suspense } from 'react';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -394,6 +395,28 @@ function SoruCozContent() {
               {user?.league_points || 0} Puan
             </span>
           </div>
+
+          <Link
+            href="/testler"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(99, 102, 241, 0.15))',
+              color: '#c4b5fd',
+              border: '1px solid rgba(139, 92, 246, 0.35)',
+              padding: '0.5rem 0.95rem',
+              borderRadius: '12px',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              textDecoration: 'none',
+              minHeight: '40px',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <Sparkles size={16} color="#c4b5fd" />
+            Test Havuzu & Çıkmış Sorular
+          </Link>
 
           <button 
             onClick={() => { 

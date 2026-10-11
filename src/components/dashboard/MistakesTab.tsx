@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { AlertCircle, ArrowRight, CheckCircle2, Filter, Loader2, Camera } from 'lucide-react';
+import { AlertCircle, ArrowRight, CheckCircle2, Filter, Loader2, Camera, Sparkles, BookOpen } from 'lucide-react';
+import { toast } from '@/context/ToastContext';
 import MistakeDetailModal from './MistakeDetailModal';
 import ScanMistakeModal from './ScanMistakeModal';
 
 export default function MistakesTab() {
+  const router = useRouter();
   const [mistakes, setMistakes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [selectedMistake, setSelectedMistake] = useState<any>(null);
   const [isScanModalOpen, setIsScanModalOpen] = useState(false);
+  const [studioLoading, setStudioLoading] = useState(false);
 
   const fetchErrors = async () => {
     try {
@@ -29,8 +34,83 @@ export default function MistakesTab() {
     fetchErrors();
   }, []);
 
+  const startErrorQuizInStudio = async () => {
+    setStudioLoading(true);
+    try {
+      const res = await fetch('/api/questions/error-quiz');
+      if (res.ok) {
+        const data = await res.json();
+        if (!data || data.length === 0) {
+          toast.info('Çözülecek hata sorusu bulunamadı.');
+          return;
+        }
+
+        const formattedQuestions = data.map((q: any, idx: number) => {
+          const options = q.secenekler || [];
+          const optMap: { A: string; B: string; C: string; D: string; E: string } = {
+            A: options[0] || 'Seçenek A',
+            B: options[1] || 'Seçenek B',
+            C: options[2] || 'Seçenek C',
+            D: options[3] || 'Seçenek D',
+            E: options[4] || 'Seçenek E'
+          };
+          let correctOption: 'A' | 'B' | 'C' | 'D' | 'E' = 'A';
+          const letters: ('A' | 'B' | 'C' | 'D' | 'E')[] = ['A', 'B', 'C', 'D', 'E'];
+          letters.forEach(l => {
+            if (optMap[l] === q.dogruCevap) correctOption = l;
+          });
+
+          return {
+            id: `mistake_q_${q.originalId || idx}`,
+            subject: q.subject || 'Genel',
+            topic: q.topic || 'Hata Tekrarı',
+            examType: 'TYT' as const,
+            difficulty: 3,
+            text: q.metin,
+            options: optMap,
+            correctOption,
+            explanation: q.cozum || 'Bu soru daha önce takıldığın konulardan seçilmiştir.',
+            hint: 'Bu soruda daha önce takılmıştın. Soru kökünü ve ipuçlarını dikkatle oku.'
+          };
+        });
+
+        const customId = 'mistakes_' + Date.now();
+        const customPayload = {
+          id: customId,
+          title: 'Akıllı Hata Kapatma Denemesi',
+          category: 'procedural',
+          examType: 'TYT',
+          subject: 'Hata Defteri',
+          topic: 'Kişisel Hatalar',
+          questionCount: formattedQuestions.length,
+          durationMinutes: Math.max(10, Math.ceil(formattedQuestions.length * 1.5)),
+          difficultyLabel: 'ÖSYM Seviyesi',
+          badgeColor: '#ef4444',
+          description: 'Hata defterindeki sorulardan derlenmiş profesyonel pekiştirme sınavı.',
+          questions: formattedQuestions
+        };
+
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('custom_test_' + customId, JSON.stringify(customPayload));
+        }
+
+        toast.success('Hata testi stüdyoda başlatılıyor...');
+        router.push(`/test-coz?customId=${customId}`);
+      } else {
+        const err = await res.json();
+        toast.error(err.error || 'Quiz oluşturulamadı.');
+      }
+    } catch (e) {
+      toast.error('Bağlantı hatası oluştu.');
+      console.error(e);
+    } finally {
+      setStudioLoading(false);
+    }
+  };
+
   const subjects = Array.from(new Set(mistakes.map(m => m.subject)));
   const filteredMistakes = activeFilter ? mistakes.filter(m => m.subject === activeFilter) : mistakes;
+  const solvedCount = mistakes.filter(m => (m.leitnerBox || 1) > 1 || (m.reviewCount || 0) > 0).length;
 
   if (loading) {
     return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}><Loader2 className="animate-spin text-purple-500" size={32} /></div>;
@@ -43,15 +123,61 @@ export default function MistakesTab() {
           <h2 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#fff', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             ❌ Yanlışlarım (Hata Defteri)
           </h2>
-          <p style={{ color: 'rgba(255,255,255,0.4)' }}>Deneme ve testlerde yanlış yaptığınız veya boş bıraktığınız sorular burada listelenir. Tekrar çözerek kalıcı öğrenme sağlayın.</p>
+          <p style={{ color: 'rgba(255,255,255,0.4)', margin: 0 }}>Deneme ve testlerde yanlış yaptığınız veya boş bıraktığınız sorular burada listelenir. Tekrar çözerek kalıcı öğrenme sağlayın.</p>
         </div>
-        <button 
-          onClick={() => setIsScanModalOpen(true)}
-          style={{ padding: '12px 20px', backgroundColor: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.3)', borderRadius: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', transition: 'all 0.2s' }}
-          className="hover:bg-purple-500/25"
-        >
-          <Camera size={20} /> Fotoğraftan Ekle
-        </button>
+        
+        <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          {mistakes.length > 0 && (
+            <button
+              onClick={startErrorQuizInStudio}
+              disabled={studioLoading}
+              style={{
+                padding: '10px 18px',
+                background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '12px',
+                fontWeight: 700,
+                fontSize: '0.88rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                cursor: studioLoading ? 'not-allowed' : 'pointer',
+                boxShadow: '0 4px 16px rgba(99,102,241,0.35)',
+                opacity: studioLoading ? 0.7 : 1
+              }}
+            >
+              <Sparkles size={18} /> {studioLoading ? 'Açılıyor...' : 'Stüdyoda Çöz (ÖSYM Modu)'}
+            </button>
+          )}
+
+          <Link
+            href="/hata-defteri"
+            style={{
+              padding: '10px 16px',
+              backgroundColor: 'rgba(255,255,255,0.06)',
+              color: '#e2e8f0',
+              border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: '12px',
+              fontWeight: 600,
+              fontSize: '0.88rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              textDecoration: 'none'
+            }}
+          >
+            <BookOpen size={17} /> Leitner Defteri
+          </Link>
+
+          <button 
+            onClick={() => setIsScanModalOpen(true)}
+            style={{ padding: '10px 16px', backgroundColor: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.3)', borderRadius: '12px', fontWeight: 600, fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', transition: 'all 0.2s' }}
+            className="hover:bg-purple-500/25"
+          >
+            <Camera size={18} /> Fotoğraftan Ekle
+          </button>
+        </div>
       </div>
 
       <div className="mistakes-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
@@ -69,8 +195,8 @@ export default function MistakesTab() {
             <CheckCircle2 size={24} />
           </div>
           <div>
-            <div style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', lineHeight: 1 }}>0</div>
-            <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', marginTop: '0.25rem' }}>TEKRAR ÇÖZÜLEN</div>
+            <div style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', lineHeight: 1 }}>{solvedCount}</div>
+            <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', marginTop: '0.25rem' }}>TEKRAR ÇÖZÜLEN / PEKİŞEN</div>
           </div>
         </div>
       </div>

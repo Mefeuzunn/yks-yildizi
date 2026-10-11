@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from '@/context/ToastContext';
+import { useRouter } from 'next/navigation';
 
 type Mistake = {
   id: number;
@@ -36,6 +37,7 @@ const LEITNER_BOX_INFO = [
 ];
 
 export default function HataDefteriPage() {
+  const router = useRouter();
   const [mistakes, setMistakes] = useState<Mistake[]>([]);
   const [filteredMistakes, setFilteredMistakes] = useState<Mistake[]>([]);
   const [activeFilter, setActiveFilter] = useState<string>('Tümü');
@@ -110,6 +112,84 @@ export default function HataDefteriPage() {
     } catch (e) {
       console.error(e);
       toast.error('Silinirken hata oluştu.');
+    }
+  };
+
+  // Start AI Exam from mistakes in Pro Test Studio (/test-coz)
+  const startErrorQuizInStudio = async (dueOnly = false) => {
+    try {
+      const res = await fetch('/api/questions/error-quiz');
+      if (res.ok) {
+        let data = await res.json();
+        if (dueOnly) {
+          const dueIds = new Set(mistakes.filter(m => m.isDue).map(m => m.id));
+          const filtered = data.filter((q: any) => dueIds.has(q.originalId));
+          if (filtered.length > 0) data = filtered;
+        }
+
+        if (!data || data.length === 0) {
+          toast.info('Çözülecek hata sorusu bulunamadı.');
+          return;
+        }
+
+        const formattedQuestions = data.map((q: any, idx: number) => {
+          const options = q.secenekler || [];
+          const optMap: { A: string; B: string; C: string; D: string; E: string } = {
+            A: options[0] || 'Seçenek A',
+            B: options[1] || 'Seçenek B',
+            C: options[2] || 'Seçenek C',
+            D: options[3] || 'Seçenek D',
+            E: options[4] || 'Seçenek E'
+          };
+          let correctOption: 'A' | 'B' | 'C' | 'D' | 'E' = 'A';
+          const letters: ('A' | 'B' | 'C' | 'D' | 'E')[] = ['A', 'B', 'C', 'D', 'E'];
+          letters.forEach(l => {
+            if (optMap[l] === q.dogruCevap) correctOption = l;
+          });
+
+          return {
+            id: `mistake_q_${q.originalId || idx}`,
+            subject: q.subject || 'Genel',
+            topic: q.topic || 'Hata Tekrarı',
+            examType: 'TYT' as const,
+            difficulty: 3,
+            text: q.metin,
+            options: optMap,
+            correctOption,
+            explanation: q.cozum || 'Bu soru daha önce takıldığın konulardan seçilmiştir. Adım adım inceleyerek eksiklerini kapat.',
+            hint: 'Bu soruda daha önce takılmıştın. Soru kökünü dikkatle oku ve temel kavramları hatırla.'
+          };
+        });
+
+        const customId = 'mistakes_' + Date.now();
+        const customPayload = {
+          id: customId,
+          title: dueOnly ? 'Bugün Tekrar Zamanı Gelen Hatalar' : 'Akıllı Hata Defteri Kapatma Sınavı',
+          category: 'procedural',
+          examType: 'TYT',
+          subject: 'Hata Defteri',
+          topic: dueOnly ? 'Aralıklı Tekrar' : 'Kişisel Hatalar',
+          questionCount: formattedQuestions.length,
+          durationMinutes: Math.max(10, Math.ceil(formattedQuestions.length * 1.5)),
+          difficultyLabel: 'ÖSYM Seviyesi',
+          badgeColor: '#ef4444',
+          description: 'Hata defterindeki sorulardan derlenmiş optik formlu profesyonel pekiştirme sınavı.',
+          questions: formattedQuestions
+        };
+
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('custom_test_' + customId, JSON.stringify(customPayload));
+        }
+
+        toast.success('Hata testi stüdyoda başlatılıyor...');
+        router.push(`/test-coz?customId=${customId}`);
+      } else {
+        const err = await res.json();
+        toast.error(err.error || 'Quiz oluşturulamadı.');
+      }
+    } catch (e) {
+      toast.error('Quiz başlatılırken bağlantı hatası oluştu.');
+      console.error(e);
     }
   };
 
@@ -224,13 +304,22 @@ export default function HataDefteriPage() {
         </div>
 
         {mistakes.length > 0 && (
-          <button 
-            onClick={() => startErrorQuiz(false)}
-            className="btn-interactive"
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.5rem', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', border: 'none', color: '#fff', fontWeight: 700, borderRadius: '12px', cursor: 'pointer', boxShadow: '0 4px 16px rgba(99,102,241,0.35)' }}
-          >
-            <Zap size={18} /> Tüm Hatalardan Sınav
-          </button>
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <button 
+              onClick={() => startErrorQuizInStudio(false)}
+              className="btn-interactive"
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.4rem', background: 'linear-gradient(135deg, #8b5cf6, #6366f1)', border: 'none', color: '#fff', fontWeight: 700, borderRadius: '12px', cursor: 'pointer', boxShadow: '0 4px 16px rgba(99,102,241,0.35)' }}
+            >
+              <Sparkles size={18} /> Stüdyoda Çöz (ÖSYM Modu)
+            </button>
+            <button 
+              onClick={() => startErrorQuiz(false)}
+              className="btn-interactive"
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.2rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: '#cbd5e1', fontWeight: 600, borderRadius: '12px', cursor: 'pointer' }}
+            >
+              <Zap size={18} /> Hızlı Sınav
+            </button>
+          </div>
         )}
       </div>
 
@@ -271,25 +360,46 @@ export default function HataDefteriPage() {
                 </div>
               </div>
 
-              <button
-                onClick={() => startErrorQuiz(true)}
-                style={{
-                  padding: '0.7rem 1.4rem',
-                  borderRadius: '10px',
-                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                  color: '#fff',
-                  border: 'none',
-                  fontWeight: 700,
-                  fontSize: '0.875rem',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  boxShadow: '0 4px 14px rgba(245, 158, 11, 0.35)'
-                }}
-              >
-                <Zap size={16} /> Bugünkü Tekrarı Başlat ({dueCount} Soru)
-              </button>
+              <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                <button
+                  onClick={() => startErrorQuizInStudio(true)}
+                  style={{
+                    padding: '0.7rem 1.3rem',
+                    borderRadius: '10px',
+                    background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+                    color: '#fff',
+                    border: 'none',
+                    fontWeight: 700,
+                    fontSize: '0.875rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 4px 14px rgba(99, 102, 241, 0.35)'
+                  }}
+                >
+                  <Sparkles size={16} /> Stüdyoda Çöz ({dueCount} Soru)
+                </button>
+                <button
+                  onClick={() => startErrorQuiz(true)}
+                  style={{
+                    padding: '0.7rem 1.2rem',
+                    borderRadius: '10px',
+                    background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                    color: '#fff',
+                    border: 'none',
+                    fontWeight: 700,
+                    fontSize: '0.875rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 4px 14px rgba(245, 158, 11, 0.35)'
+                  }}
+                >
+                  <Zap size={16} /> Hızlı Tekrar
+                </button>
+              </div>
             </motion.div>
           )}
 
