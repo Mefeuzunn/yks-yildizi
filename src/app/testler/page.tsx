@@ -30,6 +30,7 @@ export default function TestlerPage() {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<TestCategory>('all');
   const [selectedSubject, setSelectedSubject] = useState<string>('all');
+  const [selectedYear, setSelectedYear] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   
   // Custom Test Builder Modal State
@@ -82,9 +83,11 @@ export default function TestlerPage() {
       const params = new URLSearchParams(window.location.search);
       const sub = params.get('subject');
       const cat = params.get('category');
+      const yr = params.get('year');
       const tab = params.get('tab');
       if (sub) setSelectedSubject(sub);
       if (cat) setSelectedCategory(cat as TestCategory);
+      if (yr) setSelectedYear(yr);
       if (tab === 'history') setMainView('history');
     }
   }, []);
@@ -117,11 +120,12 @@ export default function TestlerPage() {
   const filteredSuites = testSuites.filter(suite => {
     const matchesCategory = selectedCategory === 'all' || suite.category === selectedCategory;
     const matchesSubject = selectedSubject === 'all' || suite.subject.toLowerCase().includes(selectedSubject.toLowerCase());
+    const matchesYear = selectedYear === 'all' || (suite.year && suite.year.toString() === selectedYear);
     const matchesSearch = !searchQuery || 
       suite.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
       suite.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       suite.subject.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSubject && matchesSearch;
+    return matchesCategory && matchesSubject && matchesYear && matchesSearch;
   });
 
   const availableTopics = customForm.subject && YKS_CURRICULUM_TAXONOMY[customForm.subject]
@@ -481,6 +485,62 @@ export default function TestlerPage() {
                   }}
                 >
                   <span>{tab.icon}</span> {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Year Quick Filter Bar (2018 - 2026) */}
+            <div style={{ display: 'flex', gap: '0.45rem', overflowX: 'auto', paddingBottom: '4px', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 800, marginRight: '4px', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Calendar size={13} color="#818cf8" /> Sınav Yılı:
+              </span>
+              {[
+                { id: 'all', label: 'Tüm Yıllar' },
+                { id: '2026', label: '2026 Maarif', badge: 'Vizyon' },
+                { id: '2025', label: '2025 Tahmin', badge: 'Trend' },
+                { id: '2024', label: '2024', badge: 'Çıkmış' },
+                { id: '2023', label: '2023', badge: 'Çıkmış' },
+                { id: '2022', label: '2022', badge: 'Çıkmış' },
+                { id: '2021', label: '2021', badge: 'Zor Sınav' },
+                { id: '2020', label: '2020', badge: 'Pandemi' },
+                { id: '2019', label: '2019', badge: 'Çıkmış' },
+                { id: '2018', label: '2018', badge: 'İlk YKS' },
+              ].map(yr => (
+                <button
+                  key={yr.id}
+                  onClick={() => {
+                    haptics.selection();
+                    setSelectedYear(yr.id);
+                  }}
+                  style={{
+                    padding: '0.38rem 0.8rem',
+                    borderRadius: '8px',
+                    border: selectedYear === yr.id ? '1px solid rgba(99, 102, 241, 0.5)' : '1px solid rgba(255, 255, 255, 0.08)',
+                    background: selectedYear === yr.id ? 'rgba(99, 102, 241, 0.25)' : 'rgba(255, 255, 255, 0.03)',
+                    color: selectedYear === yr.id ? '#c7d2fe' : '#94a3b8',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  {yr.label}
+                  {yr.badge && (
+                    <span style={{
+                      fontSize: '0.62rem',
+                      fontWeight: 800,
+                      padding: '1px 5px',
+                      borderRadius: '4px',
+                      background: selectedYear === yr.id ? 'rgba(99, 102, 241, 0.4)' : 'rgba(255, 255, 255, 0.08)',
+                      color: selectedYear === yr.id ? '#fff' : '#64748b'
+                    }}>
+                      {yr.badge}
+                    </span>
+                  )}
                 </button>
               ))}
             </div>

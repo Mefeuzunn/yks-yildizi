@@ -377,8 +377,78 @@ export const CURATED_EXAM_QUESTIONS: ExamQuestionItem[] = [
   }
 ];
 
-// ── Hazır Test Şablonları & Test Hub Katalogları ──────────────────────────────
+// ── Hazır Test Şablonları & Test Hub Katalogları (2018-2026 Tam Entegrasyon) ──────
 export const CURATED_TEST_SUITES: CuratedTestDefinition[] = [
+  // ── 2026 MEB TÜRKİYE YÜZYILI MAARİF MODELİ ──
+  {
+    id: 'pred-2026-maarif-tyt',
+    title: '2026 MEB Maarif Modeli TYT Beceri & Veri Analitiği Denemesi',
+    category: 'predicted',
+    examType: 'TYT',
+    subject: 'Tüm Dersler',
+    year: 2026,
+    questionCount: 10,
+    durationMinutes: 20,
+    difficultyLabel: 'Derece',
+    badgeColor: '#10b981',
+    description: 'Yeni Maarif Modeli uyumlu; grafik okuma, argümantasyon, hipotez test etme ve modelleme soruları.'
+  },
+  {
+    id: 'pred-2026-maarif-ayt',
+    title: '2026 MEB Maarif Modeli AYT Sayısal Vizyon Sınavı',
+    category: 'predicted',
+    examType: 'AYT',
+    subject: 'Matematik & Fen',
+    year: 2026,
+    questionCount: 10,
+    durationMinutes: 25,
+    difficultyLabel: 'Derece',
+    badgeColor: '#06b6d4',
+    description: 'Yeşil enerji optimizasyonu, nanomalzemeler, kuantum mekaniği ve biyoteknoloji senaryolu sorular.'
+  },
+
+  // ── 2025 ÖSYM TREND TAHMİN ──
+  {
+    id: 'pred-2025-tyt-genel',
+    title: '2025 ÖSYM TYT Nokta Atışı Tahmin Denemesi',
+    category: 'predicted',
+    examType: 'TYT',
+    subject: 'Tüm Dersler',
+    year: 2025,
+    questionCount: 10,
+    durationMinutes: 20,
+    difficultyLabel: 'ÖSYM Seviyesi',
+    badgeColor: '#a855f7',
+    description: 'ÖSYM\'nin son 5 yıllık soru hazırlama eğilimlerine göre hazırlanmış nokta atışı TYT tahmin paketi.'
+  },
+  {
+    id: 'pred-2025-nokta-atisi-ayt-mat',
+    title: '2025 ÖSYM AYT Matematik Nokta Atışı Tahmin Testi',
+    category: 'predicted',
+    examType: 'AYT',
+    subject: 'Matematik',
+    year: 2025,
+    questionCount: 10,
+    durationMinutes: 25,
+    difficultyLabel: 'Derece',
+    badgeColor: '#8b5cf6',
+    description: 'Limit, logaritma, türevlenebilirlik ve integralde çıkması muhtemel tuzak soru kalıpları.'
+  },
+  {
+    id: 'pred-2025-nokta-atisi-ayt-fizik',
+    title: '2025 ÖSYM AYT Fen Bilimleri Kritik Kazanım Denemesi',
+    category: 'predicted',
+    examType: 'AYT',
+    subject: 'Fizik & Kimya & Biyoloji',
+    year: 2025,
+    questionCount: 10,
+    durationMinutes: 20,
+    difficultyLabel: 'Derece',
+    badgeColor: '#ec4899',
+    description: 'Elektrokimya, fotoelektrik, harmonik hareket ve genden proteine kritik AYT fen soruları.'
+  },
+
+  // ── 2024 ÖSYM ÇIKMIŞ ──
   {
     id: 'osym-2024-tyt-deneme',
     title: '2024 ÖSYM TYT Çıkmış Soru Simülasyonu',
@@ -386,8 +456,8 @@ export const CURATED_TEST_SUITES: CuratedTestDefinition[] = [
     examType: 'TYT',
     subject: 'Tüm Dersler',
     year: 2024,
-    questionCount: 40,
-    durationMinutes: 50,
+    questionCount: 10,
+    durationMinutes: 20,
     difficultyLabel: 'ÖSYM Seviyesi',
     badgeColor: '#ef4444',
     description: '2024 YKS TYT oturumunda çıkmış gerçek sorularla hazırlanmış birebir sınav tecrübesi.'
@@ -399,11 +469,11 @@ export const CURATED_TEST_SUITES: CuratedTestDefinition[] = [
     examType: 'AYT',
     subject: 'Matematik',
     year: 2024,
-    questionCount: 20,
-    durationMinutes: 35,
+    questionCount: 10,
+    durationMinutes: 20,
     difficultyLabel: 'ÖSYM Seviyesi',
     badgeColor: '#38bdf8',
-    description: 'Trigonometri, limit, türev, integral ve logaritma çıkmış sorularıyla AYT matematik provası.'
+    description: 'Trigonometri yarım açı, türev teğet doğrusu ve integral alan çıkmış sorularıyla AYT matematik provası.'
   },
   {
     id: 'osym-2024-ayt-fen-deneme',
@@ -412,12 +482,14 @@ export const CURATED_TEST_SUITES: CuratedTestDefinition[] = [
     examType: 'AYT',
     subject: 'Fizik & Kimya & Biyoloji',
     year: 2024,
-    questionCount: 20,
-    durationMinutes: 30,
+    questionCount: 10,
+    durationMinutes: 20,
     difficultyLabel: 'ÖSYM Seviyesi',
     badgeColor: '#10b981',
-    description: 'Fizik, kimya ve biyoloji branşlarında 2024 AYT oturumunun kritik çıkmış soruları.'
+    description: 'Fizik modern fotoelektrik, kimya Le Chatelier ve biyoloji Calvin döngüsü 2024 AYT çıkmış soruları.'
   },
+
+  // ── 2023 ÖSYM ÇIKMIŞ (DEPREM DÖNEMİ - 1. DÖNEM KAZANIMLI) ──
   {
     id: 'osym-2023-ayt-mat-deneme',
     title: '2023 ÖSYM AYT Matematik Çıkmış Sorular',
@@ -425,73 +497,167 @@ export const CURATED_TEST_SUITES: CuratedTestDefinition[] = [
     examType: 'AYT',
     subject: 'Matematik',
     year: 2023,
-    questionCount: 15,
-    durationMinutes: 25,
+    questionCount: 10,
+    durationMinutes: 20,
     difficultyLabel: 'ÖSYM Seviyesi',
     badgeColor: '#6366f1',
-    description: '2023 YKS AYT oturumu belirleyici matematik soruları ve çözümleri.'
+    description: '12. sınıf 2. dönemi muaf tutulan 2023 AYT oturumunun belirleyici matematik soruları ve çözümleri.'
   },
   {
     id: 'osym-2023-tyt-turkce-deneme',
-    title: '2023 ÖSYM TYT Türkçe Paragraf & Anlam',
+    title: '2023 ÖSYM TYT Çıkmış Soru Paketi',
     category: 'past_exam',
     examType: 'TYT',
-    subject: 'Türkçe',
+    subject: 'Tüm Dersler',
     year: 2023,
-    questionCount: 20,
-    durationMinutes: 25,
+    questionCount: 10,
+    durationMinutes: 20,
     difficultyLabel: 'ÖSYM Seviyesi',
     badgeColor: '#f43f5e',
-    description: 'Uzun metinli, felsefi ve çıkarım odaklı 2023 TYT Türkçe çıkmış soruları.'
+    description: 'Paragrafta çoklu metin, noktalama ve temel fen-sosyal bilimler 2023 TYT çıkmış soruları.'
   },
+
+  // ── 2022 ÖSYM ÇIKMIŞ (165 DAKİKA YENİ FORMAT) ──
   {
-    id: 'pred-2025-nokta-atisi-ayt-mat',
-    title: '2025-2026 AYT Matematik Nokta Atışı Tahmin Testi',
-    category: 'predicted',
-    examType: 'AYT',
-    subject: 'Matematik',
-    questionCount: 15,
-    durationMinutes: 25,
-    difficultyLabel: 'Derece',
-    badgeColor: '#a855f7',
-    description: 'ÖSYM soru yazım heyetinin son 5 yıllık tuzakları ve çıkma ihtimali en yüksek kalıplar.'
-  },
-  {
-    id: 'pred-2025-nokta-atisi-ayt-fizik',
-    title: '2025-2026 AYT Fizik Kritik Kazanım Denemesi',
-    category: 'predicted',
-    examType: 'AYT',
-    subject: 'Fizik',
-    questionCount: 14,
-    durationMinutes: 20,
-    difficultyLabel: 'Derece',
-    badgeColor: '#8b5cf6',
-    description: 'Elektromanyetizma, modern fizik ve harmonik harekette çıkması beklenen özgün sorular.'
-  },
-  {
-    id: 'pred-2025-tyt-hiz-denemesi',
-    title: '2025-2026 TYT Hız ve Zaman Yönetimi Branş Testi',
-    category: 'predicted',
+    id: 'osym-2022-tyt-165',
+    title: '2022 ÖSYM TYT (165 Dk Yeni Dönem) Çıkmış Sorular',
+    category: 'past_exam',
     examType: 'TYT',
     subject: 'Tüm Dersler',
-    questionCount: 25,
-    durationMinutes: 30,
-    difficultyLabel: 'Orta',
+    year: 2022,
+    questionCount: 10,
+    durationMinutes: 20,
+    difficultyLabel: 'ÖSYM Seviyesi',
     badgeColor: '#f59e0b',
-    description: 'Öğrencinin soru başına ortalama süresini 1.2 dakikanın altına düşürmeyi hedefleyen hız denemesi.'
+    description: 'Sınav süresinin 165 dakikaya çıktığı ve baraj puanının kaldırıldığı 2022 TYT çıkmış soruları.'
   },
   {
-    id: 'meb-kazanim-kimya-ayt',
-    title: 'MEB Maarif AYT Kimya Denge & Elektrokimya Testi',
-    category: 'meb_kazanim',
+    id: 'osym-2022-ayt-sayisal',
+    title: '2022 ÖSYM AYT Sayısal Çıkmış Sorular',
+    category: 'past_exam',
     examType: 'AYT',
-    subject: 'Kimya',
-    questionCount: 12,
-    durationMinutes: 18,
-    difficultyLabel: 'Orta',
-    badgeColor: '#10b981',
-    description: 'MEB Maarif modeli kazanımlarına tam uyumlu kavramsal ve deneysel sorular.'
+    subject: 'Matematik & Fen',
+    year: 2022,
+    questionCount: 10,
+    durationMinutes: 20,
+    difficultyLabel: 'ÖSYM Seviyesi',
+    badgeColor: '#0ea5e9',
+    description: 'Diziler, çift yarıkta girişim, organik kimya izomerlik ve Bohr etkisi çıkmış soruları.'
   },
+
+  // ── 2021 ÖSYM ÇIKMIŞ (TARİHİN EN ZOR VE SEÇİCİ YKS'Sİ) ──
+  {
+    id: 'osym-2021-ayt-legend',
+    title: '2021 ÖSYM AYT Tarihin En Zor Matematik & Fen Sınavı',
+    category: 'past_exam',
+    examType: 'AYT',
+    subject: 'Matematik & Fen',
+    year: 2021,
+    questionCount: 10,
+    durationMinutes: 25,
+    difficultyLabel: 'Derece',
+    badgeColor: '#dc2626',
+    description: 'YKS tarihinin en zor polinom, fonksiyon bileşkesi, açısal momentum ve türev soruları.'
+  },
+  {
+    id: 'osym-2021-tyt-genel',
+    title: '2021 ÖSYM TYT Çıkmış Sorular (Meryem\'in Saati)',
+    category: 'past_exam',
+    examType: 'TYT',
+    subject: 'Tüm Dersler',
+    year: 2021,
+    questionCount: 10,
+    durationMinutes: 20,
+    difficultyLabel: 'ÖSYM Seviyesi',
+    badgeColor: '#ea580c',
+    description: 'Meryem\'in saati problemi, felsefi paragraf metinleri ve seçici 2021 TYT soruları.'
+  },
+
+  // ── 2020 ÖSYM ÇIKMIŞ (PANDEMİ ÖZEL - LİMİT/TÜREVSİZ) ──
+  {
+    id: 'osym-2020-tyt-deneme',
+    title: '2020 ÖSYM TYT Çıkmış Sorular',
+    category: 'past_exam',
+    examType: 'TYT',
+    subject: 'Tüm Dersler',
+    year: 2020,
+    questionCount: 10,
+    durationMinutes: 20,
+    difficultyLabel: 'ÖSYM Seviyesi',
+    badgeColor: '#14b8a6',
+    description: 'Pandemi yılında uygulanan mutlak değer hava durumu, kâr-zarar ve yazım kuralları soruları.'
+  },
+  {
+    id: 'osym-2020-ayt-ozel',
+    title: '2020 ÖSYM AYT Pandemi Özel (Trigonometri & Logaritma)',
+    category: 'past_exam',
+    examType: 'AYT',
+    subject: 'Matematik & Fen',
+    year: 2020,
+    questionCount: 10,
+    durationMinutes: 20,
+    difficultyLabel: 'ÖSYM Seviyesi',
+    badgeColor: '#84cc16',
+    description: 'Limit-Türev-İntegral muafiyeti olan ve trigonometri/logaritma ağırlıklı 2020 AYT soruları.'
+  },
+
+  // ── 2019 ÖSYM ÇIKMIŞ ──
+  {
+    id: 'osym-2019-tyt-deneme',
+    title: '2019 ÖSYM TYT Çıkmış Soru Simülasyonu',
+    category: 'past_exam',
+    examType: 'TYT',
+    subject: 'Tüm Dersler',
+    year: 2019,
+    questionCount: 10,
+    durationMinutes: 20,
+    difficultyLabel: 'ÖSYM Seviyesi',
+    badgeColor: '#64748b',
+    description: 'Venn şeması, köklü sayılar sayı doğrusu ve elektrostatik 2019 TYT çıkmış soruları.'
+  },
+  {
+    id: 'osym-2019-ayt-mat',
+    title: '2019 ÖSYM AYT Sayısal Çıkmış Sorular',
+    category: 'past_exam',
+    examType: 'AYT',
+    subject: 'Matematik & Fen',
+    year: 2019,
+    questionCount: 10,
+    durationMinutes: 20,
+    difficultyLabel: 'ÖSYM Seviyesi',
+    badgeColor: '#475569',
+    description: 'Parabol tepe noktası, karmaşık sayılar, patlamada momentum ve Le Chatelier dengesi.'
+  },
+
+  // ── 2018 ÖSYM ÇIKMIŞ (İLK YKS) ──
+  {
+    id: 'osym-2018-tyt-ilk',
+    title: '2018 ÖSYM İlk YKS TYT Çıkmış Soru Simülasyonu',
+    category: 'past_exam',
+    examType: 'TYT',
+    subject: 'Tüm Dersler',
+    year: 2018,
+    questionCount: 10,
+    durationMinutes: 20,
+    difficultyLabel: 'ÖSYM Seviyesi',
+    badgeColor: '#e11d48',
+    description: 'YKS sisteminin ilk sınavı olan 2018 TYT oturumunun orijinal soru kalıpları.'
+  },
+  {
+    id: 'osym-2018-ayt-sayisal',
+    title: '2018 ÖSYM İlk YKS AYT Sayısal Çıkmış Sorular',
+    category: 'past_exam',
+    examType: 'AYT',
+    subject: 'Matematik & Fen',
+    year: 2018,
+    questionCount: 10,
+    durationMinutes: 20,
+    difficultyLabel: 'ÖSYM Seviyesi',
+    badgeColor: '#be123c',
+    description: 'Polinomlar, türev ekstremum, virajda çembersel hareket ve tepkime hızında eşik enerjisi.'
+  },
+
+  // ── GENEL VE PARAMETRİK TESTLER ──
   {
     id: 'procedural-infinite-mat',
     title: 'Sonsuz Parametrik Matematik Üretim Testi',
@@ -505,3 +671,4 @@ export const CURATED_TEST_SUITES: CuratedTestDefinition[] = [
     description: 'Her başlatıldığında algoritmik olarak milyonlarca sayısal varyasyondan yeni sorular türeten motor.'
   }
 ];
+

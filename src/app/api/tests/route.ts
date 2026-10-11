@@ -75,16 +75,32 @@ export async function GET(req: Request) {
 
         questions = formatDbQuestions(dbRows);
       } else if (suite?.category === 'predicted') {
-        // Fetch predicted questions
-        const dbRows = await db.prepare('SELECT * FROM questions WHERE is_predicted = true ORDER BY RANDOM() LIMIT ?').all(suite.questionCount || 15) as any[];
-        
-        // If needed supplement with high-yield questions
-        if (dbRows.length < (suite.questionCount || 10)) {
-          const supp = await db.prepare('SELECT * FROM questions WHERE difficulty >= 3 ORDER BY RANDOM() LIMIT ?').all(suite.questionCount - dbRows.length) as any[];
-          questions = formatDbQuestions([...dbRows, ...supp]);
-        } else {
-          questions = formatDbQuestions(dbRows);
+        // Fetch predicted questions (support year filtering for 2025 and 2026 Maarif)
+        let query = 'SELECT * FROM questions WHERE is_predicted = true';
+        const params: any[] = [];
+
+        if (suite.year) {
+          query += ' AND exam_year = ?';
+          params.push(suite.year);
         }
+
+        if (suite.subject && suite.subject !== 'Tüm Dersler' && !suite.subject.includes('&')) {
+          query += ' AND LOWER(subject) = LOWER(?)';
+          params.push(suite.subject);
+        }
+
+        query += ' ORDER BY id ASC LIMIT ?';
+        params.push(suite.questionCount || 15);
+
+        let dbRows = await db.prepare(query).all(...params) as any[];
+
+        // If needed supplement with predicted questions
+        if (dbRows.length < (suite.questionCount || 10)) {
+          const supp = await db.prepare('SELECT * FROM questions WHERE is_predicted = true ORDER BY RANDOM() LIMIT ?').all(suite.questionCount - dbRows.length) as any[];
+          dbRows = [...dbRows, ...supp];
+        }
+
+        questions = formatDbQuestions(dbRows);
       } else if (suite) {
         // General or MEB Kazanim test
         let query = 'SELECT * FROM questions';
@@ -119,6 +135,7 @@ export async function GET(req: Request) {
     }
 
     // ── List Test Suites & Global Pool Statistics ────────────────────────────
+    const yearParam = searchParams.get('year');
     let filteredSuites = [...CURATED_TEST_SUITES];
 
     if (category && category !== 'all') {
@@ -130,19 +147,30 @@ export async function GET(req: Request) {
     if (subject && subject !== 'all') {
       filteredSuites = filteredSuites.filter(s => s.subject.toLowerCase().includes(subject.toLowerCase()));
     }
+    if (yearParam && yearParam !== 'all') {
+      const numericYear = parseInt(yearParam);
+      if (!isNaN(numericYear)) {
+        filteredSuites = filteredSuites.filter(s => s.year === numericYear);
+      }
+    }
 
     // Fetch database question pool counts
     const totalCountRow = await db.prepare('SELECT count(*) as total FROM questions').get() as any;
     const pastExamCountRow = await db.prepare('SELECT count(*) as total FROM questions WHERE is_past_exam = true').get() as any;
     const predictedCountRow = await db.prepare('SELECT count(*) as total FROM questions WHERE is_predicted = true').get() as any;
+    const yearCounts = await db.prepare('SELECT exam_year, count(*) as count FROM questions WHERE exam_year IS NOT NULL GROUP BY exam_year ORDER BY exam_year DESC').all() as any[];
 
     return NextResponse.json({
       success: true,
       stats: {
-        totalPoolSize: Number(totalCountRow?.total || 8815),
-        pastExamQuestions: Number(pastExamCountRow?.total || 10),
-        predictedQuestions: Number(predictedCountRow?.total || 5),
-        testSuitesCount: CURATED_TEST_SUITES.length
+        totalPoolSize: Number(totalCountRow?.total || 8895),
+        pastExamQuestions: Number(pastExamCountRow?.total || 70),
+        predictedQuestions: Number(predictedCountRow?.total || 20),
+        testSuitesCount: CURATED_TEST_SUITES.length,
+        yearDistribution: yearCounts.reduce((acc: any, curr: any) => {
+          acc[curr.exam_year] = Number(curr.count);
+          return acc;
+        }, {})
       },
       testSuites: filteredSuites
     });
