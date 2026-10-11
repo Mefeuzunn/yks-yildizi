@@ -411,6 +411,30 @@ export default function EksiklerPage() {
                   </button>
                 </Link>
 
+                <Link 
+                  href={`/testler?subject=${encodeURIComponent(selectedTopic.subject)}`}
+                  style={{ textDecoration: 'none' }}
+                >
+                  <button 
+                    className="btn-interactive"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(99, 102, 241, 0.2))',
+                      border: '1px solid rgba(56, 189, 248, 0.4)',
+                      borderRadius: '8px',
+                      padding: '0.55rem 1rem',
+                      color: '#7dd3fc',
+                      fontWeight: 700,
+                      fontSize: '0.82rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <Sparkles size={14} /> 🏛️ ÖSYM & Branş Testi Çöz
+                  </button>
+                </Link>
+
                 <Link href="/program" style={{ textDecoration: 'none' }}>
                   <button 
                     style={{
@@ -492,6 +516,15 @@ export default function EksiklerPage() {
                   </button>
                 </Link>
                 
+                <Link 
+                  href={`/testler?subject=${encodeURIComponent(primary.subject)}`}
+                  style={{ textDecoration: 'none' }}
+                >
+                  <button className="btn-interactive" style={{ width: '100%', minHeight: '40px', background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2))', border: '1px solid rgba(99, 102, 241, 0.4)', color: '#c4b5fd', fontWeight: 700, fontSize: '0.82rem', borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                    <Sparkles size={15} /> 🏛️ Konunun Test Havuzunu Aç
+                  </button>
+                </Link>
+
                 <Link href="/program" style={{ textDecoration: 'none' }}>
                   <button style={{ width: '100%', minHeight: '40px', background: 'rgba(255,255,255,0.05)', color: '#cbd5e1', fontWeight: 600, fontSize: '0.82rem', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', cursor: 'pointer' }}>
                     Takvime Görev Ata &rarr;

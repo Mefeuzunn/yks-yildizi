@@ -6,6 +6,7 @@ import {
   RefreshCw, BarChart2, Sparkles, Bookmark, Flame, RotateCcw 
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { curriculumData } from '@/lib/data/curriculum';
 import { haptics } from '@/lib/haptics';
@@ -163,6 +164,7 @@ const getDynamicTopicData = (subjectSlug: string, topicSlug: string) => {
 
 export default function TopicStudyPage({ params }: { params: Promise<{ subject: string, topic: string }> }) {
   const unwrappedParams = React.use(params);
+  const router = useRouter();
   const topicId = unwrappedParams.topic;
   const subjectId = unwrappedParams.subject;
 
@@ -172,6 +174,40 @@ export default function TopicStudyPage({ params }: { params: Promise<{ subject: 
   const [showResults, setShowResults] = useState(false);
   const [submittingResults, setSubmittingResults] = useState(false);
   const [feedbackMsg, setFeedbackMsg] = useState('');
+
+  const handleStartInProStudio = () => {
+    haptics.impact('medium');
+    if (!topicData?.questions || topicData.questions.length === 0) return;
+
+    const letters = ['A', 'B', 'C', 'D', 'E'];
+    const studioQuestions = topicData.questions.map((q: any, idx: number) => {
+      const optMap: Record<string, string> = {};
+      (q.options || []).forEach((opt: string, oIdx: number) => {
+        optMap[letters[oIdx] || 'A'] = opt;
+      });
+      return {
+        id: q.id || `topic-q-${idx + 1}`,
+        text: q.text,
+        options: optMap,
+        correctOption: letters[q.correctAnswer] || 'A',
+        subject: topicData.subject,
+        topic: topicData.title,
+        explanation: q.explanation || `${topicData.title} sorusunun çözümü.`
+      };
+    });
+
+    const customTest = {
+      id: `konu-${slugify(topicData.subject)}-${slugify(topicData.title)}-${Date.now()}`,
+      title: `${topicData.subject} - ${topicData.title} Testi`,
+      subject: topicData.subject,
+      questionCount: studioQuestions.length,
+      durationMinutes: Math.max(10, Math.round(studioQuestions.length * 1.5)),
+      questions: studioQuestions
+    };
+
+    sessionStorage.setItem(`custom_test_${customTest.id}`, JSON.stringify(customTest));
+    router.push(`/test-coz?customId=${customTest.id}`);
+  };
 
   // Fetch real questions from /api/questions on mount
   useEffect(() => {
@@ -340,6 +376,12 @@ export default function TopicStudyPage({ params }: { params: Promise<{ subject: 
             >
               <FileText size={17} /> Konu Testi ({topicData.questions.length})
             </button>
+            <button 
+              onClick={handleStartInProStudio}
+              style={{ padding: '0.65rem 1.15rem', borderRadius: '8px', border: '1px solid rgba(139, 92, 246, 0.4)', background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(99, 102, 241, 0.2))', color: '#c4b5fd', cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.45rem', transition: 'all 0.2s' }}
+            >
+              <Sparkles size={16} /> ÖSYM Stüdyosu
+            </button>
             {showResults && (
               <button 
                 onClick={() => {
@@ -400,16 +442,25 @@ export default function TopicStudyPage({ params }: { params: Promise<{ subject: 
                   <h3 style={{ margin: 0, fontSize: '1.15rem', color: '#fff', fontWeight: 700 }}>Videoyu tamamladın mı?</h3>
                   <p style={{ margin: '0.35rem 0 0 0', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>Öğrendiklerini pekiştirmek ve seviyeni ölçmek için hemen konu testine başla.</p>
                 </div>
-                <button 
-                  onClick={() => {
-                    haptics.impact('medium');
-                    setMode('test');
-                  }} 
-                  className="btn-interactive" 
-                  style={{ padding: '0.85rem 1.5rem', background: '#10b981', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-                >
-                  <FileText size={18} /> Teste Başla &rarr;
-                </button>
+                <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
+                  <button 
+                    onClick={() => {
+                      haptics.impact('medium');
+                      setMode('test');
+                    }} 
+                    className="btn-interactive" 
+                    style={{ padding: '0.85rem 1.35rem', background: '#10b981', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                  >
+                    <FileText size={18} /> Teste Başla
+                  </button>
+                  <button 
+                    onClick={handleStartInProStudio}
+                    className="btn-interactive" 
+                    style={{ padding: '0.85rem 1.35rem', background: 'linear-gradient(135deg, #8b5cf6, #6366f1)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                  >
+                    <Sparkles size={18} /> ÖSYM Stüdyosunda Çöz &rarr;
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}

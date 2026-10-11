@@ -13,17 +13,29 @@ export async function GET(req: Request) {
 
     const sessions = await db.prepare('SELECT * FROM test_sessions WHERE user_id = ? ORDER BY created_at DESC').all(userId) as any[];
     
-    const mapped = sessions.map(s => ({
-      id: s.id,
-      test_type: s.test_type,
-      score: s.score,
-      correct_count: s.correct_count,
-      wrong_count: s.wrong_count,
-      blank_count: s.blank_count,
-      duration: s.duration,
-      details: JSON.parse(s.details_json),
-      created_at: s.created_at
-    }));
+    const mapped = sessions.map(s => {
+      let parsedDetails = {};
+      try {
+        if (typeof s.details_json === 'string') {
+          parsedDetails = JSON.parse(s.details_json);
+        } else if (s.details_json && typeof s.details_json === 'object') {
+          parsedDetails = s.details_json;
+        }
+      } catch {
+        parsedDetails = {};
+      }
+      return {
+        id: s.id,
+        test_type: s.test_type,
+        score: s.score,
+        correct_count: s.correct_count,
+        wrong_count: s.wrong_count,
+        blank_count: s.blank_count,
+        duration: s.duration,
+        details: parsedDetails,
+        created_at: s.created_at
+      };
+    });
 
     return NextResponse.json({ success: true, sessions: mapped }, { status: 200 });
 
