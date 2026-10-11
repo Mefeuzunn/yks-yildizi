@@ -15,7 +15,19 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { test_type, score, correct_count, wrong_count, blank_count, duration, details } = body;
+    const { 
+      test_type, 
+      score, 
+      correct_count, 
+      wrong_count, 
+      blank_count, 
+      duration, 
+      turkish_net = 0,
+      math_net = 0,
+      social_net = 0,
+      science_net = 0,
+      details 
+    } = body;
     const sessionId = uuidv4();
 
     await db.transaction(async () => {
@@ -60,6 +72,41 @@ export async function POST(req: Request) {
         newSuccessRate,
         userId
       );
+
+      // 4. Sync to mock_exams for comprehensive performance graphs in /denemeler
+      const upper = (test_type || '').toUpperCase();
+      const isTYT = upper.includes('TYT');
+      const isAYT = upper.includes('AYT');
+      if (isTYT || isAYT) {
+        const examType = isTYT ? 'TYT' : 'AYT';
+        const d = details || {};
+        const turkCol = isAYT && d.fizik !== undefined ? Number(d.fizik) : (Number(turkish_net) || 0);
+        const mathCol = isAYT && d.aytMatematik !== undefined ? Number(d.aytMatematik) : (Number(math_net) || 0);
+        const sciCol = isAYT && d.kimya !== undefined ? Number(d.kimya) : (Number(science_net) || 0);
+        const socCol = isAYT && d.biyoloji !== undefined ? Number(d.biyoloji) : (Number(social_net) || 0);
+
+        await db.prepare(`
+          INSERT INTO mock_exams (user_id, exam_type, exam_name, turkish_net, math_net, social_net, science_net, total_net, exam_date, details)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)
+        `).run(
+          userId,
+          examType,
+          test_type,
+          turkCol,
+          mathCol,
+          socCol,
+          sciCol,
+          Number(score) || 0,
+          JSON.stringify({
+            sessionId,
+            correct_count,
+            wrong_count,
+            blank_count,
+            duration,
+            ...d
+          })
+        );
+      }
     })();
 
     return NextResponse.json({ success: true, sessionId }, { status: 201 });

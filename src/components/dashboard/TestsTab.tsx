@@ -12,53 +12,53 @@ export default function TestsTab() {
   const activeTests = [
     {
       id: 1,
-      suiteId: 'osym-2024-tyt-deneme',
-      name: 'TYT Temel Matematik Hızlı Deneme',
-      subject: 'Matematik',
-      difficulty: 'Orta',
-      questions: 10,
-      time: '15 Dk',
-      color: '#38bdf8'
+      suiteId: 'osym-2024-tyt-full',
+      name: '2024 ÖSYM TYT Orijinal Tam Sınavı',
+      subject: 'Tüm Dersler',
+      difficulty: 'ÖSYM',
+      questions: 120,
+      time: '165 Dk',
+      color: '#ef4444'
     },
     {
       id: 2,
-      suiteId: 'osym-2023-tyt-turkce-deneme',
-      name: 'TYT Türkçe Paragraf & Anlam Güçlendirme',
-      subject: 'Türkçe',
-      difficulty: 'Zor',
-      questions: 10,
-      time: '15 Dk',
-      color: '#f43f5e'
+      suiteId: 'osym-2024-ayt-full',
+      name: '2024 ÖSYM AYT Sayısal Orijinal Sınavı',
+      subject: 'Matematik & Fen',
+      difficulty: 'ÖSYM',
+      questions: 80,
+      time: '180 Dk',
+      color: '#dc2626'
     },
     {
       id: 3,
-      suiteId: 'pred-2025-nokta-atisi-ayt-fizik',
-      name: 'AYT Fizik Mekanik & Dalga Analizi',
-      subject: 'Fizik',
-      difficulty: 'İleri',
-      questions: 10,
-      time: '20 Dk',
-      color: '#8b5cf6'
+      suiteId: 'osym-2023-tyt-full',
+      name: '2023 ÖSYM TYT Orijinal Sınavı',
+      subject: 'Tüm Dersler',
+      difficulty: 'ÖSYM',
+      questions: 120,
+      time: '165 Dk',
+      color: '#f43f5e'
     },
     {
       id: 4,
-      suiteId: 'osym-2024-ayt-fen-deneme',
-      name: 'TYT & AYT Kimya Temel Kavramlar',
-      subject: 'Kimya',
-      difficulty: 'Orta',
-      questions: 10,
-      time: '15 Dk',
-      color: '#10b981'
+      suiteId: 'pred-2025-tyt-full',
+      name: '2025 ÖSYM TYT Nokta Atışı Büyük Sınav',
+      subject: 'Tüm Dersler',
+      difficulty: 'Derece',
+      questions: 120,
+      time: '165 Dk',
+      color: '#a855f7'
     },
     {
       id: 5,
-      suiteId: 'osym-2024-ayt-fen-deneme',
-      name: 'AYT Biyoloji Sistemler & Genetik',
-      subject: 'Biyoloji',
-      difficulty: 'Orta',
-      questions: 10,
-      time: '15 Dk',
-      color: '#ec4899'
+      suiteId: 'osym-2021-ayt-full',
+      name: '2021 ÖSYM AYT Tarihin En Zor Sınavı',
+      subject: 'Matematik & Fen',
+      difficulty: 'Derece',
+      questions: 80,
+      time: '180 Dk',
+      color: '#ea580c'
     }
   ];
 
@@ -134,7 +134,7 @@ export default function TestsTab() {
                 ⭐ Yeni Nesil Soru Havuzu
               </span>
               <span style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 700 }}>
-                ● 8,800+ Aktif Soru & Sonsuz Parametrik Motor
+                ● 12,000+ Aktif Soru & 2018–2024 ÖSYM Çıkmış Sınavlar
               </span>
             </div>
             <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#f8fafc', margin: 0, lineHeight: 1.3 }}>

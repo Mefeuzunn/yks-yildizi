@@ -57,6 +57,40 @@ export async function GET(req: Request) {
             }
           }
         }
+
+        // Eğer şablondan üretilemediyse, 12.000+ soruluk havuzdan aynı konu/branştan taze soru getir
+        if (!addedNew && m.subject) {
+          try {
+            const altQ = await db.prepare(`
+              SELECT * FROM questions 
+              WHERE (LOWER(subject) = LOWER(?) OR LOWER(topic) = LOWER(?))
+              ORDER BY RANDOM() 
+              LIMIT 1
+            `).get(m.subject, m.topic || m.subject) as any;
+
+            if (altQ) {
+              let optObj: Record<string, string> = {};
+              try {
+                optObj = typeof altQ.options_json === 'string' ? JSON.parse(altQ.options_json) : (altQ.options_json || {});
+              } catch (_) {}
+              const secenekler = Object.values(optObj) as string[];
+              const correctLetter = altQ.correct_option || 'A';
+              const dogruCevap = optObj[correctLetter] || secenekler[0] || 'A';
+
+              quizQuestions.push({
+                id: m.id.toString(),
+                originalId: m.id,
+                subject: altQ.subject || m.subject,
+                topic: altQ.topic || m.topic,
+                metin: altQ.text + "\n\n*(Bu soru eksiklerini pekiştirmen için soru havuzundan seçilmiştir)*",
+                secenekler: secenekler.length > 0 ? secenekler : ['A', 'B', 'C', 'D', 'E'],
+                dogruCevap,
+                cozum: altQ.explanation || `Doğru Seçenek: ${correctLetter} (${dogruCevap}).`
+              });
+              addedNew = true;
+            }
+          } catch (_) {}
+        }
       }
 
       // Eğer yeni soru üretilemediyse veya %50 şans tutmadıysa, orijinal yanlışını sor

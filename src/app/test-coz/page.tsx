@@ -243,17 +243,38 @@ function TestCozContent() {
     let wrongCount = 0;
     let blankCount = 0;
     const wrongQuestions: any[] = [];
+    
+    const subjectStats: Record<string, { c: number; w: number }> = {};
+    const trackSubject = (name: string, isCorrect: boolean) => {
+      if (!subjectStats[name]) subjectStats[name] = { c: 0, w: 0 };
+      if (isCorrect) subjectStats[name].c++;
+      else subjectStats[name].w++;
+    };
 
     testData.questions.forEach((q, idx) => {
       const studentAns = answers[idx];
       const correctLetter = q.correctOption?.toUpperCase() || 'A';
+      const subj = (q.subject || testData.subject || '').toLowerCase();
+
+      let broadCategory = 'other';
+      if (subj.includes('türkçe')) broadCategory = 'turkce';
+      else if (subj.includes('edebiyat')) broadCategory = 'edebiyat';
+      else if (subj.includes('matematik') || subj.includes('geometri')) broadCategory = 'matematik';
+      else if (subj.includes('fizik')) broadCategory = 'fizik';
+      else if (subj.includes('kimya')) broadCategory = 'kimya';
+      else if (subj.includes('biyoloji')) broadCategory = 'biyoloji';
+      else if (subj.includes('tarih')) broadCategory = 'tarih';
+      else if (subj.includes('coğrafya') || subj.includes('cografya')) broadCategory = 'cografya';
+      else if (subj.includes('felsefe') || subj.includes('din')) broadCategory = 'felsefe';
 
       if (!studentAns) {
         blankCount++;
       } else if (studentAns === correctLetter) {
         correctCount++;
+        trackSubject(broadCategory, true);
       } else {
         wrongCount++;
+        trackSubject(broadCategory, false);
         wrongQuestions.push({
           question: q,
           selected: studentAns,
@@ -261,6 +282,26 @@ function TestCozContent() {
         });
       }
     });
+
+    const getNet = (cat: string) => {
+      const st = subjectStats[cat] || { c: 0, w: 0 };
+      return Math.max(0, +(st.c - st.w * 0.25).toFixed(2));
+    };
+
+    const turkNet = getNet('turkce');
+    const edebNet = getNet('edebiyat');
+    const matNet = getNet('matematik');
+    const fizNet = getNet('fizik');
+    const kimNet = getNet('kimya');
+    const bioNet = getNet('biyoloji');
+    const tarNet = getNet('tarih');
+    const cogNet = getNet('cografya');
+    const felNet = getNet('felsefe');
+
+    const turkishNet = +(turkNet + edebNet).toFixed(2);
+    const mathNet = matNet;
+    const scienceNet = +(fizNet + kimNet + bioNet).toFixed(2);
+    const socialNet = +(tarNet + cogNet + felNet).toFixed(2);
 
     const netScore = Math.max(0, +(correctCount - wrongCount * 0.25).toFixed(2));
     const totalAnswered = correctCount + wrongCount;
@@ -281,7 +322,7 @@ function TestCozContent() {
     setIsFinished(true);
 
     try {
-      // 1. Submit to test_sessions
+      // 1. Submit to test_sessions and mock_exams
       await fetch('/api/user/tests/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -292,9 +333,29 @@ function TestCozContent() {
           wrong_count: wrongCount,
           blank_count: blankCount,
           duration: spentMinutes,
+          turkish_net: turkishNet,
+          math_net: mathNet,
+          social_net: socialNet,
+          science_net: scienceNet,
           details: {
             subject: testData.subject,
             accuracy,
+            turkishNet,
+            mathNet,
+            socialNet,
+            scienceNet,
+            turkce: turkNet,
+            edebiyat: edebNet,
+            matematik: matNet,
+            aytMatematik: matNet,
+            fizik: fizNet,
+            kimya: kimNet,
+            biyoloji: bioNet,
+            tarih1: tarNet,
+            cografya1: cogNet,
+            felsefe: felNet,
+            fen: scienceNet,
+            sosyal: socialNet,
             answers
           }
         })
