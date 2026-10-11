@@ -323,6 +323,7 @@ function SidebarNav({ user }: { user: any }) {
 
       if (tab && href.includes(`?tab=${tab}`)) return true;
       if (href === pathname && !href.includes('?')) return true;
+      if (pathname === '/test-coz' && href === '/testler') return true;
       return false;
     },
     [pathname, tab]

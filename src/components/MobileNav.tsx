@@ -126,6 +126,7 @@ function MobileNavContent() {
 
   const checkIsActive = (href: string) => {
     const [targetPath, targetQuery] = href.split('?');
+    if (pathname === '/test-coz' && targetPath === '/testler') return true;
     if (pathname !== targetPath) return false;
     const tab = searchParams?.get('tab');
     if (!targetQuery) {
