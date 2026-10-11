@@ -52,9 +52,14 @@ export async function GET(req: Request) {
           }
         }
       } else if (suite?.category === 'past_exam' && suite.year) {
-        // Fetch past exam questions for that year and subject
+        // Fetch past exam questions for that year, examType and subject
         let query = 'SELECT * FROM questions WHERE is_past_exam = true AND exam_year = ?';
         const params: any[] = [suite.year];
+
+        if (suite.examType && suite.examType !== 'TYT/AYT') {
+          query += ' AND exam_type = ?';
+          params.push(suite.examType);
+        }
 
         if (suite.subject && suite.subject !== 'Tüm Dersler' && !suite.subject.includes('&')) {
           query += ' AND LOWER(subject) = LOWER(?)';
@@ -68,20 +73,24 @@ export async function GET(req: Request) {
 
         // If not enough year-specific rows, supplement from catalog or general DB
         if (dbRows.length < (suite.questionCount || 10)) {
-          const catalogMatches = CURATED_EXAM_QUESTIONS.filter(q => q.isPastExam && (!suite.year || q.examYear === suite.year));
           const supplement = await db.prepare('SELECT * FROM questions ORDER BY RANDOM() LIMIT ?').all(suite.questionCount - dbRows.length) as any[];
           dbRows = [...dbRows, ...supplement];
         }
 
         questions = formatDbQuestions(dbRows);
       } else if (suite?.category === 'predicted') {
-        // Fetch predicted questions (support year filtering for 2025 and 2026 Maarif)
+        // Fetch predicted questions (support year and examType filtering)
         let query = 'SELECT * FROM questions WHERE is_predicted = true';
         const params: any[] = [];
 
         if (suite.year) {
           query += ' AND exam_year = ?';
           params.push(suite.year);
+        }
+
+        if (suite.examType && suite.examType !== 'TYT/AYT') {
+          query += ' AND exam_type = ?';
+          params.push(suite.examType);
         }
 
         if (suite.subject && suite.subject !== 'Tüm Dersler' && !suite.subject.includes('&')) {

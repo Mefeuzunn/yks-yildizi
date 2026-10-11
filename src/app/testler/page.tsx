@@ -6,14 +6,95 @@ import {
   FileText, Sparkles, Clock, CheckCircle2, Flame, Award, 
   Search, SlidersHorizontal, BookOpen, Layers, Play, Plus, 
   RotateCcw, ShieldCheck, Zap, X, ChevronRight, HelpCircle,
-  BarChart2, Calendar, TrendingUp, AlertCircle, Check
+  BarChart2, Calendar, TrendingUp, AlertCircle, Check,
+  Download, ExternalLink, FileDown, ChevronDown, ChevronUp
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { haptics } from '@/lib/haptics';
 import { YKS_CURRICULUM_TAXONOMY } from '@/lib/curriculum-taxonomy';
 
-type TestCategory = 'all' | 'past_exam' | 'predicted' | 'meb_kazanim' | 'branch_trial' | 'procedural';
+type TestCategory = 'all' | 'pdf_archive' | 'past_exam' | 'predicted' | 'meb_kazanim' | 'branch_trial' | 'procedural';
+
+const OSYM_PDF_ARCHIVE = [
+  {
+    year: 2024,
+    badge: 'En Güncel Sınav',
+    badgeColor: '#ef4444',
+    title: '2024 YKS (TYT & AYT) Resmi Soru Kitapçıkları',
+    desc: '2024 ÖSYM Temel Soru Kitapçığı ve Cevap Anahtarı (120 TYT + 80 AYT Sayısal)',
+    tytPdf: 'https://dokuman.osym.gov.tr/pdfdokuman/2024/YKS/2024_TYT_Temel_Soru_Kitapcigi_ve_Cevap_Anahtari.pdf',
+    aytPdf: 'https://dokuman.osym.gov.tr/pdfdokuman/2024/YKS/2024_AYT_Temel_Soru_Kitapcigi_ve_Cevap_Anahtari.pdf',
+    tytSuiteId: 'osym-2024-tyt-full',
+    aytSuiteId: 'osym-2024-ayt-full'
+  },
+  {
+    year: 2023,
+    badge: '12. Sınıf 2. Dönem Muaf',
+    badgeColor: '#f43f5e',
+    title: '2023 YKS (TYT & AYT) Resmi Soru Kitapçıkları',
+    desc: 'Deprem dönemi müfredatı: Limit, türev, integral, organik kimya ve bitki muafiyetli sınav.',
+    tytPdf: 'https://dokuman.osym.gov.tr/pdfdokuman/2023/YKS/2023_YKS_TYT_WEB.pdf',
+    aytPdf: 'https://dokuman.osym.gov.tr/pdfdokuman/2023/YKS/2023_YKS_AYT_WEB.pdf',
+    tytSuiteId: 'osym-2023-tyt-full',
+    aytSuiteId: 'osym-2023-ayt-full'
+  },
+  {
+    year: 2022,
+    badge: '165 Dk Yeni Dönem',
+    badgeColor: '#f59e0b',
+    title: '2022 YKS (TYT & AYT) Resmi Soru Kitapçıkları',
+    desc: 'TYT sınav süresinin 165 dakikaya uzatıldığı ve baraj puanının kaldırıldığı ilk sınav.',
+    tytPdf: 'https://dokuman.osym.gov.tr/pdfdokuman/2022/YKS/2022_YKS_TYT_WEB.pdf',
+    aytPdf: 'https://dokuman.osym.gov.tr/pdfdokuman/2022/YKS/2022_YKS_AYT_WEB.pdf',
+    tytSuiteId: 'osym-2022-tyt-full',
+    aytSuiteId: 'osym-2022-ayt-full'
+  },
+  {
+    year: 2021,
+    badge: 'Tarihin En Zor Sınavı',
+    badgeColor: '#ea580c',
+    title: '2021 YKS (TYT & AYT) Resmi Soru Kitapçıkları',
+    desc: 'YKS tarihinin en seçici matematik ve fizik sorularını barındıran efsane zor sınav.',
+    tytPdf: 'https://dokuman.osym.gov.tr/pdfdokuman/2021/YKS/2021_YKS_TYT_WEB.pdf',
+    aytPdf: 'https://dokuman.osym.gov.tr/pdfdokuman/2021/YKS/2021_YKS_AYT_WEB.pdf',
+    tytSuiteId: 'osym-2021-tyt-full',
+    aytSuiteId: 'osym-2021-ayt-full'
+  },
+  {
+    year: 2020,
+    badge: 'Pandemi Özel Müfredat',
+    badgeColor: '#14b8a6',
+    title: '2020 YKS (TYT & AYT) Resmi Soru Kitapçıkları',
+    desc: 'Pandemi sebebiyle 12. sınıf 2. dönem konularının dahil edilmediği özel oturum.',
+    tytPdf: 'https://dokuman.osym.gov.tr/pdfdokuman/2020/YKS/2020_YKS_TYT_WEB.pdf',
+    aytPdf: 'https://dokuman.osym.gov.tr/pdfdokuman/2020/YKS/2020_YKS_AYT_WEB.pdf',
+    tytSuiteId: 'osym-2020-tyt-full',
+    aytSuiteId: 'osym-2020-ayt-full'
+  },
+  {
+    year: 2019,
+    badge: 'Klasik YKS Formatı',
+    badgeColor: '#6366f1',
+    title: '2019 YKS (TYT & AYT) Resmi Soru Kitapçıkları',
+    desc: 'Yeni nesil soruların ve problem metinlerinin tam oturduğu standart sınav oturumu.',
+    tytPdf: 'https://dokuman.osym.gov.tr/pdfdokuman/2019/YKS/2019_TYT.pdf',
+    aytPdf: 'https://dokuman.osym.gov.tr/pdfdokuman/2019/YKS/2019_AYT.pdf',
+    tytSuiteId: 'osym-2019-tyt-full',
+    aytSuiteId: 'osym-2019-ayt-full'
+  },
+  {
+    year: 2018,
+    badge: 'İlk YKS Oturumu',
+    badgeColor: '#8b5cf6',
+    title: '2018 YKS (TYT & AYT) Resmi Soru Kitapçıkları',
+    desc: 'YGS/LYS sisteminden YKS sistemine geçiş yapılan ilk sınav soru kitapçıkları.',
+    tytPdf: 'https://dokuman.osym.gov.tr/pdfdokuman/2018/YKS/TYT_2018.pdf',
+    aytPdf: 'https://dokuman.osym.gov.tr/pdfdokuman/2018/YKS/AYT_2018.pdf',
+    tytSuiteId: 'osym-2018-tyt-full',
+    aytSuiteId: 'osym-2018-ayt-full'
+  }
+];
 
 export default function TestlerPage() {
   const router = useRouter();
@@ -456,6 +537,7 @@ export default function TestlerPage() {
             <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '4px' }}>
               {[
                 { id: 'all', label: 'Tüm Testler', icon: '🌟' },
+                { id: 'pdf_archive', label: 'ÖSYM Resmi PDF Arşivi', icon: '📥' },
                 { id: 'past_exam', label: 'ÖSYM Çıkmış Sorular', icon: '🏛️' },
                 { id: 'predicted', label: '2025-2026 Tahmin Denemeleri', icon: '🎯' },
                 { id: 'branch_trial', label: 'Hızlı Branş Denemeleri', icon: '⚡' },
@@ -597,86 +679,406 @@ export default function TestlerPage() {
             </div>
           </div>
 
-          {/* ── Test Suites Grid ─────────────────────────────────────────────── */}
-          {loading ? (
-            <div style={{ padding: '5rem', textAlign: 'center', color: '#818cf8', fontSize: '1rem', fontWeight: 600 }}>
-              Soru havuzu ve testler yükleniyor...
-            </div>
-          ) : filteredSuites.length === 0 ? (
-            <div className="premium-card" style={{ padding: '3rem', textAlign: 'center', color: '#94a3b8' }}>
-              Seçilen kriterlere uygun test bulunamadı. Lütfen filtrelerinizi sıfırlayın veya "Özel Test Oluştur" ile kendi testinizi yaratın.
-            </div>
+          {/* ── ÖSYM Resmi PDF Arşivi Hızlı Erişim Banner'ı (Normal Görünümde) ── */}
+          {selectedCategory !== 'pdf_archive' && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="premium-card"
+              style={{
+                padding: '1.25rem 1.5rem',
+                marginBottom: '1.75rem',
+                background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(99, 102, 241, 0.12))',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '1rem'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <FileDown size={24} color="#f87171" />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '2px' }}>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 800, padding: '2px 8px', borderRadius: '20px', background: '#ef4444', color: '#fff' }}>
+                      ÖSYM RESMİ DÖKÜMANLARI
+                    </span>
+                    <span style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 600 }}>2018 – 2024 (8 Yılın Tüm Kitapçıkları)</span>
+                  </div>
+                  <h3 style={{ margin: 0, fontSize: '1.05rem', color: '#fff', fontWeight: 800 }}>
+                    ÖSYM Resmi Sınav Kitapçıkları & PDF İndirme Merkezi
+                  </h3>
+                  <p style={{ margin: '0.2rem 0 0', fontSize: '0.82rem', color: '#94a3b8' }}>
+                    120 TYT ve 80 AYT orijinal soru kitapçıklarını doğrudan PDF olarak indirin veya platformda 1-tıkla süre tutarak çözün.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => {
+                  haptics.selection();
+                  setSelectedCategory('pdf_archive');
+                }}
+                className="btn-interactive"
+                style={{
+                  padding: '0.65rem 1.25rem',
+                  borderRadius: '10px',
+                  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                  border: 'none',
+                  color: '#fff',
+                  fontWeight: 800,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  boxShadow: '0 4px 15px rgba(239, 68, 68, 0.3)'
+                }}
+              >
+                <Download size={16} /> PDF Arşivini Görüntüle & İndir
+              </button>
+            </motion.div>
+          )}
+
+          {/* ── ÖSYM Resmi PDF Arşivi & Kitapçık İndirme Hub'ı (Seçildiğinde) ── */}
+          {selectedCategory === 'pdf_archive' ? (
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
+            >
+              {/* Header Info */}
+              <div
+                className="premium-card"
+                style={{
+                  padding: '1.5rem 1.75rem',
+                  background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(168, 85, 247, 0.1))',
+                  border: '1px solid rgba(239, 68, 68, 0.35)'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 800, padding: '3px 10px', borderRadius: '20px', background: '#ef4444', color: '#fff' }}>
+                    T.C. ÖSYM RESMİ DÖKÜMANLARI
+                  </span>
+                  <span style={{ fontSize: '0.8rem', color: '#f87171', fontWeight: 700 }}>Doğrulanmış Orijinal Kitapçıklar</span>
+                </div>
+                <h2 style={{ fontSize: '1.5rem', color: '#fff', margin: '0 0 0.5rem 0', fontWeight: 800 }}>
+                  2018 – 2024 YKS Soru Kitapçıkları & PDF İndirme Arşivi
+                </h2>
+                <p style={{ color: '#cbd5e1', fontSize: '0.88rem', margin: 0, lineHeight: 1.6 }}>
+                  ÖSYM tarafından kamuoyuna sunulan tüm geçmiş yılların temel soru kitapçıkları ve resmi cevap anahtarları aşağıda listelenmiştir. Dilediğiniz sınavın resmi PDF&apos;ini cihazınıza indirebilir ya da <strong>&quot;Platformda Çöz&quot;</strong> butonuna tıklayarak 120 TYT / 80 AYT orijinal süre ve optik form desteğiyle canlı sınav provası yapabilirsiniz.
+                </p>
+              </div>
+
+              {/* PDF Archive Year Cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.25rem' }}>
+                {OSYM_PDF_ARCHIVE.map(item => (
+                  <div
+                    key={item.year}
+                    className="premium-card"
+                    style={{
+                      padding: '1.5rem',
+                      background: 'rgba(15, 23, 42, 0.65)',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      transition: 'border 0.2s ease'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1.25rem' }}>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.35rem' }}>
+                          <span style={{ fontSize: '1.3rem', fontWeight: 900, color: '#fff' }}>
+                            {item.year} YKS
+                          </span>
+                          <span style={{ fontSize: '0.72rem', fontWeight: 800, padding: '2px 9px', borderRadius: '12px', background: `${item.badgeColor}22`, color: item.badgeColor, border: `1px solid ${item.badgeColor}44` }}>
+                            {item.badge}
+                          </span>
+                        </div>
+                        <p style={{ margin: 0, fontSize: '0.84rem', color: '#94a3b8' }}>
+                          {item.desc}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
+                      {/* TYT Card */}
+                      <div style={{ padding: '1.15rem', borderRadius: '12px', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: '6px', background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8' }}>TYT</span>
+                            <span style={{ fontSize: '0.92rem', fontWeight: 700, color: '#fff' }}>Temel Yeterlilik Testi</span>
+                          </div>
+                          <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>120 Soru • 165 Dk</span>
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.65rem', marginTop: '1rem' }}>
+                          <a
+                            href={item.tytPdf}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              flex: 1,
+                              textDecoration: 'none',
+                              padding: '0.65rem 0.85rem',
+                              borderRadius: '8px',
+                              background: 'rgba(255, 255, 255, 0.05)',
+                              border: '1px solid rgba(255, 255, 255, 0.12)',
+                              color: '#cbd5e1',
+                              fontSize: '0.82rem',
+                              fontWeight: 700,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '0.35rem',
+                              transition: 'all 0.15s ease'
+                            }}
+                          >
+                            <Download size={15} color="#38bdf8" /> Resmi PDF İndir
+                          </a>
+                          <Link
+                            href={`/test-coz?id=${item.tytSuiteId}`}
+                            style={{
+                              flex: 1,
+                              textDecoration: 'none',
+                              padding: '0.65rem 0.85rem',
+                              borderRadius: '8px',
+                              background: 'linear-gradient(135deg, #38bdf8, #0284c7)',
+                              border: 'none',
+                              color: '#fff',
+                              fontSize: '0.82rem',
+                              fontWeight: 800,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '0.35rem',
+                              boxShadow: '0 2px 10px rgba(56, 189, 248, 0.3)'
+                            }}
+                          >
+                            <Play size={15} fill="#fff" /> Platformda Çöz (120 Soru)
+                          </Link>
+                        </div>
+                      </div>
+
+                      {/* AYT Card */}
+                      <div style={{ padding: '1.15rem', borderRadius: '12px', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: '6px', background: 'rgba(168, 85, 247, 0.15)', color: '#c084fc' }}>AYT</span>
+                            <span style={{ fontSize: '0.92rem', fontWeight: 700, color: '#fff' }}>Alan Yeterlilik Testi (Sayısal)</span>
+                          </div>
+                          <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>80 Soru • 180 Dk</span>
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.65rem', marginTop: '1rem' }}>
+                          <a
+                            href={item.aytPdf}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              flex: 1,
+                              textDecoration: 'none',
+                              padding: '0.65rem 0.85rem',
+                              borderRadius: '8px',
+                              background: 'rgba(255, 255, 255, 0.05)',
+                              border: '1px solid rgba(255, 255, 255, 0.12)',
+                              color: '#cbd5e1',
+                              fontSize: '0.82rem',
+                              fontWeight: 700,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '0.35rem',
+                              transition: 'all 0.15s ease'
+                            }}
+                          >
+                            <Download size={15} color="#c084fc" /> Resmi PDF İndir
+                          </a>
+                          <Link
+                            href={`/test-coz?id=${item.aytSuiteId}`}
+                            style={{
+                              flex: 1,
+                              textDecoration: 'none',
+                              padding: '0.65rem 0.85rem',
+                              borderRadius: '8px',
+                              background: 'linear-gradient(135deg, #a855f7, #7c3aed)',
+                              border: 'none',
+                              color: '#fff',
+                              fontSize: '0.82rem',
+                              fontWeight: 800,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '0.35rem',
+                              boxShadow: '0 2px 10px rgba(168, 85, 247, 0.3)'
+                            }}
+                          >
+                            <Play size={15} fill="#fff" /> Platformda Çöz (80 Soru)
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* MEB OGM Materyal Resource Card */}
+              <div
+                className="premium-card"
+                style={{
+                  padding: '1.5rem',
+                  background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(6, 182, 212, 0.1))',
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: '1rem'
+                }}
+              >
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.3rem' }}>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 800, padding: '2px 8px', borderRadius: '12px', background: '#10b981', color: '#fff' }}>
+                      MEB RESMİ KAZANIM
+                    </span>
+                    <span style={{ fontSize: '0.8rem', color: '#6ee7b7', fontWeight: 700 }}>OGM Materyal & EBA</span>
+                  </div>
+                  <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#fff', fontWeight: 800 }}>
+                    Milli Eğitim Bakanlığı YKS Hazırlık & Çevrim İçi Deneme Sınavları
+                  </h3>
+                  <p style={{ margin: '0.25rem 0 0', fontSize: '0.84rem', color: '#94a3b8' }}>
+                    MEB Ortaöğretim Genel Müdürlüğü tarafından hazırlanan konu özetleri, soru bankaları ve Türkiye geneli deneme sınavlarına doğrudan erişin.
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.65rem' }}>
+                  <a
+                    href="https://ogmmateryal.eba.gov.tr/yks-hazirlik"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      textDecoration: 'none',
+                      padding: '0.65rem 1.15rem',
+                      borderRadius: '10px',
+                      background: 'rgba(255, 255, 255, 0.06)',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      color: '#fff',
+                      fontWeight: 700,
+                      fontSize: '0.85rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.4rem'
+                    }}
+                  >
+                    <ExternalLink size={15} /> OGM YKS Hazırlık
+                  </a>
+                  <a
+                    href="https://ogmmateryal.eba.gov.tr/deneme-sinavlari"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      textDecoration: 'none',
+                      padding: '0.65rem 1.15rem',
+                      borderRadius: '10px',
+                      background: 'linear-gradient(135deg, #10b981, #059669)',
+                      border: 'none',
+                      color: '#fff',
+                      fontWeight: 800,
+                      fontSize: '0.85rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)'
+                    }}
+                  >
+                    <ExternalLink size={15} /> MEB Deneme Sınavları
+                  </a>
+                </div>
+              </div>
+            </motion.div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.25rem' }}>
-              {filteredSuites.map((suite, idx) => (
-                <motion.div
-                  key={suite.id}
-                  className="premium-card"
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.04 }}
-                  style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
-                >
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
-                      <span style={{ fontSize: '0.7rem', fontWeight: 800, padding: '2px 8px', borderRadius: '12px', background: `${suite.badgeColor}22`, color: suite.badgeColor, border: `1px solid ${suite.badgeColor}44` }}>
-                        {suite.difficultyLabel} • {suite.examType}
-                      </span>
-                      {suite.year && (
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f59e0b' }}>
-                          📅 {suite.year}
-                        </span>
-                      )}
-                    </div>
+            <>
+              {/* ── Test Suites Grid ─────────────────────────────────────────────── */}
+              {loading ? (
+                <div style={{ padding: '5rem', textAlign: 'center', color: '#818cf8', fontSize: '1rem', fontWeight: 600 }}>
+                  Soru havuzu ve testler yükleniyor...
+                </div>
+              ) : filteredSuites.length === 0 ? (
+                <div className="premium-card" style={{ padding: '3rem', textAlign: 'center', color: '#94a3b8' }}>
+                  Seçilen kriterlere uygun test bulunamadı. Lütfen filtrelerinizi sıfırlayın veya &quot;Özel Test Oluştur&quot; ile kendi testinizi yaratın.
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.25rem' }}>
+                  {filteredSuites.map((suite, idx) => (
+                    <motion.div
+                      key={suite.id}
+                      className="premium-card"
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.04 }}
+                      style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+                    >
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                          <span style={{ fontSize: '0.7rem', fontWeight: 800, padding: '2px 8px', borderRadius: '12px', background: `${suite.badgeColor}22`, color: suite.badgeColor, border: `1px solid ${suite.badgeColor}44` }}>
+                            {suite.difficultyLabel} • {suite.examType}
+                          </span>
+                          {suite.year && (
+                            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f59e0b' }}>
+                              📅 {suite.year}
+                            </span>
+                          )}
+                        </div>
 
-                    <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: '#fff', fontWeight: 700, lineHeight: 1.4 }}>
-                      {suite.title}
-                    </h3>
+                        <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: '#fff', fontWeight: 700, lineHeight: 1.4 }}>
+                          {suite.title}
+                        </h3>
 
-                    <p style={{ margin: '0 0 1.25rem 0', fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                      {suite.description}
-                    </p>
-                  </div>
+                        <p style={{ margin: '0 0 1.25rem 0', fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                          {suite.description}
+                        </p>
+                      </div>
 
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.65rem 0.85rem', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', marginBottom: '1rem', fontSize: '0.8rem', color: '#cbd5e1' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <FileText size={15} color="#38bdf8" /> {suite.questionCount} Soru
-                      </span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <Clock size={15} color="#f59e0b" /> {suite.durationMinutes} Dakika
-                      </span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#a855f7' }}>
-                        <Award size={15} /> +{suite.questionCount * 15} XP
-                      </span>
-                    </div>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.65rem 0.85rem', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', marginBottom: '1rem', fontSize: '0.8rem', color: '#cbd5e1' }}>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                            <FileText size={15} color="#38bdf8" /> {suite.questionCount} Soru
+                          </span>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                            <Clock size={15} color="#f59e0b" /> {suite.durationMinutes} Dakika
+                          </span>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#a855f7' }}>
+                            <Award size={15} /> +{suite.questionCount * 15} XP
+                          </span>
+                        </div>
 
-                    <Link href={`/test-coz?id=${suite.id}`} style={{ textDecoration: 'none' }}>
-                      <button
-                        className="btn-interactive"
-                        style={{
-                          width: '100%',
-                          padding: '0.75rem',
-                          background: 'linear-gradient(135deg, #10b981, #059669)',
-                          border: 'none',
-                          borderRadius: '10px',
-                          color: '#fff',
-                          fontWeight: 800,
-                          fontSize: '0.85rem',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '0.4rem'
-                        }}
-                      >
-                        <Play size={16} fill="#fff" /> Sınavı Başlat
-                      </button>
-                    </Link>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+                        <Link href={`/test-coz?id=${suite.id}`} style={{ textDecoration: 'none' }}>
+                          <button
+                            className="btn-interactive"
+                            style={{
+                              width: '100%',
+                              padding: '0.75rem',
+                              background: 'linear-gradient(135deg, #10b981, #059669)',
+                              border: 'none',
+                              borderRadius: '10px',
+                              color: '#fff',
+                              fontWeight: 800,
+                              fontSize: '0.85rem',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '0.4rem'
+                            }}
+                          >
+                            <Play size={16} fill="#fff" /> Sınavı Başlat
+                          </button>
+                        </Link>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </>
       )}
