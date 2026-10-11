@@ -19,16 +19,31 @@ interface GeneratedQuestion {
   difficulty: number;
   subject: string;
   topic: string;
+  explanation?: string;
 }
 
 /**
  * Calls Gemini 2.0 to generate official, highly pedagogical YKS flashcards
  */
 export async function generateFlashcardsBatch(
-  subject: string,
-  topic: string,
-  count = 10
+  subjectOrOptions: string | { subject: string; topic: string; category?: string; count?: number },
+  topicParam?: string,
+  countParam = 10
 ): Promise<GeneratedFlashcard[]> {
+  let subject: string;
+  let topic: string;
+  let count: number;
+
+  if (typeof subjectOrOptions === 'object') {
+    subject = subjectOrOptions.subject;
+    topic = subjectOrOptions.topic;
+    count = subjectOrOptions.count || 10;
+  } else {
+    subject = subjectOrOptions;
+    topic = topicParam || '';
+    count = countParam;
+  }
+
   const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GOOGLE_GENAI_API_KEY;
   if (!apiKey) {
     throw new Error('GEMINI_API_KEY eksik.');

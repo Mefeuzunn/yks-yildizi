@@ -51,7 +51,7 @@ interface StudentItem {
 }
 interface ResourceItem { id: string; title: string; content: string; subject: string; topic: string; resource_type: string; class_id: string; created_at: string; }
 interface AnnouncementItem { id: string; title: string; content: string; class_id: string; class_name?: string; category?: string; event_date?: string; created_at: string; }
-interface AssignmentItem { id: string; title: string; description?: string; category?: string; subject?: string; topic?: string; target_sinif?: string; due_date?: string; created_at: string; total_assigned: number; submitted_count: number; }
+interface AssignmentItem { id: string; title: string; description?: string; category?: string; subject?: string; topic?: string; target_sinif?: string; due_date?: string; created_at: string; total_assigned: number; submitted_count: number; class_id?: string; class_name?: string; submission_count?: number; total_students?: number; }
 
 // ─────────────────────────────────────────────
 // HELPERS & CONSTANTS

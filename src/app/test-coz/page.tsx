@@ -28,6 +28,9 @@ interface TestQuestion {
   difficulty?: number;
   explanation?: string;
   hint?: string;
+  isPastExam?: boolean;
+  examYear?: number;
+  isPredicted?: boolean;
 }
 
 interface TestData {

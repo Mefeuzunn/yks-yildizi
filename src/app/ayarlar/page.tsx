@@ -511,7 +511,7 @@ export default function AyarlarPage() {
                     {/* Hedef Üniversite & Bölüm */}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
                       <div>
-                        <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <label style={{ marginBottom: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
                           <School size={15} color="#38bdf8" /> Hedef Üniversite
                         </label>
                         <input 
@@ -528,7 +528,7 @@ export default function AyarlarPage() {
                       </div>
 
                       <div>
-                        <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <label style={{ marginBottom: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
                           <Target size={15} color="#a855f7" /> Hedef Bölüm
                         </label>
                         <input 

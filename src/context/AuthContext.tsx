@@ -13,6 +13,10 @@ type User = {
   league_points?: number;
   created_at?: string;
   curriculum_mode?: 'legacy_yks' | 'maarif_v1';
+  hedef?: string;
+  target_university?: string;
+  target_department?: string;
+  email?: string;
 };
 
 type AuthContextType = {

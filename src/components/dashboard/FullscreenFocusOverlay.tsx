@@ -548,7 +548,7 @@ export default function FullscreenFocusOverlay({ isOpen, onClose, isStandalonePa
             </div>
 
             {/* Orta Bölüm: Dairesel Sayaç */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', my: 'auto', width: '100%' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: 'auto 0', width: '100%' }}>
               {/* Pomodoro Döngü Noktaları */}
               <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
                 {Array.from({ length: 4 }).map((_, i) => (
@@ -847,7 +847,7 @@ export default function FullscreenFocusOverlay({ isOpen, onClose, isStandalonePa
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                my: 'auto',
+                margin: 'auto 0',
               }}
             >
               {/* Mod Seçici Segment */}

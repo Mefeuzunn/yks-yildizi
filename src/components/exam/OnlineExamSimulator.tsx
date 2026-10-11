@@ -132,7 +132,7 @@ export default function OnlineExamSimulator({
   };
 
   const handleToggleFlag = () => {
-    triggerHaptic('selection');
+    triggerHaptic('light');
     setFlagged((prev) => ({
       ...prev,
       [currentQ.number]: !prev[currentQ.number]
