@@ -109,28 +109,28 @@ export async function POST(req: Request) {
         }
 
         // Alan bazlı ders ilerlemesi
-        const progressStmt = await db.prepare(
+        const progressStmt = db.prepare(
           'INSERT INTO subject_progress (user_id, subject, completed_topics, total_topics) VALUES (?, ?, ?, ?)'
         );
 
         if (alan === 'Sayisal' || alan === 'Yok') {
-          progressStmt.run(id, 'Matematik (TYT-AYT)', 0, 42);
-          progressStmt.run(id, 'Fizik (TYT-AYT)', 0, 28);
-          progressStmt.run(id, 'Kimya (TYT-AYT)', 0, 24);
-          progressStmt.run(id, 'Biyoloji (TYT-AYT)', 0, 30);
+          await progressStmt.run(id, 'Matematik (TYT-AYT)', 0, 42);
+          await progressStmt.run(id, 'Fizik (TYT-AYT)', 0, 28);
+          await progressStmt.run(id, 'Kimya (TYT-AYT)', 0, 24);
+          await progressStmt.run(id, 'Biyoloji (TYT-AYT)', 0, 30);
         } else if (alan === 'Esit Agirlik') {
-          progressStmt.run(id, 'Matematik (TYT-AYT)', 0, 42);
-          progressStmt.run(id, 'Edebiyat (AYT)', 0, 25);
-          progressStmt.run(id, 'Tarih-1 (AYT)', 0, 15);
-          progressStmt.run(id, 'Coğrafya-1 (AYT)', 0, 12);
+          await progressStmt.run(id, 'Matematik (TYT-AYT)', 0, 42);
+          await progressStmt.run(id, 'Edebiyat (AYT)', 0, 25);
+          await progressStmt.run(id, 'Tarih-1 (AYT)', 0, 15);
+          await progressStmt.run(id, 'Coğrafya-1 (AYT)', 0, 12);
         } else if (alan === 'Sozel') {
-          progressStmt.run(id, 'Edebiyat (AYT)', 0, 25);
-          progressStmt.run(id, 'Tarih-2 (AYT)', 0, 20);
-          progressStmt.run(id, 'Coğrafya-2 (AYT)', 0, 15);
-          progressStmt.run(id, 'Felsefe Grubu (AYT)', 0, 12);
+          await progressStmt.run(id, 'Edebiyat (AYT)', 0, 25);
+          await progressStmt.run(id, 'Tarih-2 (AYT)', 0, 20);
+          await progressStmt.run(id, 'Coğrafya-2 (AYT)', 0, 15);
+          await progressStmt.run(id, 'Felsefe Grubu (AYT)', 0, 12);
         } else if (alan === 'Dil') {
-          progressStmt.run(id, 'Yabancı Dil (YDT)', 0, 30);
-          progressStmt.run(id, 'Türkçe (TYT)', 0, 40);
+          await progressStmt.run(id, 'Yabancı Dil (YDT)', 0, 30);
+          await progressStmt.run(id, 'Türkçe (TYT)', 0, 40);
         }
       }
     })();

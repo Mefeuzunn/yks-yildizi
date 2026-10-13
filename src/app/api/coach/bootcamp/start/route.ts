@@ -62,12 +62,16 @@ export async function POST(req: Request) {
     })();
 
     // Award badge if not already awarded
-    const checkBadge = await db.prepare('SELECT 1 FROM user_badges WHERE user_id = ? AND badge_name = ?')
-      .get(userId, 'AI Kampı Katılımcısı');
+    try {
+      const checkBadge = await db.prepare('SELECT 1 FROM user_badges WHERE user_id = ? AND badge_id = ?')
+        .get(userId, 'bootcamp_starter');
 
-    if (!checkBadge) {
-      await db.prepare('INSERT INTO user_badges (user_id, badge_name, badge_icon, description) VALUES (?, ?, ?, ?)')
-        .run(userId, 'AI Kampı Katılımcısı', '🔥', 'İlk 7 Günlük AI Kurtarma Kampı hedefini başlattı.');
+      if (!checkBadge) {
+        await db.prepare('INSERT INTO user_badges (id, user_id, badge_id) VALUES (?, ?, ?)')
+          .run(uuidv4(), userId, 'bootcamp_starter');
+      }
+    } catch (badgeErr) {
+      console.warn('Bootcamp badge assignment warning:', badgeErr);
     }
 
     return NextResponse.json({

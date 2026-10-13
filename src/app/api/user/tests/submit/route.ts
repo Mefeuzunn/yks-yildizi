@@ -32,11 +32,10 @@ export async function POST(req: Request) {
 
     await db.transaction(async () => {
       // 1. Save Test Session
-      const insertSession = await db.prepare(`
+      await db.prepare(`
         INSERT INTO test_sessions (id, user_id, test_type, score, correct_count, wrong_count, blank_count, duration, details_json)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `);
-      insertSession.run(sessionId, userId, test_type, score, correct_count, wrong_count, blank_count, duration, JSON.stringify(details || {}));
+      `).run(sessionId, userId, test_type, score, correct_count, wrong_count, blank_count, duration, JSON.stringify(details || {}));
 
       // 2. Fetch current stats
       const currentStats = await db.prepare('SELECT league_points, solved_questions, success_rate, coins, xp FROM user_stats WHERE user_id = ?').get(userId) as any;

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import db from '@/lib/yks-db-async';
 import { getAuthenticatedUserId } from '@/lib/auth-utils';
 import { calculateLeague } from '@/lib/league-system';
+import { v4 as uuidv4 } from 'uuid';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,6 +36,15 @@ export async function POST(req: Request) {
 
     await db.prepare('UPDATE user_stats SET league_points = ?, league = ?, solved_questions = ? WHERE user_id = ?').run(newPoints, newLeague, newSolved, userId);
 
+    // Sync clan weekly progress
+    try {
+      const clanMember = await db.prepare('SELECT clan_id FROM clan_members WHERE user_id = ?').get(userId) as any;
+      if (clanMember?.clan_id) {
+        await db.prepare('UPDATE clan_members SET weekly_contribution = weekly_contribution + ? WHERE user_id = ?').run(amount, userId);
+        await db.prepare('UPDATE clans SET weekly_xp = weekly_xp + ?, total_xp = total_xp + ? WHERE id = ?').run(amount, amount, clanMember.clan_id);
+      }
+    } catch (_) {}
+
     // Update Daily Quests for question solving
     try {
       await db.prepare(`
@@ -55,7 +65,7 @@ export async function POST(req: Request) {
     const newlyUnlocked: string[] = [];
     for (const b of eligibleBadges) {
       if (!existingBadgeIds.includes(b)) {
-        await db.prepare('INSERT INTO user_badges (id, user_id, badge_id) VALUES (hex(randomblob(16)), ?, ?)').run(userId, b);
+        await db.prepare('INSERT INTO user_badges (id, user_id, badge_id) VALUES (?, ?, ?)').run(uuidv4(), userId, b);
         newlyUnlocked.push(b);
       }
     }

@@ -34,6 +34,15 @@ export const BADGES = [
     colorClass: 'linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(3, 105, 161, 0.1))',
     borderColor: 'rgba(56, 189, 248, 0.2)',
     textColor: '#38bdf8'
+  },
+  {
+    id: 'bootcamp_starter',
+    icon: '⚡',
+    title: 'AI Kurtarma Kampçısı',
+    description: 'İlk 7 Günlük AI Kurtarma Kampı hedefini başlattı.',
+    colorClass: 'linear-gradient(135deg, rgba(244, 63, 94, 0.1), rgba(225, 29, 72, 0.1))',
+    borderColor: 'rgba(244, 63, 94, 0.2)',
+    textColor: '#f43f5e'
   }
 ];
 

@@ -47,18 +47,16 @@ export async function PUT(req: Request) {
     const existing = await db.prepare('SELECT * FROM user_settings WHERE user_id = ?').get(userId);
 
     if (existing) {
-      const updateStmt = await db.prepare(`
+      await db.prepare(`
         UPDATE user_settings 
         SET theme = ?, accent_color = ?, avatar_seed = ?, email_notifications = ?, duel_requests = ?
         WHERE user_id = ?
-      `);
-      updateStmt.run(theme, accent_color, avatar_seed, email_notifications, duel_requests, userId);
+      `).run(theme, accent_color, avatar_seed, email_notifications, duel_requests, userId);
     } else {
-      const insertStmt = await db.prepare(`
+      await db.prepare(`
         INSERT INTO user_settings (user_id, theme, accent_color, avatar_seed, email_notifications, duel_requests)
         VALUES (?, ?, ?, ?, ?, ?)
-      `);
-      insertStmt.run(userId, theme, accent_color, avatar_seed, email_notifications, duel_requests);
+      `).run(userId, theme, accent_color, avatar_seed, email_notifications, duel_requests);
     }
 
     return NextResponse.json({ success: true, message: 'Ayarlar kaydedildi' }, { status: 200 });

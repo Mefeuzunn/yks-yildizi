@@ -21,11 +21,9 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Kullanıcı bulunamadı.' }, { status: 404 });
     }
 
-    const statsStmt = await db.prepare(`SELECT * FROM user_stats WHERE user_id = ?`);
-    const stats = statsStmt.get(user.id);
+    const stats = await db.prepare(`SELECT * FROM user_stats WHERE user_id = ?`).get(user.id) as any;
 
-    const errorStmt = await db.prepare(`SELECT * FROM error_log WHERE user_id = ? ORDER BY created_at DESC LIMIT 5`);
-    const errors = errorStmt.all(user.id);
+    const errors = await db.prepare(`SELECT * FROM error_log WHERE user_id = ? ORDER BY created_at DESC LIMIT 5`).all(user.id) as any[];
 
     const badgesRows = await db.prepare('SELECT badge_id, earned_at FROM user_badges WHERE user_id = ?').all(user.id) as any[];
 

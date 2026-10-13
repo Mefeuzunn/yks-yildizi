@@ -81,7 +81,7 @@ export async function POST(req: Request) {
     }
 
     if (xpChange !== 0) {
-      await db.prepare('UPDATE user_stats SET league_points = MAX(0, league_points + ?) WHERE user_id = ?').run(xpChange, userId);
+      await db.prepare('UPDATE user_stats SET league_points = GREATEST(0, league_points + ?) WHERE user_id = ?').run(xpChange, userId);
     }
 
     return NextResponse.json({ success: true, completedCount: newCompletedCount, completedList }, { status: 200 });

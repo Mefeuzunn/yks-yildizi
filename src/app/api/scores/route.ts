@@ -15,19 +15,30 @@ export async function GET(req: Request) {
 
     const scores = await db.prepare('SELECT * FROM score_calculations WHERE user_id = ? ORDER BY created_at DESC').all(userId) as any[];
     
-    const mapped = scores.map(s => ({
-      id: s.id,
-      title: s.title,
-      obp: s.obp,
-      tyt_json: JSON.parse(s.tyt_json),
-      ayt_json: s.ayt_json ? JSON.parse(s.ayt_json) : null,
-      tyt_score: s.tyt_score,
-      say_score: s.say_score,
-      ea_score: s.ea_score,
-      soz_score: s.soz_score,
-      dil_score: s.dil_score,
-      created_at: s.created_at
-    }));
+    const mapped = scores.map(s => {
+      let parsedTyt = {};
+      let parsedAyt = null;
+      try {
+        parsedTyt = typeof s.tyt_json === 'string' ? JSON.parse(s.tyt_json) : (s.tyt_json || {});
+      } catch (_) {}
+      try {
+        parsedAyt = s.ayt_json ? (typeof s.ayt_json === 'string' ? JSON.parse(s.ayt_json) : s.ayt_json) : null;
+      } catch (_) {}
+
+      return {
+        id: s.id,
+        title: s.title,
+        obp: s.obp,
+        tyt_json: parsedTyt,
+        ayt_json: parsedAyt,
+        tyt_score: s.tyt_score,
+        say_score: s.say_score,
+        ea_score: s.ea_score,
+        soz_score: s.soz_score,
+        dil_score: s.dil_score,
+        created_at: s.created_at
+      };
+    });
 
     return NextResponse.json({ success: true, scores: mapped }, { status: 200 });
   } catch (error) {
@@ -48,14 +59,12 @@ export async function POST(req: Request) {
     const { title, obp, tyt_json, ayt_json, tyt_score, say_score, ea_score, soz_score, dil_score } = body;
     const scoreId = uuidv4();
 
-    const insertScore = await db.prepare(`
+    await db.prepare(`
       INSERT INTO score_calculations (id, user_id, title, obp, tyt_json, ayt_json, tyt_score, say_score, ea_score, soz_score, dil_score)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-
-    insertScore.run(
+    `).run(
       scoreId, userId, title || 'Hesaplama', obp, 
-      JSON.stringify(tyt_json), 
+      JSON.stringify(tyt_json || {}), 
       ayt_json ? JSON.stringify(ayt_json) : null, 
       tyt_score || 0, say_score || 0, ea_score || 0, soz_score || 0, dil_score || 0
     );

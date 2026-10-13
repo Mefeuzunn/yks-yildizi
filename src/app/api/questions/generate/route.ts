@@ -297,8 +297,7 @@ export async function GET(req: Request) {
       }
       qQuery += ` ORDER BY RANDOM() LIMIT 1`;
 
-      const staticStmt = await db.prepare(qQuery);
-      let staticQ = staticStmt.get(...qParams) as any;
+      let staticQ = await db.prepare(qQuery).get(...qParams) as any;
 
       if (!staticQ && topic && subject) {
         // Topic tam eşleşmediyse sadece branş bazlı dene
