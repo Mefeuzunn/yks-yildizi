@@ -107,6 +107,31 @@ export async function POST(req: Request) {
           })
         );
       }
+
+      // 5. Clan contribution sync (if student is in a clan)
+      try {
+        const clanMember = await db.prepare('SELECT clan_id FROM clan_members WHERE user_id = ?').get(userId) as any;
+        if (clanMember?.clan_id) {
+          await db.prepare(`
+            UPDATE clan_members 
+            SET weekly_contribution = weekly_contribution + ? 
+            WHERE user_id = ?
+          `).run(xpGained, userId);
+
+          await db.prepare(`
+            UPDATE clans 
+            SET weekly_xp = weekly_xp + ?, total_xp = total_xp + ? 
+            WHERE id = ?
+          `).run(xpGained, xpGained, clanMember.clan_id);
+
+          await db.prepare(`
+            INSERT INTO clan_weekly_log (id, clan_id, user_id, action, amount)
+            VALUES (?, ?, ?, ?, ?)
+          `).run(uuidv4(), clanMember.clan_id, userId, `Test Tamamlama: ${test_type}`, xpGained);
+        }
+      } catch (clanErr) {
+        console.warn('Clan contribution non-fatal error:', clanErr);
+      }
     })();
 
     return NextResponse.json({ success: true, sessionId }, { status: 201 });

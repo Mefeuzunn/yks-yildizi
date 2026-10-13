@@ -9,6 +9,9 @@ export async function GET(req: Request) {
     const q = searchParams.get('q') || '';
     const scoreType = searchParams.get('scoreType') || '';
     const city = searchParams.get('city') || '';
+    const uniType = searchParams.get('uniType') || '';
+    const sortBy = searchParams.get('sortBy') || 'base_score_desc';
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '60') || 60, 10), 100);
 
     let query = `
       SELECT d.*, u.name as uni_name, u.city, u.type as uni_type
@@ -23,17 +26,29 @@ export async function GET(req: Request) {
       params.push(`%${q}%`, `%${q}%`);
     }
     
-    if (scoreType) {
+    if (scoreType && scoreType !== 'all') {
       query += ` AND d.score_type = ?`;
       params.push(scoreType);
     }
     
-    if (city) {
+    if (city && city !== 'all') {
       query += ` AND u.city = ?`;
       params.push(city);
     }
 
-    query += ` ORDER BY d.base_score DESC LIMIT 50`;
+    if (uniType && uniType !== 'all') {
+      query += ` AND u.type = ?`;
+      params.push(uniType);
+    }
+
+    if (sortBy === 'ranking_asc') {
+      query += ` ORDER BY CASE WHEN d.ranking > 0 THEN d.ranking ELSE 9999999 END ASC LIMIT ?`;
+    } else if (sortBy === 'name_asc') {
+      query += ` ORDER BY d.name ASC LIMIT ?`;
+    } else {
+      query += ` ORDER BY d.base_score DESC LIMIT ?`;
+    }
+    params.push(limit);
 
     const results = await db.prepare(query).all(...params) as any[];
 

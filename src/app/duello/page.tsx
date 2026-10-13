@@ -265,7 +265,11 @@ export default function DuelloPage() {
   const startMatchmaking = async () => {
     setPhase('waiting');
     try {
-      const res = await fetch('/api/arena/matchmake', { method: 'POST' });
+      const res = await fetch('/api/arena/matchmake', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subject: selectedSubject })
+      });
       if (res.ok) {
         const data = await res.json();
         setDuelId(data.duelId);
@@ -667,7 +671,7 @@ export default function DuelloPage() {
                       {question.metin}
                     </h3>
                     <div className="duel-options-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: 'auto' }}>
-                      {question.secenekler.map((opt: string, idx: number) => {
+                      {(Array.isArray(question.secenekler) ? question.secenekler : Object.values(question.secenekler || {})).map((opt: string, idx: number) => {
                         const labels = ['A', 'B', 'C', 'D', 'E'];
                         const isSelected = selectedOption === opt;
                         

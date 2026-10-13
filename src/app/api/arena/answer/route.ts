@@ -33,7 +33,7 @@ export async function POST(req: Request) {
     const questions = JSON.parse(duel.questions_json || '[]');
     const currentQuestion = questions[round - 1];
 
-    const isCorrect = selectedOption === currentQuestion.dogruCevap;
+    const isCorrect = selectedOption === currentQuestion.dogruCevap || selectedOption === currentQuestion.dogruHarf;
     
     // Hız Puanı Hesaplama (Süre bitimine ne kadar çok kaldıysa o kadar puan, Max: 1000)
     let scoreEarned = 0;

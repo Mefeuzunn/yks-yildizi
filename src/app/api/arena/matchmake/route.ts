@@ -5,6 +5,30 @@ import { getAuthenticatedUserId } from '@/lib/auth-utils';
 
 export const dynamic = 'force-dynamic';
 
+function formatArenaQuestions(dbQuestions: any[]) {
+  return dbQuestions.map((q) => {
+    let optObj: Record<string, string> = {};
+    try {
+      optObj = typeof q.options_json === 'string' ? JSON.parse(q.options_json) : (q.options_json || {});
+    } catch (_) {}
+
+    const letters = ['A', 'B', 'C', 'D', 'E'];
+    const secenekler = letters.map((l) => optObj[l] || '').filter(Boolean);
+    const correctLetter = q.correct_option || 'A';
+    const dogruCevap = optObj[correctLetter] || correctLetter;
+
+    return {
+      id: q.id,
+      metin: q.text,
+      secenekler: secenekler.length > 0 ? secenekler : ['A', 'B', 'C', 'D', 'E'],
+      dogruCevap,
+      dogruHarf: correctLetter,
+      subject: q.subject || 'Genel',
+      topic: q.topic || 'Genel'
+    };
+  });
+}
+
 export async function POST(req: Request) {
   try {
     const userId = await getAuthenticatedUserId(req);
@@ -12,6 +36,16 @@ export async function POST(req: Request) {
 
     const user = await db.prepare('SELECT id, username FROM users WHERE id = ?').get(userId) as any;
     if (!user) return NextResponse.json({ error: 'Kullanıcı bulunamadı' }, { status: 404 });
+
+    let bodySubject = 'Karisik';
+    try {
+      const body = await req.json();
+      if (body?.subject) bodySubject = body.subject;
+    } catch (_) {}
+
+    try {
+      await db.prepare("ALTER TABLE duels ADD COLUMN IF NOT EXISTS subject TEXT DEFAULT 'Karisik'").run();
+    } catch (_) {}
 
     // Bot kullanıcısının varlığını kontrol et ve yoksa oluştur
     const botExist = await db.prepare("SELECT id FROM users WHERE id = 'yks-bot-user'").get() as any;
@@ -45,18 +79,25 @@ export async function POST(req: Request) {
 
     // Bekleyen bir düello var mı?
     const waitingDuel = await db.prepare(`
-      SELECT id FROM duels WHERE status = 'waiting' LIMIT 1
+      SELECT id, subject FROM duels WHERE status = 'waiting' LIMIT 1
     `).get() as any;
 
     if (waitingDuel) {
-      // Düelloya katıl
-      const dbQuestions = await db.prepare('SELECT * FROM questions ORDER BY RANDOM() LIMIT 10').all() as any[];
-      const questions = dbQuestions.map((q) => ({
-        id: q.id,
-        metin: q.text,
-        secenekler: JSON.parse(q.options_json),
-        dogruCevap: q.correct_option
-      }));
+      // Düelloya katıl - Soruları çek
+      const filterSubj = waitingDuel.subject && waitingDuel.subject !== 'Karisik' ? waitingDuel.subject : bodySubject;
+      let qQuery = 'SELECT * FROM questions';
+      let qParams: any[] = [];
+      if (filterSubj && filterSubj !== 'Karisik') {
+        qQuery += ' WHERE LOWER(subject) LIKE ?';
+        qParams.push(`%${filterSubj.toLowerCase()}%`);
+      }
+      qQuery += ' ORDER BY RANDOM() LIMIT 10';
+      let dbQuestions = await db.prepare(qQuery).all(...qParams) as any[];
+      if (dbQuestions.length < 5) {
+        dbQuestions = await db.prepare('SELECT * FROM questions ORDER BY RANDOM() LIMIT 10').all() as any[];
+      }
+
+      const questions = formatArenaQuestions(dbQuestions);
       const roundEndTime = new Date(Date.now() + 4000); // 3-2-1 Başla süresi
       
       await db.transaction(async () => {
@@ -100,8 +141,8 @@ export async function POST(req: Request) {
     // Bekleyen düello yok, yeni oluştur
     const newDuelId = uuidv4();
     await db.transaction(async () => {
-      await db.prepare('INSERT INTO duels (id, status) VALUES (?, ?)')
-        .run(newDuelId, 'waiting');
+      await db.prepare('INSERT INTO duels (id, status, subject) VALUES (?, ?, ?)')
+        .run(newDuelId, 'waiting', bodySubject);
       await db.prepare('INSERT INTO duel_participants (id, duel_id, user_id) VALUES (?, ?, ?)')
         .run(uuidv4(), newDuelId, user.id);
     })();

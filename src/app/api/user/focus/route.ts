@@ -207,6 +207,29 @@ export async function POST(req: NextRequest) {
           SET progress = COALESCE(progress, 0) + ? 
           WHERE user_id = ? AND created_date = CURRENT_DATE::text AND is_completed = 0
         `).run(dur, userId);
+
+        // Klan katkısı senkronizasyonu
+        try {
+          const clanMember = await db.prepare('SELECT clan_id FROM clan_members WHERE user_id = ?').get(userId) as any;
+          if (clanMember?.clan_id) {
+            await db.prepare(`
+              UPDATE clan_members 
+              SET weekly_contribution = weekly_contribution + ? 
+              WHERE user_id = ?
+            `).run(bonusXp, userId);
+
+            await db.prepare(`
+              UPDATE clans 
+              SET weekly_xp = weekly_xp + ?, total_xp = total_xp + ? 
+              WHERE id = ?
+            `).run(bonusXp, bonusXp, clanMember.clan_id);
+
+            await db.prepare(`
+              INSERT INTO clan_weekly_log (id, clan_id, user_id, action, amount)
+              VALUES (?, ?, ?, ?, ?)
+            `).run(uuidv4(), clanMember.clan_id, userId, `Odaklanma: ${dur} dk (${subject || 'Genel'})`, bonusXp);
+          }
+        } catch (_) {}
       } catch (statsErr) {
         console.warn('Stats update non-fatal error:', statsErr);
       }

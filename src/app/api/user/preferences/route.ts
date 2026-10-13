@@ -63,10 +63,16 @@ export async function POST(req: Request) {
       await db.prepare('DELETE FROM preference_items WHERE list_id = ?').run(listId);
 
       // Insert new items
-      const insertItem = await db.prepare('INSERT INTO preference_items (id, list_id, department_id, order_index) VALUES (?, ?, ?, ?)');
-      departmentIds.forEach((depId: string, index: number) => {
-        insertItem.run(uuidv4(), listId, depId, index + 1);
-      });
+      if (Array.isArray(departmentIds)) {
+        for (let i = 0; i < departmentIds.length; i++) {
+          await db.prepare('INSERT INTO preference_items (id, list_id, department_id, order_index) VALUES (?, ?, ?, ?)').run(
+            uuidv4(),
+            listId,
+            departmentIds[i],
+            i + 1
+          );
+        }
+      }
     })();
 
     return NextResponse.json({ success: true }, { status: 200 });

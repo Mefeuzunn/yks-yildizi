@@ -5,6 +5,30 @@ import { getAuthenticatedUserId } from '@/lib/auth-utils';
 
 export const dynamic = 'force-dynamic';
 
+function formatArenaQuestions(dbQuestions: any[]) {
+  return dbQuestions.map((q) => {
+    let optObj: Record<string, string> = {};
+    try {
+      optObj = typeof q.options_json === 'string' ? JSON.parse(q.options_json) : (q.options_json || {});
+    } catch (_) {}
+
+    const letters = ['A', 'B', 'C', 'D', 'E'];
+    const secenekler = letters.map((l) => optObj[l] || '').filter(Boolean);
+    const correctLetter = q.correct_option || 'A';
+    const dogruCevap = optObj[correctLetter] || correctLetter;
+
+    return {
+      id: q.id,
+      metin: q.text,
+      secenekler: secenekler.length > 0 ? secenekler : ['A', 'B', 'C', 'D', 'E'],
+      dogruCevap,
+      dogruHarf: correctLetter,
+      subject: q.subject || 'Genel',
+      topic: q.topic || 'Genel'
+    };
+  });
+}
+
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -37,13 +61,19 @@ export async function GET(req: Request) {
       const elapsedMs = now.getTime() - createdAt.getTime();
       
       if (elapsedMs > 5000 && participants.length === 1) {
-        const dbQuestions = await db.prepare('SELECT * FROM questions ORDER BY RANDOM() LIMIT 10').all() as any[];
-        const matchQuestions = dbQuestions.map((q) => ({
-          id: q.id,
-          metin: q.text,
-          secenekler: JSON.parse(q.options_json),
-          dogruCevap: q.correct_option
-        }));
+        let qQuery = 'SELECT * FROM questions';
+        let qParams: any[] = [];
+        if (duel.subject && duel.subject !== 'Karisik') {
+          qQuery += ' WHERE LOWER(subject) LIKE ?';
+          qParams.push(`%${duel.subject.toLowerCase()}%`);
+        }
+        qQuery += ' ORDER BY RANDOM() LIMIT 10';
+        let dbQuestions = await db.prepare(qQuery).all(...qParams) as any[];
+        if (dbQuestions.length < 5) {
+          dbQuestions = await db.prepare('SELECT * FROM questions ORDER BY RANDOM() LIMIT 10').all() as any[];
+        }
+
+        const matchQuestions = formatArenaQuestions(dbQuestions);
         
         const newEndTime = new Date(now.getTime() + 4000);
         
@@ -97,9 +127,12 @@ export async function GET(req: Request) {
               const botAccuracySeed = (botDelaySeed * 3) % 100;
               const isCorrect = botAccuracySeed < 80; // %80 doğruluk payı
               
-              const selectedOption = isCorrect 
-                ? currentQuestion.dogruCevap 
-                : currentQuestion.secenekler.find((o: string) => o !== currentQuestion.dogruCevap) || currentQuestion.secenekler[0];
+              const seceneklerList = Array.isArray(currentQuestion.secenekler)
+                ? currentQuestion.secenekler
+                : Object.values(currentQuestion.secenekler || {});
+              
+              const wrongOpt = seceneklerList.find((o: string) => o !== currentQuestion.dogruCevap && o !== currentQuestion.dogruHarf) || seceneklerList[0];
+              const selectedOption = isCorrect ? currentQuestion.dogruCevap : wrongOpt;
                 
               let scoreEarned = 0;
               if (isCorrect) {
