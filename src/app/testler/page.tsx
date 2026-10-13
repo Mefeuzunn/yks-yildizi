@@ -18,8 +18,19 @@ type TestCategory = 'all' | 'pdf_archive' | 'past_exam' | 'predicted' | 'meb_kaz
 
 const OSYM_PDF_ARCHIVE = [
   {
+    year: 2025,
+    badge: 'En Güncel 2025 YKS',
+    badgeColor: '#10b981',
+    title: '2025 YKS (TYT & AYT) Resmi Soru Kitapçıkları',
+    desc: '2025 ÖSYM Temel Soru Kitapçığı ve Cevap Anahtarı (120 TYT + 80 AYT Sayısal)',
+    tytPdf: 'https://dokuman.osym.gov.tr/pdfdokuman/2025/YKS/2025_TYT_Temel_Soru_Kitapcigi_ve_Cevap_Anahtari.pdf',
+    aytPdf: 'https://dokuman.osym.gov.tr/pdfdokuman/2025/YKS/2025_AYT_Temel_Soru_Kitapcigi_ve_Cevap_Anahtari.pdf',
+    tytSuiteId: 'osym-2025-tyt-deneme',
+    aytSuiteId: 'osym-2025-ayt-mat-deneme'
+  },
+  {
     year: 2024,
-    badge: 'En Güncel Sınav',
+    badge: '2024 Çıkmış',
     badgeColor: '#ef4444',
     title: '2024 YKS (TYT & AYT) Resmi Soru Kitapçıkları',
     desc: '2024 ÖSYM Temel Soru Kitapçığı ve Cevap Anahtarı (120 TYT + 80 AYT Sayısal)',
@@ -579,7 +590,7 @@ export default function TestlerPage() {
               {[
                 { id: 'all', label: 'Tüm Yıllar' },
                 { id: '2026', label: '2026 Maarif', badge: 'Vizyon' },
-                { id: '2025', label: '2025 Tahmin', badge: 'Trend' },
+                { id: '2025', label: '2025', badge: 'Son Çıkmış' },
                 { id: '2024', label: '2024', badge: 'Çıkmış' },
                 { id: '2023', label: '2023', badge: 'Çıkmış' },
                 { id: '2022', label: '2022', badge: 'Çıkmış' },

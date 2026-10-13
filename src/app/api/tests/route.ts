@@ -61,9 +61,15 @@ export async function GET(req: Request) {
           params.push(suite.examType);
         }
 
-        if (suite.subject && suite.subject !== 'Tüm Dersler' && !suite.subject.includes('&')) {
-          query += ' AND LOWER(subject) = LOWER(?)';
-          params.push(suite.subject);
+        if (suite.subject && suite.subject !== 'Tüm Dersler') {
+          if (suite.subject.includes('&')) {
+            const subList = suite.subject.split('&').map((s: string) => s.trim().toLowerCase());
+            query += ` AND LOWER(subject) IN (${subList.map(() => '?').join(', ')})`;
+            params.push(...subList);
+          } else {
+            query += ' AND LOWER(subject) = LOWER(?)';
+            params.push(suite.subject);
+          }
         }
 
         query += ' ORDER BY id ASC LIMIT ?';
@@ -93,9 +99,15 @@ export async function GET(req: Request) {
           params.push(suite.examType);
         }
 
-        if (suite.subject && suite.subject !== 'Tüm Dersler' && !suite.subject.includes('&')) {
-          query += ' AND LOWER(subject) = LOWER(?)';
-          params.push(suite.subject);
+        if (suite.subject && suite.subject !== 'Tüm Dersler') {
+          if (suite.subject.includes('&')) {
+            const subList = suite.subject.split('&').map((s: string) => s.trim().toLowerCase());
+            query += ` AND LOWER(subject) IN (${subList.map(() => '?').join(', ')})`;
+            params.push(...subList);
+          } else {
+            query += ' AND LOWER(subject) = LOWER(?)';
+            params.push(suite.subject);
+          }
         }
 
         query += ' ORDER BY id ASC LIMIT ?';

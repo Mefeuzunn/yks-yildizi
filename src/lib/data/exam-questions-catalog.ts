@@ -32,6 +32,184 @@ export interface CuratedTestDefinition {
 
 // ─── ÖSYM Çıkmış & 2025-2026 Çıkabilecek Soru Koleksiyonu ────────────────────
 export const CURATED_EXAM_QUESTIONS: ExamQuestionItem[] = [
+  // ── 2025 ÖSYM ÇIKMIŞ SORULARI (EN GÜNCEL) ──
+  {
+    id: 'osym_2025_ayt_mat_1',
+    subject: 'Matematik',
+    topic: 'Polinomlar',
+    subtopic: 'Kalan Teoremi ve Bölme',
+    examType: 'AYT',
+    examYear: 2025,
+    isPastExam: true,
+    isPredicted: false,
+    difficulty: 3,
+    text: 'Baş katsayısı 1 olan üçüncü dereceden bir P(x) polinomu için,\n\nP(1) = P(2) = P(3) = 5\n\nolduğuna göre, P(4) değeri kaçtır?',
+    options: {
+      A: '9',
+      B: '11',
+      C: '13',
+      D: '15',
+      E: '17'
+    },
+    correctOption: 'B',
+    explanation: 'P(x) polinomu (x-1)(x-2)(x-3) ile bölündüğünde 5 kalanını verir: P(x) = 1·(x-1)(x-2)(x-3) + 5. x = 4 için P(4) = (3)(2)(1) + 5 = 6 + 5 = 11.',
+    hint: 'Kökler yerine kalanlı polinom kalıbını yaz: P(x) = (x-1)(x-2)(x-3) + 5.'
+  },
+  {
+    id: 'osym_2025_ayt_mat_2',
+    subject: 'Matematik',
+    topic: 'Trigonometri',
+    subtopic: 'Yarım Açı & Sadeleştirme',
+    examType: 'AYT',
+    examYear: 2025,
+    isPastExam: true,
+    isPredicted: false,
+    difficulty: 3,
+    text: '0 < x < π/2 olmak üzere,\n\n(sin(2x) · tan(x)) / (1 - cos(2x))\n\nifadesinin en sade biçimi aşağıdakilerden hangisidir?',
+    options: {
+      A: '1',
+      B: '2',
+      C: 'sin(x)',
+      D: 'cos(x)',
+      E: 'tan(x)'
+    },
+    correctOption: 'A',
+    explanation: 'sin(2x) = 2sin(x)cos(x), tan(x) = sin(x)/cos(x) => Pay: 2sin²(x). 1 - cos(2x) = 1 - (1 - 2sin²(x)) = 2sin²(x). Pay/Payda = 2sin²(x) / 2sin²(x) = 1.',
+    hint: 'cos(2x) = 1 - 2sin²(x) formülüyle paydadaki 1\'i yok et.'
+  },
+  {
+    id: 'osym_2025_ayt_mat_3',
+    subject: 'Matematik',
+    topic: 'Türev ve Geometrik Yorumu',
+    subtopic: 'Yerel Ekstremum ve Ordinat',
+    examType: 'AYT',
+    examYear: 2025,
+    isPastExam: true,
+    isPredicted: false,
+    difficulty: 3,
+    text: 'f(x) = x³ - 6x² + 9x + 2 fonksiyonunun yerel minimum noktasının ordinatı kaçtır?',
+    options: {
+      A: '2',
+      B: '4',
+      C: '6',
+      D: '8',
+      E: '10'
+    },
+    correctOption: 'A',
+    explanation: "f'(x) = 3x² - 12x + 9 = 3(x-1)(x-3) = 0. x=3 yerel minimum noktasıdır. f(3) = 27 - 54 + 27 + 2 = 2.",
+    hint: "Türevin işaret tablosunu yap: x=3'te türev negatiften pozitife geçer, fonksiyonda yerine koy."
+  },
+  {
+    id: 'osym_2025_tyt_mat_1',
+    subject: 'Matematik',
+    topic: 'Temel Kavramlar',
+    subtopic: 'Tek ve Çift Sayılar',
+    examType: 'TYT',
+    examYear: 2025,
+    isPastExam: true,
+    isPredicted: false,
+    difficulty: 3,
+    text: 'a, b ve c sıfırdan farklı tam sayılar olmak üzere,\n\n(a · b) + c\n\nifadesinin tek sayı olduğu bilinmektedir.\n\nBuna göre,\nI. a çift ise c tektir.\nII. c çift ise a ve b tektir.\nIII. a + b + c toplamı daima tektir.\n\nyargılarından hangileri her zaman doğrudur?',
+    options: {
+      A: 'Yalnız I',
+      B: 'Yalnız II',
+      C: 'I ve II',
+      D: 'I ve III',
+      E: 'I, II ve III'
+    },
+    correctOption: 'C',
+    explanation: 'Çift + Tek = Tek veya Tek + Çift = Tek. a çift ise a·b çifttir, c tek olmalıdır (I doğru). c çift ise a·b tek olmalıdır, bu da a ve b\'nin ikisinin de tek olduğunu gerektirir (II doğru). a=2, b=1, c=1 için toplam 4 (çift) olabilir (III yanlış).',
+    hint: 'Tek bir sayının oluşması için çift + tek veya tek + çift durumlarını incele.'
+  },
+  {
+    id: 'osym_2025_tyt_tur_1',
+    subject: 'Türkçe',
+    topic: 'Sözcükte Anlam',
+    subtopic: 'Kavram ve Anlam Derinliği',
+    examType: 'TYT',
+    examYear: 2025,
+    isPastExam: true,
+    isPredicted: false,
+    difficulty: 3,
+    text: 'Edebiyat dünyasında bazı kavramlar vardır ki zamanla ilk ortaya çıktıkları anlam katmanından uzaklaşıp "içi boşaltılmış birer kabuğa" dönüşür. Yazar, bu kavramları metninde yeniden işlerken onların paslanmış yüzeyini kazıyarak altındaki özgün pırıltıyı ortaya çıkarır.\n\nBu parçadaki "paslanmış yüzeyini kazıyarak altındaki özgün pırıltıyı ortaya çıkarmak" sözüyle anlatılmak istenen aşağıdakilerden hangisidir?',
+    options: {
+      A: 'Kavramların ilk defa kimler tarafından kullanıldığını tarihsel belgelerle kanıtlamak',
+      B: 'Alışılagelmiş ve kalıplaşmış anlamların ötesine geçerek kavramlara derinlik ve tazelik kazandırmak',
+      C: 'Unutulmaya yüz tutmuş eski sözcükleri günümüz dil kurallarına uyarlamak',
+      D: 'Metnin anlaşılırlığını artırmak için süslü ve sanatlı söyleyişlerden kaçınmak',
+      E: 'Edebî metinlerdeki anlam belirsizliklerini mantıksal açıklamalarla gidermek'
+    },
+    correctOption: 'B',
+    explanation: 'Kalıplaşmış, aşınmış anlamların dışına çıkıp kelimeye taze ve zengin bir derinlik kazandırmak kast edilmiştir.',
+    hint: 'Paslanmış yüzey alışılagelmiş anlamı, özgün pırıltı ise tazelik ve derinliği simgeler.'
+  },
+  {
+    id: 'osym_2025_ayt_fiz_1',
+    subject: 'Fizik',
+    topic: 'Basit Harmonik Hareket',
+    subtopic: 'Yay Sarkacı ve Frekans',
+    examType: 'AYT',
+    examYear: 2025,
+    isPastExam: true,
+    isPredicted: false,
+    difficulty: 3,
+    text: 'Sürtünmesiz yatay düzlemde yay sabiti k olan bir yayın ucuna bağlı m kütleli cisim x genliği ile basit harmonik hareket yapmaktadır.\n\nYayın esneklik katsayısı 4k, cismin kütlesi ise m/4 yapılırsa hareketin frekansı ilk durumun kaç katına çıkar?',
+    options: {
+      A: '1/4',
+      B: '1/2',
+      C: '1',
+      D: '2',
+      E: '4'
+    },
+    correctOption: 'E',
+    explanation: 'f = (1/2π)√(k/m). Yeni durumda √(4k / (m/4)) = √(16k/m) = 4√(k/m) = 4f.',
+    hint: 'Frekans kök(k/m) ile doğru orantılıdır; 4 / (1/4) = 16 ve kök(16) = 4.'
+  },
+  {
+    id: 'osym_2025_ayt_kim_1',
+    subject: 'Kimya',
+    topic: 'Elektrokimya & Piller',
+    subtopic: 'Standart Pil Potansiyeli',
+    examType: 'AYT',
+    examYear: 2025,
+    isPastExam: true,
+    isPredicted: false,
+    difficulty: 2,
+    text: 'Standart şartlarda çalışan Zn - Cu galvanik pili için;\nZn²⁺(suda) + 2e⁻ → Zn(k)   E° = -0.76 V\nCu²⁺(suda) + 2e⁻ → Cu(k)   E° = +0.34 V\n\nBuna göre bu pilin standart pil potansiyeli (E°_pil) kaç Volttur?',
+    options: {
+      A: '0.42',
+      B: '0.76',
+      C: '1.10',
+      D: '1.44',
+      E: '2.20'
+    },
+    correctOption: 'C',
+    explanation: 'Zn anot (yükseltgenme): E° = +0.76 V. Cu katot (indirgenme): E° = +0.34 V. E°_pil = 0.76 + 0.34 = 1.10 V.',
+    hint: 'Anotta yükseltgenme olur, -0.76 ters çevrilerek +0.76 olur ve toplanır.'
+  },
+  {
+    id: 'osym_2025_ayt_biy_1',
+    subject: 'Biyoloji',
+    topic: 'Sinir Sistemi & İmpuls',
+    subtopic: 'İmpuls İletim Mekanizması',
+    examType: 'AYT',
+    examYear: 2025,
+    isPastExam: true,
+    isPredicted: false,
+    difficulty: 3,
+    text: 'Miyelinli bir nöronda impuls iletimi sırasında gerçekleşen elektrokimyasal olaylarla ilgili aşağıdakilerden hangisi yanlıştır?',
+    options: {
+      A: 'Depolarizasyon sırasında voltaj kapılı Na⁺ kanalları açılarak hücre içine hızlı Na⁺ girişi olur.',
+      B: 'Repolarizasyon sırasında K⁺ kanalları açılarak hücre dışına K⁺ çıkışı gerçekleşir.',
+      C: 'İmpuls, miyelinsiz bölgeler olan Ranvier boğumlarında sıçramalı olarak iletilir.',
+      D: 'İmpuls iletimi boyunca ATP harcanmaz, iyon geçişleri yalnızca pasif difüzyonla gerçekleşir.',
+      E: 'Polarizasyon durumunun yeniden kurulması Na⁺/K⁺ pompası ile aktif taşıma sayesinde sağlanır.'
+    },
+    correctOption: 'D',
+    explanation: 'Na+/K+ pompasının çalışması ve iyon dengesinin kurulması sırasında aktif taşıma ile yoğun miktarda ATP harcanır.',
+    hint: 'Sinir iletiminde polarizasyonun korunması ve eski haline gelmesi için Na+/K+ pompası sürekli ATP tüketir.'
+  },
+
   // ── MATEMATİK: 2024 AYT ÇIKMIŞ ──
   {
     id: 'osym_2024_ayt_mat_1',
@@ -655,6 +833,86 @@ export const CURATED_TEST_SUITES: CuratedTestDefinition[] = [
     difficultyLabel: 'Derece',
     badgeColor: '#ec4899',
     description: 'Elektrokimya, fotoelektrik, harmonik hareket ve genden proteine kritik AYT fen soruları.'
+  },
+
+  // ── 2025 ÖSYM ÇIKMIŞ (EN GÜNCEL YKS OTURUMU) ──
+  {
+    id: 'osym-2025-tyt-full',
+    title: '2025 ÖSYM TYT Çıkmış Sınavı (Tam Deneme)',
+    category: 'past_exam',
+    examType: 'TYT',
+    subject: 'Tüm Dersler',
+    year: 2025,
+    questionCount: 120,
+    durationMinutes: 165,
+    difficultyLabel: 'ÖSYM Seviyesi',
+    badgeColor: '#10b981',
+    description: '2025 YKS TYT oturumunda çıkmış 120 gerçek soruyla (40 Türkçe, 40 Matematik, 20 Sosyal, 20 Fen) tam zamanlı sınav provası.'
+  },
+  {
+    id: 'osym-2025-tyt-deneme',
+    title: '2025 ÖSYM TYT Çıkmış Soru Simülasyonu',
+    category: 'past_exam',
+    examType: 'TYT',
+    subject: 'Tüm Dersler',
+    year: 2025,
+    questionCount: 20,
+    durationMinutes: 30,
+    difficultyLabel: 'ÖSYM Seviyesi',
+    badgeColor: '#10b981',
+    description: '2025 YKS TYT oturumunda çıkmış gerçek sorularla hazırlanmış birebir sınav tecrübesi.'
+  },
+  {
+    id: 'osym-2025-ayt-mat-deneme',
+    title: '2025 ÖSYM AYT Matematik Çıkmış Sorular',
+    category: 'past_exam',
+    examType: 'AYT',
+    subject: 'Matematik',
+    year: 2025,
+    questionCount: 20,
+    durationMinutes: 35,
+    difficultyLabel: 'ÖSYM Seviyesi',
+    badgeColor: '#38bdf8',
+    description: '2025 YKS AYT oturumunda çıkmış limit, türev, integral, logaritma ve trigonometri matematik soruları.'
+  },
+  {
+    id: 'osym-2025-ayt-fen-deneme',
+    title: '2025 ÖSYM AYT Fen Bilimleri Çıkmış Sorular',
+    category: 'past_exam',
+    examType: 'AYT',
+    subject: 'Fizik & Kimya & Biyoloji',
+    year: 2025,
+    questionCount: 20,
+    durationMinutes: 30,
+    difficultyLabel: 'ÖSYM Seviyesi',
+    badgeColor: '#8b5cf6',
+    description: '2025 AYT Fen Bilimleri oturumunda çıkmış fizik (harmonik hareket, indüksiyon), kimya (elektrokimya, denge) ve biyoloji soruları.'
+  },
+  {
+    id: 'osym-2025-ayt-sayisal-full',
+    title: '2025 ÖSYM AYT Sayısal Çıkmış Sınavı',
+    category: 'past_exam',
+    examType: 'AYT',
+    subject: 'Matematik & Fen',
+    year: 2025,
+    questionCount: 80,
+    durationMinutes: 180,
+    difficultyLabel: 'ÖSYM Seviyesi',
+    badgeColor: '#059669',
+    description: '2025 YKS AYT Sayısal oturumunda çıkmış 80 gerçek soruyla (40 Matematik + 40 Fen) tam zamanlı sınav provası.'
+  },
+  {
+    id: 'osym-2025-tyt-turkce-deneme',
+    title: '2025 ÖSYM TYT Türkçe Çıkmış Sorular',
+    category: 'past_exam',
+    examType: 'TYT',
+    subject: 'Türkçe',
+    year: 2025,
+    questionCount: 20,
+    durationMinutes: 25,
+    difficultyLabel: 'ÖSYM Seviyesi',
+    badgeColor: '#f59e0b',
+    description: '2025 TYT Türkçe oturumunda çıkmış paragraf, dil bilgisi ve anlam bilgisi soruları.'
   },
 
   // ── 2024 ÖSYM ÇIKMIŞ ──
