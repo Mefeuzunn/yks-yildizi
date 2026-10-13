@@ -9,57 +9,44 @@ export async function GET(req: Request) {
     const userId = await getAuthenticatedUserId(req);
     if (!userId) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
 
-    // Seed dummy mock exams if none exist to demonstrate charts
-    const examCount = await db.prepare('SELECT COUNT(*) as c FROM mock_exams WHERE user_id = ?').get(userId) as any;
-    
-    if (examCount.c === 0) {
-      const dummyExams = [
-        { name: 'Oca', turkish: 25, math: 15, social: 12, science: 8, total: 60 },
-        { name: 'Şub', turkish: 28, math: 18, social: 14, science: 10, total: 70 },
-        { name: 'Mar', turkish: 30, math: 22, social: 15, science: 12, total: 79 },
-        { name: 'Nis', turkish: 32, math: 25, social: 16, science: 14, total: 87 },
-      ];
-
-      const insert = await db.prepare(`
-        INSERT INTO mock_exams (user_id, exam_type, exam_name, turkish_net, math_net, social_net, science_net, total_net) 
-        VALUES (?, 'TYT', ?, ?, ?, ?, ?, ?)
-      `);
-
-      await db.transaction(async () => {
-        dummyExams.forEach(e => insert.run(userId, e.name, e.turkish, e.math, e.social, e.science, e.total));
-      })();
-    }
-
     // Fetch actual data
-    const exams = await db.prepare("SELECT * FROM mock_exams WHERE user_id = ? AND exam_type = 'TYT' ORDER BY id ASC").all(userId) as any[];
+    const exams = await db.prepare("SELECT * FROM mock_exams WHERE user_id = ? AND exam_type = 'TYT' ORDER BY exam_date ASC, id ASC").all(userId) as any[];
 
-    // Transform for line chart
-    const trendData = exams.map(e => ({
-      name: e.exam_name || 'Deneme',
-      net: e.total_net
-    }));
+    let trendData: any[] = [];
+    let radarData: any[] = [];
 
-    // Transform for radar chart (average of latest 3 exams if available, otherwise just use latest)
-    let mathAvg = 0, turkAvg = 0, socAvg = 0, sciAvg = 0;
-    const recent = exams.slice(-3);
-    if (recent.length > 0) {
-      mathAvg = recent.reduce((sum, e) => sum + e.math_net, 0) / recent.length;
-      turkAvg = recent.reduce((sum, e) => sum + e.turkish_net, 0) / recent.length;
-      socAvg = recent.reduce((sum, e) => sum + e.social_net, 0) / recent.length;
-      sciAvg = recent.reduce((sum, e) => sum + e.science_net, 0) / recent.length;
+    if (exams.length > 0) {
+      trendData = exams.map(e => ({
+        name: e.exam_name || 'Deneme',
+        net: Number(e.total_net) || 0
+      }));
+
+      const recent = exams.slice(-3);
+      const mathAvg = recent.reduce((sum, e) => sum + (Number(e.math_net) || 0), 0) / recent.length;
+      const turkAvg = recent.reduce((sum, e) => sum + (Number(e.turkish_net) || 0), 0) / recent.length;
+      const socAvg = recent.reduce((sum, e) => sum + (Number(e.social_net) || 0), 0) / recent.length;
+      const sciAvg = recent.reduce((sum, e) => sum + (Number(e.science_net) || 0), 0) / recent.length;
+
+      radarData = [
+        { subject: 'Türkçe', A: Math.round(turkAvg * 10) / 10, fullMark: 40 },
+        { subject: 'Matematik', A: Math.round(mathAvg * 10) / 10, fullMark: 40 },
+        { subject: 'Sosyal', A: Math.round(socAvg * 10) / 10, fullMark: 20 },
+        { subject: 'Fen', A: Math.round(sciAvg * 10) / 10, fullMark: 20 }
+      ];
+    } else {
+      trendData = [];
+      radarData = [
+        { subject: 'Türkçe', A: 0, fullMark: 40 },
+        { subject: 'Matematik', A: 0, fullMark: 40 },
+        { subject: 'Sosyal', A: 0, fullMark: 20 },
+        { subject: 'Fen', A: 0, fullMark: 20 }
+      ];
     }
-
-    // Convert max limits for radar (TYT: Turk 40, Math 40, Soc 20, Sci 20)
-    const radarData = [
-      { subject: 'Türkçe', A: turkAvg, fullMark: 40 },
-      { subject: 'Matematik', A: mathAvg, fullMark: 40 },
-      { subject: 'Sosyal', A: socAvg, fullMark: 20 },
-      { subject: 'Fen', A: sciAvg, fullMark: 20 }
-    ];
 
     return NextResponse.json({
       trendData,
-      radarData
+      radarData,
+      hasExams: exams.length > 0
     });
 
   } catch (err) {

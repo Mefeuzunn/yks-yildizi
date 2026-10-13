@@ -55,9 +55,9 @@ export async function GET() {
       `);
 
       await db.transaction(async () => {
-        selected.forEach(q => {
-          insertQuest.run(crypto.randomUUID(), userId, q.title, q.target, 0, q.xp_reward, 0, today);
-        });
+        for (const q of selected) {
+          await insertQuest.run(crypto.randomUUID(), userId, q.title, q.target, 0, q.xp_reward, 0, today);
+        }
       })();
 
       quests = await db.prepare(`

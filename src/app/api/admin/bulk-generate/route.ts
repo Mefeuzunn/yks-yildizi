@@ -31,9 +31,9 @@ export async function POST(req: Request) {
     let createdFlashcards = 0;
 
     await db.transaction(async () => {
-      targetSubjects.forEach((subject: string) => {
+      for (const subject of targetSubjects) {
         const topics = SUBJECT_MAP[subject] || ['Genel'];
-        topics.forEach((topic: string) => {
+        for (const topic of topics) {
           for (let i = 1; i <= countPerTopic; i++) {
             const qText = `${subject} (${topic}) Otomatik YKS Sorusu #${i}: ÖSYM tarzı muhakeme sorusu.`;
             const options = {
@@ -47,18 +47,18 @@ export async function POST(req: Request) {
             const correct = correctOpts[i % 5];
             const diff = (i % 3) + 1;
 
-            insertQuestion.run(subject, topic, qText, JSON.stringify(options), correct, diff);
+            await insertQuestion.run(subject, topic, qText, JSON.stringify(options), correct, diff);
             createdQuestions++;
 
             const cardId = uuidv4();
             const front = `${subject} - ${topic}: Ezber Kartı #${i}`;
             const back = `${topic} konusunda bilinmesi gereken Kritik Not #${i}`;
 
-            insertFlashcard.run(cardId, 'system', subject, topic, front, back);
+            await insertFlashcard.run(cardId, 'system', subject, topic, front, back);
             createdFlashcards++;
           }
-        });
-      });
+        }
+      }
     })();
 
     return NextResponse.json({

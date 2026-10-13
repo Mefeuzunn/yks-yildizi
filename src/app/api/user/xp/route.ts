@@ -49,8 +49,8 @@ export async function POST(req: Request) {
     try {
       await db.prepare(`
         UPDATE daily_quests 
-        SET current_value = current_value + 1 
-        WHERE user_id = ? AND date = CURRENT_DATE AND quest_type = 'questions' AND is_completed = 0
+        SET progress = COALESCE(progress, 0) + 1 
+        WHERE user_id = ? AND created_date = CURRENT_DATE::text AND is_completed = 0
       `).run(userId);
     } catch(e) {}
 
