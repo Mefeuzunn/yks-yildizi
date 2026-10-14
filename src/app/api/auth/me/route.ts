@@ -37,7 +37,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ authenticated: false }, { status: 401 });
     }
 
-    const user = await db.prepare('SELECT id, username, role, alan, sinif, brans, kurum, parent_code, target_university, target_department, invite_code, curriculum_mode FROM users WHERE id = ?').get(userId) as any;
+    const user = await db.prepare('SELECT id, username, email, role, alan, sinif, brans, kurum, parent_code, target_university, target_department, invite_code, curriculum_mode FROM users WHERE id = ?').get(userId) as any;
 
     if (!user) {
       return NextResponse.json({ authenticated: false }, { status: 401 });

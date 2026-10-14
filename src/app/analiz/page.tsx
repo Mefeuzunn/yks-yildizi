@@ -4,8 +4,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Stars, Html } from '@react-three/drei';
 import * as THREE from 'three';
-import { Zap, Orbit, Clock } from 'lucide-react';
+import { Zap, Orbit, Clock, Award } from 'lucide-react';
 import SpeedAnalyticsTab from '@/components/dashboard/SpeedAnalyticsTab';
+import { useAuth } from '@/context/AuthContext';
 
 // Planet Component (GPU & Battery Optimized)
 function Planet({ position, size, color, speed, name, progress, isEco }: any) {
@@ -108,6 +109,9 @@ function SolarSystem({ planets, isEco }: { planets: any[]; isEco: boolean }) {
 }
 
 export default function AnalizPage() {
+  const { user } = useAuth();
+  const isDemoAccount = user?.email === 'deneme@gmail.com' || user?.username === 'deneme' || user?.id === 'bbaa9549-136f-4206-86e3-5aa1f8c5d128';
+
   const [activeTab, setActiveTab] = useState<'speed' | 'galaxy'>('speed');
   const [isTabVisible, setIsTabVisible] = useState(true);
   const [isEco, setIsEco] = useState(false);
@@ -161,6 +165,18 @@ export default function AnalizPage() {
   };
 
   useEffect(() => {
+    if (isDemoAccount) {
+      setPlanets([
+        { name: 'Matematik', color: '#38bdf8', distance: 4.5, size: 0.72, speed: 0.45, progress: 94 },
+        { name: 'Fizik', color: '#8b5cf6', distance: 7.0, size: 0.68, speed: 0.38, progress: 88 },
+        { name: 'Kimya', color: '#10b981', distance: 9.5, size: 0.74, speed: 0.52, progress: 95 },
+        { name: 'Biyoloji', color: '#ec4899', distance: 12.0, size: 0.64, speed: 0.32, progress: 89 },
+        { name: 'Türkçe', color: '#f43f5e', distance: 14.5, size: 0.70, speed: 0.40, progress: 92 },
+        { name: 'Geometri', color: '#f59e0b', distance: 17.0, size: 0.62, speed: 0.30, progress: 86 },
+      ]);
+      return;
+    }
+
     async function fetchLiveProgress() {
       try {
         const res = await fetch('/api/user/subjects');
@@ -201,11 +217,19 @@ export default function AnalizPage() {
       }
     }
     fetchLiveProgress();
-  }, []);
+  }, [isDemoAccount]);
 
   return (
     <div style={{ width: '100%', minHeight: 'calc(100vh - 80px)', position: 'relative', overflowX: 'hidden' }}>
       
+      {/* Demo Account Presentation Banner */}
+      {isDemoAccount && (
+        <div style={{ padding: '0.65rem 1.5rem', background: 'linear-gradient(90deg, rgba(139,92,246,0.18), rgba(16,185,129,0.15))', borderBottom: '1px solid rgba(139,92,246,0.3)', textAlign: 'center', fontSize: '12px', color: '#c4b5fd', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+          <span>🌟</span>
+          <span><strong>Tanıtım & Demo Modu (deneme@gmail.com):</strong> 3D Gelişim Galaksisi ve Soru Hızı Karnesi Canlı Sunumu</span>
+        </div>
+      )}
+
       {/* Top Segmented Tab Switcher */}
       <div style={{ display: 'flex', justifyContent: 'center', padding: '1.25rem 1rem 0.5rem', zIndex: 40, position: 'relative' }}>
         <div

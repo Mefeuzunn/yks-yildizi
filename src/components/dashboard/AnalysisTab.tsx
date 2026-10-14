@@ -8,6 +8,8 @@ import {
   Award, Zap, CheckCircle2, AlertCircle, RefreshCw
 } from 'lucide-react';
 import SpeedAnalyticsTab from './SpeedAnalyticsTab';
+import { useAuth } from '@/context/AuthContext';
+import DemoVisualsShowcase, { DEMO_TYT_FALLBACK, DEMO_AYT_FALLBACK } from './DemoVisualsShowcase';
 
 const SUBJECT_CONFIG: Record<string, { emoji: string; color: string }> = {
   'Matematik':   { emoji: '📐', color: '#3b82f6' },
@@ -25,6 +27,9 @@ const SUBJECT_CONFIG: Record<string, { emoji: string; color: string }> = {
 };
 
 export default function AnalysisTab() {
+  const { user } = useAuth();
+  const isDemoAccount = user?.email === 'deneme@gmail.com' || user?.username === 'deneme' || user?.id === 'bbaa9549-136f-4206-86e3-5aa1f8c5d128';
+
   const [subTab, setSubTab] = useState<'overview' | 'speed'>('overview');
   const [examType, setExamType] = useState<'TYT' | 'AYT'>('TYT');
   const [selectedExam, setSelectedExam] = useState<any>(null);
@@ -81,8 +86,42 @@ export default function AnalysisTab() {
           }
         });
       }
+
+      if (isDemoAccount) {
+        if (formatted.TYT.length === 0) formatted.TYT = DEMO_TYT_FALLBACK;
+        if (formatted.AYT.length === 0) formatted.AYT = DEMO_AYT_FALLBACK;
+      }
+
+      let finalFocusData = focusRes;
+      if (isDemoAccount && (!focusRes || !focusRes.weekData || focusRes.weekData.length === 0)) {
+        finalFocusData = {
+          weekTotalMin: 510,
+          allTimeTotalMin: 2340,
+          allTimeQuestions: 1680,
+          allTimeCorrect: 1498,
+          allTimeWrong: 182,
+          allTimeCount: 38,
+          weekData: [
+            { day: new Date(Date.now() - 6 * 86400000).toISOString(), total_min: 75, total_questions: 48 },
+            { day: new Date(Date.now() - 5 * 86400000).toISOString(), total_min: 90, total_questions: 65 },
+            { day: new Date(Date.now() - 4 * 86400000).toISOString(), total_min: 60, total_questions: 45 },
+            { day: new Date(Date.now() - 3 * 86400000).toISOString(), total_min: 80, total_questions: 52 },
+            { day: new Date(Date.now() - 2 * 86400000).toISOString(), total_min: 65, total_questions: 42 },
+            { day: new Date(Date.now() - 1 * 86400000).toISOString(), total_min: 85, total_questions: 60 },
+            { day: new Date().toISOString(), total_min: 55, total_questions: 40 },
+          ],
+          subjectBreakdown: [
+            { subject: 'Matematik', total_min: 680, session_count: 10, total_questions: 420, total_correct: 395, total_wrong: 25 },
+            { subject: 'Fizik', total_min: 490, session_count: 7, total_questions: 310, total_correct: 282, total_wrong: 28 },
+            { subject: 'Kimya', total_min: 440, session_count: 7, total_questions: 340, total_correct: 323, total_wrong: 17 },
+            { subject: 'Biyoloji', total_min: 380, session_count: 6, total_questions: 260, total_correct: 234, total_wrong: 26 },
+            { subject: 'Türkçe', total_min: 350, session_count: 8, total_questions: 350, total_correct: 330, total_wrong: 20 },
+          ]
+        };
+      }
+
       setExamsData(formatted);
-      setFocusData(focusRes);
+      setFocusData(finalFocusData);
       setDashboardData(dashRes);
     } catch (err) {
       console.error('Analysis data load error:', err);
@@ -248,6 +287,9 @@ export default function AnalysisTab() {
       style={{ display: 'flex', flexDirection: 'column', gap: '2rem', paddingBottom: '2rem' }}
     >
       
+      {/* ─── Demo Tanıtım Vitrini (Sadece deneme@gmail.com) ─── */}
+      {isDemoAccount && <DemoVisualsShowcase />}
+
       {/* ─── Başlık ve Hızlı Eylemler ─── */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
