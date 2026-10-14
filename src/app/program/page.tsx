@@ -14,6 +14,8 @@ type Task = {
   completed: boolean;
   color: string;
   createdAt: number;
+  studied_minutes?: number;
+  questions_solved?: number;
 };
 
 export default function ProgramPage() {
@@ -46,13 +48,30 @@ export default function ProgramPage() {
     if (e) e.stopPropagation();
     haptics.selection();
     
+    const task = (tasks[dateStr] || []).find(t => t.id === taskId);
+    const nextCompleted = task ? !task.completed : true;
+    const studiedMin = nextCompleted ? (task?.studied_minutes || 60) : 0;
+
     // Optimistic UI
     setTasks(prev => ({
       ...prev,
-      [dateStr]: prev[dateStr].map(t => t.id === taskId ? { ...t, completed: !t.completed } : t)
+      [dateStr]: (prev[dateStr] || []).map(t => t.id === taskId ? { 
+        ...t, 
+        completed: nextCompleted,
+        studied_minutes: nextCompleted ? (t.studied_minutes || 60) : t.studied_minutes
+      } : t)
     }));
 
-    await fetch('/api/user/tasks', { method: 'POST', body: JSON.stringify({ action: 'toggle', id: taskId }) });
+    await fetch('/api/user/tasks', { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        action: 'toggle', 
+        id: taskId,
+        studied_minutes: studiedMin,
+        questions_solved: task?.questions_solved || 0
+      }) 
+    });
   };
 
   const deleteTask = async (dateStr: string, taskId: string, e: React.MouseEvent) => {
@@ -86,7 +105,9 @@ export default function ProgramPage() {
         title: newTask.title,
         completed: false,
         color: newTask.color,
-        createdAt: Date.now()
+        createdAt: Date.now(),
+        studied_minutes: 0,
+        questions_solved: 0
       };
 
       setTasks(prev => ({
@@ -372,6 +393,16 @@ export default function ProgramPage() {
                         <div style={{ fontSize: '0.875rem', color: '#fff', paddingRight: '1.5rem', wordBreak: 'break-word' }}>
                           {task.title}
                         </div>
+                        {task.completed && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px', fontSize: '0.72rem', fontWeight: 700, flexWrap: 'wrap' }}>
+                            <span style={{ color: '#38bdf8', background: 'rgba(56,189,248,0.12)', padding: '2px 6px', borderRadius: '4px' }}>
+                              ⏱️ {task.studied_minutes && task.studied_minutes > 0 ? `${task.studied_minutes} dk` : 'Tamamlandı'}
+                            </span>
+                            <span style={{ color: '#c084fc', background: 'rgba(168,85,247,0.12)', padding: '2px 6px', borderRadius: '4px' }}>
+                              🎯 {task.questions_solved || 0} Soru
+                            </span>
+                          </div>
+                        )}
                       </motion.div>
                     ))}
                   </AnimatePresence>
@@ -518,6 +549,16 @@ export default function ProgramPage() {
                       <div style={{ fontSize: '0.9rem', color: '#fff', paddingRight: '2rem', wordBreak: 'break-word', fontWeight: 500 }}>
                         {task.title}
                       </div>
+                      {task.completed && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px', fontSize: '0.75rem', fontWeight: 700, flexWrap: 'wrap' }}>
+                          <span style={{ color: '#38bdf8', background: 'rgba(56,189,248,0.12)', padding: '2px 6px', borderRadius: '4px' }}>
+                            ⏱️ {task.studied_minutes && task.studied_minutes > 0 ? `${task.studied_minutes} dk` : 'Tamamlandı'}
+                          </span>
+                          <span style={{ color: '#c084fc', background: 'rgba(168,85,247,0.12)', padding: '2px 6px', borderRadius: '4px' }}>
+                            🎯 {task.questions_solved || 0} Soru
+                          </span>
+                        </div>
+                      )}
                     </motion.div>
                   ))}
                 </AnimatePresence>

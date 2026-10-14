@@ -230,6 +230,92 @@ export async function POST(req: NextRequest) {
             `).run(uuidv4(), clanMember.clan_id, userId, `Odaklanma: ${dur} dk (${subject || 'Genel'})`, bonusXp);
           }
         } catch (_) {}
+
+        // Program ve Görev Senkronizasyonu (Çalışma programı blokları ve günlük görevler)
+        try {
+          const todayDayOfWeek = (new Date().getDay() + 6) % 7; // 0=Pazartesi, 6=Pazar
+          const todayDateStr = new Date().toISOString().split('T')[0];
+          
+          const dObj = new Date();
+          const dayDiff = (dObj.getDay() + 6) % 7;
+          const mondayDate = new Date(dObj);
+          mondayDate.setDate(dObj.getDate() - dayDiff);
+          const currentWeek = mondayDate.toISOString().split('T')[0];
+
+          // 1. study_plans (Haftalık Çalışma Programı) senkronizasyonu
+          const todayPlans = await db.prepare(`
+            SELECT id, title, notes, completed, studied_minutes, questions_solved
+            FROM study_plans
+            WHERE user_id = ? AND day_of_week = ?
+            ORDER BY start_time ASC
+          `).all(userId, todayDayOfWeek) as any[];
+
+          if (todayPlans && todayPlans.length > 0) {
+            let targetPlan = null;
+            const cleanSubj = (subject || '').trim().toLowerCase();
+
+            if (cleanSubj) {
+              targetPlan = todayPlans.find(p => 
+                (p.title && p.title.toLowerCase().includes(cleanSubj)) ||
+                (cleanSubj && p.title && cleanSubj.includes(p.title.toLowerCase())) ||
+                (p.notes && p.notes.toLowerCase().includes(cleanSubj))
+              );
+            }
+
+            if (!targetPlan) {
+              // Eğer ders adıyla birebir uyuşan yoksa ilk tamamlanmamış bloğu bul, yoksa ilk bloğu al
+              targetPlan = todayPlans.find(p => p.completed === 0) || todayPlans[0];
+            }
+
+            if (targetPlan) {
+              await db.prepare(`
+                UPDATE study_plans
+                SET completed = 1,
+                    studied_minutes = COALESCE(studied_minutes, 0) + ?,
+                    questions_solved = COALESCE(questions_solved, 0) + ?,
+                    last_completed_week = ?
+                WHERE id = ? AND user_id = ?
+              `).run(dur, qSolved, currentWeek, targetPlan.id, userId);
+            }
+          }
+
+          // 2. tasks (Takvim / Yapılacaklar Listesi) senkronizasyonu
+          const todayTasks = await db.prepare(`
+            SELECT id, title, subject, completed, studied_minutes, questions_solved
+            FROM tasks
+            WHERE user_id = ? AND date_str = ?
+            ORDER BY created_at ASC
+          `).all(userId, todayDateStr) as any[];
+
+          if (todayTasks && todayTasks.length > 0) {
+            let targetTask = null;
+            const cleanSubj = (subject || '').trim().toLowerCase();
+
+            if (cleanSubj) {
+              targetTask = todayTasks.find(t =>
+                (t.subject && t.subject.toLowerCase().includes(cleanSubj)) ||
+                (t.title && t.title.toLowerCase().includes(cleanSubj)) ||
+                (cleanSubj && t.subject && cleanSubj.includes(t.subject.toLowerCase()))
+              );
+            }
+
+            if (!targetTask) {
+              targetTask = todayTasks.find(t => t.completed === 0) || todayTasks[0];
+            }
+
+            if (targetTask) {
+              await db.prepare(`
+                UPDATE tasks
+                SET completed = 1,
+                    studied_minutes = COALESCE(studied_minutes, 0) + ?,
+                    questions_solved = COALESCE(questions_solved, 0) + ?
+                WHERE id = ? AND user_id = ?
+              `).run(dur, qSolved, targetTask.id, userId);
+            }
+          }
+        } catch (syncErr) {
+          console.warn('Program and task sync error:', syncErr);
+        }
       } catch (statsErr) {
         console.warn('Stats update non-fatal error:', statsErr);
       }

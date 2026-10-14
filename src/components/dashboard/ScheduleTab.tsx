@@ -1,6 +1,6 @@
 import React, { useState, useEffect, DragEvent, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles,  Calendar as CalIcon, Clock, X, Trash2, Plus, Pencil, ChevronLeft, ChevronRight, FileText, Moon, Sun, Sunset  } from 'lucide-react';
+import { Sparkles, Calendar as CalIcon, Clock, X, Trash2, Plus, Pencil, ChevronLeft, ChevronRight, FileText, RotateCcw, CheckCircle, Circle } from 'lucide-react';
 import { useSchedule, ScheduleBlock } from '@/context/ScheduleContext';
 import { useAuth } from '@/context/AuthContext';
 import { getQuickSelectsByAlan } from '@/lib/subjectData';
@@ -154,7 +154,7 @@ function DurationPicker({ value, onChange, color, startHour }:
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function ScheduleTab() {
-  const { blocks, addBlock, updateBlock, deleteBlock } = useSchedule();
+  const { blocks, addBlock, updateBlock, deleteBlock, toggleBlock, resetWeek } = useSchedule();
   const [viewMode, setViewMode] = useState<'week' | 'day'>('week');
   const [currentDayView, setCurrentDayView] = useState(new Date().getDay() === 0 ? 6 : new Date().getDay() - 1);
 
@@ -189,9 +189,19 @@ export default function ScheduleTab() {
   const [editColor, setEditColor]           = useState('#8b5cf6');
   const [editDay, setEditDay]               = useState(0);
   const [editTime, setEditTime]             = useState(7);
+  const [editCompleted, setEditCompleted]   = useState(false);
+  const [editStudiedMinutes, setEditStudiedMinutes] = useState(0);
+  const [editQuestionsSolved, setEditQuestionsSolved] = useState(0);
   const [showMobileTimeline, setShowMobileTimeline] = useState(false);
   const [showAiPlanModal, setShowAiPlanModal] = useState(false);
   const [aiPlanGenerating, setAiPlanGenerating] = useState(false);
+
+  const handleResetWeek = async () => {
+    if (confirm('Bu haftaki ders programı tamamlanma durumları, çalışılan süre ve soru sayaçları sıfırlanacak. Onaylıyor musunuz?')) {
+      await resetWeek();
+      toast.success('Haftalık çalışma programı başarıyla sıfırlandı!');
+    }
+  };
 
   const handleGenerateAiPlan = async () => {
     setShowAiPlanModal(false);
@@ -249,6 +259,9 @@ export default function ScheduleTab() {
     setEditColor(b.color);
     setEditDay(b.day);
     setEditTime(b.time);
+    setEditCompleted(b.completed);
+    setEditStudiedMinutes(b.studied_minutes || b.duration * 60);
+    setEditQuestionsSolved(b.questions_solved || 0);
   };
 
   const dayBlocks = blocks.filter(b => b.day === currentDayView).sort((a,b) => a.time - b.time);
@@ -268,23 +281,39 @@ export default function ScheduleTab() {
             📅 Çalışma Programı
           </h2>
           <p style={{color:'var(--text-secondary)',margin:0,fontSize:'14px'}}>
-            Haftalık programını oluştur. Bloklara tıklayarak detay ekle, sürükleyerek taşı.
+            Haftalık programını oluştur. Bloklara tıklayarak detay ekle, seans tamamlandığında süre ve soru sayıların otomatik işlenir.
           </p>
         </div>
-        <button 
-          onClick={() => setShowAiPlanModal(true)}
-          disabled={aiPlanGenerating}
-          style={{
-            background: 'linear-gradient(135deg, #a855f7, #ec4899)',
-            border: 'none', borderRadius: '12px', padding: '12px 20px',
-            color: '#fff', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px',
-            cursor: aiPlanGenerating ? 'not-allowed' : 'pointer',
-            opacity: aiPlanGenerating ? 0.7 : 1,
-            boxShadow: '0 4px 15px rgba(168, 85, 247, 0.4)'
-          }}
-        >
-          <Sparkles size={18} /> {aiPlanGenerating ? 'Plan Çiziliyor...' : 'Yapay Zeka Planı Çiz'}
-        </button>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <button 
+            type="button"
+            onClick={handleResetWeek}
+            style={{
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: '12px', padding: '12px 16px',
+              color: '#e2e8f0', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+          >
+            <RotateCcw size={16} /> Haftayı Sıfırla
+          </button>
+          <button 
+            onClick={() => setShowAiPlanModal(true)}
+            disabled={aiPlanGenerating}
+            style={{
+              background: 'linear-gradient(135deg, #a855f7, #ec4899)',
+              border: 'none', borderRadius: '12px', padding: '12px 20px',
+              color: '#fff', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px',
+              cursor: aiPlanGenerating ? 'not-allowed' : 'pointer',
+              opacity: aiPlanGenerating ? 0.7 : 1,
+              boxShadow: '0 4px 15px rgba(168, 85, 247, 0.4)'
+            }}
+          >
+            <Sparkles size={18} /> {aiPlanGenerating ? 'Plan Çiziliyor...' : 'Yapay Zeka Planı Çiz'}
+          </button>
+        </div>
       </div>
 
       {/* ── Mobile View: Day Ribbon & Modern Card List ── */}
@@ -415,9 +444,9 @@ export default function ScheduleTab() {
                 style={{
                   padding: '14px 16px',
                   borderRadius: '14px',
-                  background: 'rgba(255,255,255,0.025)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  borderLeft: `4px solid ${b.color}`,
+                  background: b.completed ? 'rgba(16,185,129,0.04)' : 'rgba(255,255,255,0.025)',
+                  border: `1px solid ${b.completed ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.08)'}`,
+                  borderLeft: `4px solid ${b.completed ? '#10b981' : b.color}`,
                   display: 'flex',
                   flexDirection: 'column',
                   gap: '8px',
@@ -429,6 +458,20 @@ export default function ScheduleTab() {
                     <Clock size={11} /> {getHourRangeStr(b.time, b.duration)} ({b.duration} saat)
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); toggleBlock(b.id); }}
+                      style={{
+                        background: b.completed ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)',
+                        border: `1px solid ${b.completed ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.1)'}`,
+                        color: b.completed ? '#34d399' : '#9ca3af',
+                        padding: '5px 8px', borderRadius: '6px', cursor: 'pointer', fontSize: '11px',
+                        display: 'flex', alignItems: 'center', gap: '4px'
+                      }}
+                    >
+                      {b.completed ? <CheckCircle size={12} /> : <Circle size={12} />}
+                      {b.completed ? 'Tamamlandı' : 'Tamamla'}
+                    </button>
                     <button
                       type="button"
                       onClick={(e) => { e.stopPropagation(); handleBlockClick(b); }}
@@ -453,6 +496,26 @@ export default function ScheduleTab() {
                     </p>
                   )}
                 </div>
+
+                {/* Soru sayısı ve Çalışılan süre bilgisi (Program üzerinde doğrudan yazsın) */}
+                {b.completed && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginTop: '4px' }}>
+                    <span style={{
+                      fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '6px',
+                      background: 'rgba(56,189,248,0.12)', color: '#38bdf8', border: '1px solid rgba(56,189,248,0.25)',
+                      display: 'inline-flex', alignItems: 'center', gap: '4px'
+                    }}>
+                      ⏱️ {b.studied_minutes && b.studied_minutes > 0 ? `${b.studied_minutes} dk` : `${b.duration * 60} dk`}
+                    </span>
+                    <span style={{
+                      fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '6px',
+                      background: 'rgba(168,85,247,0.12)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)',
+                      display: 'inline-flex', alignItems: 'center', gap: '4px'
+                    }}>
+                      🎯 {b.questions_solved || 0} Soru
+                    </span>
+                  </div>
+                )}
               </div>
             ))
           )}
@@ -687,9 +750,9 @@ export default function ScheduleTab() {
                       left: viewMode === 'week' ? `calc(${(b.day/7)*100}% + 3px)` : '3px',
                       width: viewMode === 'week' ? `calc(${100/7}% - 6px)` : 'calc(100% - 6px)',
                       height:`${b.duration*SLOT_HEIGHT-6}px`,
-                      backgroundColor:b.color+'20',
-                      border:`1px solid ${b.color}45`,
-                      borderLeft:`3px solid ${b.color}`,
+                      backgroundColor: b.completed ? 'rgba(16,185,129,0.18)' : b.color+'20',
+                      border:`1px solid ${b.completed ? 'rgba(16,185,129,0.45)' : b.color+'45'}`,
+                      borderLeft:`3px solid ${b.completed ? '#10b981' : b.color}`,
                       borderRadius:'7px',
                       padding:'5px 7px',
                       display:'flex',flexDirection:'column',justifyContent:'space-between',
@@ -699,17 +762,38 @@ export default function ScheduleTab() {
                     }}
                     className="active:cursor-grabbing hover:brightness-110 transition-all"
                   >
-                    <span style={{fontSize:'10px',fontWeight:700,color:'var(--text-primary)',pointerEvents:'none',lineHeight:1.3,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{b.title}</span>
-                    {b.notes && b.duration>=2 && (
-                      <span style={{fontSize:'9px',color:b.color,pointerEvents:'none',fontWeight:600,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',opacity:0.85}}>
-                        📝 {b.notes}
-                      </span>
-                    )}
-                    {b.duration>=2 && (
-                      <span style={{fontSize:'9px',color:b.color,display:'flex',alignItems:'center',gap:'3px',pointerEvents:'none',fontWeight:700}}>
-                        <Clock size={8}/> {b.duration}s
-                      </span>
-                    )}
+                    <div>
+                      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:'2px'}}>
+                        <span style={{fontSize:'10px',fontWeight:700,color:'var(--text-primary)',pointerEvents:'none',lineHeight:1.3,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                          {b.title}
+                        </span>
+                        {b.completed && <span style={{fontSize:'9px',color:'#34d399',fontWeight:800}}>✓</span>}
+                      </div>
+                      {b.notes && b.duration>=2 && (
+                        <span style={{fontSize:'9px',color:b.color,pointerEvents:'none',fontWeight:600,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',opacity:0.85,display:'block'}}>
+                          📝 {b.notes}
+                        </span>
+                      )}
+                    </div>
+
+                    <div>
+                      {b.completed ? (
+                        <div style={{display:'flex',alignItems:'center',gap:'3px',fontSize:'9px',fontWeight:700,flexWrap:'wrap',pointerEvents:'none'}}>
+                          <span style={{color:'#38bdf8'}}>
+                            ⏱️{b.studied_minutes && b.studied_minutes > 0 ? `${b.studied_minutes}dk` : `${b.duration*60}dk`}
+                          </span>
+                          <span style={{color:'#c084fc'}}>
+                            🎯{b.questions_solved || 0}S
+                          </span>
+                        </div>
+                      ) : (
+                        b.duration>=2 && (
+                          <span style={{fontSize:'9px',color:b.color,display:'flex',alignItems:'center',gap:'3px',pointerEvents:'none',fontWeight:700}}>
+                            <Clock size={8}/> {b.duration}s
+                          </span>
+                        )
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -877,6 +961,60 @@ export default function ScheduleTab() {
                   color={editColor} startHour={editTime}/>
 
                 <ColorPicker value={editColor} onChange={setEditColor}/>
+
+                {/* Seans Tamamlama Durumu & İstatistikler */}
+                <div style={{
+                  padding: '14px 16px', borderRadius: '14px',
+                  background: editCompleted ? 'rgba(16,185,129,0.06)' : 'rgba(255,255,255,0.03)',
+                  border: `1px solid ${editCompleted ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.08)'}`,
+                  display: 'flex', flexDirection: 'column', gap: '12px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <CheckCircle size={17} color={editCompleted ? '#10b981' : '#9ca3af'} />
+                      <span style={{ fontSize: '13px', fontWeight: 700, color: editCompleted ? '#34d399' : '#fff' }}>
+                        Seans Tamamlandı Olarak İşaretle
+                      </span>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={editCompleted}
+                      onChange={e => {
+                        const checked = e.target.checked;
+                        setEditCompleted(checked);
+                        if (checked && (!editStudiedMinutes || editStudiedMinutes === 0)) {
+                          setEditStudiedMinutes(editDuration * 60);
+                        }
+                      }}
+                      style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#10b981' }}
+                    />
+                  </div>
+
+                  {editCompleted && (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '11px', color: '#9ca3af', marginBottom: '4px', fontWeight: 600 }}>⏱️ Çalışılan Süre (dk)</label>
+                        <input
+                          type="number"
+                          min={0}
+                          value={editStudiedMinutes}
+                          onChange={e => setEditStudiedMinutes(Math.max(0, Number(e.target.value) || 0))}
+                          style={inputStyle}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '11px', color: '#9ca3af', marginBottom: '4px', fontWeight: 600 }}>🎯 Çözülen Soru Sayısı</label>
+                        <input
+                          type="number"
+                          min={0}
+                          value={editQuestionsSolved}
+                          onChange={e => setEditQuestionsSolved(Math.max(0, Number(e.target.value) || 0))}
+                          style={inputStyle}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div style={{display:'flex',gap:'10px'}}>
@@ -884,7 +1022,20 @@ export default function ScheduleTab() {
                   style={{padding:'10px 14px',borderRadius:'12px',backgroundColor:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.2)',color:'#ef4444',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>
                   <Trash2 size={17}/>
                 </button>
-                <button onClick={()=>{updateBlock(editBlock.id,{title:editTitle,duration:editDuration,color:editColor,notes:editNotes,day:editDay,time:editTime});setEditBlock(null);}}
+                <button onClick={()=>{
+                  updateBlock(editBlock.id, {
+                    title: editTitle,
+                    duration: editDuration,
+                    color: editColor,
+                    notes: editNotes,
+                    day: editDay,
+                    time: editTime,
+                    completed: editCompleted,
+                    studied_minutes: editStudiedMinutes,
+                    questions_solved: editQuestionsSolved,
+                  });
+                  setEditBlock(null);
+                }}
                   style={{flex:1,padding:'10px 16px',borderRadius:'12px',backgroundColor:editColor,border:'none',color:'#fff',fontWeight:700,cursor:'pointer',fontSize:'14px',display:'flex',alignItems:'center',justifyContent:'center',gap:'8px',boxShadow:'0 0 20px '+editColor+'40'}}>
                   Kaydet
                 </button>
