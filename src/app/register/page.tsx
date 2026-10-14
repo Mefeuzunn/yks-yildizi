@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { AuthLayout } from '@/components/auth/AuthLayout';
 import { RegisterForm } from '@/components/auth/RegisterForm';
 
@@ -12,7 +13,9 @@ export default function RegisterPage() {
       title="Aramıza Katıl"
       subtitle="YKS yolculuğuna sistemli ve güçlü bir başlangıç yap."
     >
-      <RegisterForm />
+      <Suspense fallback={<div className="p-8 text-center text-slate-400">Yükleniyor...</div>}>
+        <RegisterForm />
+      </Suspense>
     </AuthLayout>
   );
 }

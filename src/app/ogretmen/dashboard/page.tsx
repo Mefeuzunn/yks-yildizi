@@ -2323,7 +2323,7 @@ export default function TeacherDashboard() {
 }
 
 function TeacherDashboardContent() {
-  const { user, logout } = useAuth();
+  const { user, loading: authLoading, logout } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
   const tabParam = searchParams?.get('tab') as Tab | null;
@@ -2365,10 +2365,14 @@ function TeacherDashboardContent() {
   };
 
   useEffect(() => {
-    if (user && user.role !== 'ogretmen') {
-      window.location.href = '/dashboard';
+    if (!authLoading) {
+      if (user && user.role !== 'ogretmen') {
+        window.location.href = '/dashboard';
+      } else if (!user) {
+        window.location.href = '/login';
+      }
     }
-  }, [user]);
+  }, [user, authLoading]);
 
   // Data states
   const [stats, setStats] = useState<any>(null);
@@ -3095,6 +3099,15 @@ function TeacherDashboardContent() {
   const toggleSort = (field: keyof StudentItem) => {
     setStudentSort(prev => prev.field === field ? { field, dir: prev.dir === 'asc' ? 'desc' : 'asc' } : { field, dir: 'desc' });
   };
+
+  if (authLoading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', flexDirection: 'column', gap: '1rem' }}>
+        <div style={{ width: 44, height: 44, border: '3px solid rgba(56,189,248,0.2)', borderTopColor: '#38bdf8', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+        <p style={{ color: '#94a3b8', fontSize: '0.95rem' }}>Eğitmen paneli yükleniyor...</p>
+      </div>
+    );
+  }
 
   if (!user || user.role !== 'ogretmen') {
     return (

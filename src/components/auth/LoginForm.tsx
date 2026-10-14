@@ -67,16 +67,15 @@ export const LoginForm = () => {
             const userGrade = data.user?.user_metadata?.grade || '';
             const isMaarif = ['9. Sınıf', '10. Sınıf', '11. Sınıf', '9', '10', '11'].includes(userGrade);
 
-            if (userRole === 'teacher') {
-              router.push('/ogretmen/dashboard');
-            } else if (userRole === 'parent') {
-              router.push('/veli');
+            if (userRole === 'teacher' || userRole === 'ogretmen') {
+              window.location.href = '/ogretmen/dashboard';
+            } else if (userRole === 'parent' || userRole === 'veli') {
+              window.location.href = '/veli';
             } else if (isMaarif) {
-              router.push('/maarif');
+              window.location.href = '/maarif';
             } else {
-              router.push('/dashboard');
+              window.location.href = '/dashboard';
             }
-            router.refresh();
             return;
           }
         } catch (_) {

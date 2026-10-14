@@ -137,32 +137,8 @@ export async function POST(req: Request) {
 
     // Oturum JWT oluştur ve çerezleri kaydet (anında giriş)
     const token = await signToken({ userId: id, role });
-    const cookieStore = await cookies();
-    const cookieOpts: any = {
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 30, // 30 gün
-      path: '/'
-    };
 
-    cookieStore.set('yks_session', token, {
-      ...cookieOpts,
-      httpOnly: true
-    });
-    cookieStore.set('yks_role', role, {
-      ...cookieOpts,
-      httpOnly: false
-    });
-    cookieStore.set('yks_curriculum_mode', curriculumMode, {
-      ...cookieOpts,
-      httpOnly: false
-    });
-    cookieStore.set('yks_sinif', sinif, {
-      ...cookieOpts,
-      httpOnly: false
-    });
-
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: 'Kayıt başarılı!',
       token: id,
@@ -177,6 +153,40 @@ export async function POST(req: Request) {
       }
     }, { status: 201 });
 
+    const isProd = process.env.NODE_ENV === 'production';
+    const cookieOpts: any = {
+      secure: isProd,
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 30, // 30 gün
+      path: '/'
+    };
+
+    response.cookies.set('yks_session', token, {
+      ...cookieOpts,
+      httpOnly: true
+    });
+    response.cookies.set('yks_role', role, {
+      ...cookieOpts,
+      httpOnly: false
+    });
+    response.cookies.set('yks_curriculum_mode', curriculumMode, {
+      ...cookieOpts,
+      httpOnly: false
+    });
+    response.cookies.set('yks_sinif', sinif, {
+      ...cookieOpts,
+      httpOnly: false
+    });
+
+    try {
+      const cookieStore = await cookies();
+      cookieStore.set('yks_session', token, { ...cookieOpts, httpOnly: true });
+      cookieStore.set('yks_role', role, { ...cookieOpts, httpOnly: false });
+      cookieStore.set('yks_curriculum_mode', curriculumMode, { ...cookieOpts, httpOnly: false });
+      cookieStore.set('yks_sinif', sinif, { ...cookieOpts, httpOnly: false });
+    } catch (_) {}
+
+    return response;
   } catch (error: any) {
     console.error('Register API Error:', error);
     return NextResponse.json({ error: 'Sunucu hatası oluştu.' }, { status: 500 });

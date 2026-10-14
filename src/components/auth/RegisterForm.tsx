@@ -1,17 +1,27 @@
 'use client';
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
+import { useAuth } from '@/context/AuthContext';
 
 type Role = 'student' | 'teacher' | 'parent';
 
 export const RegisterForm = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { checkAuth } = useAuth();
   const supabase = createClient();
 
+  const queryRole = searchParams?.get('role')?.toLowerCase();
+  const initialRole: Role = queryRole === 'teacher' || queryRole === 'ogretmen'
+    ? 'teacher'
+    : queryRole === 'parent' || queryRole === 'veli'
+    ? 'parent'
+    : 'student';
+
   const [step, setStep] = useState<1 | 2>(1);
-  const [role, setRole] = useState<Role>('student');
+  const [role, setRole] = useState<Role>(initialRole);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -95,7 +105,7 @@ export const RegisterForm = () => {
             options: {
               data: {
                 full_name: formData.fullName.trim(),
-                role: role,
+                role: backendRole,
                 grade: role === 'student' ? formData.grade : null,
                 field: role === 'student' ? (chosenSinif === '9' || chosenSinif === '10' ? 'Ortak Müfredat' : formData.field) : null,
                 class_code: role === 'student' ? formData.classCode?.trim() : null,
@@ -108,14 +118,26 @@ export const RegisterForm = () => {
         }
       }
 
+      // 3. AuthContext'i derhal arka planda senkronize et
+      try {
+        await checkAuth();
+      } catch (_) {}
+
+      // 4. Doğrudan ve kesin hedef rotaya tam sayfa yönlendirmesi (Full browser reload)
+      const registeredRole = localData?.user?.role || backendRole;
+      const targetUrl =
+        registeredRole === 'ogretmen' || role === 'teacher'
+          ? '/ogretmen/dashboard'
+          : registeredRole === 'veli' || role === 'parent'
+          ? '/veli'
+          : isMaarif
+          ? '/maarif'
+          : '/dashboard';
+
       setSuccess(true);
       setTimeout(() => {
-        if (role === 'teacher') router.push('/ogretmen/dashboard');
-        else if (role === 'parent') router.push('/veli');
-        else if (isMaarif) router.push('/maarif');
-        else router.push('/dashboard');
-        router.refresh();
-      }, 1200);
+        window.location.href = targetUrl;
+      }, 700);
     } catch (err: any) {
       setErrorMsg('Kayıt oluşturulurken bir hata oluştu: ' + (err.message || ''));
       setLoading(false);

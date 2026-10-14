@@ -55,6 +55,22 @@ export async function proxy(request: NextRequest) {
         }
       }
 
+      // Öğretmen Rolü Koruması: Öğretmenler öğrenci paneline (/dashboard) yönlendirilirse derhal kendi paneline yönlendir
+      if (pathname === '/dashboard' || pathname.startsWith('/dashboard/')) {
+        const userRole = payload.role || role;
+        if (userRole === 'ogretmen') {
+          return NextResponse.redirect(new URL('/ogretmen/dashboard', request.nextUrl.origin));
+        }
+      }
+
+      // Öğretmen Paneli Koruması: Öğretmen paneline sadece öğretmen ve admin erişebilir
+      if (pathname.startsWith('/ogretmen')) {
+        const userRole = payload.role || role;
+        if (userRole && userRole !== 'ogretmen' && userRole !== 'admin') {
+          return NextResponse.redirect(new URL('/dashboard', request.nextUrl.origin));
+        }
+      }
+
       if (isPublicPath && pathname !== '/' && pathname !== '/veli') {
         const redirectRole = payload.role || role;
         if (redirectRole === 'ogretmen') {
