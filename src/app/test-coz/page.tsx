@@ -428,7 +428,7 @@ function TestCozContent() {
     <div style={{ minHeight: '100vh', background: '#070a12', color: '#fff', display: 'flex', flexDirection: 'column' }}>
       
       {/* ── Top Bar ──────────────────────────────────────────────────────── */}
-      <header style={{ 
+      <header className="test-top-header" style={{ 
         height: '64px', 
         borderBottom: '1px solid rgba(255,255,255,0.08)', 
         background: 'rgba(10, 15, 26, 0.95)', 
@@ -442,7 +442,7 @@ function TestCozContent() {
         zIndex: 100
       }}>
         {/* Left: Exit & Title */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <button 
             onClick={() => {
               if (isFinished || Object.keys(answers).length === 0) {
@@ -451,13 +451,13 @@ function TestCozContent() {
                 setIsConfirmModalOpen(true);
               }
             }}
-            style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.85rem', fontWeight: 600 }}
+            style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.85rem', fontWeight: 600, padding: 0 }}
           >
-            <ArrowLeft size={18} /> {isFinished ? 'Testlere Dön' : 'Çıkış'}
+            <ArrowLeft size={18} /> <span className="test-exit-text">{isFinished ? 'Testlere Dön' : 'Çıkış'}</span>
           </button>
           
-          <div style={{ borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '1rem' }}>
-            <h2 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#f8fafc', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '320px' }}>
+          <div style={{ borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '0.75rem' }}>
+            <h2 className="test-header-title" style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#f8fafc', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '320px' }}>
               {testData.title}
             </h2>
             <div style={{ fontSize: '0.72rem', color: '#818cf8', fontWeight: 600 }}>
@@ -468,7 +468,7 @@ function TestCozContent() {
 
         {/* Center: Countdown Timer */}
         {!isFinished && (
-          <div style={{ 
+          <div className="test-timer-badge" style={{ 
             display: 'flex', 
             alignItems: 'center', 
             gap: '0.4rem', 
@@ -486,9 +486,9 @@ function TestCozContent() {
         )}
 
         {/* Right: Tools & Submit */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           {/* Font Size Changer */}
-          <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', padding: '2px' }}>
+          <div className="test-font-toggle" style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', padding: '2px' }}>
             <button 
               onClick={() => setFontSizeLevel('normal')}
               style={{ padding: '4px 8px', background: fontSizeLevel === 'normal' ? 'rgba(255,255,255,0.15)' : 'none', border: 'none', color: '#cbd5e1', fontSize: '0.75rem', fontWeight: 700, borderRadius: '6px', cursor: 'pointer' }}
@@ -506,8 +506,9 @@ function TestCozContent() {
           {/* Optic Form Drawer Toggle */}
           <button
             onClick={() => setShowOpticDrawer(!showOpticDrawer)}
+            className="test-optic-btn"
             style={{ 
-              padding: '0.45rem 0.85rem', 
+              padding: '0.45rem 0.75rem', 
               borderRadius: '8px', 
               background: showOpticDrawer ? 'rgba(99, 102, 241, 0.25)' : 'rgba(255,255,255,0.05)', 
               border: '1px solid rgba(255,255,255,0.1)', 
@@ -520,14 +521,14 @@ function TestCozContent() {
               gap: '0.35rem'
             }}
           >
-            📋 Optik ({Object.values(answers).filter(Boolean).length}/{testData.questions.length})
+            📋 <span className="test-optic-btn-text">Optik </span>({Object.values(answers).filter(Boolean).length}/{testData.questions.length})
           </button>
 
           {/* Submit Test Button */}
           {!isFinished && (
             <button
               onClick={() => setIsConfirmModalOpen(true)}
-              className="btn-interactive"
+              className="btn-interactive test-submit-btn"
               style={{
                 padding: '0.5rem 1.15rem',
                 borderRadius: '8px',
@@ -549,7 +550,7 @@ function TestCozContent() {
       <div style={{ flex: 1, display: 'flex', position: 'relative', overflow: 'hidden' }}>
         
         {/* Soru İçerik Alanı */}
-        <main style={{ flex: 1, padding: '1.5rem', overflowY: 'auto', display: 'flex', justifyContent: 'center' }}>
+        <main className="test-main-area" style={{ flex: 1, padding: '1.5rem', overflowY: 'auto', display: 'flex', justifyContent: 'center' }}>
           <div style={{ maxWidth: '840px', width: '100%', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             
             {/* Soru Üst Bilgi Barı */}
@@ -701,7 +702,7 @@ function TestCozContent() {
             )}
 
             {/* Soru Metni Kartı */}
-            <div className="premium-card" style={{ padding: '2rem', borderRadius: '18px', background: '#0e1526' }}>
+            <div className="premium-card test-question-card" style={{ padding: '2rem', borderRadius: '18px', background: '#0e1526' }}>
               <div style={{ fontSize: textFontSize, lineHeight: 1.7, color: '#f1f5f9', whiteSpace: 'pre-line', fontWeight: 500 }}>
                 {currentQ.text}
               </div>
@@ -875,34 +876,47 @@ function TestCozContent() {
           </div>
         </main>
 
-        {/* ── Optik Form Drawer (Sağ Panel) ─────────────────────────────────── */}
+        {/* ── Optik Form Drawer (Sağ Panel / Mobil Bottom-Sheet) ─────────────── */}
         <AnimatePresence>
           {showOpticDrawer && (
-            <motion.aside
-              initial={{ x: 300, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: 300, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              style={{
-                width: '280px',
-                borderLeft: '1px solid rgba(255,255,255,0.08)',
-                background: '#090d18',
-                padding: '1.25rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1rem',
-                zIndex: 90
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#fff' }}>Optik Form</h4>
-                <button
-                  onClick={() => setShowOpticDrawer(false)}
-                  style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
-                >
-                  <X size={18} />
-                </button>
-              </div>
+            <>
+              {/* Mobil Arka Plan Karartması */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="test-optic-backdrop"
+                onClick={() => setShowOpticDrawer(false)}
+              />
+              <motion.aside
+                initial={{ x: 300, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: 300, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="test-optic-drawer"
+                style={{
+                  width: '280px',
+                  borderLeft: '1px solid rgba(255,255,255,0.08)',
+                  background: '#090d18',
+                  padding: '1.25rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1rem',
+                  zIndex: 200
+                }}
+              >
+                {/* Mobil Çekmece Çubuğu */}
+                <div className="optic-drag-handle" />
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#fff' }}>Optik Form</h4>
+                  <button
+                    onClick={() => setShowOpticDrawer(false)}
+                    style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
 
               {/* Optik Durum Legend */}
               <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.72rem', color: '#94a3b8', flexWrap: 'wrap' }}>
@@ -956,6 +970,9 @@ function TestCozContent() {
                       onClick={() => {
                         haptics.selection();
                         setCurrentIdx(idx);
+                        if (typeof window !== 'undefined' && window.innerWidth < 768) {
+                          setShowOpticDrawer(false);
+                        }
                       }}
                       style={{
                         height: '42px',
@@ -1002,6 +1019,7 @@ function TestCozContent() {
                 </button>
               )}
             </motion.aside>
+            </>
           )}
         </AnimatePresence>
 
@@ -1099,6 +1117,7 @@ function TestCozContent() {
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
+              className="test-results-card"
               style={{
                 width: '100%',
                 maxWidth: '540px',
@@ -1115,7 +1134,7 @@ function TestCozContent() {
               <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: '0 0 1.5rem 0' }}>{testData.title}</p>
 
               {/* Net Skor Vitrini */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.65rem', marginBottom: '1.5rem' }}>
+              <div className="test-results-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.65rem', marginBottom: '1.5rem' }}>
                 <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '0.85rem 0.5rem', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.25)' }}>
                   <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#10b981' }}>{results.correctCount}</div>
                   <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Doğru</div>
@@ -1176,6 +1195,84 @@ function TestCozContent() {
           </div>
         )}
       </AnimatePresence>
+
+      <style jsx>{`
+        @media (max-width: 768px) {
+          :global(.test-top-header) {
+            padding: 0 0.75rem !important;
+            height: 56px !important;
+          }
+          :global(.test-header-title) {
+            max-width: 130px !important;
+            font-size: 0.85rem !important;
+          }
+          :global(.test-exit-text) {
+            display: none !important;
+          }
+          :global(.test-font-toggle) {
+            display: none !important;
+          }
+          :global(.test-optic-btn-text) {
+            display: none !important;
+          }
+          :global(.test-main-area) {
+            padding: 0.85rem 0.65rem 4.5rem 0.65rem !important;
+          }
+          :global(.test-question-card) {
+            padding: 1.25rem 0.95rem !important;
+          }
+          :global(.test-optic-backdrop) {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            background: rgba(0, 0, 0, 0.7) !important;
+            backdrop-filter: blur(4px) !important;
+            -webkit-backdrop-filter: blur(4px) !important;
+            z-index: 199 !important;
+          }
+          :global(.test-optic-drawer) {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            top: auto !important;
+            width: 100% !important;
+            max-height: 75dvh !important;
+            border-radius: 20px 20px 0 0 !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+            border-left: none !important;
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.85) !important;
+            z-index: 200 !important;
+            padding: 1rem 1rem calc(1.5rem + env(safe-area-inset-bottom, 16px)) 1rem !important;
+          }
+          :global(.optic-drag-handle) {
+            display: block !important;
+            width: 36px;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.3);
+            margin: 0 auto 8px auto;
+          }
+          :global(.test-results-card) {
+            padding: 1.25rem 1rem !important;
+            border-radius: 18px !important;
+          }
+          :global(.test-results-grid) {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 0.5rem !important;
+          }
+        }
+        @media (min-width: 769px) {
+          :global(.test-optic-backdrop) {
+            display: none !important;
+          }
+          :global(.optic-drag-handle) {
+            display: none !important;
+          }
+        }
+      `}</style>
 
     </div>
   );

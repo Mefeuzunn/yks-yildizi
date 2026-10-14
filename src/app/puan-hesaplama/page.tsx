@@ -288,12 +288,12 @@ export default function PuanHesaplamaPage() {
         <input 
           type="number" min="0" max={max} placeholder="D"
           value={data.d} onChange={(e) => handleInputChange(exam, subject, 'd', e.target.value, max)}
-          style={{ width: '100%', padding: '0.5rem 0.25rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '6px', color: '#10b981', textAlign: 'center', outline: 'none' }}
+          style={{ width: '100%', padding: '0.5rem 0.25rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '6px', color: '#10b981', textAlign: 'center', outline: 'none', fontSize: '16px' }}
         />
         <input 
           type="number" min="0" max={max} placeholder="Y"
           value={data.y} onChange={(e) => handleInputChange(exam, subject, 'y', e.target.value, max)}
-          style={{ width: '100%', padding: '0.5rem 0.25rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '6px', color: '#ef4444', textAlign: 'center', outline: 'none' }}
+          style={{ width: '100%', padding: '0.5rem 0.25rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '6px', color: '#ef4444', textAlign: 'center', outline: 'none', fontSize: '16px' }}
         />
         <div style={{ textAlign: 'center', fontWeight: 800, color: '#fff', fontSize: '0.85rem' }}>{data.n.toFixed(1)}</div>
       </div>

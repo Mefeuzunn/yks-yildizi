@@ -590,7 +590,7 @@ export default function ForumPage() {
       {/* Soru Detayı & Yorumlar Modalı */}
       <AnimatePresence>
         {activePost && (
-          <div style={{ 
+          <div className="forum-modal-overlay" style={{ 
             position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
             background: 'rgba(0,0,0,0.85)', zIndex: 100, 
             display: 'flex', alignItems: 'center', justifyContent: 'center', 
@@ -600,6 +600,7 @@ export default function ForumPage() {
               initial={{ opacity: 0, scale: 0.95 }} 
               animate={{ opacity: 1, scale: 1 }} 
               exit={{ opacity: 0, scale: 0.95 }}
+              className="forum-detail-modal"
               style={{ 
                 background: '#0c101d', borderRadius: '20px', 
                 width: '100%', maxWidth: '820px', height: '90vh', 
@@ -798,6 +799,23 @@ export default function ForumPage() {
         .spin { animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .like-btn:hover { background: rgba(255,255,255,0.1) !important; color: #fff; }
+
+        @media (max-width: 768px) {
+          :global(.forum-modal-overlay) {
+            padding: 0 !important;
+            align-items: flex-end !important;
+          }
+          :global(.forum-detail-modal) {
+            height: 92dvh !important;
+            max-height: 92dvh !important;
+            border-radius: 20px 20px 0 0 !important;
+            border-bottom: none !important;
+          }
+          :global(.forum-detail-modal input),
+          :global(.forum-detail-modal textarea) {
+            font-size: 16px !important;
+          }
+        }
       `}</style>
     </div>
   );

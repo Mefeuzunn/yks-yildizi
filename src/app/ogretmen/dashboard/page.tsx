@@ -800,7 +800,7 @@ function TeacherProfileTab() {
   ];
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '1.5rem' }}>
+    <div className="teacher-profile-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '1.5rem' }}>
 
       {/* ── Left: Edit Form ── */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -810,7 +810,7 @@ function TeacherProfileTab() {
           <h3 style={{ color: '#f1f5f9', fontSize: '1rem', fontWeight: 700, marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <User size={18} color="#6366f1" /> Temel Bilgiler
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="teacher-form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div>
               <label style={labelStyle}>Branş</label>
               <select
@@ -849,7 +849,7 @@ function TeacherProfileTab() {
           <h3 style={{ color: '#f1f5f9', fontSize: '1rem', fontWeight: 700, marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             📞 İletişim Bilgileri
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="teacher-form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div>
               <label style={labelStyle}>E-posta</label>
               <input
@@ -5870,6 +5870,22 @@ function TeacherDashboardContent() {
           /* Modal içeriği: bottom sheet */
           .modal-content-inner {
             border-radius: 16px 16px 0 0 !important;
+          }
+          :global(.modal-drawer-responsive) {
+            padding: 1.25rem 0.85rem calc(1.5rem + env(safe-area-inset-bottom, 16px)) 0.85rem !important;
+            border-radius: 20px 20px 0 0 !important;
+            max-height: 90dvh !important;
+            height: auto !important;
+            margin-top: auto !important;
+            border-left: none !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+          }
+          /* Profil sekmesi mobil akış */
+          :global(.teacher-profile-grid) {
+            grid-template-columns: 1fr !important;
+          }
+          :global(.teacher-form-row) {
+            grid-template-columns: 1fr !important;
           }
           /* Genel input fix */
           .ogretmen-dashboard-wrap input,

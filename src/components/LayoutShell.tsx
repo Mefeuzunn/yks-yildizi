@@ -98,7 +98,12 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
   const pathname = usePathname();
 
   // Standalone pages that use their own completely self-contained layout (no sidebar, no headers, no dashboard)
-  const isStandalonePage = pathname?.startsWith('/widget') || pathname === '/odak';
+  const isStandalonePage =
+    pathname?.startsWith('/widget') ||
+    pathname === '/odak' ||
+    pathname?.startsWith('/test-coz') ||
+    pathname?.startsWith('/duello') ||
+    pathname?.startsWith('/maarif/sinav');
   if (isStandalonePage) {
     return (
       <AuthProvider>

@@ -625,9 +625,21 @@ button:active {
   }
 }
 
+@media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden;
+    position: relative;
+    width: 100%;
+  }
+  input, select, textarea { font-size: 16px !important; }
+  .touch-target-safe {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
 @media (max-width: 480px) {
   html, body { font-size: 15px; }
-  input, select, textarea { font-size: 16px !important; }
   h1 { font-size: 1.35rem !important; }
   h2 { font-size: 1.15rem !important; }
 

@@ -1245,7 +1245,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
                 value={newMessage}
                 onChange={e => setNewMessage(e.target.value)}
                 placeholder="Bir şeyler yaz..."
-                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors"
+                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-base sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors"
               />
               <button 
                 type="submit" 

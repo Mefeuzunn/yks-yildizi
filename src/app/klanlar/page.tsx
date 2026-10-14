@@ -200,7 +200,7 @@ export default function KlanlarPage() {
   }
 
   return (
-    <div style={{ padding: 'clamp(16px, 4vw, 32px) clamp(12px, 3vw, 24px)', maxWidth: '1100px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 20px))' }}>
+    <div className="klanlar-page-wrap" style={{ padding: 'clamp(16px, 4vw, 32px) clamp(12px, 3vw, 24px)', maxWidth: '1100px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 20px))' }}>
 
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
@@ -429,7 +429,7 @@ export default function KlanlarPage() {
                 </div>
 
                 {/* Milestone Chest Badges */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', marginTop: '0.5rem' }}>
+                <div className="clan-milestones-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', marginTop: '0.5rem' }}>
                   <div style={{ padding: '0.5rem', borderRadius: '8px', background: (myClanDetails?.focusStats?.totalWeeklyFocusMinutes || 0) >= 900 ? 'rgba(205,124,58,0.2)' : 'rgba(255,255,255,0.02)', border: (myClanDetails?.focusStats?.totalWeeklyFocusMinutes || 0) >= 900 ? '1px solid rgba(205,124,58,0.5)' : '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
                     <div style={{ fontSize: '1rem' }}>🥉</div>
                     <div style={{ fontSize: '0.75rem', fontWeight: 700, color: (myClanDetails?.focusStats?.totalWeeklyFocusMinutes || 0) >= 900 ? '#f59e0b' : '#64748b' }}>Bronz (15 sa)</div>
@@ -651,6 +651,14 @@ export default function KlanlarPage() {
           </div>
         )}
       </AnimatePresence>
+
+      <style jsx>{`
+        @media (max-width: 480px) {
+          :global(.clan-milestones-grid) {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

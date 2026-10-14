@@ -10,6 +10,7 @@ import { PanelRightClose, PanelRightOpen, Beaker, Sparkles } from 'lucide-react'
 
 export default function SimulationDetailClient({ sim }: { sim: PhetSim }) {
   const [isPanelOpen, setIsPanelOpen] = useState(true);
+  const [mobileTab, setMobileTab] = useState<'sim' | 'lab'>('sim');
 
   return (
     <div style={{ minHeight: '100vh', background: '#080c14', color: '#fff', display: 'flex', flexDirection: 'column' }}>
@@ -32,8 +33,8 @@ export default function SimulationDetailClient({ sim }: { sim: PhetSim }) {
           >
             ← Laboratuvara Dön
           </Link>
-          <span style={{ color: '#334155' }}>|</span>
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+          <span className="desktop-tag" style={{ color: '#334155' }}>|</span>
+          <div className="desktop-tag" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
             <span style={{
               fontSize: '11px', fontWeight: 700, color: '#38bdf8',
               background: 'rgba(56,189,248,0.1)', padding: '3px 8px', borderRadius: '6px',
@@ -52,8 +53,49 @@ export default function SimulationDetailClient({ sim }: { sim: PhetSim }) {
           </div>
         </div>
 
+        {/* Mobil Segmented Tab Switcher */}
+        <div className="sim-mobile-tab-bar">
+          <button
+            onClick={() => setMobileTab('sim')}
+            style={{
+              padding: '6px 12px',
+              borderRadius: '8px',
+              border: 'none',
+              background: mobileTab === 'sim' ? '#6366f1' : 'rgba(255,255,255,0.06)',
+              color: mobileTab === 'sim' ? '#fff' : '#94a3b8',
+              fontWeight: 700,
+              fontSize: '12px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            🔬 Simülasyon
+          </button>
+          <button
+            onClick={() => setMobileTab('lab')}
+            style={{
+              padding: '6px 12px',
+              borderRadius: '8px',
+              border: 'none',
+              background: mobileTab === 'lab' ? '#8b5cf6' : 'rgba(255,255,255,0.06)',
+              color: mobileTab === 'lab' ? '#fff' : '#94a3b8',
+              fontWeight: 700,
+              fontSize: '12px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            📝 Föy & AI
+          </button>
+        </div>
+
         {/* Panel Toggle Button (Desktop) */}
         <button
+          className="sim-desktop-toggle-btn"
           onClick={() => setIsPanelOpen(!isPanelOpen)}
           style={{
             display: 'flex', alignItems: 'center', gap: '6px',
@@ -81,39 +123,57 @@ export default function SimulationDetailClient({ sim }: { sim: PhetSim }) {
           minHeight: '620px'
         }}>
           {/* Left: Simulation Canvas */}
-          <div style={{ height: '100%', minHeight: 0 }}>
+          <div className={`sim-stage-container ${mobileTab !== 'sim' ? 'mobile-hidden' : ''}`} style={{ height: '100%', minHeight: 0 }}>
             <UniversalSimulationStage sim={sim} />
           </div>
 
           {/* Right: Lab Quests & AstraTutor AI */}
-          {isPanelOpen && (
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.2 }}
-              style={{ height: '100%', minHeight: 0 }}
-            >
-              <SimulationLabPanel sim={sim} />
-            </motion.div>
-          )}
+          <div className={`sim-lab-container ${mobileTab !== 'lab' ? 'mobile-hidden' : ''} ${!isPanelOpen ? 'desktop-hidden' : ''}`} style={{ height: '100%', minHeight: 0 }}>
+            <SimulationLabPanel sim={sim} />
+          </div>
         </div>
       </div>
 
       <style jsx>{`
-        @media (max-width: 1024px) {
+        .sim-mobile-tab-bar {
+          display: none;
+          gap: 6px;
+          background: rgba(255, 255, 255, 0.05);
+          padding: 3px;
+          border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+          .sim-mobile-tab-bar {
+            display: flex !important;
+          }
+          .sim-desktop-toggle-btn {
+            display: none !important;
+          }
+          .desktop-tag {
+            display: none !important;
+          }
           .sim-detail-grid {
-            grid-template-columns: 1fr !important;
+            display: block !important;
             height: auto !important;
             min-height: unset !important;
           }
-          .sim-detail-grid > div:first-child {
-            height: 60vh !important;
-            min-height: 400px !important;
+          .mobile-hidden {
+            display: none !important;
           }
-          .sim-detail-grid > div:last-child {
-            height: 520px !important;
-            margin-top: 12px;
+          .sim-stage-container {
+            height: calc(100dvh - 120px) !important;
+            min-height: 480px !important;
+          }
+          .sim-lab-container {
+            height: auto !important;
+            min-height: 500px !important;
+          }
+        }
+
+        @media (min-width: 769px) {
+          .desktop-hidden {
+            display: none !important;
           }
         }
       `}</style>

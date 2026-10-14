@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Swords, Trophy, Loader2, CheckCircle2, XCircle, Clock, 
-  Activity, Volume2, VolumeX, Sparkles, Flame 
+  Activity, Volume2, VolumeX, Sparkles, Flame, ArrowLeft 
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
@@ -398,6 +398,25 @@ export default function DuelloPage() {
       {/* Top Header Row with Sound Toggle */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', maxWidth: '1000px', margin: '0 auto 1.5rem auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <Link
+            href="/dashboard"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '38px',
+              height: '38px',
+              borderRadius: '12px',
+              background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              color: '#94a3b8',
+              textDecoration: 'none',
+              transition: 'all 0.2s'
+            }}
+            title="Ana Sayfaya Dön"
+          >
+            <ArrowLeft size={18} />
+          </Link>
           <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(185,28,28,0.1))', border: '1px solid rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Swords size={20} color="#ef4444" />
           </div>
@@ -835,7 +854,7 @@ export default function DuelloPage() {
 
         @media (max-width: 768px) {
           :global(.duel-container) {
-            padding: 12px 10px calc(80px + env(safe-area-inset-bottom, 20px)) 10px !important;
+            padding: 12px 10px calc(24px + env(safe-area-inset-bottom, 16px)) 10px !important;
           }
           :global(.duel-top-bar) {
             padding: 10px 12px !important;
