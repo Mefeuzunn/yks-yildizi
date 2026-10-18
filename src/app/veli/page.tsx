@@ -6,7 +6,7 @@ import {
   FileText, Activity, BookOpen, Target, ShieldCheck, ChevronRight, CheckCircle2, 
   TrendingUp, Lock, Share2, Heart, Coffee, Rocket, Star, MessageSquare, Radio, 
   Sparkles, Award, Compass, Clock, CheckCircle, ChevronDown, ChevronUp, AlertCircle,
-  Flame, UserCheck, HelpCircle, Phone, Smartphone, Edit2, X, Check
+  Flame, UserCheck, HelpCircle, Phone, Smartphone, Edit2, X, Check, Printer
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
@@ -41,6 +41,7 @@ export default function VeliDashboardPage() {
   const [cheerLoading, setCheerLoading] = useState(false);
   const [cheerNote, setCheerNote] = useState('');
   const [selectedCheerType, setSelectedCheerType] = useState<'coffee' | 'rocket' | 'heart' | 'star'>('coffee');
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   // Rehberlik kartları açık/kapalı durumu
   const [expandedGuidance, setExpandedGuidance] = useState<number | null>(0);
@@ -378,11 +379,11 @@ export default function VeliDashboardPage() {
             <Share2 size={16} /> WhatsApp Raporu
           </button>
           <button 
-            onClick={() => window.print()}
+            onClick={() => setIsReportModalOpen(true)}
             className="active:scale-[0.98]"
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.06)', color: '#fff', padding: '0.6rem 1.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 700, transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'linear-gradient(135deg, #6366f1, #4f46e5)', color: '#fff', padding: '0.6rem 1.25rem', borderRadius: '12px', border: '1px solid rgba(99, 102, 241, 0.4)', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 800, boxShadow: '0 4px 14px rgba(99, 102, 241, 0.35)', transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
           >
-            <FileText size={16} /> PDF İndir
+            <FileText size={16} /> Resmi Karne / PDF
           </button>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', backgroundColor: 'rgba(15, 21, 35, 0.85)', padding: '0.5rem 1rem', borderRadius: '14px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
             <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'linear-gradient(135deg, #10b981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, textTransform: 'uppercase' }}>
@@ -1650,6 +1651,337 @@ export default function VeliDashboardPage() {
         )}
       </AnimatePresence>
 
+      {/* 📄 RESMİ ÖĞRENCİ GELİŞİM KARNESİ & A4 YAZDIRMA / PDF MODALI */}
+      <AnimatePresence>
+        {isReportModalOpen && studentData && (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 99999,
+              backgroundColor: 'rgba(0, 0, 0, 0.85)',
+              backdropFilter: 'blur(8px)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              overflowY: 'auto',
+              padding: '24px 12px'
+            }}
+          >
+            {/* Modal Üst Eylem Çubuğu (Baskıda Gizlenir) */}
+            <div
+              className="no-print"
+              style={{
+                width: '100%',
+                maxWidth: '860px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                backgroundColor: '#1e293b',
+                padding: '12px 20px',
+                borderRadius: '16px 16px 0 0',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderBottom: 'none',
+                color: '#fff',
+                boxSizing: 'border-box'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '1.4rem' }}>🎓</span>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800 }}>Resmi Öğrenci Gelişim Karnesi & Veli Raporu</h3>
+                  <p style={{ margin: 0, fontSize: '0.75rem', color: '#94a3b8' }}>A4 Standart Boyutunda Yazdırabilir veya PDF Olarak Kaydedebilirsiniz</p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <button
+                  onClick={() => window.print()}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 18px',
+                    borderRadius: '10px',
+                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                    color: '#fff',
+                    border: 'none',
+                    fontWeight: 800,
+                    fontSize: '0.85rem',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)'
+                  }}
+                >
+                  <Printer size={16} />
+                  <span>Yazdır / PDF Kaydet</span>
+                </button>
+                <button
+                  onClick={() => setIsReportModalOpen(false)}
+                  style={{
+                    padding: '8px',
+                    borderRadius: '10px',
+                    background: 'rgba(255,255,255,0.06)',
+                    color: '#94a3b8',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            </div>
+
+            {/* A4 Yazdırılabilir Belge Konteyneri */}
+            <div
+              id="veli-official-report"
+              style={{
+                width: '100%',
+                maxWidth: '860px',
+                backgroundColor: '#ffffff',
+                color: '#0f172a',
+                padding: '36px 40px',
+                borderRadius: '0 0 16px 16px',
+                boxShadow: '0 25px 60px rgba(0,0,0,0.5)',
+                fontFamily: 'var(--font-sans)',
+                boxSizing: 'border-box'
+              }}
+            >
+              {/* Kurumsal Başlık & T.C. Formatı */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2.5px solid #1e3a8a', paddingBottom: '14px', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ width: '46px', height: '46px', borderRadius: '50%', background: '#dc2626', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem', fontWeight: 900 }}>
+                    ★
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#dc2626', letterSpacing: '0.08em' }}>T.C. AKADEMİK DEĞERLENDİRME SİSTEMİ</div>
+                    <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1e3a8a', letterSpacing: '-0.02em', margin: '2px 0 0' }}>YKS YILDIZI ÖĞRENCİ GELİŞİM KARNESİ</div>
+                    <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>2025 - 2026 EĞİTİM ÖĞRETİM YILI / YKS HAZIRLIK DÖNEMİ</div>
+                  </div>
+                </div>
+
+                <div style={{ textAlign: 'right', fontSize: '0.75rem', color: '#475569' }}>
+                  <div><strong>Rapor No:</strong> YKS-RPR-{(studentData.student?.id || '2026').substring(0, 8).toUpperCase()}</div>
+                  <div><strong>Tarih:</strong> {new Date().toLocaleDateString('tr-TR')}</div>
+                  <div><strong>Düzenleme Saati:</strong> {new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</div>
+                </div>
+              </div>
+
+              {/* Öğrenci & Veli Kimlik Kartı */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', backgroundColor: '#f8fafc', padding: '12px 16px', borderRadius: '10px', border: '1px solid #e2e8f0', marginBottom: '16px', fontSize: '0.8rem' }}>
+                <div>
+                  <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem', fontWeight: 700 }}>ÖĞRENCİ ADI SOYADI</span>
+                  <span style={{ color: '#0f172a', fontWeight: 800, fontSize: '0.9rem' }}>{studentData.student.username}</span>
+                </div>
+                <div>
+                  <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem', fontWeight: 700 }}>SINIF & ALAN</span>
+                  <span style={{ color: '#0f172a', fontWeight: 800 }}>{studentData.student.sinif}. Sınıf • {studentData.student.alan}</span>
+                </div>
+                <div>
+                  <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem', fontWeight: 700 }}>HEDEF BÖLÜM</span>
+                  <span style={{ color: '#1e3a8a', fontWeight: 800 }}>{studentData.student.target_university || 'Belirtilmedi'} {studentData.student.target_department ? `(${studentData.student.target_department})` : ''}</span>
+                </div>
+                <div>
+                  <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem', fontWeight: 700 }}>VELİ İSMİ</span>
+                  <span style={{ color: '#0f172a', fontWeight: 800 }}>{parentName || 'Sayın Velimiz'}</span>
+                </div>
+                <div>
+                  <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem', fontWeight: 700 }}>VELİ TAKİP KODU</span>
+                  <span style={{ color: '#059669', fontWeight: 800 }}>{parentCode}</span>
+                </div>
+                <div>
+                  <span style={{ color: '#64748b', display: 'block', fontSize: '0.7rem', fontWeight: 700 }}>DURUM</span>
+                  <span style={{ color: '#10b981', fontWeight: 800 }}>● Aktif YKS Adayı</span>
+                </div>
+              </div>
+
+              {/* Temel Akademik Göstergeler (6 Metrik Kutusu) */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px', marginBottom: '16px' }}>
+                <div style={{ backgroundColor: '#eff6ff', padding: '10px 8px', borderRadius: '8px', border: '1px solid #bfdbfe', textAlign: 'center' }}>
+                  <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#1d4ed8' }}>{studentData.stats?.solved_questions || 0}</div>
+                  <div style={{ fontSize: '0.65rem', color: '#1e40af', fontWeight: 700, marginTop: '2px' }}>Toplam Soru</div>
+                </div>
+                <div style={{ backgroundColor: '#ecfdf5', padding: '10px 8px', borderRadius: '8px', border: '1px solid #a7f3d0', textAlign: 'center' }}>
+                  <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#047857' }}>%{studentData.stats?.success_rate || 0}</div>
+                  <div style={{ fontSize: '0.65rem', color: '#065f46', fontWeight: 700, marginTop: '2px' }}>Net Doğruluk</div>
+                </div>
+                <div style={{ backgroundColor: '#fff7ed', padding: '10px 8px', borderRadius: '8px', border: '1px solid #fed7aa', textAlign: 'center' }}>
+                  <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#c2410c' }}>{studentData.stats?.streak_days || 0} Gün</div>
+                  <div style={{ fontSize: '0.65rem', color: '#9a3412', fontWeight: 700, marginTop: '2px' }}>Çalışma Serisi</div>
+                </div>
+                <div style={{ backgroundColor: '#faf5ff', padding: '10px 8px', borderRadius: '8px', border: '1px solid #e9d5ff', textAlign: 'center' }}>
+                  <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#7e22ce' }}>{studentData.stats?.league || 'Bronz'}</div>
+                  <div style={{ fontSize: '0.65rem', color: '#6b21a8', fontWeight: 700, marginTop: '2px' }}>Lig Kademesi</div>
+                </div>
+                <div style={{ backgroundColor: '#f0fdf4', padding: '10px 8px', borderRadius: '8px', border: '1px solid #bbf7d0', textAlign: 'center' }}>
+                  <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#15803d' }}>{Math.round((todaySummary?.focusMinutes || 45) / 60) || 1} Saat</div>
+                  <div style={{ fontSize: '0.65rem', color: '#166534', fontWeight: 700, marginTop: '2px' }}>Etüt Süresi</div>
+                </div>
+                <div style={{ backgroundColor: '#fef2f2', padding: '10px 8px', borderRadius: '8px', border: '1px solid #fecaca', textAlign: 'center' }}>
+                  <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#b91c1c' }}>%{assignmentStats?.rate || 100}</div>
+                  <div style={{ fontSize: '0.65rem', color: '#991b1b', fontWeight: 700, marginTop: '2px' }}>Ödev Başarısı</div>
+                </div>
+              </div>
+
+              {/* Deneme Sınavları Tablosu */}
+              <div style={{ marginBottom: '16px' }}>
+                <h4 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#1e3a8a', margin: '0 0 6px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>📊</span> Deneme Sınavları Net Gelişim Dökümü
+                </h4>
+                {studentData.exams && studentData.exams.length > 0 ? (
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
+                    <thead>
+                      <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '1.5px solid #cbd5e1', textAlign: 'center' }}>
+                        <th style={{ padding: '6px 8px', textAlign: 'left', fontWeight: 700, color: '#334155' }}>Sınav Tarihi</th>
+                        <th style={{ padding: '6px 8px', fontWeight: 700, color: '#334155' }}>Tür</th>
+                        <th style={{ padding: '6px 8px', fontWeight: 700, color: '#334155' }}>Türkçe</th>
+                        <th style={{ padding: '6px 8px', fontWeight: 700, color: '#334155' }}>Matematik</th>
+                        <th style={{ padding: '6px 8px', fontWeight: 700, color: '#334155' }}>Fen Bil.</th>
+                        <th style={{ padding: '6px 8px', fontWeight: 700, color: '#334155' }}>Sosyal Bil.</th>
+                        <th style={{ padding: '6px 8px', fontWeight: 800, color: '#1e3a8a' }}>Toplam Net</th>
+                        <th style={{ padding: '6px 8px', fontWeight: 800, color: '#059669' }}>Tahmini Puan</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {studentData.exams.slice(-5).map((exam: any, idx: number) => {
+                        const d = exam.details || {};
+                        return (
+                          <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0', textAlign: 'center', backgroundColor: idx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
+                            <td style={{ padding: '6px 8px', textAlign: 'left', color: '#475569', fontWeight: 600 }}>{exam.exam_date || exam.date || 'Son Dönem'}</td>
+                            <td style={{ padding: '6px 8px', fontWeight: 700, color: exam.type === 'AYT' ? '#7c3aed' : '#2563eb' }}>{exam.type || 'TYT'}</td>
+                            <td style={{ padding: '6px 8px', color: '#334155' }}>{d.turkce ?? exam.turkish_net ?? '-'}</td>
+                            <td style={{ padding: '6px 8px', color: '#334155' }}>{d.matematik ?? exam.math_net ?? '-'}</td>
+                            <td style={{ padding: '6px 8px', color: '#334155' }}>{d.fen ?? exam.science_net ?? '-'}</td>
+                            <td style={{ padding: '6px 8px', color: '#334155' }}>{d.sosyal ?? exam.social_net ?? '-'}</td>
+                            <td style={{ padding: '6px 8px', fontWeight: 800, color: '#1e3a8a' }}>{exam.total_net || 0} Net</td>
+                            <td style={{ padding: '6px 8px', fontWeight: 800, color: '#059669' }}>{exam.score ? `${exam.score} P` : '-'}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div style={{ padding: '8px 12px', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '0.75rem', color: '#64748b' }}>
+                    Henüz kayıtlı deneme sınavı sonucu bulunmamaktadır. Çözülen denemeler otomatik olarak bu tabloya eklenecektir.
+                  </div>
+                )}
+              </div>
+
+              {/* Ders Odaklanma & Kritik Telafi Konuları (2 Kolon) */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+                <div style={{ backgroundColor: '#f8fafc', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <h4 style={{ fontSize: '0.78rem', fontWeight: 800, color: '#047857', margin: '0 0 6px 0' }}>
+                    🎯 En Çok Çalışılan Dersler (Son 7 Gün)
+                  </h4>
+                  {subjectFocus && subjectFocus.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      {subjectFocus.slice(0, 4).map((sf: any, i: number) => (
+                        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: '#334155' }}>
+                          <span style={{ fontWeight: 600 }}>{i + 1}. {sf.subject}</span>
+                          <span style={{ color: '#059669', fontWeight: 700 }}>{sf.total_min} dk</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Ders etütleri düzenli olarak işlenmektedir.</div>
+                  )}
+                </div>
+
+                <div style={{ backgroundColor: '#f8fafc', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <h4 style={{ fontSize: '0.78rem', fontWeight: 800, color: '#b91c1c', margin: '0 0 6px 0' }}>
+                    ⚠️ Öncelikli Telafi Konuları (Hata Analizi)
+                  </h4>
+                  {mistakes && mistakes.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      {mistakes.slice(0, 4).map((m: any, i: number) => (
+                        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: '#334155' }}>
+                          <span style={{ fontWeight: 600 }}>{i + 1}. {m.subject} {m.topic ? `• ${m.topic}` : ''}</span>
+                          <span style={{ color: '#dc2626', fontWeight: 700 }}>{m.mistake_count} Hata</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Kritik bir hata yığılması saptanmadı.</div>
+                  )}
+                </div>
+              </div>
+
+              {/* Maarif Modeli Yetkinlik Çizelgesi */}
+              {maarifCompetencies && maarifCompetencies.length > 0 && (
+                <div style={{ marginBottom: '16px' }}>
+                  <h4 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#1e3a8a', margin: '0 0 8px 0' }}>
+                    🌟 Türkiye Maarif Modeli Bütüncül Yetkinlik Skoru
+                  </h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+                    {maarifCompetencies.map((comp: any, idx: number) => (
+                      <div key={idx} style={{ padding: '8px', border: '1px solid #e2e8f0', borderRadius: '8px', backgroundColor: '#fafafa', textAlign: 'center' }}>
+                        <div style={{ fontSize: '1rem', marginBottom: '2px' }}>{comp.icon}</div>
+                        <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#1e293b' }}>{comp.name}</div>
+                        <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#2563eb', margin: '3px 0' }}>%{comp.score}</div>
+                        <div style={{ fontSize: '0.65rem', color: '#64748b' }}>{comp.desc}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Öğretmen Notları & Rehberlik */}
+              {teacherNotes && teacherNotes.length > 0 && (
+                <div style={{ marginBottom: '16px' }}>
+                  <h4 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#1e3a8a', margin: '0 0 6px 0' }}>
+                    📝 Branş Öğretmenleri Değerlendirme Notları
+                  </h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {teacherNotes.slice(0, 2).map((note: any, idx: number) => (
+                      <div key={idx} style={{ padding: '8px 12px', background: '#f8fafc', borderRadius: '6px', borderLeft: '3px solid #6366f1', fontSize: '0.72rem', color: '#334155' }}>
+                        <div style={{ fontWeight: 800, color: '#4338ca', marginBottom: '2px' }}>
+                          {note.teacher_name} ({note.teacher_brans || 'Öğretmen'}) — {note.created_at ? new Date(note.created_at).toLocaleDateString('tr-TR') : ''}
+                        </div>
+                        <div>"{note.note}"</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Yapay Zeka Eğitim Koçu Değerlendirmesi */}
+              {aiLetter && (
+                <div style={{ backgroundColor: '#f0fdf4', padding: '10px 14px', borderRadius: '8px', border: '1px solid #bbf7d0', marginBottom: '16px' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#15803d', marginBottom: '4px' }}>
+                    🤖 AstraTutor Yapay Zeka Eğitim Koçu Notu
+                  </div>
+                  <div style={{ fontSize: '0.72rem', color: '#166534', lineHeight: 1.5, whiteSpace: 'pre-line' }}>
+                    {aiLetter.length > 420 ? `${aiLetter.substring(0, 420)}...` : aiLetter}
+                  </div>
+                </div>
+              )}
+
+              {/* Resmi İmza & Onay Bölümü */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginTop: '20px', paddingTop: '16px', borderTop: '1.5px dashed #cbd5e1' }}>
+                <div style={{ textAlign: 'center', fontSize: '0.75rem' }}>
+                  <div style={{ fontWeight: 800, color: '#1e293b' }}>Kurum Rehberlik Danışmanı</div>
+                  <div style={{ color: '#64748b', fontSize: '0.68rem', marginBottom: '32px' }}>YKS Yıldızı Akademik Koordinatörlüğü</div>
+                  <div style={{ width: '150px', borderBottom: '1px solid #000', margin: '0 auto 4px' }} />
+                  <div style={{ color: '#94a3b8', fontSize: '0.65rem' }}>İmza / Kaşe</div>
+                </div>
+
+                <div style={{ textAlign: 'center', fontSize: '0.75rem' }}>
+                  <div style={{ fontWeight: 800, color: '#1e293b' }}>Öğrenci Velisi</div>
+                  <div style={{ color: '#64748b', fontSize: '0.68rem', marginBottom: '32px' }}>{parentName || 'Veli İnceleme ve Onayı'}</div>
+                  <div style={{ width: '150px', borderBottom: '1px solid #000', margin: '0 auto 4px' }} />
+                  <div style={{ color: '#94a3b8', fontSize: '0.65rem' }}>İmza</div>
+                </div>
+              </div>
+
+              {/* Kurumsal Bilgi & Karekod İbaresi */}
+              <div style={{ marginTop: '16px', paddingTop: '8px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.65rem', color: '#94a3b8' }}>
+                <span>* Bu belge, YKS Yıldızı akıllı öğrenme platformu tarafından üretilmiş resmi öğrenci gelişim karnesidir.</span>
+                <span>Doğrulama Kodu: {studentData.student?.id?.substring(0, 12) || 'YKS-2026-VAL'}</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Floating Toast Notification */}
       <AnimatePresence>
         {toastMessage && (
@@ -1678,6 +2010,35 @@ export default function VeliDashboardPage() {
           .veli-page-wrap { padding-bottom: calc(85px + env(safe-area-inset-bottom, 20px)) !important; }
           .veli-header { flex-direction: column !important; align-items: flex-start !important; }
           .veli-stats-grid { grid-template-columns: 1fr 1fr !important; }
+        }
+        @media print {
+          body * {
+            visibility: hidden !important;
+          }
+          #veli-official-report,
+          #veli-official-report * {
+            visibility: visible !important;
+          }
+          #veli-official-report {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 10mm 15mm !important;
+            background: #ffffff !important;
+            color: #0f172a !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+          }
+          .no-print {
+            display: none !important;
+          }
+          @page {
+            size: A4 portrait;
+            margin: 8mm;
+          }
         }
       `}</style>
     </div>

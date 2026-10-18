@@ -727,20 +727,46 @@ function DashboardContent() {
                 Bugün hangi hedefe odaklanacaksın?
               </p>
             </div>
-            <div
-              style={{
-                fontSize: '12px',
-                color: '#cbd5e1',
-                backgroundColor: 'rgba(255, 255, 255, 0.035)',
-                padding: '6px 14px',
-                borderRadius: '9999px',
-                fontWeight: 600,
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-                flexShrink: 0,
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.35)',
-              }}
-            >
-              📅 {formattedDate}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <div
+                style={{
+                  fontSize: '12px',
+                  color: '#cbd5e1',
+                  backgroundColor: 'rgba(255, 255, 255, 0.035)',
+                  padding: '6px 14px',
+                  borderRadius: '9999px',
+                  fontWeight: 600,
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  flexShrink: 0,
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.35)',
+                }}
+              >
+                📅 {formattedDate}
+              </div>
+              {user?.parent_code && (
+                <Link
+                  href={`/veli?code=${encodeURIComponent(user.parent_code)}`}
+                  style={{
+                    fontSize: '12px',
+                    color: '#c4b5fd',
+                    backgroundColor: 'rgba(139, 92, 246, 0.12)',
+                    padding: '6px 14px',
+                    borderRadius: '9999px',
+                    fontWeight: 700,
+                    border: '1px solid rgba(139, 92, 246, 0.3)',
+                    flexShrink: 0,
+                    textDecoration: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    transition: 'all 0.2s ease',
+                  }}
+                  title="Resmi Öğrenci Gelişim Karnesini ve Veli Raporunu İncele / PDF Olarak Kaydet"
+                >
+                  <span>🎓</span>
+                  <span>Gelişim Karnem & PDF</span>
+                </Link>
+              )}
             </div>
           </div>
 

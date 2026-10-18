@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { Shield, Users, Zap, Trophy, Plus, Crown, LogOut, Search, Star, Loader2, X, Mail, Check, AlertCircle, Lock, Swords, Flame, Timer, Sparkles, Award, ArrowRight } from 'lucide-react';
+import { Shield, Users, Zap, Trophy, Plus, Crown, LogOut, Search, Star, Loader2, X, Mail, Check, AlertCircle, Lock, Swords, Flame, Timer, Sparkles, Award, ArrowRight, MessageSquare, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 
@@ -38,6 +38,9 @@ export default function KlanlarPage() {
   const [inviteMsg, setInviteMsg] = useState('');
   const [pendingInvites, setPendingInvites] = useState<any[]>([]);
   const [confirmLeaveClanModal, setConfirmLeaveClanModal] = useState(false);
+  const [clanMessages, setClanMessages] = useState<any[]>([]);
+  const [newClanMessage, setNewClanMessage] = useState('');
+  const [sendingMessage, setSendingMessage] = useState(false);
 
   useEffect(() => {
     fetchAll();
@@ -74,6 +77,14 @@ export default function KlanlarPage() {
           const detailRes = await fetch(`/api/clans/${data.userClanId}`);
           const detailData = await detailRes.json();
           setMyClanDetails(detailData);
+
+          try {
+            const msgRes = await fetch(`/api/clans/${data.userClanId}/messages`);
+            const msgData = await msgRes.json();
+            if (msgData.success && msgData.messages) {
+              setClanMessages(msgData.messages);
+            }
+          } catch (_) {}
         }
       }
 
@@ -185,6 +196,29 @@ export default function KlanlarPage() {
       }
     } catch {
       toast.error('Sunucu hatası');
+    }
+  }
+
+  async function sendClanMessage() {
+    if (!newClanMessage.trim() || !myClan) return;
+    setSendingMessage(true);
+    try {
+      const res = await fetch(`/api/clans/${myClan.id}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: newClanMessage.trim() })
+      });
+      const data = await res.json();
+      if (data.success && data.message) {
+        setClanMessages(prev => [...prev, data.message]);
+        setNewClanMessage('');
+      } else if (data.error) {
+        toast.error(data.error);
+      }
+    } catch {
+      toast.error('Mesaj gönderilemedi');
+    } finally {
+      setSendingMessage(false);
     }
   }
 
@@ -805,6 +839,110 @@ export default function KlanlarPage() {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+
+              {/* Klan Panosu & Anlık Sohbet */}
+              <div style={card}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <h3 style={{ color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem', fontWeight: 700 }}>
+                    <MessageSquare size={18} color="#8b5cf6" /> Klan Panosu & Sohbet
+                  </h3>
+                  <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                    {clanMessages.length} mesaj
+                  </span>
+                </div>
+
+                {/* Messages Container */}
+                <div style={{
+                  maxHeight: '260px',
+                  overflowY: 'auto',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.6rem',
+                  padding: '0.75rem',
+                  background: 'rgba(0,0,0,0.25)',
+                  borderRadius: '10px',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  marginBottom: '0.85rem'
+                }}>
+                  {clanMessages.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '1.5rem', color: '#64748b', fontSize: '0.85rem' }}>
+                      💬 Klan panosuna henüz mesaj yazılmamış. Arkadaşlarına ilk selamı sen ver! 🚀
+                    </div>
+                  ) : (
+                    clanMessages.map((msg: any) => (
+                      <div
+                        key={msg.id}
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignSelf: msg.isMe ? 'flex-end' : 'flex-start',
+                          maxWidth: '82%',
+                          background: msg.isMe ? 'linear-gradient(135deg, rgba(139,92,246,0.25), rgba(99,102,241,0.2))' : 'rgba(255,255,255,0.05)',
+                          border: msg.isMe ? '1px solid rgba(139,92,246,0.4)' : '1px solid rgba(255,255,255,0.08)',
+                          borderRadius: msg.isMe ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
+                          padding: '0.5rem 0.75rem'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                          <span style={{ fontSize: '0.72rem', fontWeight: 700, color: msg.isMe ? '#c4b5fd' : '#e2e8f0' }}>
+                            {msg.username}
+                          </span>
+                          {msg.role === 'leader' && (
+                            <span style={{ fontSize: '0.65rem', color: '#f59e0b', background: 'rgba(245,158,11,0.15)', padding: '1px 5px', borderRadius: '4px' }}>Lider</span>
+                          )}
+                          <span style={{ fontSize: '0.65rem', color: '#64748b', marginLeft: 'auto' }}>
+                            {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : ''}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '0.82rem', color: '#f1f5f9', wordBreak: 'break-word', lineHeight: 1.4 }}>
+                          {msg.message}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* Input row */}
+                <div style={{ display: 'flex', gap: '0.6rem' }}>
+                  <input
+                    placeholder="Klan üyelerine mesaj yaz..."
+                    value={newClanMessage}
+                    onChange={e => setNewClanMessage(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && !sendingMessage && sendClanMessage()}
+                    maxLength={500}
+                    style={{
+                      flex: 1,
+                      padding: '10px 14px',
+                      background: '#0b0f19',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: '10px',
+                      color: '#fff',
+                      fontSize: '14px',
+                      outline: 'none'
+                    }}
+                  />
+                  <button
+                    onClick={sendClanMessage}
+                    disabled={sendingMessage || !newClanMessage.trim()}
+                    style={{
+                      background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
+                      border: 'none',
+                      borderRadius: '10px',
+                      padding: '10px 18px',
+                      color: '#fff',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      opacity: sendingMessage || !newClanMessage.trim() ? 0.6 : 1
+                    }}
+                  >
+                    <Send size={15} />
+                    <span>{sendingMessage ? '...' : 'Gönder'}</span>
+                  </button>
                 </div>
               </div>
             </div>
