@@ -58,14 +58,47 @@ export default function ScanMistakeModal({ isOpen, onClose, onSaved }: Props) {
   const processImage = async (base64: string) => {
     setIsProcessing(true);
     try {
-      // Offline OCR using Tesseract.js
+      // First try Gemini multimodal photo analysis to auto-extract structured question & solution
+      const res = await fetch('/api/ai/solve-photo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image: base64,
+          mimeType: 'image/jpeg',
+          studentNote: 'Lütfen bu soruyu hata defterine kaydetmek için soru metnini ve ders konusunu çıkart.'
+        })
+      });
+
+      const data = await res.json().catch(() => null);
+      if (data?.reply) {
+        setOcrText(data.reply);
+        const reply = data.reply;
+        if (reply.includes('Matematik')) setSubject('Matematik');
+        else if (reply.includes('Fizik')) setSubject('Fizik');
+        else if (reply.includes('Kimya')) setSubject('Kimya');
+        else if (reply.includes('Biyoloji')) setSubject('Biyoloji');
+        else if (reply.includes('Türkçe') || reply.includes('Edebiyat')) setSubject('Türkçe');
+        else if (reply.includes('Tarih')) setSubject('Tarih');
+        else if (reply.includes('Coğrafya')) setSubject('Coğrafya');
+        else if (reply.includes('Geometri')) setSubject('Geometri');
+
+        toast.success('Soru yapay zeka ile başarıyla analiz edildi!');
+        return;
+      }
+
+      // Fallback: client-side OCR if online AI didn't return text
       const result = await Tesseract.recognize(base64, 'tur', {
         logger: m => console.log(m)
       });
       setOcrText(result.data.text);
     } catch (error) {
-      console.error('OCR Error:', error);
-      toast.error('Fotoğraf okunurken bir hata oluştu.');
+      console.error('Image processing error:', error);
+      try {
+        const result = await Tesseract.recognize(base64, 'tur');
+        setOcrText(result.data.text);
+      } catch (tessErr) {
+        toast.warning('Fotoğraf otomatik okunamadı, soru metnini elle girebilirsiniz.');
+      }
     } finally {
       setIsProcessing(false);
     }

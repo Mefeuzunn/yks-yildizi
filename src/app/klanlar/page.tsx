@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { Shield, Users, Zap, Trophy, Plus, Crown, LogOut, Search, Star, Loader2, X, Mail, Check, AlertCircle, Lock } from 'lucide-react';
+import { Shield, Users, Zap, Trophy, Plus, Crown, LogOut, Search, Star, Loader2, X, Mail, Check, AlertCircle, Lock, Swords, Flame, Timer, Sparkles, Award, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 
 import { getLevel, getLevelProgress, XP_PER_LEVEL } from '@/lib/level-system';
 import { toast } from '@/context/ToastContext';
@@ -16,8 +17,9 @@ const COLOR_OPTIONS = ['#8b5cf6', '#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#
 
 export default function KlanlarPage() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'Klan Ligi' | 'Klanım' | 'Klan Bul'>('Klan Ligi');
+  const [activeTab, setActiveTab] = useState<'Klan Ligi' | 'Klan Savaşları' | 'Klanım' | 'Klan Bul'>('Klan Ligi');
   const [clans, setClans] = useState<any[]>([]);
+  const [warsData, setWarsData] = useState<any>(null);
   const [myClan, setMyClan] = useState<any>(null);
   const [myClanDetails, setMyClanDetails] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -56,6 +58,13 @@ export default function KlanlarPage() {
       const data = await res.json();
       const fetchedClans = data.clans || [];
       setClans(fetchedClans);
+
+      // Fetch clan wars
+      try {
+        const warsRes = await fetch('/api/clans/wars');
+        const warsJson = await warsRes.json();
+        if (warsJson.success) setWarsData(warsJson);
+      } catch (_) {}
 
       if (data.userClanId) {
         const mine = fetchedClans.find((c: any) => c.id === data.userClanId);
@@ -261,7 +270,7 @@ export default function KlanlarPage() {
 
       {/* Tabs */}
       <div style={{ display: 'flex', gap: '0.5rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', padding: '0.35rem' }}>
-        {(['Klan Ligi', 'Klanım', 'Klan Bul'] as const).map(tab => (
+        {(['Klan Ligi', 'Klan Savaşları', 'Klanım', 'Klan Bul'] as const).map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)}
             style={{ flex: 1, padding: '0.6rem', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem', transition: 'all 0.2s',
               background: activeTab === tab ? 'rgba(139, 92, 246, 0.3)' : 'transparent',
@@ -298,6 +307,297 @@ export default function KlanlarPage() {
               </div>
             </motion.div>
           ))}
+        </div>
+      )}
+
+      {/* === KLAN SAVAŞLARI === */}
+      {activeTab === 'Klan Savaşları' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          {/* Sezon Durumu & Geri Sayım */}
+          <div style={{
+            ...card,
+            background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(244, 63, 94, 0.1))',
+            border: '1px solid rgba(139, 92, 246, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '1rem',
+            padding: '1.25rem 1.5rem'
+          }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#c4b5fd', fontWeight: 800, fontSize: '0.85rem' }}>
+                <Swords size={18} color="#ec4899" />
+                <span>{warsData?.season?.title || '2026 Klan Arenası - 12. Hafta Turnuvası'}</span>
+              </div>
+              <div style={{ color: '#fff', fontSize: '1.2rem', fontWeight: 800, marginTop: '4px' }}>
+                Haftalık Klan Savaşları & Turnuva Arenası
+              </div>
+              <div style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '2px' }}>
+                Klanınız için soru çözerek ve düellolar kazanarak haftalık eşleşmede üstünlük sağlayın!
+              </div>
+            </div>
+
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              background: 'rgba(0,0,0,0.3)',
+              padding: '10px 16px',
+              borderRadius: '12px',
+              border: '1px solid rgba(255,255,255,0.08)'
+            }}>
+              <Timer size={20} color="#f59e0b" />
+              <div>
+                <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>SEZON BİTİMİNE</div>
+                <div style={{ color: '#fcd34d', fontWeight: 800, fontSize: '0.95rem', fontFamily: 'monospace' }}>
+                  {warsData?.season ? `${warsData.season.daysLeft}g ${warsData.season.hoursLeft}s ${warsData.season.minutesLeft}d` : 'Pazar 23:59'}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Kullanıcının Klan Mücadelesi */}
+          {warsData?.myWarMatchup ? (
+            <div style={{
+              ...card,
+              background: 'linear-gradient(180deg, rgba(245, 158, 11, 0.08) 0%, rgba(139, 92, 246, 0.05) 100%)',
+              border: '1px solid rgba(245, 158, 11, 0.4)',
+              padding: '1.5rem',
+              position: 'relative',
+              overflow: 'hidden'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, padding: '3px 10px', borderRadius: '20px', background: 'rgba(245, 158, 11, 0.2)', color: '#fcd34d', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+                  {warsData.myWarMatchup.badge}
+                </span>
+                <span style={{ fontSize: '0.8rem', color: '#c4b5fd', fontWeight: 600 }}>
+                  Ödül: {warsData.myWarMatchup.reward}
+                </span>
+              </div>
+
+              {/* Head-to-Head Clash */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', gap: '1rem', textAlign: 'center', marginBottom: '1.25rem' }}>
+                {/* Clan 1 (My Clan) */}
+                <div style={{
+                  padding: '1rem',
+                  borderRadius: '12px',
+                  background: warsData.myWarMatchup.clan1.isUserClan ? 'rgba(139, 92, 246, 0.15)' : 'rgba(255,255,255,0.03)',
+                  border: warsData.myWarMatchup.clan1.isUserClan ? '1px solid rgba(139, 92, 246, 0.4)' : '1px solid rgba(255,255,255,0.06)'
+                }}>
+                  <div style={{ fontSize: '2.5rem', marginBottom: '4px' }}>{warsData.myWarMatchup.clan1.icon}</div>
+                  <div style={{ color: '#fff', fontWeight: 800, fontSize: '1rem' }}>
+                    {warsData.myWarMatchup.clan1.name}
+                  </div>
+                  {warsData.myWarMatchup.clan1.isUserClan && (
+                    <span style={{ fontSize: '0.65rem', padding: '1px 6px', borderRadius: '10px', background: '#8b5cf6', color: '#fff', fontWeight: 700 }}>
+                      SENİN KLANIN
+                    </span>
+                  )}
+                  <div style={{ color: '#a78bfa', fontWeight: 800, fontSize: '1.15rem', marginTop: '6px' }}>
+                    {warsData.myWarMatchup.clan1.weekly_xp.toLocaleString('tr-TR')} XP
+                  </div>
+                </div>
+
+                {/* VS Badge */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                  <div style={{
+                    width: '46px',
+                    height: '46px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #ef4444, #f59e0b)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#fff',
+                    fontWeight: 900,
+                    fontSize: '1rem',
+                    boxShadow: '0 0 20px rgba(239, 68, 68, 0.4)'
+                  }}>
+                    VS
+                  </div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: warsData.myWarMatchup.leadingClanId === myClan?.id ? '#34d399' : '#f87171' }}>
+                    {warsData.myWarMatchup.leadingClanId === myClan?.id
+                      ? `+${warsData.myWarMatchup.leadDifference.toLocaleString('tr-TR')} XP Öndesiniz!`
+                      : `-${warsData.myWarMatchup.leadDifference.toLocaleString('tr-TR')} XP Geridesiniz`}
+                  </div>
+                </div>
+
+                {/* Clan 2 (Opponent) */}
+                {warsData.myWarMatchup.clan2 ? (
+                  <div style={{
+                    padding: '1rem',
+                    borderRadius: '12px',
+                    background: warsData.myWarMatchup.clan2.isUserClan ? 'rgba(139, 92, 246, 0.15)' : 'rgba(255,255,255,0.03)',
+                    border: warsData.myWarMatchup.clan2.isUserClan ? '1px solid rgba(139, 92, 246, 0.4)' : '1px solid rgba(255,255,255,0.06)'
+                  }}>
+                    <div style={{ fontSize: '2.5rem', marginBottom: '4px' }}>{warsData.myWarMatchup.clan2.icon}</div>
+                    <div style={{ color: '#fff', fontWeight: 800, fontSize: '1rem' }}>
+                      {warsData.myWarMatchup.clan2.name}
+                    </div>
+                    {warsData.myWarMatchup.clan2.isUserClan && (
+                      <span style={{ fontSize: '0.65rem', padding: '1px 6px', borderRadius: '10px', background: '#8b5cf6', color: '#fff', fontWeight: 700 }}>
+                        SENİN KLANIN
+                      </span>
+                    )}
+                    <div style={{ color: '#cbd5e1', fontWeight: 800, fontSize: '1.15rem', marginTop: '6px' }}>
+                      {warsData.myWarMatchup.clan2.weekly_xp.toLocaleString('tr-TR')} XP
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ padding: '1rem', borderRadius: '12px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div style={{ fontSize: '2.5rem', marginBottom: '4px' }}>🛡️</div>
+                    <div style={{ color: '#94a3b8', fontWeight: 700, fontSize: '0.9rem' }}>Rakip Bekleniyor</div>
+                    <div style={{ color: '#64748b', fontSize: '0.75rem', marginTop: '4px' }}>Yeni bir klan katıldığında eşleşecek</div>
+                  </div>
+                )}
+              </div>
+
+              {/* Progress Tug of War Bar */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 700, marginBottom: '4px' }}>
+                  <span style={{ color: '#a78bfa' }}>%{warsData.myWarMatchup.clan1.ratio}</span>
+                  <span style={{ color: '#94a3b8' }}>%{warsData.myWarMatchup.clan2?.ratio || 0}</span>
+                </div>
+                <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '99px', overflow: 'hidden', display: 'flex' }}>
+                  <div style={{ width: `${warsData.myWarMatchup.clan1.ratio}%`, height: '100%', background: 'linear-gradient(90deg, #8b5cf6, #a855f7)', transition: 'width 0.5s ease' }} />
+                  <div style={{ width: `${warsData.myWarMatchup.clan2?.ratio || 0}%`, height: '100%', background: 'linear-gradient(90deg, #ef4444, #f97316)', transition: 'width 0.5s ease' }} />
+                </div>
+              </div>
+
+              {/* Battle CTA */}
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <Link
+                  href="/duello"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '10px 24px',
+                    borderRadius: '12px',
+                    background: 'linear-gradient(135deg, #ef4444, #ec4899)',
+                    color: '#fff',
+                    fontWeight: 800,
+                    fontSize: '0.9rem',
+                    textDecoration: 'none',
+                    boxShadow: '0 4px 16px rgba(239, 68, 68, 0.4)',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  <Swords size={18} />
+                  <span>Klanın İçin Savaş (Bilgi Arenasında 2x XP) →</span>
+                </Link>
+              </div>
+            </div>
+          ) : !myClan ? (
+            <div style={{ ...card, textAlign: 'center', padding: '2rem' }}>
+              <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>⚔️</div>
+              <h3 style={{ color: '#fff', margin: '0 0 0.5rem' }}>Klan Savaşlarına Henüz Katılmadınız</h3>
+              <p style={{ color: '#94a3b8', fontSize: '0.85rem', maxWidth: '420px', margin: '0 auto 1.25rem' }}>
+                Klan savaşlarında mücadele etmek ve haftalık ödül sandıklarını kazanmak için bir klana katılın veya kendi klanınızı kurun.
+              </p>
+              <button
+                onClick={() => setActiveTab('Klan Bul')}
+                style={{
+                  padding: '8px 20px',
+                  borderRadius: '10px',
+                  background: 'rgba(139, 92, 246, 0.25)',
+                  border: '1px solid rgba(139, 92, 246, 0.4)',
+                  color: '#c4b5fd',
+                  fontWeight: 700,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Klan Bul / Katıl →
+              </button>
+            </div>
+          ) : null}
+
+          {/* Tüm Turnuva Eşleşmeleri */}
+          <div>
+            <h3 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Trophy size={18} color="#f59e0b" />
+              <span>Turnuva Fikstürü & Canlı Eşleşmeler</span>
+            </h3>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1rem' }}>
+              {(warsData?.matchups || []).map((match: any) => (
+                <div key={match.id} style={{
+                  ...card,
+                  padding: '1.25rem',
+                  border: (match.clan1.isUserClan || match.clan2?.isUserClan)
+                    ? '1px solid rgba(139, 92, 246, 0.5)'
+                    : '1px solid rgba(255,255,255,0.08)'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f59e0b' }}>{match.badge}</span>
+                    <span style={{ fontSize: '0.7rem', color: '#64748b' }}>{match.tier}</span>
+                  </div>
+
+                  {/* Versus mini strip */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', padding: '8px 0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '1.5rem' }}>{match.clan1.icon}</span>
+                      <div>
+                        <div style={{ color: '#fff', fontWeight: 700, fontSize: '0.85rem' }}>{match.clan1.name}</div>
+                        <div style={{ color: '#a78bfa', fontSize: '0.75rem', fontWeight: 700 }}>{match.clan1.weekly_xp} XP</div>
+                      </div>
+                    </div>
+
+                    <div style={{ fontWeight: 800, fontSize: '0.75rem', color: '#ec4899', background: 'rgba(236,72,153,0.1)', padding: '2px 8px', borderRadius: '12px' }}>
+                      VS
+                    </div>
+
+                    {match.clan2 ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', textAlign: 'right' }}>
+                        <div>
+                          <div style={{ color: '#fff', fontWeight: 700, fontSize: '0.85rem' }}>{match.clan2.name}</div>
+                          <div style={{ color: '#94a3b8', fontSize: '0.75rem', fontWeight: 700 }}>{match.clan2.weekly_xp} XP</div>
+                        </div>
+                        <span style={{ fontSize: '1.5rem' }}>{match.clan2.icon}</span>
+                      </div>
+                    ) : (
+                      <span style={{ color: '#64748b', fontSize: '0.75rem' }}>Eşleşme bekleniyor</span>
+                    )}
+                  </div>
+
+                  <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: '#64748b' }}>
+                    <span>Ödül: {match.reward}</span>
+                    <span style={{ color: '#34d399', fontWeight: 600 }}>Fark: {match.leadDifference} XP</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Haftalık Ödül Sandıkları */}
+          <div style={{ marginTop: '0.5rem' }}>
+            <h3 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Award size={18} color="#10b981" />
+              <span>Haftalık Turnuva Ödülleri</span>
+            </h3>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+              <div style={{ ...card, padding: '1.25rem', border: '1px solid rgba(245, 158, 11, 0.3)', background: 'rgba(245, 158, 11, 0.05)', textAlign: 'center' }}>
+                <div style={{ fontSize: '2.5rem', marginBottom: '6px' }}>🏆</div>
+                <div style={{ color: '#fcd34d', fontWeight: 800, fontSize: '1rem' }}>1. Klan: Altın Sandık</div>
+                <div style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '4px' }}>Tüm üyelere +1.000 XP & 'Haftanın Fatihi' şampiyonluk rozeti</div>
+              </div>
+
+              <div style={{ ...card, padding: '1.25rem', border: '1px solid rgba(148, 163, 184, 0.3)', background: 'rgba(148, 163, 184, 0.05)', textAlign: 'center' }}>
+                <div style={{ fontSize: '2.5rem', marginBottom: '6px' }}>🥈</div>
+                <div style={{ color: '#e2e8f0', fontWeight: 800, fontSize: '1rem' }}>2. Klan: Gümüş Sandık</div>
+                <div style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '4px' }}>Tüm üyelere +500 XP & Gümüş Turnuva Rozeti</div>
+              </div>
+
+              <div style={{ ...card, padding: '1.25rem', border: '1px solid rgba(205, 124, 58, 0.3)', background: 'rgba(205, 124, 58, 0.05)', textAlign: 'center' }}>
+                <div style={{ fontSize: '2.5rem', marginBottom: '6px' }}>🥉</div>
+                <div style={{ color: '#fdba74', fontWeight: 800, fontSize: '1rem' }}>3. Klan: Bronz Sandık</div>
+                <div style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '4px' }}>Tüm üyelere +250 XP & Bronz Turnuva Rozeti</div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

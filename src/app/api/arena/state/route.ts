@@ -189,12 +189,23 @@ export async function GET(req: Request) {
           // XP ver
           if (winner_id && winner_id !== 'draw') {
              await db.prepare('UPDATE user_stats SET league_points = league_points + 50 WHERE user_id = ?').run(winner_id);
-             
-             // Clan contribution
+
+             // Clan contribution (2x Klan Savaşı Arenası Bonusu: +100 XP)
              const clanMember = await db.prepare('SELECT clan_id FROM clan_members WHERE user_id = ?').get(winner_id) as any;
              if (clanMember) {
-                await db.prepare('UPDATE clan_members SET weekly_contribution = weekly_contribution + 50 WHERE user_id = ?').run(winner_id);
-                await db.prepare('UPDATE clans SET weekly_xp = weekly_xp + 50 WHERE id = ?').run(clanMember.clan_id);
+                await db.prepare('UPDATE clan_members SET weekly_contribution = weekly_contribution + 100 WHERE user_id = ?').run(winner_id);
+                await db.prepare('UPDATE clans SET weekly_xp = weekly_xp + 100, total_xp = total_xp + 100 WHERE id = ?').run(clanMember.clan_id);
+             }
+          }
+
+          // Katılım sağlayan diğer gerçek kullanıcıya da klan savaşı katılım katkısı (+25 XP)
+          for (const p of participants) {
+             if (p.user_id !== winner_id && p.user_id !== 'yks-bot-user') {
+                const loserClan = await db.prepare('SELECT clan_id FROM clan_members WHERE user_id = ?').get(p.user_id) as any;
+                if (loserClan) {
+                   await db.prepare('UPDATE clan_members SET weekly_contribution = weekly_contribution + 25 WHERE user_id = ?').run(p.user_id);
+                   await db.prepare('UPDATE clans SET weekly_xp = weekly_xp + 25, total_xp = total_xp + 25 WHERE id = ?').run(loserClan.clan_id);
+                }
              }
           }
         } else {

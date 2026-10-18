@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Bot, User, X, Sparkles, Loader2, Mic, MicOff, Volume2, Camera, ScanLine } from 'lucide-react';
-import Tesseract from 'tesseract.js';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -196,38 +195,54 @@ export default function AstraTutorChat({ questionContext, onClose }: Props) {
     if (!file) return;
 
     setOcrLoading(true);
+    setLoading(true);
+    const studentNote = input.trim();
+    if (studentNote) setInput('');
+
+    // Indicate to the user in chat that photo was submitted
+    setMessages(prev => [
+      ...prev,
+      {
+        role: 'user',
+        content: studentNote
+          ? `📸 [Soru Fotoğrafı Yüklendi]\nÖğrenci Notu: ${studentNote}`
+          : '📸 [Soru Fotoğrafı Yüklendi - Çözümleniyor...]'
+      }
+    ]);
+
     try {
-      const result = await Tesseract.recognize(file, 'tur');
-      const text = result.data.text;
-      
-      // Remove excessive newlines and weird chars
-      const cleaned = text.replace(/\n+/g, ' ').trim();
-      
-      if (cleaned) {
-        setInput(prev => prev + (prev ? ' ' : '') + cleaned);
+      const compressedBase64 = await compressImageFile(file, 1024, 0.75);
+      if (!compressedBase64) {
+        throw new Error('Görsel sıkıştırılamadı');
       }
-    } catch (err) {
-      console.error('OCR Error:', err);
-      // Fallback: solve directly via /api/ai/solve-photo with compressed image
-      try {
-        const compressedBase64 = await compressImageFile(file, 1024, 0.75);
-        if (compressedBase64) {
-          const res = await fetch('/api/ai/solve-photo', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: compressedBase64, mimeType: 'image/jpeg' })
-          });
-          const d = await res.json();
-          if (d.reply) {
-            setMessages(prev => [...prev, { role: 'astratutor', content: d.reply }]);
-            speakText(d.reply);
-          }
-        }
-      } catch (photoErr) {
-        console.error(photoErr);
+
+      const res = await fetch('/api/ai/solve-photo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image: compressedBase64,
+          mimeType: 'image/jpeg',
+          studentNote: studentNote || undefined
+        })
+      });
+
+      const d = await res.json().catch(() => null);
+      if (d?.reply) {
+        setMessages(prev => [...prev, { role: 'astratutor', content: d.reply }]);
+        speakText(d.reply);
+      } else {
+        const errorMsg = d?.error || 'Soruyu incelerken bir sorun oluştu. Lütfen soruyu daha net ve aydınlık bir şekilde çekip tekrar yüklemeyi deneyin.';
+        setMessages(prev => [...prev, { role: 'astratutor', content: errorMsg }]);
       }
+    } catch (photoErr) {
+      console.error('AstraTutor photo upload error:', photoErr);
+      setMessages(prev => [...prev, {
+        role: 'astratutor',
+        content: 'Fotoğraf işlenirken bir bağlantı hatası oluştu. Lütfen tekrar deneyin.'
+      }]);
     } finally {
       setOcrLoading(false);
+      setLoading(false);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
