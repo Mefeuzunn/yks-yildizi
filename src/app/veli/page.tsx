@@ -6,7 +6,7 @@ import {
   FileText, Activity, BookOpen, Target, ShieldCheck, ChevronRight, CheckCircle2, 
   TrendingUp, Lock, Share2, Heart, Coffee, Rocket, Star, MessageSquare, Radio, 
   Sparkles, Award, Compass, Clock, CheckCircle, ChevronDown, ChevronUp, AlertCircle,
-  Flame, UserCheck, HelpCircle
+  Flame, UserCheck, HelpCircle, Phone, Smartphone, Edit2, X, Check
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
@@ -30,6 +30,13 @@ export default function VeliDashboardPage() {
   
   const [whatsappActive, setWhatsappActive] = useState(false);
   const [smsActive, setSmsActive] = useState(false);
+  const [parentPhone, setParentPhone] = useState('');
+  const [parentName, setParentName] = useState('');
+  const [isSavingPrefs, setIsSavingPrefs] = useState(false);
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
+  const [tempPhone, setTempPhone] = useState('');
+  const [tempName, setTempName] = useState('');
+  const [phoneModalError, setPhoneModalError] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [cheerLoading, setCheerLoading] = useState(false);
   const [cheerNote, setCheerNote] = useState('');
@@ -103,6 +110,13 @@ export default function VeliDashboardPage() {
           console.error('Failed to load AI Letter:', e);
         }
         
+        if (data.notificationPreferences) {
+          setWhatsappActive(Boolean(data.notificationPreferences.whatsapp_active));
+          setSmsActive(Boolean(data.notificationPreferences.sms_active));
+          setParentPhone(data.notificationPreferences.parent_phone || '');
+          setParentName(data.notificationPreferences.parent_name || '');
+        }
+        
         // URL'i güncelle (kullanıcı sayfayı yenilerse kod kalsın)
         window.history.pushState({}, '', `/veli?code=${encodeURIComponent(codeToUse)}`);
       } else {
@@ -114,6 +128,76 @@ export default function VeliDashboardPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSavePreferences = async (overrides: {
+    whatsapp_active?: boolean;
+    sms_active?: boolean;
+    parent_phone?: string;
+    parent_name?: string;
+  }) => {
+    const code = parentCode;
+    if (!code) return;
+    setIsSavingPrefs(true);
+    const targetWhatsapp = overrides.whatsapp_active !== undefined ? overrides.whatsapp_active : whatsappActive;
+    const targetSms = overrides.sms_active !== undefined ? overrides.sms_active : smsActive;
+    const targetPhone = overrides.parent_phone !== undefined ? overrides.parent_phone : parentPhone;
+    const targetName = overrides.parent_name !== undefined ? overrides.parent_name : parentName;
+
+    try {
+      const res = await fetch('/api/parent/preferences', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code,
+          parent_phone: targetPhone,
+          parent_name: targetName,
+          whatsapp_active: targetWhatsapp,
+          sms_active: targetSms
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setWhatsappActive(targetWhatsapp);
+        setSmsActive(targetSms);
+        setParentPhone(targetPhone);
+        setParentName(targetName);
+        setToastMessage('✅ Veli bildirim tercihleriniz başarıyla kaydedildi!');
+        setTimeout(() => setToastMessage(null), 4000);
+      } else {
+        setToastMessage(`⚠️ Hata: ${data.error || 'Kaydedilemedi'}`);
+        setTimeout(() => setToastMessage(null), 4000);
+      }
+    } catch (_) {
+      setToastMessage('⚠️ Sunucu bağlantı hatası.');
+      setTimeout(() => setToastMessage(null), 4000);
+    } finally {
+      setIsSavingPrefs(false);
+    }
+  };
+
+  const handleToggleWhatsApp = () => {
+    const nextState = !whatsappActive;
+    if (nextState && !parentPhone.trim()) {
+      setTempPhone(parentPhone);
+      setTempName(parentName);
+      setPhoneModalError('');
+      setShowPhoneModal(true);
+      return;
+    }
+    handleSavePreferences({ whatsapp_active: nextState });
+  };
+
+  const handleToggleSms = () => {
+    const nextState = !smsActive;
+    if (nextState && !parentPhone.trim()) {
+      setTempPhone(parentPhone);
+      setTempName(parentName);
+      setPhoneModalError('');
+      setShowPhoneModal(true);
+      return;
+    }
+    handleSavePreferences({ sms_active: nextState });
   };
 
   const handleLogout = () => {
@@ -1018,35 +1102,123 @@ export default function VeliDashboardPage() {
 
           {/* Bildirim Kanalları */}
           <div className="premium-card" style={{ padding: '2rem' }}>
-            <h2 style={{ fontSize: '1.25rem', color: '#fff', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <ShieldCheck size={20} color="#10b981" /> Veli Bilgilendirme Kanalları
-            </h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '2rem', textAlign: 'left' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+              <h2 style={{ fontSize: '1.25rem', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <ShieldCheck size={20} color="#10b981" /> Veli Bilgilendirme Kanalları
+              </h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: isSavingPrefs ? '#38bdf8' : '#10b981', background: 'rgba(255,255,255,0.03)', padding: '4px 10px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                {isSavingPrefs ? (
+                  <>
+                    <Clock size={12} className="animate-spin" />
+                    <span>Buluta Kaydediliyor...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 size={12} color="#10b981" />
+                    <span>Bulut Senkronize</span>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '1.5rem', textAlign: 'left' }}>
               Öğrencinizin çalışma performansını, çözdüğü soru adetlerini ve deneme sonuçlarını anlık olarak veli telefonuna raporlayabilirsiniz.
             </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {/* Kayıtlı İletişim Hattı */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '1rem 1.25rem',
+              background: parentPhone ? 'rgba(16, 185, 129, 0.04)' : 'rgba(56, 189, 248, 0.04)',
+              borderRadius: '14px',
+              border: `1px solid ${parentPhone ? 'rgba(16, 185, 129, 0.2)' : 'rgba(56, 189, 248, 0.2)'}`,
+              marginBottom: '1.5rem',
+              flexWrap: 'wrap',
+              gap: '0.75rem'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '10px',
+                  background: parentPhone ? 'rgba(16, 185, 129, 0.15)' : 'rgba(56, 189, 248, 0.15)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: parentPhone ? '#34d399' : '#38bdf8'
+                }}>
+                  <Phone size={18} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                    {parentPhone ? 'Kayıtlı Veli İletişim Hattı' : 'Veli Telefonu Tanımlanmadı'}
+                  </div>
+                  <div style={{ color: '#fff', fontWeight: 700, fontSize: '0.95rem', marginTop: '2px' }}>
+                    {parentPhone ? `${parentPhone} ${parentName ? `(${parentName})` : ''}` : 'Numara eklenmedi'}
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => {
+                  setTempPhone(parentPhone);
+                  setTempName(parentName);
+                  setPhoneModalError('');
+                  setShowPhoneModal(true);
+                }}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: '8px',
+                  background: 'rgba(255,255,255,0.08)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  color: '#fff',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <Edit2 size={13} />
+                <span>{parentPhone ? 'Numarayı Değiştir' : '+ Telefon Ekle'}</span>
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               
               {/* WhatsApp Toggle */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
                 <div style={{ textAlign: 'left' }}>
-                  <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.95rem' }}>WhatsApp Bilgilendirmesi</div>
-                  <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.25rem' }}>Haftalık özet ve AI durum raporunu WhatsApp'tan gönder.</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ color: '#fff', fontWeight: 600, fontSize: '0.95rem' }}>WhatsApp Bilgilendirmesi</span>
+                    <span style={{
+                      fontSize: '0.7rem',
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      background: whatsappActive ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255,255,255,0.05)',
+                      color: whatsappActive ? '#34d399' : '#64748b',
+                      fontWeight: 700
+                    }}>
+                      {whatsappActive ? 'AKTİF' : 'PASİF'}
+                    </span>
+                  </div>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.25rem' }}>
+                    Haftalık pazar 18:00 durum raporu ve AstraTutor yapay zeka analizini veli WhatsApp hattına iletir.
+                  </div>
                 </div>
                 <button 
-                  onClick={() => {
-                    const active = !whatsappActive;
-                    setWhatsappActive(active);
-                    if (active) {
-                      setToastMessage("Veli WhatsApp raporu servisi etkinleştirildi! 📱");
-                      setTimeout(() => setToastMessage(null), 4000);
-                    }
-                  }}
+                  onClick={handleToggleWhatsApp}
+                  disabled={isSavingPrefs}
+                  title="WhatsApp Bildirimi Aç/Kapat"
                   style={{
                     width: '50px', height: '26px', borderRadius: '15px',
                     background: whatsappActive ? '#10b981' : 'rgba(255,255,255,0.1)',
-                    position: 'relative', border: 'none', cursor: 'pointer',
-                    transition: 'background 0.2s'
+                    position: 'relative', border: 'none', cursor: isSavingPrefs ? 'not-allowed' : 'pointer',
+                    transition: 'background 0.2s',
+                    flexShrink: 0
                   }}
                 >
                   <div style={{
@@ -1061,24 +1233,33 @@ export default function VeliDashboardPage() {
               {/* SMS Toggle */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
                 <div style={{ textAlign: 'left' }}>
-                  <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.95rem' }}>Akıllı Erken Uyarı (SMS)</div>
-                  <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.25rem' }}>Öğrenci 2 gün hedefin altında kalırsa AI uyarır.</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ color: '#fff', fontWeight: 600, fontSize: '0.95rem' }}>Akıllı Erken Uyarı (SMS)</span>
+                    <span style={{
+                      fontSize: '0.7rem',
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      background: smsActive ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255,255,255,0.05)',
+                      color: smsActive ? '#34d399' : '#64748b',
+                      fontWeight: 700
+                    }}>
+                      {smsActive ? 'AKTİF' : 'PASİF'}
+                    </span>
+                  </div>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.25rem' }}>
+                    Öğrenci 2 gün boyunca günlük hedefinin altında kalırsa veya serisi riske girerse erken uyarı SMS'i gönderir.
+                  </div>
                 </div>
                 <button 
-                  onClick={() => {
-                    const active = !smsActive;
-                    setSmsActive(active);
-                    if (active) {
-                      const weakSubject = mistakes.length > 0 ? mistakes[0].subject : 'Matematik';
-                      setToastMessage(`📱 Bilgi: Öğrencinin ${weakSubject} eksikleri için erken uyarı sistemi aktif.`);
-                      setTimeout(() => setToastMessage(null), 6000);
-                    }
-                  }}
+                  onClick={handleToggleSms}
+                  disabled={isSavingPrefs}
+                  title="SMS Bildirimi Aç/Kapat"
                   style={{
                     width: '50px', height: '26px', borderRadius: '15px',
                     background: smsActive ? '#10b981' : 'rgba(255,255,255,0.1)',
-                    position: 'relative', border: 'none', cursor: 'pointer',
-                    transition: 'background 0.2s'
+                    position: 'relative', border: 'none', cursor: isSavingPrefs ? 'not-allowed' : 'pointer',
+                    transition: 'background 0.2s',
+                    flexShrink: 0
                   }}
                 >
                   <div style={{
@@ -1309,6 +1490,165 @@ export default function VeliDashboardPage() {
         </div>
 
       </div>
+
+      {/* Veli Telefon & İletişim Bilgisi Güncelleme Modalı */}
+      <AnimatePresence>
+        {showPhoneModal && (
+          <div style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 10000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1rem',
+            background: 'rgba(0, 0, 0, 0.8)',
+            backdropFilter: 'blur(8px)'
+          }}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              style={{
+                width: '100%',
+                maxWidth: '440px',
+                background: '#0d1527',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '20px',
+                padding: '1.75rem',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981' }}>
+                    <Smartphone size={18} />
+                  </div>
+                  <h3 style={{ margin: 0, color: '#fff', fontSize: '1.1rem', fontWeight: 700 }}>
+                    Veli İletişim Hattı
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowPhoneModal(false)}
+                  style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '4px' }}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <p style={{ color: '#94a3b8', fontSize: '0.85rem', lineHeight: 1.5, margin: '0 0 1.25rem' }}>
+                Haftalık WhatsApp raporları ve öğrencinin sınav hazırlık durumuna dair SMS erken uyarılarının iletilebilmesi için bilgilerinizi kaydedin.
+              </p>
+
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                const cleanPhone = tempPhone.trim().replace(/\s+/g, '');
+                if (cleanPhone.length < 10) {
+                  setPhoneModalError('Lütfen geçerli bir telefon numarası girin (örn: 05xx xxx xx xx).');
+                  return;
+                }
+                setPhoneModalError('');
+                await handleSavePreferences({
+                  parent_phone: tempPhone.trim(),
+                  parent_name: tempName.trim(),
+                  whatsapp_active: true
+                });
+                setShowPhoneModal(false);
+              }}>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', color: '#e2e8f0', fontSize: '0.8rem', fontWeight: 600, marginBottom: '6px' }}>
+                    Veli Adı / Hitap (İsteğe Bağlı)
+                  </label>
+                  <input
+                    type="text"
+                    value={tempName}
+                    onChange={(e) => setTempName(e.target.value)}
+                    placeholder="Örn: Ayşe Hanım / Mehmet Bey"
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      borderRadius: '10px',
+                      color: '#fff',
+                      fontSize: '16px',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: '1.25rem' }}>
+                  <label style={{ display: 'block', color: '#e2e8f0', fontSize: '0.8rem', fontWeight: 600, marginBottom: '6px' }}>
+                    Cep Telefonu Numarası *
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    value={tempPhone}
+                    onChange={(e) => setTempPhone(e.target.value)}
+                    placeholder="05xx xxx xx xx"
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      borderRadius: '10px',
+                      color: '#fff',
+                      fontSize: '16px',
+                      outline: 'none'
+                    }}
+                  />
+                  {phoneModalError && (
+                    <div style={{ color: '#f87171', fontSize: '0.78rem', marginTop: '6px' }}>
+                      {phoneModalError}
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowPhoneModal(false)}
+                    style={{
+                      padding: '10px 16px',
+                      borderRadius: '10px',
+                      background: 'rgba(255,255,255,0.06)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      color: '#cbd5e1',
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Vazgeç
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSavingPrefs}
+                    style={{
+                      padding: '10px 20px',
+                      borderRadius: '10px',
+                      background: 'linear-gradient(135deg, #10b981, #059669)',
+                      border: 'none',
+                      color: '#fff',
+                      fontSize: '0.85rem',
+                      fontWeight: 700,
+                      cursor: isSavingPrefs ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)'
+                    }}
+                  >
+                    {isSavingPrefs ? 'Kaydediliyor...' : 'Kaydet ve Bildirimi Etkinleştir'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Floating Toast Notification */}
       <AnimatePresence>

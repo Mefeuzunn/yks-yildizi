@@ -3,6 +3,7 @@ import db from '@/lib/yks-db-async';
 import { sendSmartPushToUser, isWithinQuietHours } from '@/lib/push-notifications';
 import { generateFlashcardsBatch, saveFlashcardsToDB } from '@/lib/content-factory';
 import { YKS_CURRICULUM_TAXONOMY } from '@/lib/curriculum-taxonomy';
+import { v4 as uuidv4 } from 'uuid';
 
 export const dynamic = 'force-dynamic';
 
@@ -83,6 +84,42 @@ export async function GET(req: Request) {
       }
 
       // ─────────────────────────────────────────────────────────────────────────
+      // 1b. VELİ ERKEN UYARI BİLDİRİMLERİ (2 gündür hedef altında kalan öğrenciler)
+      // ─────────────────────────────────────────────────────────────────────────
+      let parentEarlyWarningsSent = 0;
+      try {
+        const inactiveStudents = await db.prepare(`
+          SELECT p.parent_phone, p.parent_name, p.student_id, u.username, st.streak_days
+          FROM parent_notification_preferences p
+          JOIN users u ON p.student_id = u.id
+          LEFT JOIN user_stats st ON u.id = st.user_id
+          WHERE p.sms_active = true
+            AND (st.last_active IS NULL OR st.last_active < NOW() - INTERVAL '2 days')
+            AND NOT EXISTS (
+              SELECT 1 FROM user_notifications un
+              WHERE un.user_id = p.student_id
+                AND un.type = 'parent_early_warning'
+                AND un.created_at > NOW() - INTERVAL '48 hours'
+            )
+          LIMIT 25
+        `).all() as any[];
+
+        for (const pa of inactiveStudents) {
+          const warningTitle = `📱 Veli Erken Uyarısı: ${pa.username} İçin Çalışma Hatırlatması`;
+          const warningBody = `Sayın ${pa.parent_name || 'Velimiz'}, öğrenciniz ${pa.username} son 2 gündür YKS Yıldızı hedeflerine giriş yapmadı. Kendisine moral ve destek vermenizi tavsiye ederiz.`;
+
+          await db.prepare(`
+            INSERT INTO user_notifications (id, user_id, title, body, type, icon, url, is_read, created_at)
+            VALUES (?, ?, ?, ?, 'parent_early_warning', '📱', '/veli', false, NOW())
+          `).run(uuidv4(), pa.student_id, warningTitle, warningBody);
+
+          parentEarlyWarningsSent++;
+        }
+      } catch (parentErr) {
+        console.error('Parent early warning check error:', parentErr);
+      }
+
+      // ─────────────────────────────────────────────────────────────────────────
       // 2. ÖDEV TESLİM HATIRLATMALARI (Son 24 saat kalanlar)
       // ─────────────────────────────────────────────────────────────────────────
       const dueAssignments = await db.prepare(`
@@ -129,6 +166,7 @@ export async function GET(req: Request) {
 
       summary.reminders = {
         streakWarningsSent,
+        parentEarlyWarningsSent,
         homeworkRemindersSent,
       };
       summary.tasksExecuted.push('daily_reminders');
@@ -238,7 +276,39 @@ export async function GET(req: Request) {
         }
       }
 
-      summary.weeklyReports = { reportsProcessed, totalClasses: classes.length };
+      // ─────────────────────────────────────────────────────────────────────────
+      // 3b. VELİ HAFTALIK WHATSAPP & GELİŞİM BİLGİLENDİRMESİ (Pazar Günleri)
+      // ─────────────────────────────────────────────────────────────────────────
+      let parentWeeklyReportsProcessed = 0;
+      try {
+        const veliSubscribers = await db.prepare(`
+          SELECT p.parent_phone, p.parent_name, p.student_id, u.username, st.solved_questions, st.streak_days
+          FROM parent_notification_preferences p
+          JOIN users u ON p.student_id = u.id
+          LEFT JOIN user_stats st ON u.id = st.user_id
+          WHERE p.whatsapp_active = true
+        `).all() as any[];
+
+        for (const veli of veliSubscribers) {
+          const repTitle = `📊 ${veli.username} Haftalık Gelişim Raporu`;
+          const repBody = `Sayın ${veli.parent_name || 'Velimiz'}, bu hafta öğrenciniz ${veli.solved_questions || 0} soru ve ${veli.streak_days || 0} gün seri ile çalışmalarını tamamladı. Detaylı analizi veli takip panelinizden inceleyebilirsiniz.`;
+
+          await db.prepare(`
+            INSERT INTO user_notifications (id, user_id, title, body, type, icon, url, is_read, created_at)
+            VALUES (?, ?, ?, ?, 'parent_weekly_digest', '📊', '/veli', false, NOW())
+          `).run(uuidv4(), veli.student_id, repTitle, repBody);
+
+          parentWeeklyReportsProcessed++;
+        }
+      } catch (vErr) {
+        console.error('Parent weekly digest error:', vErr);
+      }
+
+      summary.weeklyReports = { 
+        reportsProcessed, 
+        totalClasses: classes.length,
+        parentWeeklyReportsProcessed
+      };
       summary.tasksExecuted.push('weekly_reports');
     }
 

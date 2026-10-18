@@ -17,9 +17,14 @@ import {
   SlidersHorizontal,
   RotateCcw,
   ListOrdered,
-  Users
+  Users,
+  Printer,
+  FileDown,
+  Download,
+  FileText
 } from 'lucide-react';
 import { toast } from '@/context/ToastContext';
+import { useAuth } from '@/context/AuthContext';
 
 const CITIES = [
   'Adana', 'Adıyaman', 'Afyonkarahisar', 'Ağrı', 'Aksaray', 'Amasya', 'Ankara', 'Antalya', 'Ardahan', 'Artvin',
@@ -33,6 +38,7 @@ const CITIES = [
 ];
 
 export default function TercihRobotuTab() {
+  const { user } = useAuth();
   const [departments, setDepartments] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [q, setQ] = useState('');
@@ -42,7 +48,17 @@ export default function TercihRobotuTab() {
   const [sortBy, setSortBy] = useState('base_score_desc');
   const [prefList, setPrefList] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [candidateName, setCandidateName] = useState('');
+  const [candidateTC, setCandidateTC] = useState('10********0');
+  const [candidateField, setCandidateField] = useState('SAYISAL / EA / SÖZEL');
+
+  useEffect(() => {
+    if (user?.username && !candidateName) {
+      setCandidateName(user.username);
+    }
+  }, [user]);
 
   useEffect(() => {
     fetchPreferences();
@@ -530,6 +546,14 @@ export default function TercihRobotuTab() {
                   {prefList.length > 0 && (
                     <>
                       <button
+                        onClick={() => setIsPrintModalOpen(true)}
+                        className="px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-xs font-semibold text-emerald-300 flex items-center gap-1.5 transition-all shadow-[0_0_12px_rgba(16,185,129,0.2)]"
+                        title="ÖSYM AİS Resmi Formatında Yazdır / PDF İndir"
+                      >
+                        <Printer className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Resmi PDF / Yazdır</span>
+                      </button>
+                      <button
                         onClick={copyListToClipboard}
                         className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-gray-200 flex items-center gap-1.5 transition-all"
                       >
@@ -680,21 +704,322 @@ export default function TercihRobotuTab() {
               </div>
 
               {/* Modal Footer */}
-              <div className="p-4 px-6 border-t border-white/10 bg-white/[0.02] flex items-center justify-between gap-4">
+              <div className="p-4 px-6 border-t border-white/10 bg-white/[0.02] flex items-center justify-between gap-4 flex-wrap">
                 <span className="text-xs text-gray-400">
-                  Toplam {prefList.length} tercih kayıtlı
+                  Toplam {prefList.length} / 24 tercih kayıtlı
                 </span>
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-6 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs transition-all shadow-[0_0_15px_rgba(14,165,233,0.3)]"
-                >
-                  Tamam / Kapat
-                </button>
+                <div className="flex items-center gap-2">
+                  {prefList.length > 0 && (
+                    <button
+                      onClick={() => setIsPrintModalOpen(true)}
+                      className="px-4 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-bold transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.25)]"
+                    >
+                      <Printer className="w-4 h-4 text-emerald-400" />
+                      <span>Resmi ÖSYM Belgesi Yazdır / PDF</span>
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="px-6 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs transition-all shadow-[0_0_15px_rgba(14,165,233,0.3)]"
+                  >
+                    Tamam / Kapat
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
+
+      {/* ÖSYM AİS Resmi Tercih Bildirim Formu Yazdırma & PDF Modalı */}
+      <AnimatePresence>
+        {isPrintModalOpen && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
+            {/* Modal Container */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="relative w-full max-w-5xl bg-[#0b101d] border border-white/15 rounded-3xl shadow-2xl flex flex-col my-auto max-h-[96vh] overflow-hidden"
+            >
+              {/* Toolbar (no-print) */}
+              <div className="p-4 sm:p-5 border-b border-white/10 bg-slate-900/90 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 no-print">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-400 text-xl">
+                    📄
+                  </div>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                      2026-YKS Tercih Bildirim Formu (ÖSYM AİS Formatı)
+                    </h3>
+                    <p className="text-xs text-gray-400">
+                      Resmi A4 döküm sayfası. PDF olarak kaydedebilir veya doğrudan yazdırabilirsiniz.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Candidate Quick Edit Fields */}
+                <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+                  <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-xl px-2.5 py-1 text-xs text-gray-300">
+                    <span className="text-gray-400">Aday:</span>
+                    <input
+                      type="text"
+                      value={candidateName}
+                      onChange={(e) => setCandidateName(e.target.value)}
+                      placeholder="Ad Soyad"
+                      className="bg-transparent border-none outline-none text-white font-semibold w-28 text-xs"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-xl px-2.5 py-1 text-xs text-gray-300">
+                    <span className="text-gray-400">T.C.:</span>
+                    <input
+                      type="text"
+                      value={candidateTC}
+                      onChange={(e) => setCandidateTC(e.target.value)}
+                      placeholder="T.C. No"
+                      className="bg-transparent border-none outline-none text-white font-semibold w-24 text-xs font-mono"
+                    />
+                  </div>
+
+                  <button
+                    onClick={() => window.print()}
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-xs flex items-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all"
+                  >
+                    <Printer className="w-4 h-4" />
+                    <span>Yazdır / PDF İndir</span>
+                  </button>
+
+                  <button
+                    onClick={() => setIsPrintModalOpen(false)}
+                    className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Scrollable Printable Paper Container */}
+              <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-950 flex justify-center">
+                {/* Official Printable Sheet: A4 Form Factor */}
+                <div
+                  id="osym-print-document"
+                  className="w-full max-w-[210mm] min-h-[297mm] bg-white text-slate-900 p-6 sm:p-10 shadow-2xl rounded-sm font-sans flex flex-col justify-between"
+                  style={{ boxSizing: 'border-box' }}
+                >
+                  <div>
+                    {/* Official ÖSYM Header */}
+                    <div className="border-b-2 border-slate-900 pb-3 mb-4 text-center">
+                      <div className="text-[11px] font-bold tracking-widest text-slate-600 uppercase">
+                        T.C. ÖLÇME, SEÇME VE YERLEŞTİRME MERKEZİ BAŞKANLIĞI
+                      </div>
+                      <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight mt-1">
+                        2026 YÜKSEKÖĞRETİM KURUMLARI SINAVI (YKS)
+                      </h1>
+                      <div className="text-xs sm:text-sm font-extrabold text-red-700 uppercase tracking-wide mt-0.5">
+                        TERCİH BİLDİRİM VE KONTROL FORMU (AİS TASLAĞI)
+                      </div>
+                      <div className="text-[10px] text-slate-500 mt-1">
+                        Bu belge YKS Yıldızı Tercih Danışmanlığı Sistemi tarafından adayın tercihlerini incelemesi amacıyla üretilmiştir.
+                      </div>
+                    </div>
+
+                    {/* Candidate Identity Strip */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 border border-slate-400 bg-slate-50 p-2.5 rounded text-xs mb-4">
+                      <div>
+                        <span className="text-[10px] font-bold text-slate-500 block uppercase">T.C. Kimlik Numarası</span>
+                        <span className="font-mono font-bold text-slate-900">{candidateTC || '10********0'}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-slate-500 block uppercase">Aday Adı Soyadı</span>
+                        <span className="font-bold text-slate-900">{candidateName || user?.username || 'YKS Adayı'}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-slate-500 block uppercase">Sınav / Tercih Sayısı</span>
+                        <span className="font-bold text-slate-900">2026-YKS ({prefList.length}/24)</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-slate-500 block uppercase">Belge Tarihi</span>
+                        <span className="font-bold text-slate-900">{new Date().toLocaleDateString('tr-TR')}</span>
+                      </div>
+                    </div>
+
+                    {/* Strategic Distribution Strip */}
+                    <div className="grid grid-cols-3 gap-2 text-[11px] mb-4">
+                      <div className="p-2 border border-amber-300 bg-amber-50 rounded">
+                        <span className="font-bold text-amber-900 block">1 - 6. Sıra: Hayal & Hedef</span>
+                        <span className="text-slate-600 text-[10px]">
+                          {prefList.filter((_, i) => i < 6).length} program (Sıralamanızın üzerinde cesur tercihler)
+                        </span>
+                      </div>
+                      <div className="p-2 border border-sky-300 bg-sky-50 rounded">
+                        <span className="font-bold text-sky-900 block">7 - 18. Sıra: İdeal & Dengeli</span>
+                        <span className="text-slate-600 text-[10px]">
+                          {prefList.filter((_, i) => i >= 6 && i < 18).length} program (Puan ve başarı sıranıza tam uyumlu)
+                        </span>
+                      </div>
+                      <div className="p-2 border border-emerald-300 bg-emerald-50 rounded">
+                        <span className="font-bold text-emerald-900 block">19 - 24. Sıra: Emniyet & Garanti</span>
+                        <span className="text-slate-600 text-[10px]">
+                          {prefList.filter((_, i) => i >= 18).length} program (Güvenli yerleşim garanti koridoru)
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* The 24-Preference Table */}
+                    <div className="overflow-x-auto border border-slate-900 rounded-sm mb-4">
+                      <table className="w-full text-left border-collapse text-[10.5px]">
+                        <thead>
+                          <tr className="bg-slate-800 text-white font-bold text-[10px] uppercase">
+                            <th className="p-1.5 border-r border-slate-700 w-7 text-center">Sıra</th>
+                            <th className="p-1.5 border-r border-slate-700 w-24">Program Kodu</th>
+                            <th className="p-1.5 border-r border-slate-700">Üniversite Adı</th>
+                            <th className="p-1.5 border-r border-slate-700">Fakülte / Bölüm Adı</th>
+                            <th className="p-1.5 border-r border-slate-700 w-12 text-center">Tür</th>
+                            <th className="p-1.5 border-r border-slate-700 w-16 text-center">Şehir</th>
+                            <th className="p-1.5 border-r border-slate-700 w-16 text-right">Taban P.</th>
+                            <th className="p-1.5 w-20 text-right">Başarı Sırası</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {Array.from({ length: 24 }).map((_, index) => {
+                            const item = prefList[index];
+                            const isEven = index % 2 === 0;
+
+                            if (item) {
+                              const baseScore = Number(item.base_score) || 0;
+                              const ranking = Number(item.ranking) || 0;
+                              const progCode = item.program_code || (item.id ? String(item.id).slice(0, 9).toUpperCase() : `10${String(1000000 + index)}`);
+
+                              return (
+                                <tr key={index} className={`border-b border-slate-300 ${isEven ? 'bg-white' : 'bg-slate-50'}`}>
+                                  <td className="p-1.5 border-r border-slate-300 font-bold text-center text-slate-900">
+                                    {index + 1}
+                                  </td>
+                                  <td className="p-1.5 border-r border-slate-300 font-mono font-bold text-slate-800">
+                                    {progCode}
+                                  </td>
+                                  <td className="p-1.5 border-r border-slate-300 font-bold text-slate-900">
+                                    {item.uni_name}
+                                    <span className="text-[9px] text-slate-500 font-normal ml-1">
+                                      ({item.uni_type || 'Devlet'})
+                                    </span>
+                                  </td>
+                                  <td className="p-1.5 border-r border-slate-300 text-slate-800">
+                                    <span className="font-semibold">{item.name}</span>
+                                    {item.faculty && (
+                                      <span className="text-[9px] text-slate-500 block">{item.faculty}</span>
+                                    )}
+                                  </td>
+                                  <td className="p-1.5 border-r border-slate-300 text-center font-bold text-slate-700">
+                                    {item.score_type || '-'}
+                                  </td>
+                                  <td className="p-1.5 border-r border-slate-300 text-center text-slate-600">
+                                    {item.city || '-'}
+                                  </td>
+                                  <td className="p-1.5 border-r border-slate-300 text-right font-mono font-semibold text-slate-800">
+                                    {baseScore > 0 ? baseScore.toFixed(2) : 'Dolmadı'}
+                                  </td>
+                                  <td className="p-1.5 text-right font-mono font-bold text-slate-900">
+                                    {ranking > 0 ? ranking.toLocaleString('tr-TR') : '-'}
+                                  </td>
+                                </tr>
+                              );
+                            }
+
+                            return (
+                              <tr key={index} className={`border-b border-slate-200 text-slate-400 ${isEven ? 'bg-white' : 'bg-slate-50/50'}`}>
+                                <td className="p-1.5 border-r border-slate-200 text-center font-semibold text-slate-400">
+                                  {index + 1}
+                                </td>
+                                <td className="p-1.5 border-r border-slate-200 font-mono text-[9px]">---------</td>
+                                <td className="p-1.5 border-r border-slate-200 text-[10px] italic">--- Tercih Yapılmadı ---</td>
+                                <td className="p-1.5 border-r border-slate-200 text-center">-</td>
+                                <td className="p-1.5 border-r border-slate-200 text-center">-</td>
+                                <td className="p-1.5 border-r border-slate-200 text-center">-</td>
+                                <td className="p-1.5 border-r border-slate-200 text-right">-</td>
+                                <td className="p-1.5 text-right">-</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Legal Notice & Signatures Box */}
+                  <div className="border-t-2 border-slate-900 pt-3 mt-4 text-[10px] text-slate-700">
+                    <p className="leading-relaxed mb-4">
+                      <strong>YASAL UYARI VE BİLGİLENDİRME:</strong> Bu tercih bildirim formu YKS Yıldızı 
+                      (yksyildizi.com) tercih robotu üzerinden aday ve rehberlik servisi çalışma kontrolü amacıyla üretilmiştir. 
+                      Bu belgenin tek başına ÖSYM nezdinde hukuki veya yerleştirme geçerliliği bulunmamaktadır. 
+                      Adayların tercihlerini resmi olarak ÖSYM Aday İşlemleri Sistemi (<strong>https://ais.osym.gov.tr</strong>) 
+                      üzerinden tercih takvimi bitimine kadar T.C. Kimlik No ve şifreleri ile sisteme girip ONAYLAMALARI şarttır.
+                    </p>
+
+                    <div className="grid grid-cols-3 gap-6 pt-4 text-center">
+                      <div className="border-t border-slate-400 pt-1">
+                        <div className="font-bold text-slate-900">{candidateName || user?.username || 'Aday'}</div>
+                        <div className="text-[9px] text-slate-500">Aday İmzası</div>
+                      </div>
+                      <div className="border-t border-slate-400 pt-1">
+                        <div className="font-bold text-slate-900">{new Date().toLocaleDateString('tr-TR')}</div>
+                        <div className="text-[9px] text-slate-500">Form Düzenleme Tarihi</div>
+                      </div>
+                      <div className="border-t border-slate-400 pt-1">
+                        <div className="font-bold text-slate-900">Rehber Öğretmen / Veli</div>
+                        <div className="text-[9px] text-slate-500">Kontrol ve Onay İmzası</div>
+                      </div>
+                    </div>
+
+                    <div className="text-[9px] text-slate-400 text-center mt-3">
+                      YKS Yıldızı • Geleceğin Üniversitesine Güvenli Adım • Belge No: YKS-2026-TERCIH-FORM
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <style jsx global>{`
+        @media print {
+          @page {
+            size: A4 portrait;
+            margin: 8mm;
+          }
+          body {
+            background: #ffffff !important;
+            color: #000000 !important;
+          }
+          body * {
+            visibility: hidden !important;
+          }
+          #osym-print-document,
+          #osym-print-document * {
+            visibility: visible !important;
+          }
+          #osym-print-document {
+            position: fixed !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            min-height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            color: #111827 !important;
+            box-shadow: none !important;
+            border: none !important;
+            z-index: 9999999 !important;
+          }
+          .no-print {
+            display: none !important;
+          }
+        }
+      `}</style>
     </motion.div>
   );
 }

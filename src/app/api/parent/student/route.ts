@@ -186,6 +186,34 @@ export async function GET(req: Request) {
       { name: 'Soru Üretkenliği & Çaba', score: Math.min(100, Math.max(25, Math.min(100, Math.round(totalSolved / 3)))), icon: '📚', desc: `${totalSolved} Toplam Soru` },
     ];
 
+    // Veli Bildirim Tercihleri
+    let notificationPreferences = { parent_name: '', parent_phone: '', whatsapp_active: false, sms_active: false };
+    try {
+      await db.prepare(`
+        CREATE TABLE IF NOT EXISTS parent_notification_preferences (
+          id TEXT PRIMARY KEY,
+          student_id TEXT NOT NULL UNIQUE,
+          parent_name TEXT DEFAULT '',
+          parent_phone TEXT DEFAULT '',
+          whatsapp_active BOOLEAN DEFAULT false,
+          sms_active BOOLEAN DEFAULT false,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `).run();
+      const prefs = await db.prepare(
+        "SELECT parent_name, parent_phone, whatsapp_active, sms_active FROM parent_notification_preferences WHERE student_id = ?"
+      ).get(student.id) as any;
+      if (prefs) {
+        notificationPreferences = {
+          parent_name: prefs.parent_name || '',
+          parent_phone: prefs.parent_phone || '',
+          whatsapp_active: Boolean(prefs.whatsapp_active),
+          sms_active: Boolean(prefs.sms_active),
+        };
+      }
+    } catch (_) {}
+
     return NextResponse.json({
       success: true,
       student: { 
@@ -202,6 +230,7 @@ export async function GET(req: Request) {
       assignments: assignments || [],
       assignmentStats,
       maarifCompetencies,
+      notificationPreferences,
       exams: exams || [],
       timeline: timeline || [],
       subjectFocus: subjectFocus || [],
