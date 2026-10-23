@@ -152,7 +152,7 @@ function MobileNavContent() {
           left: 0,
           right: 0,
           height: 'calc(60px + env(safe-area-inset-bottom))',
-          backgroundColor: 'rgba(8, 12, 20, 0.94)',
+          backgroundColor: 'var(--surface-header, rgba(8, 12, 20, 0.94))',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
           borderTop: '1px solid rgba(255, 255, 255, 0.08)',

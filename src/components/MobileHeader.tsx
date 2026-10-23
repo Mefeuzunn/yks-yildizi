@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import NotificationCenter from '@/components/NotificationCenter';
+import DesignModeSwitcher from '@/components/DesignModeSwitcher';
 
 export default function MobileHeader() {
   const pathname = usePathname();
@@ -37,7 +38,7 @@ export default function MobileHeader() {
         left: 0,
         right: 0,
         zIndex: 45,
-        backgroundColor: 'rgba(8, 12, 20, 0.92)',
+        backgroundColor: 'var(--surface-header, rgba(8, 12, 20, 0.92))',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
         borderBottom: '1px solid rgba(255, 255, 255, 0.07)',
@@ -120,8 +121,9 @@ export default function MobileHeader() {
           </span>
         </div>
 
-        {/* Action icons: Bildirim Çanı */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        {/* Action icons: Tasarım Modu & Bildirim Çanı */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <DesignModeSwitcher variant="compact" />
           <NotificationCenter align="right" />
         </div>
       </div>

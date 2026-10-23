@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { LogOut, Settings, User, Sparkles, ChevronRight } from 'lucide-react';
 import NotificationCenter from '@/components/NotificationCenter';
+import DesignModeSwitcher from '@/components/DesignModeSwitcher';
 
 // ─── Nav Data ────────────────────────────────────────────────────────
 const STUDENT_NAV_GROUPS: {
@@ -499,7 +500,7 @@ export default function AppSidebar() {
       style={{
         width: '228px',
         height: '100vh',
-        backgroundColor: '#080c14',
+        backgroundColor: 'var(--bg-sidebar, #080c14)',
         borderRight: '1px solid rgba(255, 255, 255, 0.07)',
         display: 'flex',
         flexDirection: 'column',
@@ -695,7 +696,10 @@ export default function AppSidebar() {
       />
 
       {/* ── Footer ── */}
-      <div style={{ padding: '4px 8px 12px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+      <div style={{ padding: '4px 8px 12px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ padding: '0 2px 4px' }}>
+          <DesignModeSwitcher variant="sidebar" />
+        </div>
         <FooterLink emoji="👤" label="Profilim" href={profileHref} />
         <FooterLink emoji="⚙️" label="Ayarlar" href="/ayarlar" />
         <FooterLink emoji="🚪" label="Çıkış Yap" onClick={logout} danger />

@@ -50,7 +50,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="tr" className={`${inter.variable} ${outfit.variable}`}>
+    <html lang="tr" className={`${inter.variable} ${outfit.variable}`} suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                var m = localStorage.getItem('yks_design_mode');
+                document.documentElement.setAttribute('data-design-mode', m === 'classic' ? 'classic' : 'lumina');
+                var t = localStorage.getItem('yks_equipped_theme');
+                if (t && t !== 'default') {
+                  document.documentElement.setAttribute('data-theme', t);
+                }
+              } catch (e) {}
+            `,
+          }}
+        />
+      </head>
       <body className="antialiased">
         <LayoutShell>{children}</LayoutShell>
       </body>

@@ -151,7 +151,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
           <CurriculumBoundaryGuard />
           <ThemeEngine />
           <BatteryOptimizer />
-          <div style={{ minHeight: '100vh', backgroundColor: '#080c14', overflowX: 'hidden' }}>
+          <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-canvas, #080c14)', overflowX: 'hidden' }}>
             <MobileHeader />
             <React.Suspense fallback={<div className="desktop-only" style={{ width: 228, borderRight: '1px solid rgba(255,255,255,0.06)' }} />}>
               <AppSidebar />
@@ -163,7 +163,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
               className="dashboard-main-responsive"
               style={{
                 minHeight: '100vh',
-                backgroundColor: '#080c14',
+                backgroundColor: 'var(--bg-canvas, #080c14)',
                 boxSizing: 'border-box',
               }}
             >

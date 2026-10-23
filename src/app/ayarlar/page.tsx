@@ -11,6 +11,7 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { PushNotificationToggle } from '@/components/PWAComponents';
 import { usePowerState, toggleBatterySaver } from '@/components/BatteryOptimizer';
+import DesignModeSwitcher from '@/components/DesignModeSwitcher';
 import Link from 'next/link';
 
 export default function AyarlarPage() {
@@ -602,9 +603,22 @@ export default function AyarlarPage() {
             <div>
               <h2 style={{ fontSize: '1.4rem', color: '#fff', marginBottom: '0.5rem', fontWeight: 700 }}>Görünüm ve Tema</h2>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '2rem' }}>
-                Göz yormayan karanlık mod veya parlak çalışma alanını seçin, vurgu renginizi belirleyin.
+                Göz yormayan karanlık mod veya parlak çalışma alanını seçin, vurgu renginizi belirleyin ve ultra-premium tasarım deneyimine geçin.
               </p>
               
+              {/* Tasarım Modu (Lumina Studio vs Klasik) */}
+              <div style={{ marginBottom: '2.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.8rem' }}>
+                  <label style={{ color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.9rem' }}>
+                    Tasarım Modu & Deneyim Standartı
+                  </label>
+                  <span style={{ fontSize: '11px', color: '#818cf8', fontWeight: 600 }}>
+                    ✨ Ultra-Premium Seçenek
+                  </span>
+                </div>
+                <DesignModeSwitcher variant="cards" />
+              </div>
+
               <div style={{ marginBottom: '2.5rem' }}>
                 <label style={{ display: 'block', marginBottom: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.9rem' }}>Arayüz Teması</label>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>

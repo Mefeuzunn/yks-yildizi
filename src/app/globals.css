@@ -9,6 +9,8 @@
   
   /* Canvas & Surface Layers (Deep Slate & Obsidian) */
   --bg-canvas: #080c14;
+  --bg-sidebar: #080c14;
+  --surface-header: rgba(8, 12, 20, 0.92);
   --bg-card: #0f1523;
   --bg-card-hover: #141c2e;
   --bg-elevated: #162035;
@@ -145,6 +147,166 @@
   --border-focus: rgba(99, 102, 241, 0.6);
   --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.05);
   --shadow-elevated: 0 12px 32px -4px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.07);
+}
+
+/* ========================================================= */
+/* DESIGN MODE: LUMINA STUDIO (ULTRA-PREMIUM EDITION)       */
+/* Linear + Apple VisionOS + Bento Spatial Liquid Hierarchy  */
+/* ========================================================= */
+[data-design-mode="lumina"] {
+  /* Three-Layer Token Architecture: Semantic Layer */
+  --bg-canvas: #030712;
+  --bg-sidebar: rgba(6, 11, 24, 0.78);
+  --surface-header: rgba(6, 11, 24, 0.82);
+  --bg-card: rgba(13, 20, 36, 0.65);
+  --bg-card-hover: rgba(19, 29, 53, 0.75);
+  --bg-elevated: rgba(22, 34, 62, 0.85);
+  --bg-inset: rgba(4, 8, 16, 0.70);
+  --surface-overlay: rgba(3, 7, 18, 0.88);
+
+  /* Border Tokens with Specular Precision */
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-default: rgba(255, 255, 255, 0.13);
+  --border-strong: rgba(255, 255, 255, 0.22);
+  --border-focus: rgba(99, 102, 241, 0.75);
+
+  /* Deep Spatial Shadows & Specular Highlights */
+  --shadow-sm: 0 2px 6px 0 rgba(0, 0, 0, 0.45);
+  --shadow-card: 0 10px 36px -4px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  --shadow-elevated: 0 18px 48px -6px rgba(0, 0, 0, 0.70), 0 0 0 1px rgba(255, 255, 255, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.20);
+  --shadow-glow-indigo: 0 0 32px -4px rgba(99, 102, 241, 0.45);
+  --shadow-glow-maarif: 0 0 32px -4px rgba(16, 185, 129, 0.45);
+
+  /* Rounded Radii for Modern Bento Geometry */
+  --radius-lg: 18px;
+  --radius-xl: 22px;
+}
+
+/* Lumina Studio Atmospheric Canvas & Mesh Lighting */
+[data-design-mode="lumina"] body {
+  background-color: #030712;
+  background-image: 
+    radial-gradient(1200px 520px at 50% -40px, rgba(99, 102, 241, 0.14), transparent 70%),
+    radial-gradient(900px 480px at 85% 12%, rgba(139, 92, 246, 0.09), transparent 60%),
+    radial-gradient(850px 450px at 15% 45%, rgba(59, 130, 246, 0.06), transparent 55%),
+    radial-gradient(1100px 600px at 50% 100%, rgba(16, 185, 129, 0.05), transparent 70%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+[data-design-mode="lumina"] .dashboard-main-responsive {
+  background: transparent !important;
+}
+
+/* Lumina Studio Liquid Glass Bento Cards */
+[data-design-mode="lumina"] .premium-card,
+[data-design-mode="lumina"] .edtech-card,
+[data-design-mode="lumina"] .bento-card {
+  background: rgba(13, 20, 36, 0.65) !important;
+  backdrop-filter: blur(28px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 10px 36px -4px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s ease, border-color 0.24s ease !important;
+}
+
+[data-design-mode="lumina"] .premium-card:hover,
+[data-design-mode="lumina"] .edtech-card:hover,
+[data-design-mode="lumina"] .bento-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  box-shadow: 0 18px 48px -6px rgba(0, 0, 0, 0.68), 0 0 28px -4px rgba(99, 102, 241, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+}
+
+/* Lumina Studio Sidebar & Navigation Glass */
+[data-design-mode="lumina"] .app-sidebar-aside {
+  background: rgba(6, 11, 24, 0.78) !important;
+  backdrop-filter: blur(28px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.09) !important;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-design-mode="lumina"] header.mobile-only {
+  background: rgba(6, 11, 24, 0.82) !important;
+  backdrop-filter: blur(28px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-design-mode="lumina"] nav.mobile-flex {
+  background: rgba(6, 11, 24, 0.85) !important;
+  backdrop-filter: blur(28px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Lumina Studio Micro-Interactions */
+[data-design-mode="lumina"] button:active:not(:disabled),
+[data-design-mode="lumina"] a.btn-interactive:active {
+  transform: scale(0.98);
+  transition: transform 0.1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Lumina Studio Tabular Figures for Stats & Numbers */
+[data-design-mode="lumina"] .tnum,
+[data-design-mode="lumina"] .font-mono,
+[data-design-mode="lumina"] [data-stat="number"] {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "cv02" 1, "cv03" 1;
+}
+
+/* Lumina Studio Form Inputs */
+[data-design-mode="lumina"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+[data-design-mode="lumina"] select,
+[data-design-mode="lumina"] textarea {
+  background: rgba(10, 16, 30, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+[data-design-mode="lumina"] input:focus:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+[data-design-mode="lumina"] select:focus,
+[data-design-mode="lumina"] textarea:focus {
+  border-color: rgba(99, 102, 241, 0.7) !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.22) !important;
+  background: rgba(14, 22, 42, 0.85) !important;
+}
+
+/* Lumina Badges */
+[data-design-mode="lumina"] .badge-subject {
+  border-radius: 8px !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* Lumina Ultra-crisp Scrollbar */
+[data-design-mode="lumina"] ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+[data-design-mode="lumina"] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+[data-design-mode="lumina"] ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+[data-design-mode="lumina"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Smooth transition when toggling design modes */
+html[data-design-mode] body,
+html[data-design-mode] .premium-card,
+html[data-design-mode] .app-sidebar-aside,
+html[data-design-mode] header.mobile-only {
+  transition: background 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease, box-shadow 0.35s ease;
 }
 
 * {

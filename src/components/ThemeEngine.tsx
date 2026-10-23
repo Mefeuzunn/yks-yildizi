@@ -12,6 +12,11 @@ export default function ThemeEngine() {
       document.documentElement.removeAttribute('data-theme');
     }
 
+    // Design Mode (Default: 'lumina')
+    const savedDesignMode = localStorage.getItem('yks_design_mode');
+    const initialMode = savedDesignMode === 'classic' ? 'classic' : 'lumina';
+    document.documentElement.setAttribute('data-design-mode', initialMode);
+
     // 2. Fetch active equipped theme from user inventory
     async function syncTheme() {
       try {
@@ -50,8 +55,19 @@ export default function ThemeEngine() {
     };
 
     window.addEventListener('themeChanged' as any, handleThemeChange);
+
+    // 4. Listen for immediate client-side design mode change events
+    const handleDesignModeChange = (e: CustomEvent) => {
+      const mode = e.detail === 'classic' ? 'classic' : 'lumina';
+      document.documentElement.setAttribute('data-design-mode', mode);
+      localStorage.setItem('yks_design_mode', mode);
+    };
+
+    window.addEventListener('designModeChanged' as any, handleDesignModeChange);
+
     return () => {
       window.removeEventListener('themeChanged' as any, handleThemeChange);
+      window.removeEventListener('designModeChanged' as any, handleDesignModeChange);
     };
   }, []);
 
