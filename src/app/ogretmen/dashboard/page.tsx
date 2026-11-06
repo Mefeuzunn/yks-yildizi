@@ -391,16 +391,83 @@ function ClassMockExamAnalyticsWidget({ classId }: { classId: string | null }) {
       .catch(() => setLoading(false));
   }, [classId]);
 
+  const handleExportExamCSV = () => {
+    const exams = data?.allExams || data?.recentExams || [];
+    if (!exams.length) {
+      toast.warning('Dışa aktarılacak deneme sınavı sonucu bulunamadı.');
+      return;
+    }
+    const headers = [
+      'Öğrenci Adı',
+      'Sınıf',
+      'Sınav Türü',
+      'Deneme Adı',
+      'Tarih',
+      'Toplam Net',
+      'Türkçe / Mat 1',
+      'Matematik / Fen 1',
+      'Sosyal / Edebiyat',
+      'Fen / Sosyal 2'
+    ];
+    const rows = exams.map((e: any) => [
+      `"${(e.username || '').replace(/"/g, '""')}"`,
+      `"${(e.class_name || '').replace(/"/g, '""')}"`,
+      `"${e.exam_type || ''}"`,
+      `"${(e.exam_name || 'Deneme Sınavı').replace(/"/g, '""')}"`,
+      `"${e.exam_date ? new Date(e.exam_date).toLocaleDateString('tr-TR') : ''}"`,
+      e.total_net || 0,
+      e.turkish_net || 0,
+      e.math_net || 0,
+      e.social_net || 0,
+      e.science_net || 0
+    ]);
+    const csvContent = '\uFEFF' + [headers.join(';'), ...rows.map((r: any) => r.join(';'))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `YKS_Yildizi_Sinif_Denemeleri_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div style={{ marginBottom: 24 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-        <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #f59e0b, #d97706)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
-          📝
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #f59e0b, #d97706)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
+            📝
+          </div>
+          <div>
+            <h3 style={{ color: '#fff', fontWeight: 700, margin: 0, fontSize: 16 }}>Sınıf Deneme & Net Karnesi (TYT / AYT)</h3>
+            <p style={{ color: '#64748b', fontSize: 12, margin: 0 }}>Öğrencilerin çözdüğü kurumsal ve bireysel denemelerin ders bazlı net analizi</p>
+          </div>
         </div>
-        <div>
-          <h3 style={{ color: '#fff', fontWeight: 700, margin: 0, fontSize: 16 }}>Sınıf Deneme & Net Karnesi (TYT / AYT)</h3>
-          <p style={{ color: '#64748b', fontSize: 12, margin: 0 }}>Öğrencilerin çözdüğü kurumsal ve bireysel denemelerin ders bazlı net analizi</p>
-        </div>
+        {(data?.tytAverages || data?.aytAverages || (data?.recentExams && data.recentExams.length > 0)) && (
+          <button
+            onClick={handleExportExamCSV}
+            title="Sınıfın tüm deneme sınavı sonuçlarını CSV formatında indir"
+            style={{
+              background: 'rgba(56,189,248,0.12)',
+              border: '1px solid rgba(56,189,248,0.3)',
+              borderRadius: 8,
+              padding: '0.4rem 0.85rem',
+              color: '#38bdf8',
+              fontSize: '0.82rem',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(56,189,248,0.22)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'rgba(56,189,248,0.12)'}
+          >
+            <Download size={14} /> Denemeleri CSV İndir
+          </button>
+        )}
       </div>
 
       {loading ? (

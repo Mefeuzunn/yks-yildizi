@@ -160,7 +160,7 @@ export async function syncOfflineQuizSubmissions(): Promise<{ synced: number; xp
 
   try {
     if (xpToAward > 0) {
-      await fetch('/api/user/xp', {
+      const res = await fetch('/api/user/xp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -168,12 +168,18 @@ export async function syncOfflineQuizSubmissions(): Promise<{ synced: number; xp
           reason: `Çevrimdışı Çözülen ${submissions.length} Soru (${correctCount} Doğru)`
         })
       });
+
+      if (!res.ok) {
+        console.warn('Sync offline quiz rejected with status:', res.status);
+        // Do not delete submissions if user is unauthorized or server had a temporary error
+        return { synced: 0, xpAwarded: 0 };
+      }
     }
 
     clearOfflineQuizSubmissions();
     return { synced: submissions.length, xpAwarded: xpToAward };
   } catch (err) {
-    console.warn('Sync offline quiz failed:', err);
+    console.warn('Sync offline quiz network failed:', err);
     return { synced: 0, xpAwarded: 0 };
   }
 }

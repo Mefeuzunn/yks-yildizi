@@ -3,6 +3,7 @@ import db from '@/lib/yks-db-async';
 import { sendSmartPushToUser, isWithinQuietHours } from '@/lib/push-notifications';
 import { generateFlashcardsBatch, saveFlashcardsToDB } from '@/lib/content-factory';
 import { YKS_CURRICULUM_TAXONOMY } from '@/lib/curriculum-taxonomy';
+import { sendParentSms, sendParentWhatsApp } from '@/lib/external-messaging';
 import { v4 as uuidv4 } from 'uuid';
 
 export const dynamic = 'force-dynamic';
@@ -112,6 +113,10 @@ export async function GET(req: Request) {
             INSERT INTO user_notifications (id, user_id, title, body, type, icon, url, is_read, created_at)
             VALUES (?, ?, ?, ?, 'parent_early_warning', '📱', '/veli', false, NOW())
           `).run(uuidv4(), pa.student_id, warningTitle, warningBody);
+
+          if (pa.parent_phone) {
+            await sendParentSms(pa.parent_phone, `${warningTitle}\n\n${warningBody}\n\nTakip Portalı: https://yks-yildizi.vercel.app/veli`).catch(() => {});
+          }
 
           parentEarlyWarningsSent++;
         }
@@ -282,11 +287,12 @@ export async function GET(req: Request) {
       let parentWeeklyReportsProcessed = 0;
       try {
         const veliSubscribers = await db.prepare(`
-          SELECT p.parent_phone, p.parent_name, p.student_id, u.username, st.solved_questions, st.streak_days
+          SELECT p.parent_phone, p.parent_name, p.student_id, u.username, st.solved_questions, st.streak_days,
+                 p.whatsapp_active, p.sms_active
           FROM parent_notification_preferences p
           JOIN users u ON p.student_id = u.id
           LEFT JOIN user_stats st ON u.id = st.user_id
-          WHERE p.whatsapp_active = true
+          WHERE p.whatsapp_active = true OR p.sms_active = true
         `).all() as any[];
 
         for (const veli of veliSubscribers) {
@@ -297,6 +303,15 @@ export async function GET(req: Request) {
             INSERT INTO user_notifications (id, user_id, title, body, type, icon, url, is_read, created_at)
             VALUES (?, ?, ?, ?, 'parent_weekly_digest', '📊', '/veli', false, NOW())
           `).run(uuidv4(), veli.student_id, repTitle, repBody);
+
+          if (veli.parent_phone) {
+            const externalText = `${repTitle}\n\n${repBody}\n\nDetaylı Takip: https://yks-yildizi.vercel.app/veli`;
+            if (veli.whatsapp_active) {
+              await sendParentWhatsApp(veli.parent_phone, externalText).catch(() => {});
+            } else if (veli.sms_active) {
+              await sendParentSms(veli.parent_phone, externalText).catch(() => {});
+            }
+          }
 
           parentWeeklyReportsProcessed++;
         }

@@ -128,6 +128,7 @@ export async function GET(req: Request) {
       tytAverages,
       aytAverages,
       recentExams: rawExams.slice(0, 15),
+      allExams: rawExams,
       netAlerts
     });
   } catch (error: any) {

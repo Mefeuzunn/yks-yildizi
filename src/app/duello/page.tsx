@@ -200,6 +200,7 @@ export default function DuelloPage() {
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const prevCountdownRef = useRef<number>(3);
   const prevPhaseRef = useRef<DuelState>('idle');
+  const serverTimeDriftRef = useRef<number>(0);
 
   useEffect(() => {
     setIsMuted(arenaAudio.isMuted());
@@ -245,7 +246,8 @@ export default function DuelloPage() {
     timerIntervalRef.current = setInterval(() => {
       if (document.hidden) return;
       if (roundEndTime) {
-        const diff = roundEndTime.getTime() - Date.now();
+        const currentServerTime = Date.now() - serverTimeDriftRef.current;
+        const diff = roundEndTime.getTime() - currentServerTime;
         if (phase === 'starting') {
            setStartCountdown(Math.ceil(diff / 1000));
         } else if (phase === 'active') {
@@ -302,6 +304,10 @@ export default function DuelloPage() {
         const data = await res.json();
         
         setParticipants(data.participants || []);
+        
+        if (data.server_time) {
+          serverTimeDriftRef.current = Date.now() - new Date(data.server_time).getTime();
+        }
         
         if (data.status) setPhase(data.status);
         if (data.round_end_time) setRoundEndTime(new Date(data.round_end_time));

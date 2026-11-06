@@ -242,9 +242,9 @@ export default function ProgramPage() {
     const days = eachDayOfInterval({ start: startDate, end: endDate });
 
     return (
-      <div className="program-calendar-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '1px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', overflow: 'hidden' }}>
+      <div className="program-calendar-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '1px', background: 'var(--border-subtle, rgba(255,255,255,0.08))', border: '1px solid var(--border-subtle, rgba(255,255,255,0.1))', borderRadius: '12px', overflow: 'hidden' }}>
         {['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'].map(d => (
-          <div key={d} style={{ padding: '0.75rem', textAlign: 'center', background: 'rgba(0,0,0,0.4)', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.875rem' }}>
+          <div key={d} style={{ padding: '0.75rem', textAlign: 'center', background: 'var(--bg-card, rgba(0,0,0,0.4))', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.875rem' }}>
             {d}
           </div>
         ))}
@@ -266,7 +266,7 @@ export default function ProgramPage() {
               onDrop={(e) => handleDrop(e, dateStr)}
               style={{ 
                 minHeight: '100px', 
-                background: isTodayDate ? 'rgba(236, 72, 153, 0.05)' : (isCurrMonth ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.6)'), 
+                background: isTodayDate ? 'rgba(236, 72, 153, 0.08)' : (isCurrMonth ? 'var(--bg-canvas, rgba(0,0,0,0.2))' : 'rgba(0,0,0,0.5)'), 
                 padding: '0.4rem',
                 cursor: 'pointer',
                 transition: 'background 0.2s',
@@ -684,7 +684,7 @@ export default function ProgramPage() {
             <motion.div 
               initial={{ opacity: 0, scale: 0.9, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 10 }}
               className="program-modal-box"
-              style={{ background: '#1e293b', padding: '2rem', borderRadius: '16px', width: '100%', maxWidth: '420px', border: '1px solid rgba(255,255,255,0.1)' }}
+              style={{ background: 'var(--bg-card, #1e293b)', padding: '2rem', paddingBottom: 'calc(2rem + env(safe-area-inset-bottom, 0px))', borderRadius: '16px', width: '100%', maxWidth: '420px', border: '1px solid var(--border-subtle, rgba(255,255,255,0.1))' }}
               onClick={e => e.stopPropagation()}
             >
               {/* Drag Handle on mobile */}
@@ -700,12 +700,12 @@ export default function ProgramPage() {
               <form onSubmit={handleAddTask} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '0.35rem' }}>Tarih</label>
-                  <input type="date" required value={newTask.date} onChange={e => setNewTask({...newTask, date: e.target.value})} className="program-input-touch" style={{ width: '100%', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff' }} />
+                  <input type="date" required value={newTask.date} onChange={e => setNewTask({...newTask, date: e.target.value})} className="program-input-touch" style={{ width: '100%', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-subtle, rgba(255,255,255,0.1))', borderRadius: '8px', color: '#fff' }} />
                 </div>
                 
                 <div>
                   <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '0.35rem' }}>Ders / Kategori</label>
-                  <select value={newTask.subject} onChange={e => setNewTask({...newTask, subject: e.target.value})} className="program-input-touch" style={{ width: '100%', padding: '0.75rem', background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff' }}>
+                  <select value={newTask.subject} onChange={e => setNewTask({...newTask, subject: e.target.value})} className="program-input-touch" style={{ width: '100%', padding: '0.75rem', background: 'var(--bg-card, #1e293b)', border: '1px solid var(--border-subtle, rgba(255,255,255,0.1))', borderRadius: '8px', color: '#fff' }}>
                     <option value="Matematik">Matematik</option>
                     <option value="Fizik">Fizik</option>
                     <option value="Kimya">Kimya</option>
@@ -786,7 +786,7 @@ export default function ProgramPage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 10 }}
               className="program-modal-box"
-              style={{ background: '#1e293b', padding: '1.75rem', borderRadius: '16px', width: '100%', maxWidth: '380px', border: '1px solid rgba(255,255,255,0.1)' }}
+              style={{ background: 'var(--bg-card, #1e293b)', padding: '1.75rem', paddingBottom: 'calc(1.75rem + env(safe-area-inset-bottom, 0px))', borderRadius: '16px', width: '100%', maxWidth: '380px', border: '1px solid var(--border-subtle, rgba(255,255,255,0.1))' }}
               onClick={e => e.stopPropagation()}
             >
               <div className="mobile-only modal-drag-handle" style={{ width: 40, height: 4, background: 'rgba(255,255,255,0.2)', borderRadius: 2, margin: '-0.75rem auto 1rem' }} />

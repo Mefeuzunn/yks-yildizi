@@ -250,6 +250,7 @@ export async function GET(req: Request) {
       status,
       current_round,
       round_end_time,
+      server_time: now.toISOString(),
       winner_id,
       question: currentQuestion,
       participants: mappedParticipants
