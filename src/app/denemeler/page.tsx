@@ -51,28 +51,32 @@ const mapExamFromDb = (e: any, alan: string): MockExam => {
       totalNet: totNet
     };
     if (alan === 'Sayisal') {
+      const fenShare = sciNet > 0 ? Number((sciNet / 3).toFixed(2)) : 0;
       return {
         ...base,
         aytMatematik: details.aytMatematik !== undefined ? Number(details.aytMatematik) : mthNet,
-        fizik: details.fizik !== undefined ? Number(details.fizik) : turkNet,
-        kimya: details.kimya !== undefined ? Number(details.kimya) : sciNet,
-        biyoloji: details.biyoloji !== undefined ? Number(details.biyoloji) : socNet
+        fizik: details.fizik !== undefined ? Number(details.fizik) : fenShare,
+        kimya: details.kimya !== undefined ? Number(details.kimya) : fenShare,
+        biyoloji: details.biyoloji !== undefined ? Number(details.biyoloji) : fenShare
       };
     } else if (alan === 'Esit Agirlik') {
       return {
         ...base,
         aytMatematik: details.aytMatematik !== undefined ? Number(details.aytMatematik) : mthNet,
         edebiyat: details.edebiyat !== undefined ? Number(details.edebiyat) : turkNet,
-        tarih1: details.tarih1 !== undefined ? Number(details.tarih1) : sciNet,
-        cografya1: details.cografya1 !== undefined ? Number(details.cografya1) : socNet
+        tarih1: details.tarih1 !== undefined ? Number(details.tarih1) : (socNet > 0 ? Number((socNet * 0.6).toFixed(2)) : 0),
+        cografya1: details.cografya1 !== undefined ? Number(details.cografya1) : (socNet > 0 ? Number((socNet * 0.4).toFixed(2)) : 0)
       };
     } else if (alan === 'Sozel') {
       return {
         ...base,
         edebiyat: details.edebiyat !== undefined ? Number(details.edebiyat) : turkNet,
-        tarih1: details.tarih1 !== undefined ? Number(details.tarih1) : sciNet,
-        cografya1: details.cografya1 !== undefined ? Number(details.cografya1) : socNet,
-        tarih2: details.tarih2 !== undefined ? Number(details.tarih2) : mthNet
+        tarih1: details.tarih1 !== undefined ? Number(details.tarih1) : (socNet > 0 ? Number((socNet * 0.3).toFixed(2)) : 0),
+        cografya1: details.cografya1 !== undefined ? Number(details.cografya1) : (socNet > 0 ? Number((socNet * 0.2).toFixed(2)) : 0),
+        tarih2: details.tarih2 !== undefined ? Number(details.tarih2) : (socNet > 0 ? Number((socNet * 0.3).toFixed(2)) : 0),
+        cografya2: details.cografya2 !== undefined ? Number(details.cografya2) : (socNet > 0 ? Number((socNet * 0.2).toFixed(2)) : 0),
+        felsefeGrubu: details.felsefeGrubu !== undefined ? Number(details.felsefeGrubu) : 0,
+        dinKulturu: details.dinKulturu !== undefined ? Number(details.dinKulturu) : 0
       };
     } else {
       return {

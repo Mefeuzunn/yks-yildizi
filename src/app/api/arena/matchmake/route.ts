@@ -43,10 +43,6 @@ export async function POST(req: Request) {
       if (body?.subject) bodySubject = body.subject;
     } catch (_) {}
 
-    try {
-      await db.prepare("ALTER TABLE duels ADD COLUMN IF NOT EXISTS subject TEXT DEFAULT 'Karisik'").run();
-    } catch (_) {}
-
     // Bot kullanıcısının varlığını kontrol et ve yoksa oluştur
     const botExist = await db.prepare("SELECT id FROM users WHERE id = 'yks-bot-user'").get() as any;
     if (!botExist) {

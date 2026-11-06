@@ -42,6 +42,23 @@ function ServiceWorkerRegistrar() {
   return null;
 }
 
+function SessionExpiredListener() {
+  const router = useRouter();
+  useEffect(() => {
+    const handleExpired = (e: any) => {
+      const msg = e?.detail || 'Oturum süreniz doldu, lütfen tekrar giriş yapın.';
+      if (typeof window !== 'undefined') {
+        router.push(`/login?msg=${encodeURIComponent(msg)}`);
+      }
+    };
+    window.addEventListener('yks:session-expired' as any, handleExpired);
+    return () => {
+      window.removeEventListener('yks:session-expired' as any, handleExpired);
+    };
+  }, [router]);
+  return null;
+}
+
 /**
  * CurriculumBoundaryGuard — Katı Müfredat & Panel İzolasyon Koruyucusu (Zero Contamination)
  * - 9, 10, 11. Sınıf öğrencileri ASLA klasik YKS panellerine giremez (hemen /maarif'e yönlendirilir).
@@ -175,6 +192,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
             <GlobalFullscreenFocusHost />
             <SessionLogModal />
             <ServiceWorkerRegistrar />
+            <SessionExpiredListener />
             <PWAInstallBanner />
             <OfflineStatusBanner />
             <OfflineFocusNotification />

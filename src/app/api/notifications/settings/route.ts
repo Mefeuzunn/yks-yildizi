@@ -4,33 +4,33 @@ import { getAuthenticatedUserId } from '@/lib/auth-utils';
 
 export const dynamic = 'force-dynamic';
 
-async function ensureSettingsTable() {
-  await db.prepare(`
-    CREATE TABLE IF NOT EXISTS user_notification_settings (
-      user_id TEXT PRIMARY KEY,
-      notif_focus BOOLEAN DEFAULT true,
-      notif_homework BOOLEAN DEFAULT true,
-      notif_lessons BOOLEAN DEFAULT true,
-      notif_daily_reminder BOOLEAN DEFAULT true,
-      notif_reminder_time TEXT DEFAULT '08:30',
-      notif_streak_warning BOOLEAN DEFAULT true,
-      notif_streak_time TEXT DEFAULT '20:30',
-      notif_duel BOOLEAN DEFAULT true,
-      notif_sound BOOLEAN DEFAULT true,
-      quiet_hours_enabled BOOLEAN DEFAULT true,
-      quiet_hours_start TEXT DEFAULT '23:00',
-      quiet_hours_end TEXT DEFAULT '08:00',
-      max_daily_notifs INTEGER DEFAULT 2,
-      frequency_limit TEXT DEFAULT 'smart',
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `).run();
+let isSettingsTableEnsured = false;
 
-  await db.prepare('ALTER TABLE user_notification_settings ADD COLUMN IF NOT EXISTS quiet_hours_enabled BOOLEAN DEFAULT true').run().catch(() => {});
-  await db.prepare('ALTER TABLE user_notification_settings ADD COLUMN IF NOT EXISTS quiet_hours_start TEXT DEFAULT \'23:00\'').run().catch(() => {});
-  await db.prepare('ALTER TABLE user_notification_settings ADD COLUMN IF NOT EXISTS quiet_hours_end TEXT DEFAULT \'08:00\'').run().catch(() => {});
-  await db.prepare('ALTER TABLE user_notification_settings ADD COLUMN IF NOT EXISTS max_daily_notifs INTEGER DEFAULT 2').run().catch(() => {});
-  await db.prepare('ALTER TABLE user_notification_settings ADD COLUMN IF NOT EXISTS frequency_limit TEXT DEFAULT \'smart\'').run().catch(() => {});
+async function ensureSettingsTable() {
+  if (isSettingsTableEnsured) return;
+  isSettingsTableEnsured = true;
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS user_notification_settings (
+        user_id TEXT PRIMARY KEY,
+        notif_focus BOOLEAN DEFAULT true,
+        notif_homework BOOLEAN DEFAULT true,
+        notif_lessons BOOLEAN DEFAULT true,
+        notif_daily_reminder BOOLEAN DEFAULT true,
+        notif_reminder_time TEXT DEFAULT '08:30',
+        notif_streak_warning BOOLEAN DEFAULT true,
+        notif_streak_time TEXT DEFAULT '20:30',
+        notif_duel BOOLEAN DEFAULT true,
+        notif_sound BOOLEAN DEFAULT true,
+        quiet_hours_enabled BOOLEAN DEFAULT true,
+        quiet_hours_start TEXT DEFAULT '23:00',
+        quiet_hours_end TEXT DEFAULT '08:00',
+        max_daily_notifs INTEGER DEFAULT 2,
+        frequency_limit TEXT DEFAULT 'smart',
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+  } catch (_) {}
 }
 
 export async function GET(req: Request) {

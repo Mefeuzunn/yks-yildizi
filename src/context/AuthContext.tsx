@@ -43,7 +43,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (res.ok) {
         const data = await res.json();
         setUser(data.user);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('yks_had_session', 'true');
+        }
       } else {
+        if (res.status === 401 && typeof window !== 'undefined') {
+          const hadSession = localStorage.getItem('yks_had_session');
+          if (hadSession === 'true' && window.location.pathname !== '/login' && window.location.pathname !== '/register' && window.location.pathname !== '/') {
+            localStorage.removeItem('yks_had_session');
+            window.dispatchEvent(new CustomEvent('yks:session-expired', { detail: 'Oturum süreniz doldu, lütfen tekrar giriş yapın.' }));
+          }
+        }
         setUser(null);
       }
     } catch (error) {
@@ -58,6 +68,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const logout = async () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('yks_had_session');
+    }
     await fetch('/api/auth/logout', { method: 'POST' });
     setUser(null);
     window.location.href = '/login';

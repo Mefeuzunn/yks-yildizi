@@ -65,9 +65,17 @@ export async function proxy(request: NextRequest) {
 
       // Öğretmen Paneli Koruması: Öğretmen paneline sadece öğretmen ve admin erişebilir
       if (pathname.startsWith('/ogretmen')) {
-        const userRole = payload.role || role;
-        if (userRole && userRole !== 'ogretmen' && userRole !== 'admin') {
+        const userRole = payload.role || role || 'ogrenci';
+        if (userRole !== 'ogretmen' && userRole !== 'admin') {
           return NextResponse.redirect(new URL('/dashboard', request.nextUrl.origin));
+        }
+      }
+
+      // Öğretmen API Koruması: /api/ogretmen uç noktalarına sadece öğretmen ve admin erişebilir
+      if (pathname.startsWith('/api/ogretmen')) {
+        const userRole = payload.role || role || 'ogrenci';
+        if (userRole !== 'ogretmen' && userRole !== 'admin') {
+          return NextResponse.json({ error: 'Yetkisiz erişim: Bu API yalnızca öğretmen hesaplarına açıktır.' }, { status: 403 });
         }
       }
 

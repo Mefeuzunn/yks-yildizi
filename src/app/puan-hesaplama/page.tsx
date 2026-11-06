@@ -295,7 +295,7 @@ export default function PuanHesaplamaPage() {
           value={data.y} onChange={(e) => handleInputChange(exam, subject, 'y', e.target.value, max)}
           style={{ width: '100%', padding: '0.5rem 0.25rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '6px', color: '#ef4444', textAlign: 'center', outline: 'none', fontSize: '16px' }}
         />
-        <div style={{ textAlign: 'center', fontWeight: 800, color: '#fff', fontSize: '0.85rem' }}>{data.n.toFixed(1)}</div>
+        <div className="tnum font-mono" style={{ textAlign: 'center', fontWeight: 800, color: '#fff', fontSize: '0.85rem' }}>{data.n.toFixed(1)}</div>
       </div>
     );
   };
@@ -310,11 +310,11 @@ export default function PuanHesaplamaPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
         <div>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>Ham Puan</div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff' }}>{rawScore > 100 ? rawScore.toFixed(3) : '-'}</div>
+          <div className="tnum font-mono" style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff' }}>{rawScore > 100 ? rawScore.toFixed(3) : '-'}</div>
         </div>
         <div>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>Yerleştirme Puanı</div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 800, color: color }}>{placedScore > 100 ? placedScore.toFixed(3) : '-'}</div>
+          <div className="tnum font-mono" style={{ fontSize: '1.5rem', fontWeight: 800, color: color }}>{placedScore > 100 ? placedScore.toFixed(3) : '-'}</div>
         </div>
       </div>
 

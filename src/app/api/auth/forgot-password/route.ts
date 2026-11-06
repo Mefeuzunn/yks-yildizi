@@ -20,13 +20,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Kullanıcı adı veya e-posta adresi gereklidir.' }, { status: 400 });
     }
 
-    // Ensure reset_token_expires column exists
-    try {
-      await db.prepare(`
-        ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires TIMESTAMP
-      `).run();
-    } catch (_) {}
-
     // Kullanıcıyı bul
     let user: any;
     if (email) {

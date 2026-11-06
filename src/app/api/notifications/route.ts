@@ -5,50 +5,48 @@ import { v4 as uuidv4 } from 'uuid';
 
 export const dynamic = 'force-dynamic';
 
+let isNotifTablesEnsured = false;
+
 async function ensureNotificationTables() {
-  await db.prepare(`
-    CREATE TABLE IF NOT EXISTS user_notifications (
-      id TEXT PRIMARY KEY,
-      user_id TEXT NOT NULL,
-      title TEXT NOT NULL,
-      body TEXT NOT NULL,
-      type TEXT DEFAULT 'general',
-      icon TEXT DEFAULT '🔔',
-      url TEXT DEFAULT '/dashboard',
-      is_read BOOLEAN DEFAULT false,
-      is_automated BOOLEAN DEFAULT false,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `).run();
+  if (isNotifTablesEnsured) return;
+  isNotifTablesEnsured = true;
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS user_notifications (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        body TEXT NOT NULL,
+        type TEXT DEFAULT 'general',
+        icon TEXT DEFAULT '🔔',
+        url TEXT DEFAULT '/dashboard',
+        is_read BOOLEAN DEFAULT false,
+        is_automated BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
 
-  await db.prepare(`
-    CREATE TABLE IF NOT EXISTS user_notification_settings (
-      user_id TEXT PRIMARY KEY,
-      notif_focus BOOLEAN DEFAULT true,
-      notif_homework BOOLEAN DEFAULT true,
-      notif_lessons BOOLEAN DEFAULT true,
-      notif_daily_reminder BOOLEAN DEFAULT true,
-      notif_reminder_time TEXT DEFAULT '08:30',
-      notif_streak_warning BOOLEAN DEFAULT true,
-      notif_streak_time TEXT DEFAULT '20:30',
-      notif_duel BOOLEAN DEFAULT true,
-      notif_sound BOOLEAN DEFAULT true,
-      quiet_hours_enabled BOOLEAN DEFAULT true,
-      quiet_hours_start TEXT DEFAULT '23:00',
-      quiet_hours_end TEXT DEFAULT '08:00',
-      max_daily_notifs INTEGER DEFAULT 2,
-      frequency_limit TEXT DEFAULT 'smart',
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `).run();
-
-  // Migrations for existing tables
-  await db.prepare('ALTER TABLE user_notifications ADD COLUMN IF NOT EXISTS is_automated BOOLEAN DEFAULT false').run().catch(() => {});
-  await db.prepare('ALTER TABLE user_notification_settings ADD COLUMN IF NOT EXISTS quiet_hours_enabled BOOLEAN DEFAULT true').run().catch(() => {});
-  await db.prepare('ALTER TABLE user_notification_settings ADD COLUMN IF NOT EXISTS quiet_hours_start TEXT DEFAULT \'23:00\'').run().catch(() => {});
-  await db.prepare('ALTER TABLE user_notification_settings ADD COLUMN IF NOT EXISTS quiet_hours_end TEXT DEFAULT \'08:00\'').run().catch(() => {});
-  await db.prepare('ALTER TABLE user_notification_settings ADD COLUMN IF NOT EXISTS max_daily_notifs INTEGER DEFAULT 2').run().catch(() => {});
-  await db.prepare('ALTER TABLE user_notification_settings ADD COLUMN IF NOT EXISTS frequency_limit TEXT DEFAULT \'smart\'').run().catch(() => {});
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS user_notification_settings (
+        user_id TEXT PRIMARY KEY,
+        notif_focus BOOLEAN DEFAULT true,
+        notif_homework BOOLEAN DEFAULT true,
+        notif_lessons BOOLEAN DEFAULT true,
+        notif_daily_reminder BOOLEAN DEFAULT true,
+        notif_reminder_time TEXT DEFAULT '08:30',
+        notif_streak_warning BOOLEAN DEFAULT true,
+        notif_streak_time TEXT DEFAULT '20:30',
+        notif_duel BOOLEAN DEFAULT true,
+        notif_sound BOOLEAN DEFAULT true,
+        quiet_hours_enabled BOOLEAN DEFAULT true,
+        quiet_hours_start TEXT DEFAULT '23:00',
+        quiet_hours_end TEXT DEFAULT '08:00',
+        max_daily_notifs INTEGER DEFAULT 2,
+        frequency_limit TEXT DEFAULT 'smart',
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+  } catch (_) {}
 }
 
 // GET: Fetch user's notifications and unread count

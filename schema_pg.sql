@@ -379,6 +379,12 @@ CREATE INDEX idx_focus_sessions_user_date ON focus_sessions(user_id, started_at)
 CREATE INDEX idx_user_stats_league_points ON user_stats(league_points DESC);
 CREATE INDEX idx_users_username ON users(username);
 CREATE INDEX idx_users_parent_code ON users(parent_code);
+CREATE INDEX IF NOT EXISTS idx_student_mistakes_review ON student_mistakes(user_id, leitner_box, next_review_at);
+CREATE INDEX IF NOT EXISTS idx_mock_exams_user_type_date ON mock_exams(user_id, exam_type, exam_date);
+CREATE INDEX IF NOT EXISTS idx_assignment_submissions_student ON assignment_submissions(student_id, assignment_id);
+CREATE INDEX IF NOT EXISTS idx_assignments_teacher_due ON assignments(teacher_id, due_date);
+CREATE INDEX IF NOT EXISTS idx_user_notifications_unread ON user_notifications(user_id, is_read, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_clan_members_user ON clan_members(user_id, clan_id);
 
 -- =========================================================================
 -- KLANLAR (CLANS) SİSTEMİ

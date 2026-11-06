@@ -9,11 +9,6 @@ export async function GET(req: Request) {
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-    // Ensure feedback column exists
-    try {
-      await db.prepare("ALTER TABLE assignment_submissions ADD COLUMN IF NOT EXISTS feedback TEXT DEFAULT ''").run();
-    } catch (_) {}
-
     const assignments = await db.prepare(`
       SELECT 
         a.id, 

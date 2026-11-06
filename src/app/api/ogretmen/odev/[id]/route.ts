@@ -32,10 +32,6 @@ export async function GET(
       return NextResponse.json({ error: 'Ödev bulunamadı' }, { status: 404 });
     }
 
-    try {
-      await db.prepare("ALTER TABLE assignment_submissions ADD COLUMN IF NOT EXISTS feedback TEXT DEFAULT ''").run();
-    } catch (_) {}
-
     // Get all submissions with student info and feedback
     const submissions = await db.prepare(`
       SELECT asub.id as submission_id, asub.status, asub.score,
@@ -116,10 +112,6 @@ export async function PUT(
     if (!studentId) {
       return NextResponse.json({ error: 'Öğrenci ID veya Ödev bilgileri gerekli' }, { status: 400 });
     }
-
-    try {
-      await db.prepare("ALTER TABLE assignment_submissions ADD COLUMN IF NOT EXISTS feedback TEXT DEFAULT ''").run();
-    } catch (_) {}
 
     let newStatus = status;
     let newScore = score !== undefined && score !== null && score !== '' ? Number(score) : null;

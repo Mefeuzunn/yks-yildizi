@@ -149,7 +149,7 @@ export default function StorePage() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#080c14' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: 'var(--bg-canvas, #080c14)' }}>
         <Loader2 className="animate-spin" size={48} color="#ec4899" />
       </div>
     );
@@ -217,11 +217,11 @@ export default function StorePage() {
               initial={{ opacity: 0, scale: 0.95 }} 
               animate={{ opacity: 1, scale: 1 }} 
               key={item.id}
-              className="shop-card"
+              className="shop-card premium-card"
               style={{ 
-                backgroundColor: 'rgba(15, 21, 35, 0.85)', 
-                border: isEquipped ? '2px solid #10b981' : '1px solid rgba(255,255,255,0.08)', 
-                boxShadow: isEquipped ? '0 0 30px rgba(16, 185, 129, 0.25)' : '0 8px 30px rgba(0,0,0,0.3)',
+                backgroundColor: 'var(--bg-card, rgba(15, 21, 35, 0.85))', 
+                border: isEquipped ? '2px solid #10b981' : '1px solid var(--border-subtle, rgba(255,255,255,0.08))', 
+                boxShadow: isEquipped ? '0 0 30px rgba(16, 185, 129, 0.25)' : 'var(--shadow-card, 0 8px 30px rgba(0,0,0,0.3))',
                 borderRadius: '22px', 
                 padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center',
                 position: 'relative', overflow: 'hidden',

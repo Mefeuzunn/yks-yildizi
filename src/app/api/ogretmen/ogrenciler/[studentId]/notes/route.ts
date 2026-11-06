@@ -4,7 +4,11 @@ import { getAuthenticatedTeacherId } from '@/lib/auth-utils';
 
 export const dynamic = 'force-dynamic';
 
+let isNotesTableEnsured = false;
+
 async function ensureNotesTable() {
+  if (isNotesTableEnsured) return;
+  isNotesTableEnsured = true;
   try {
     await db.prepare(`
       CREATE TABLE IF NOT EXISTS teacher_student_notes (
@@ -18,9 +22,6 @@ async function ensureNotesTable() {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `).run();
-    try {
-      await db.prepare("ALTER TABLE teacher_student_notes ADD COLUMN IF NOT EXISTS is_shared_with_parent BOOLEAN DEFAULT true").run();
-    } catch (_) {}
   } catch (e) {
     console.error('Error ensuring teacher_student_notes table:', e);
   }

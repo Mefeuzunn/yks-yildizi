@@ -11,10 +11,6 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
     }
 
-    try {
-      await db.prepare("ALTER TABLE mock_exams ADD COLUMN IF NOT EXISTS details JSONB DEFAULT '{}'").run();
-    } catch (_) {}
-
     const exams = await db.prepare('SELECT * FROM mock_exams WHERE user_id = ? ORDER BY exam_date ASC').all(userId) as any[];
     
     // CamelCase map
@@ -51,10 +47,6 @@ export async function POST(req: Request) {
     if (!userId) {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
     }
-
-    try {
-      await db.prepare("ALTER TABLE mock_exams ADD COLUMN IF NOT EXISTS details JSONB DEFAULT '{}'").run();
-    } catch (_) {}
 
     const body = await req.json();
     const { 
