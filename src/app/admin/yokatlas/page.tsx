@@ -104,7 +104,7 @@ export default function YokAtlasAdminPage() {
     <div className="flex-1 relative pt-24 pb-12 min-h-screen" style={{ background: '#050505', color: 'white', overflow: 'hidden' }}>
       
       {/* Background Mesh Gradients */}
-      <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-purple-500/20 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-blue-600/15 rounded-full blur-[150px] pointer-events-none" />
       <div className="absolute bottom-[-10%] left-[-5%] w-[600px] h-[600px] bg-sky-500/20 rounded-full blur-[150px] pointer-events-none" />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10">
@@ -228,7 +228,7 @@ export default function YokAtlasAdminPage() {
                 className={`relative overflow-hidden px-10 py-4 rounded-xl font-bold transition-all flex items-center gap-3 ${
                   !file || loading 
                     ? 'bg-white/5 text-gray-500 cursor-not-allowed' 
-                    : 'bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 text-white shadow-[0_0_40px_rgba(14,165,233,0.3)] hover:shadow-[0_0_60px_rgba(14,165,233,0.5)] hover:-translate-y-1'
+                    : 'bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white shadow-[0_0_40px_rgba(14,165,233,0.3)] hover:shadow-[0_0_60px_rgba(14,165,233,0.5)] hover:-translate-y-1'
                 }`}
               >
                 {loading ? (
@@ -254,7 +254,7 @@ export default function YokAtlasAdminPage() {
           className="mt-12 opacity-50 hover:opacity-100 transition-opacity"
         >
           <div className="flex items-center gap-2 mb-4 text-gray-400">
-            <div className="w-2 h-2 rounded-full bg-purple-500" />
+            <div className="w-2 h-2 rounded-full bg-sky-500" />
             <h3 className="text-sm font-bold uppercase tracking-widest">JSON Şablonu</h3>
           </div>
           <pre className="bg-black/60 p-6 rounded-2xl text-xs text-gray-300 overflow-x-auto border border-white/5 font-mono shadow-inner">

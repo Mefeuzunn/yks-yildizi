@@ -65,7 +65,7 @@ export default function ProfilPage() {
   if (loading) {
     return (
       <div style={{ minHeight: 'calc(100vh - 80px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Loader2 size={48} color="#8b5cf6" className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
+        <Loader2 size={48} color="#2563eb" className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
         <style jsx>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
       </div>
     );
@@ -107,11 +107,11 @@ export default function ProfilPage() {
           >
             <div style={{ 
               width: '110px', height: '110px', borderRadius: '50%', 
-              background: equippedAvatar ? `${equippedAvatar.color}25` : (isTeacher ? 'linear-gradient(135deg, #0ea5e9, #0369a1)' : 'linear-gradient(135deg, #6366f1, #8b5cf6)'),
+              background: equippedAvatar ? `${equippedAvatar.color}25` : (isTeacher ? 'linear-gradient(135deg, #0ea5e9, #0369a1)' : 'linear-gradient(135deg, #38bdf8, #2563eb)'),
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: equippedAvatar ? '3.5rem' : '2.8rem', fontWeight: 700, color: '#fff', marginBottom: '1.25rem',
-              border: equippedAvatar ? `4px solid ${equippedAvatar.color}` : `4px solid ${isTeacher ? '#38bdf8' : '#8b5cf6'}`,
-              boxShadow: equippedAvatar ? `0 0 25px ${equippedAvatar.color}55` : `0 0 20px ${isTeacher ? 'rgba(56,189,248,0.3)' : 'rgba(99,102,241,0.3)'}`,
+              border: equippedAvatar ? `4px solid ${equippedAvatar.color}` : `4px solid ${isTeacher ? '#38bdf8' : '#2563eb'}`,
+              boxShadow: equippedAvatar ? `0 0 25px ${equippedAvatar.color}55` : `0 0 20px ${isTeacher ? 'rgba(56,189,248,0.3)' : 'rgba(37,99,235,0.3)'}`,
               transition: 'all 0.3s ease'
             }}>
               {equippedAvatar ? equippedAvatar.emoji : (user.username ? user.username.substring(0, 2).toUpperCase() : 'YK')}
@@ -143,10 +143,10 @@ export default function ProfilPage() {
             <div style={{ 
               display: 'inline-flex', alignItems: 'center', gap: '0.5rem', 
               padding: '0.3rem 0.85rem', borderRadius: '1rem', 
-              background: isTeacher ? 'rgba(56, 189, 248, 0.12)' : 'rgba(139, 92, 246, 0.12)',
-              color: isTeacher ? '#38bdf8' : '#a855f7', fontSize: '0.825rem', fontWeight: 600,
+              background: isTeacher ? 'rgba(56, 189, 248, 0.12)' : 'rgba(37, 99, 235, 0.12)',
+              color: isTeacher ? '#38bdf8' : '#60a5fa', fontSize: '0.825rem', fontWeight: 600,
               marginBottom: '1.75rem',
-              border: `1px solid ${isTeacher ? 'rgba(56, 189, 248, 0.25)' : 'rgba(139, 92, 246, 0.25)'}`
+              border: `1px solid ${isTeacher ? 'rgba(56, 189, 248, 0.25)' : 'rgba(37, 99, 235, 0.25)'}`
             }}>
               {isTeacher ? <Shield size={14} /> : <User size={14} />}
               {isTeacher ? 'Öğretmen Hesabı' : 'Öğrenci Hesabı'}
@@ -165,7 +165,7 @@ export default function ProfilPage() {
                 className="btn-interactive" 
                 style={{ width: '100%', background: 'rgba(255,255,255,0.06)', color: '#fff', padding: '0.8rem', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontWeight: 600, cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)' }}
               >
-                <Settings size={18} color="#a855f7" /> Hesap Ayarları
+                <Settings size={18} color="#2563eb" /> Hesap Ayarları
               </button>
               
               <button 
@@ -234,7 +234,7 @@ export default function ProfilPage() {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 10, background: 'linear-gradient(135deg, #0ea5e9, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: 'linear-gradient(135deg, #0ea5e9, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Target size={22} color="#fff" />
                   </div>
                   <div>
@@ -261,7 +261,7 @@ export default function ProfilPage() {
                   </div>
                   <div>
                     <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Hedef Bölüm</label>
-                    <div style={{ fontSize: '1.1rem', color: '#a855f7', fontWeight: 700, marginTop: '0.3rem' }}>
+                    <div style={{ fontSize: '1.1rem', color: '#38bdf8', fontWeight: 700, marginTop: '0.3rem' }}>
                       {user.target_department || 'Belirtilmedi'}
                     </div>
                   </div>
@@ -273,7 +273,7 @@ export default function ProfilPage() {
                   </p>
                   <button 
                     onClick={() => router.push('/ayarlar')}
-                    style={{ padding: '0.5rem 1.25rem', background: 'linear-gradient(135deg, #0ea5e9, #6366f1)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}
+                    style={{ padding: '0.5rem 1.25rem', background: 'linear-gradient(135deg, #0ea5e9, #2563eb)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}
                   >
                     🎯 Hedef Belirle
                   </button>
@@ -286,7 +286,7 @@ export default function ProfilPage() {
           <motion.div className="premium-card" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.2rem', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <BookOpen size={20} color={isTeacher ? "#38bdf8" : "#8b5cf6"} />
+                <BookOpen size={20} color={isTeacher ? "#38bdf8" : "#2563eb"} />
                 Eğitim ve Alan Bilgileri
               </h2>
               <button 
@@ -348,7 +348,7 @@ export default function ProfilPage() {
                 </div>
                 <div style={{ background: 'rgba(0,0,0,0.25)', padding: '1rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Lig Puanı</div>
-                  <div style={{ fontSize: '1.25rem', color: '#a855f7', fontWeight: 700, marginTop: '0.2rem' }}>{stats.league_points || 0}</div>
+                  <div style={{ fontSize: '1.25rem', color: '#2563eb', fontWeight: 700, marginTop: '0.2rem' }}>{stats.league_points || 0}</div>
                 </div>
               </div>
 

@@ -365,7 +365,7 @@ export default function AyarlarPage() {
       {/* Sol Sidebar Menü */}
       <div style={{ flex: '1 1 240px', maxWidth: '280px', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
         <h1 style={{ fontSize: '1.4rem', color: '#fff', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}>
-          <Settings size={22} color="#a855f7" /> Ayarlar & Profil
+          <Settings size={22} color="#2563eb" /> Ayarlar & Profil
         </h1>
         
         {[
@@ -530,7 +530,7 @@ export default function AyarlarPage() {
 
                       <div>
                         <label style={{ marginBottom: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <Target size={15} color="#a855f7" /> Hedef Bölüm
+                          <Target size={15} color="#2563eb" /> Hedef Bölüm
                         </label>
                         <input 
                           type="text" 
@@ -665,7 +665,7 @@ export default function AyarlarPage() {
                 <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                   {[
                     { color: '#38bdf8', name: 'Gök Mavisi' },
-                    { color: '#8b5cf6', name: 'Mor Gece' },
+                    { color: '#2563eb', name: 'Oxford Mavisi' },
                     { color: '#ec4899', name: 'Neon Pembe' },
                     { color: '#10b981', name: 'Zümrüt Yeşil' },
                     { color: '#f59e0b', name: 'Altın Kehribar' }
@@ -720,7 +720,7 @@ export default function AyarlarPage() {
                 <div style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.07)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                     <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Güç Profili</span>
-                    <Cpu size={18} color={powerState.eco ? '#10b981' : '#a855f7'} />
+                    <Cpu size={18} color={powerState.eco ? '#10b981' : '#38bdf8'} />
                   </div>
                   <div style={{ fontSize: '1.5rem', fontWeight: 800, color: powerState.eco ? '#10b981' : '#fff' }}>
                     {powerState.eco ? 'Eko Mod (Tasarruf)' : 'Dinamik Standart'}
@@ -926,7 +926,7 @@ export default function AyarlarPage() {
                 <div style={{ padding: '1.25rem 1.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.06)' }}>
                   <div style={{ marginBottom: '12px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <Shield size={18} color="#a855f7" />
+                      <Shield size={18} color="#2563eb" />
                       <h4 style={{ color: '#fff', margin: 0, fontSize: '0.95rem', fontWeight: 600 }}>
                         Akıllı Bildirim Kotası (Spam Koruma)
                       </h4>
@@ -951,12 +951,12 @@ export default function AyarlarPage() {
                             padding: '12px 14px',
                             borderRadius: '10px',
                             cursor: 'pointer',
-                            backgroundColor: isSelected ? 'rgba(168, 85, 247, 0.15)' : 'rgba(255, 255, 255, 0.02)',
-                            border: isSelected ? '1px solid rgba(168, 85, 247, 0.45)' : '1px solid rgba(255, 255, 255, 0.06)',
+                            backgroundColor: isSelected ? 'rgba(37, 99, 235, 0.15)' : 'rgba(255, 255, 255, 0.02)',
+                            border: isSelected ? '1px solid rgba(37, 99, 235, 0.45)' : '1px solid rgba(255, 255, 255, 0.06)',
                             transition: 'all 0.2s',
                           }}
                         >
-                          <div style={{ fontSize: '13px', fontWeight: 700, color: isSelected ? '#c084fc' : '#f8fafc' }}>
+                          <div style={{ fontSize: '13px', fontWeight: 700, color: isSelected ? '#38bdf8' : '#f8fafc' }}>
                             {opt.label}
                           </div>
                           <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '4px', lineHeight: 1.3 }}>

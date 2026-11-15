@@ -15,7 +15,7 @@ import { toast } from '@/context/ToastContext';
 import { triggerHaptic } from '@/lib/haptics';
 import { YKS_CURRICULUM_TAXONOMY } from '@/lib/curriculum-taxonomy';
 
-const COLORS = ['#38bdf8', '#8b5cf6', '#ec4899', '#10b981', '#f59e0b'];
+const COLORS = ['#38bdf8', '#2563eb', '#ec4899', '#10b981', '#f59e0b'];
 
 export default function AdminPage() {
   const { user, loading } = useAuth();
@@ -282,7 +282,7 @@ export default function AdminPage() {
               fontWeight: 700,
               cursor: 'pointer',
               border: 'none',
-              background: activeTab === 'factory' ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'transparent',
+              background: activeTab === 'factory' ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : 'transparent',
               color: activeTab === 'factory' ? '#fff' : '#94a3b8',
               transition: 'all 0.2s',
               display: 'flex',
@@ -309,7 +309,7 @@ export default function AdminPage() {
               </div>
             </div>
             <div className="premium-card" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <div style={{ padding: '1rem', background: 'rgba(168, 85, 247, 0.1)', borderRadius: '12px', color: '#a855f7' }}><BookOpen size={24} /></div>
+              <div style={{ padding: '1rem', background: 'rgba(37, 99, 235, 0.1)', borderRadius: '12px', color: '#38bdf8' }}><BookOpen size={24} /></div>
               <div>
                 <div style={{ fontSize: '1.8rem', color: '#fff', fontWeight: 800 }}>
                   {stats.totalQuestions?.toLocaleString('tr-TR')} Soru
@@ -410,7 +410,7 @@ export default function AdminPage() {
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                       <XAxis dataKey="day" stroke="var(--text-muted)" axisLine={false} tickLine={false} fontSize={12} />
                       <RechartsTooltip cursor={{fill: 'rgba(255,255,255,0.05)'}} contentStyle={{ background: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff' }} />
-                      <Bar dataKey="users" fill="#a855f7" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="users" fill="#2563eb" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -535,7 +535,7 @@ export default function AdminPage() {
                                 width: '34px',
                                 height: '34px',
                                 borderRadius: '50%',
-                                background: isAdmin ? 'linear-gradient(135deg,#ef4444,#dc2626)' : isTeacher ? 'linear-gradient(135deg,#10b981,#059669)' : 'linear-gradient(135deg,#6366f1,#8b5cf6)',
+                                background: isAdmin ? 'linear-gradient(135deg,#ef4444,#dc2626)' : isTeacher ? 'linear-gradient(135deg,#10b981,#059669)' : 'linear-gradient(135deg,#2563eb,#1d4ed8)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -620,9 +620,9 @@ export default function AdminPage() {
                                   style={{
                                     padding: '5px 10px',
                                     borderRadius: '6px',
-                                    background: 'rgba(168,85,247,0.12)',
-                                    color: '#c084fc',
-                                    border: '1px solid rgba(168,85,247,0.3)',
+                                    background: 'rgba(37,99,235,0.12)',
+                                    color: '#38bdf8',
+                                    border: '1px solid rgba(37,99,235,0.3)',
                                     fontSize: '0.78rem',
                                     fontWeight: 700,
                                     cursor: 'pointer'
@@ -650,10 +650,10 @@ export default function AdminPage() {
           
           {/* Üst Metrikler */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
-            <div className="premium-card" style={{ padding: '1.75rem', border: '1px solid rgba(99, 102, 241, 0.3)', background: 'linear-gradient(180deg, rgba(99, 102, 241, 0.1) 0%, rgba(15, 21, 35, 0.8) 100%)' }}>
+            <div className="premium-card" style={{ padding: '1.75rem', border: '1px solid rgba(37, 99, 235, 0.3)', background: 'linear-gradient(180deg, rgba(37, 99, 235, 0.1) 0%, rgba(15, 21, 35, 0.8) 100%)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                <span style={{ fontSize: '0.85rem', color: '#a5b4fc', fontWeight: 700 }}>ÖSYM Soru Bankası</span>
-                <Database size={18} color="#818cf8" />
+                <span style={{ fontSize: '0.85rem', color: '#93c5fd', fontWeight: 700 }}>ÖSYM Soru Bankası</span>
+                <Database size={18} color="#38bdf8" />
               </div>
               <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#fff' }}>
                 {factoryData?.stats?.totalQuestions?.toLocaleString('tr-TR') || '8.800'}
@@ -663,10 +663,10 @@ export default function AdminPage() {
               </div>
             </div>
 
-            <div className="premium-card" style={{ padding: '1.75rem', border: '1px solid rgba(168, 85, 247, 0.3)', background: 'linear-gradient(180deg, rgba(168, 85, 247, 0.1) 0%, rgba(15, 21, 35, 0.8) 100%)' }}>
+            <div className="premium-card" style={{ padding: '1.75rem', border: '1px solid rgba(2, 132, 199, 0.3)', background: 'linear-gradient(180deg, rgba(2, 132, 199, 0.1) 0%, rgba(15, 21, 35, 0.8) 100%)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                <span style={{ fontSize: '0.85rem', color: '#d8b4fe', fontWeight: 700 }}>Müfredat Bilgi Kartları</span>
-                <Layers size={18} color="#c084fc" />
+                <span style={{ fontSize: '0.85rem', color: '#7dd3fc', fontWeight: 700 }}>Müfredat Bilgi Kartları</span>
+                <Layers size={18} color="#38bdf8" />
               </div>
               <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#fff' }}>
                 {factoryData?.stats?.totalFlashcards?.toLocaleString('tr-TR') || '2.420'}
@@ -691,11 +691,11 @@ export default function AdminPage() {
           </div>
 
           {/* Fabrika Kontrol Paneli */}
-          <div className="premium-card" style={{ padding: '2rem', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
+          <div className="premium-card" style={{ padding: '2rem', border: '1px solid rgba(37, 99, 235, 0.2)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
                 <h2 style={{ fontSize: '1.4rem', color: '#fff', fontWeight: 800, margin: '0 0 0.25rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Cpu color="#818cf8" size={24} /> Otonom İçerik Jeneratörü
+                  <Cpu color="#38bdf8" size={24} /> Otonom İçerik Jeneratörü
                 </h2>
                 <p style={{ color: '#94a3b8', fontSize: '0.88rem', margin: 0 }}>
                   Seçtiğiniz ders ve konuya özel ÖSYM standartlarında soru veya KaTeX destekli hafıza kartı üretin.
@@ -711,9 +711,9 @@ export default function AdminPage() {
                     fontSize: '0.85rem',
                     fontWeight: 700,
                     cursor: 'pointer',
-                    border: '1px solid ' + (selectedType === 'questions' ? '#6366f1' : 'rgba(255,255,255,0.1)'),
-                    background: selectedType === 'questions' ? 'rgba(99, 102, 241, 0.2)' : 'transparent',
-                    color: selectedType === 'questions' ? '#c7d2fe' : '#94a3b8'
+                    border: '1px solid ' + (selectedType === 'questions' ? '#2563eb' : 'rgba(255,255,255,0.1)'),
+                    background: selectedType === 'questions' ? 'rgba(37, 99, 235, 0.2)' : 'transparent',
+                    color: selectedType === 'questions' ? '#93c5fd' : '#94a3b8'
                   }}
                 >
                   📝 Soru Bankası
@@ -726,9 +726,9 @@ export default function AdminPage() {
                     fontSize: '0.85rem',
                     fontWeight: 700,
                     cursor: 'pointer',
-                    border: '1px solid ' + (selectedType === 'flashcards' ? '#a855f7' : 'rgba(255,255,255,0.1)'),
-                    background: selectedType === 'flashcards' ? 'rgba(168, 85, 247, 0.2)' : 'transparent',
-                    color: selectedType === 'flashcards' ? '#e9d5ff' : '#94a3b8'
+                    border: '1px solid ' + (selectedType === 'flashcards' ? '#0284c7' : 'rgba(255,255,255,0.1)'),
+                    background: selectedType === 'flashcards' ? 'rgba(2, 132, 199, 0.2)' : 'transparent',
+                    color: selectedType === 'flashcards' ? '#7dd3fc' : '#94a3b8'
                   }}
                 >
                   🎴 Bilgi Kartı
@@ -785,7 +785,7 @@ export default function AdminPage() {
                 style={{
                   padding: '0.85rem 1.75rem',
                   borderRadius: '10px',
-                  background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                  background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
                   color: '#fff',
                   fontWeight: 700,
                   fontSize: '0.92rem',
@@ -794,7 +794,7 @@ export default function AdminPage() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
-                  boxShadow: '0 4px 16px rgba(99,102,241,0.35)',
+                  boxShadow: '0 4px 16px rgba(37,99,235,0.35)',
                   opacity: generating ? 0.7 : 1
                 }}
               >
@@ -851,7 +851,7 @@ export default function AdminPage() {
                         <span style={{ fontWeight: 700, color: '#f8fafc', fontSize: '0.95rem' }}>{subj}</span>
                         <div style={{ display: 'flex', gap: '8px', fontSize: '0.78rem' }}>
                           <span style={{ color: '#38bdf8' }}>{data.questionCount} Soru</span>
-                          <span style={{ color: '#c084fc' }}>{data.cardCount} Kart</span>
+                          <span style={{ color: '#38bdf8' }}>{data.cardCount} Kart</span>
                         </div>
                       </div>
                       <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
@@ -859,14 +859,14 @@ export default function AdminPage() {
                           style={{ 
                             height: '100%', 
                             width: `${percent}%`, 
-                            background: percent >= 80 ? 'linear-gradient(90deg, #10b981, #34d399)' : 'linear-gradient(90deg, #6366f1, #8b5cf6)',
+                            background: percent >= 80 ? 'linear-gradient(90deg, #10b981, #34d399)' : 'linear-gradient(90deg, #2563eb, #38bdf8)',
                             borderRadius: '3px'
                           }} 
                         />
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#64748b', marginTop: '6px' }}>
                         <span>Kapsanan Konu: {data.coveredCardTopics} / {data.totalTopics}</span>
-                        <span style={{ color: percent >= 80 ? '#34d399' : '#a5b4fc', fontWeight: 700 }}>%{percent}</span>
+                        <span style={{ color: percent >= 80 ? '#34d399' : '#93c5fd', fontWeight: 700 }}>%{percent}</span>
                       </div>
                     </div>
                   );

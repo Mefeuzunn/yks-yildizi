@@ -122,7 +122,7 @@ function ResetPasswordForm() {
       {/* Arka plan parlama efektleri */}
       <div 
         className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 pointer-events-none rounded-full blur-[120px] opacity-25"
-        style={{ background: 'radial-gradient(circle, #6366f1 0%, #a855f7 100%)' }}
+        style={{ background: 'radial-gradient(circle, rgba(37,99,235,0.4) 0%, rgba(56,189,248,0.1) 100%)' }}
       />
 
       <motion.div 
@@ -143,14 +143,14 @@ function ResetPasswordForm() {
               <div 
                 className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center shadow-lg"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(168, 85, 247, 0.2))',
-                  border: '1px solid rgba(139, 92, 246, 0.4)',
-                  color: '#c084fc'
+                  background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.25), rgba(56, 189, 248, 0.2))',
+                  border: '1px solid rgba(56, 189, 248, 0.4)',
+                  color: '#38bdf8'
                 }}
               >
                 <KeyRound size={30} />
               </div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-indigo-300 bg-indigo-950/60 border border-indigo-500/30 mb-3">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-sky-300 bg-sky-950/60 border border-sky-500/30 mb-3">
                 <Sparkles size={13} /> Güvenli Hesap Kurtarma
               </div>
               <h1 className="text-2xl font-black text-white tracking-tight">Yeni Şifre Belirle</h1>
@@ -238,8 +238,8 @@ function ResetPasswordForm() {
                   disabled={loading}
                   className="w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white transition-all active:scale-[0.98] disabled:opacity-50 mt-2"
                   style={{
-                    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%)',
-                    boxShadow: '0 4px 18px rgba(139, 92, 246, 0.45)',
+                    background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                    boxShadow: '0 4px 18px rgba(37, 99, 235, 0.45)',
                     cursor: loading ? 'not-allowed' : 'pointer'
                   }}
                 >
@@ -255,14 +255,14 @@ function ResetPasswordForm() {
               <div 
                 className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center shadow-lg"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(168, 85, 247, 0.2))',
-                  border: '1px solid rgba(139, 92, 246, 0.4)',
-                  color: '#c084fc'
+                  background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.25), rgba(56, 189, 248, 0.2))',
+                  border: '1px solid rgba(56, 189, 248, 0.4)',
+                  color: '#38bdf8'
                 }}
               >
                 <Lock size={30} />
               </div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-indigo-300 bg-indigo-950/60 border border-indigo-500/30 mb-3">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-sky-300 bg-sky-950/60 border border-sky-500/30 mb-3">
                 <Sparkles size={13} /> Şifremi Unuttum
               </div>
               <h1 className="text-2xl font-black text-white tracking-tight">Hesabınızı Kurtarın</h1>
@@ -289,8 +289,8 @@ function ResetPasswordForm() {
                 </p>
 
                 {demoLink && (
-                  <div className="p-3.5 rounded-xl bg-indigo-950/50 border border-indigo-500/30 text-left">
-                    <div className="text-[11px] font-bold text-indigo-300 uppercase tracking-wider mb-1 flex items-center gap-1">
+                  <div className="p-3.5 rounded-xl bg-sky-950/50 border border-sky-500/30 text-left">
+                    <div className="text-[11px] font-bold text-sky-300 uppercase tracking-wider mb-1 flex items-center gap-1">
                       <Sparkles size={12} /> Geliştirici & Test Bağlantısı
                     </div>
                     <p className="text-slate-400 text-[11px] mb-2">
@@ -298,7 +298,7 @@ function ResetPasswordForm() {
                     </p>
                     <Link
                       href={demoLink}
-                      className="text-xs text-indigo-400 hover:text-indigo-300 break-all underline font-mono"
+                      className="text-xs text-sky-400 hover:text-sky-300 break-all underline font-mono"
                     >
                       {demoLink}
                     </Link>
@@ -339,8 +339,8 @@ function ResetPasswordForm() {
                   disabled={loading}
                   className="w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white transition-all active:scale-[0.98] disabled:opacity-50 mt-2 flex items-center justify-center gap-2"
                   style={{
-                    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%)',
-                    boxShadow: '0 4px 18px rgba(139, 92, 246, 0.45)',
+                    background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                    boxShadow: '0 4px 18px rgba(37, 99, 235, 0.45)',
                     cursor: loading ? 'not-allowed' : 'pointer'
                   }}
                 >
@@ -349,7 +349,7 @@ function ResetPasswordForm() {
                 </button>
 
                 <div className="text-center pt-2">
-                  <Link href="/login" className="text-xs text-slate-400 hover:text-indigo-400 transition-colors inline-flex items-center gap-1">
+                  <Link href="/login" className="text-xs text-slate-400 hover:text-sky-400 transition-colors inline-flex items-center gap-1">
                     <ArrowLeft size={13} /> Giriş ekranına geri dön
                   </Link>
                 </div>
