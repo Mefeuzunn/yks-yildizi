@@ -194,7 +194,7 @@ export default function EksiklerPage() {
           onClick={handleStartBootcamp}
           disabled={bootcampLoading}
           className="btn-interactive"
-          style={{ background: 'linear-gradient(135deg, #a855f7, #6366f1)', border: 'none', borderRadius: '12px', padding: '0.75rem 1.25rem', color: '#fff', fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', minHeight: '44px' }}
+          style={{ background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', border: 'none', borderRadius: '12px', padding: '0.75rem 1.25rem', color: '#fff', fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', minHeight: '44px' }}
         >
           <Sparkles size={16} color="#fff" style={{ fill: '#fff' }} />
           {bootcampLoading ? 'Kamp Oluşturuluyor...' : '7 Günlük AI Kampı Başlat'}
@@ -202,10 +202,10 @@ export default function EksiklerPage() {
       </div>
 
       {bootcampMsg && (
-        <div style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(99, 102, 241, 0.1) 100%)', border: '1px solid rgba(168, 85, 247, 0.25)', padding: '1rem 1.25rem', borderRadius: 14, color: '#fff', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
-          <Sparkles size={20} color="#a855f7" style={{ fill: '#a855f7', flexShrink: 0 }} />
+        <div style={{ background: 'rgba(37, 99, 235, 0.1)', border: '1px solid rgba(37, 99, 235, 0.25)', padding: '1rem 1.25rem', borderRadius: 14, color: '#fff', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
+          <Sparkles size={20} color="#38bdf8" style={{ fill: '#38bdf8', flexShrink: 0 }} />
           <div style={{ textAlign: 'left' }}>
-            <strong>AI Koç Kamp Bildirimi:</strong> {bootcampMsg} <Link href="/program" style={{ color: '#a855f7', textDecoration: 'underline', fontWeight: 700, marginLeft: 6 }}>Programına Git &rarr;</Link>
+            <strong>AI Koç Kamp Bildirimi:</strong> {bootcampMsg} <Link href="/program" style={{ color: '#38bdf8', textDecoration: 'underline', fontWeight: 700, marginLeft: 6 }}>Programına Git &rarr;</Link>
           </div>
         </div>
       )}
@@ -239,7 +239,7 @@ export default function EksiklerPage() {
                     fontSize: '0.75rem',
                     fontWeight: 700,
                     cursor: 'pointer',
-                    background: categoryFilter === cat ? 'linear-gradient(135deg, #6366f1, #8b5cf6)' : 'transparent',
+                    background: categoryFilter === cat ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : 'transparent',
                     color: categoryFilter === cat ? '#fff' : '#94a3b8',
                     transition: 'all 0.15s ease'
                   }}
@@ -394,7 +394,7 @@ export default function EksiklerPage() {
                   <button 
                     className="btn-interactive"
                     style={{
-                      background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+                      background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
                       border: 'none',
                       borderRadius: '8px',
                       padding: '0.55rem 1rem',

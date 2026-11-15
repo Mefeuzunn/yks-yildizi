@@ -126,8 +126,8 @@ export default function AnalizPage() {
   }, []);
 
   const [planets, setPlanets] = useState<any[]>([
-    { name: 'Matematik', color: '#38bdf8', distance: 4.5, size: 0.65, speed: 0.45, progress: 65 },
-    { name: 'Fizik', color: '#8b5cf6', distance: 7.0, size: 0.5, speed: 0.28, progress: 42 },
+    { name: 'Matematik', color: '#2563eb', distance: 4.5, size: 0.65, speed: 0.45, progress: 65 },
+    { name: 'Fizik', color: '#0ea5e9', distance: 7.0, size: 0.5, speed: 0.28, progress: 42 },
     { name: 'Kimya', color: '#10b981', distance: 9.5, size: 0.75, speed: 0.58, progress: 85 },
     { name: 'Biyoloji', color: '#ec4899', distance: 12.0, size: 0.4, speed: 0.22, progress: 30 },
     { name: 'Türkçe', color: '#f43f5e', distance: 14.5, size: 0.58, speed: 0.18, progress: 70 },
@@ -167,12 +167,12 @@ export default function AnalizPage() {
   useEffect(() => {
     if (isDemoAccount) {
       setPlanets([
-        { name: 'Matematik', color: '#38bdf8', distance: 4.5, size: 0.72, speed: 0.45, progress: 94 },
-        { name: 'Fizik', color: '#8b5cf6', distance: 7.0, size: 0.68, speed: 0.38, progress: 88 },
+        { name: 'Matematik', color: '#2563eb', distance: 4.5, size: 0.72, speed: 0.45, progress: 94 },
+        { name: 'Fizik', color: '#0ea5e9', distance: 7.0, size: 0.68, speed: 0.38, progress: 88 },
         { name: 'Kimya', color: '#10b981', distance: 9.5, size: 0.74, speed: 0.52, progress: 95 },
         { name: 'Biyoloji', color: '#ec4899', distance: 12.0, size: 0.64, speed: 0.32, progress: 89 },
         { name: 'Türkçe', color: '#f43f5e', distance: 14.5, size: 0.70, speed: 0.40, progress: 92 },
-        { name: 'Geometri', color: '#f59e0b', distance: 17.0, size: 0.62, speed: 0.30, progress: 86 },
+        { name: 'Geometri', color: '#0284c7', distance: 17.0, size: 0.62, speed: 0.30, progress: 86 },
       ]);
       return;
     }
@@ -184,8 +184,8 @@ export default function AnalizPage() {
           const data = await res.json();
           if (data.subjects && Array.isArray(data.subjects) && data.subjects.length > 0) {
             const colorMap: Record<string, { color: string; distance: number }> = {
-              'Matematik': { color: '#38bdf8', distance: 4.5 },
-              'Fizik': { color: '#8b5cf6', distance: 7.0 },
+              'Matematik': { color: '#2563eb', distance: 4.5 },
+              'Fizik': { color: '#0ea5e9', distance: 7.0 },
               'Kimya': { color: '#10b981', distance: 9.5 },
               'Biyoloji': { color: '#ec4899', distance: 12.0 },
               'Türkçe': { color: '#f43f5e', distance: 14.5 },

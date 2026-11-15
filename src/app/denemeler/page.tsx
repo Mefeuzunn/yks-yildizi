@@ -572,10 +572,10 @@ export default function DenemelerPage() {
           <div
             style={{
               padding: '0.5rem 1rem',
-              backgroundColor: 'rgba(139, 92, 246, 0.14)',
-              border: '1px solid rgba(139, 92, 246, 0.3)',
+              backgroundColor: 'rgba(37, 99, 235, 0.14)',
+              border: '1px solid rgba(37, 99, 235, 0.3)',
               borderRadius: '12px',
-              color: '#c084fc',
+              color: '#38bdf8',
               fontSize: '0.85rem',
               fontWeight: 700,
               display: 'flex',
@@ -594,13 +594,13 @@ export default function DenemelerPage() {
               gap: '0.5rem',
               padding: '0.6rem 1.25rem',
               borderRadius: '12px',
-              background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(99, 102, 241, 0.2))',
-              color: '#c4b5fd',
-              border: '1px solid rgba(139, 92, 246, 0.4)',
+              background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.25), rgba(14, 165, 233, 0.2))',
+              color: '#93c5fd',
+              border: '1px solid rgba(37, 99, 235, 0.4)',
               fontSize: '0.875rem',
               fontWeight: 700,
               textDecoration: 'none',
-              boxShadow: '0 4px 14px rgba(99, 102, 241, 0.25)',
+              boxShadow: '0 4px 14px rgba(37, 99, 235, 0.25)',
               transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
           >
@@ -615,13 +615,13 @@ export default function DenemelerPage() {
               gap: '0.5rem',
               padding: '0.6rem 1.35rem',
               borderRadius: '12px',
-              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%)',
+              background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
               color: '#ffffff',
               fontSize: '0.875rem',
               fontWeight: 800,
               border: 'none',
               cursor: 'pointer',
-              boxShadow: '0 4px 18px rgba(139, 92, 246, 0.45)',
+              boxShadow: '0 4px 18px rgba(37, 99, 235, 0.45)',
               transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
           >
@@ -841,7 +841,7 @@ export default function DenemelerPage() {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.25rem', marginBottom: '1.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-              <div style={{ width: '46px', height: '46px', borderRadius: '12px', background: 'linear-gradient(135deg, #0ea5e9, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 20px rgba(14,165,233,0.3)' }}>
+              <div style={{ width: '46px', height: '46px', borderRadius: '12px', background: 'linear-gradient(135deg, #0ea5e9, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 20px rgba(14,165,233,0.3)' }}>
                 <Compass size={24} color="#fff" />
               </div>
               <div>
@@ -897,7 +897,7 @@ export default function DenemelerPage() {
                   <div style={{ fontSize: '1.05rem', color: '#38bdf8', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {userTarget.uni || 'Hedef Üniversite'}
                   </div>
-                  <div style={{ fontSize: '0.85rem', color: '#c084fc', fontWeight: 600, marginTop: '2px' }}>
+                  <div style={{ fontSize: '0.85rem', color: '#93c5fd', fontWeight: 600, marginTop: '2px' }}>
                     {userTarget.dept || 'Hedef Bölüm'}
                   </div>
                 </>
@@ -1017,7 +1017,7 @@ export default function DenemelerPage() {
                       </>
                     ) : (
                       <>
-                        <Sparkles size={16} color="#c084fc" />
+                        <Sparkles size={16} color="#38bdf8" />
                         <span>✨ AI Koç Analizi & Reçete</span>
                       </>
                     )}
@@ -1197,9 +1197,9 @@ export default function DenemelerPage() {
                 <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: '0.85rem', color: '#fff', fontWeight: 800, display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <Sparkles size={16} color="#c084fc" /> AI Optik Okuyucu & Deneme Analizör
+                      <Sparkles size={16} color="#38bdf8" /> AI Optik Okuyucu & Deneme Analizör
                     </span>
-                    <span style={{ fontSize: '0.75rem', color: '#c084fc', background: 'rgba(168, 85, 247, 0.15)', border: '1px solid rgba(168, 85, 247, 0.3)', padding: '2px 8px', borderRadius: 20, fontWeight: 700 }}>PRO</span>
+                    <span style={{ fontSize: '0.75rem', color: '#38bdf8', background: 'rgba(37, 99, 235, 0.15)', border: '1px solid rgba(37, 99, 235, 0.3)', padding: '2px 8px', borderRadius: 20, fontWeight: 700 }}>PRO</span>
                   </div>
                   
                   {isScanning ? (
@@ -1234,7 +1234,7 @@ export default function DenemelerPage() {
                       type="button" 
                       onClick={handleSimulateScan}
                       className="active:scale-[0.98]"
-                      style={{ padding: '0.75rem', background: 'rgba(168, 85, 247, 0.1)', color: '#c084fc', border: '1px dashed rgba(168, 85, 247, 0.35)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}
+                      style={{ padding: '0.75rem', background: 'rgba(37, 99, 235, 0.08)', color: '#38bdf8', border: '1px dashed rgba(37, 99, 235, 0.35)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}
                     >
                       <span>📸</span>
                       <span>Optik Form / Sonuç Belgesi Fotoğrafı Yükle</span>
@@ -1329,20 +1329,20 @@ export default function DenemelerPage() {
                 maxWidth: '680px',
                 maxHeight: '85vh',
                 overflowY: 'auto',
-                boxShadow: '0 25px 50px -12px rgba(139, 92, 246, 0.25)',
+                boxShadow: '0 25px 50px -12px rgba(37, 99, 235, 0.25)',
                 position: 'relative'
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'linear-gradient(135deg, #8b5cf6, #d946ef)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 20px rgba(139, 92, 246, 0.4)' }}>
+                  <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 20px rgba(37, 99, 235, 0.4)' }}>
                     <Sparkles size={22} color="#fff" />
                   </div>
                   <div>
                     <h3 style={{ color: '#fff', fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>
                       AI Koç {activeTab} Deneme Teşhisi
                     </h3>
-                    <p style={{ color: '#c4b5fd', fontSize: '0.8rem', margin: '2px 0 0' }}>
+                    <p style={{ color: '#93c5fd', fontSize: '0.8rem', margin: '2px 0 0' }}>
                       Net analizi, kaçan fırsatlar ve kişisel çalışma reçetesi
                     </p>
                   </div>
@@ -1358,8 +1358,8 @@ export default function DenemelerPage() {
 
               {isAiAnalyzing ? (
                 <div style={{ padding: '3rem 1rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-                  <Loader2 size={36} color="#8b5cf6" className="animate-spin" />
-                  <p style={{ color: '#c4b5fd', fontSize: '0.95rem', fontWeight: 600, maxWidth: '400px' }}>
+                  <Loader2 size={36} color="#2563eb" className="animate-spin" />
+                  <p style={{ color: '#93c5fd', fontSize: '0.95rem', fontWeight: 600, maxWidth: '400px' }}>
                     Yapay zeka son {activeTab} denemeni, hata defterindeki eksiklerini ve sıralama hedefini harmanlıyor...
                   </p>
                 </div>
@@ -1377,12 +1377,12 @@ export default function DenemelerPage() {
               ) : aiAnalysisData ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                   {/* Genel Değerlendirme */}
-                  <div style={{ padding: '1.25rem', background: 'rgba(139, 92, 246, 0.08)', border: '1px solid rgba(139, 92, 246, 0.25)', borderRadius: '16px' }}>
+                  <div style={{ padding: '1.25rem', background: 'rgba(37, 99, 235, 0.08)', border: '1px solid rgba(37, 99, 235, 0.25)', borderRadius: '16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                       <span style={{ fontSize: '1rem' }}>💡</span>
                       <h4 style={{ color: '#e2e8f0', fontSize: '0.95rem', fontWeight: 700, margin: 0 }}>Koçun Genel Değerlendirmesi</h4>
                     </div>
-                    <p style={{ color: '#c4b5fd', fontSize: '0.875rem', lineHeight: 1.6, margin: 0 }}>
+                    <p style={{ color: '#cbd5e1', fontSize: '0.875rem', lineHeight: 1.6, margin: 0 }}>
                       {aiAnalysisData.overallEvaluation}
                     </p>
                   </div>
@@ -1453,7 +1453,7 @@ export default function DenemelerPage() {
                                 <span style={{ color: '#e2e8f0', fontSize: '0.85rem', fontWeight: 700 }}>
                                   {item.focusSubject} • {item.topic}
                                 </span>
-                                <span style={{ color: '#a78bfa', fontSize: '0.75rem', fontWeight: 600 }}>
+                                <span style={{ color: '#38bdf8', fontSize: '0.75rem', fontWeight: 600 }}>
                                   🎯 {item.targetQuestions} Soru
                                 </span>
                               </div>
@@ -1469,7 +1469,7 @@ export default function DenemelerPage() {
 
                   {/* Motivasyon */}
                   {aiAnalysisData.motivationalQuote && (
-                    <div style={{ padding: '0.75rem 1rem', background: 'linear-gradient(135deg, rgba(99,102,241,0.1), rgba(168,85,247,0.05))', borderRadius: '12px', borderLeft: '3px solid #8b5cf6' }}>
+                    <div style={{ padding: '0.75rem 1rem', background: 'rgba(37, 99, 235, 0.08)', borderRadius: '12px', borderLeft: '3px solid #2563eb' }}>
                       <p style={{ color: '#e2e8f0', fontSize: '0.8rem', fontStyle: 'italic', margin: 0 }}>
                         "{aiAnalysisData.motivationalQuote}"
                       </p>
@@ -1484,13 +1484,13 @@ export default function DenemelerPage() {
                         flex: 1,
                         padding: '10px 16px',
                         borderRadius: '12px',
-                        background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+                        background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
                         color: '#fff',
                         fontSize: '0.875rem',
                         fontWeight: 700,
                         textAlign: 'center',
                         textDecoration: 'none',
-                        boxShadow: '0 4px 15px rgba(99,102,241,0.3)',
+                        boxShadow: '0 4px 15px rgba(37, 99, 235, 0.3)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center'

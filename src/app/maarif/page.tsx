@@ -26,13 +26,13 @@ import { MaarifCurriculumNode, MaarifExamScenario, MaarifSubject, MaarifGrade } 
 import MaarifAstraTutorChat from '@/components/maarif/MaarifAstraTutorChat';
 
 const SUBJECT_LIST: { id: MaarifSubject; name: string; emoji: string; color: string }[] = [
-  { id: 'Matematik', name: 'Matematik', emoji: '📐', color: '#3b82f6' },
-  { id: 'Fizik', name: 'Fizik', emoji: '⚡', color: '#8b5cf6' },
-  { id: 'Kimya', name: 'Kimya', emoji: '🧪', color: '#10b981' },
-  { id: 'Biyoloji', name: 'Biyoloji', emoji: '🧬', color: '#ec4899' },
-  { id: 'Türk Dili ve Edebiyatı', name: 'Edebiyat', emoji: '📖', color: '#f59e0b' },
-  { id: 'Tarih', name: 'Tarih', emoji: '📜', color: '#d97706' },
-  { id: 'Coğrafya', name: 'Coğrafya', emoji: '🌍', color: '#06b6d4' },
+  { id: 'Matematik', name: 'Matematik', emoji: '📐', color: '#2563eb' },
+  { id: 'Fizik', name: 'Fizik', emoji: '⚡', color: '#0ea5e9' },
+  { id: 'Kimya', name: 'Kimya', emoji: '🧪', color: '#0d9488' },
+  { id: 'Biyoloji', name: 'Biyoloji', emoji: '🧬', color: '#059669' },
+  { id: 'Türk Dili ve Edebiyatı', name: 'Edebiyat', emoji: '📖', color: '#d97706' },
+  { id: 'Tarih', name: 'Tarih', emoji: '📜', color: '#b45309' },
+  { id: 'Coğrafya', name: 'Coğrafya', emoji: '🌍', color: '#047857' },
 ];
 
 export default function MaarifPortalPage() {

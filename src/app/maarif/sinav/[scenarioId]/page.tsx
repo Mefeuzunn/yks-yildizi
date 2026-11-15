@@ -701,13 +701,13 @@ export default function MaarifExamSessionPage({ params }: { params: Promise<{ sc
                   gap: '8px',
                   padding: '9px 18px',
                   borderRadius: '12px',
-                  background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(99, 102, 241, 0.2))',
-                  border: '1px solid rgba(139, 92, 246, 0.45)',
-                  color: '#c084fc',
+                  background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.25), rgba(14, 165, 233, 0.2))',
+                  border: '1px solid rgba(37, 99, 235, 0.45)',
+                  color: '#38bdf8',
                   fontWeight: 800,
                   fontSize: '12.5px',
                   cursor: isBulkEvaluating ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 4px 14px rgba(139, 92, 246, 0.25)',
+                  boxShadow: '0 4px 14px rgba(37, 99, 235, 0.25)',
                   transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
                 }}
               >
@@ -776,10 +776,10 @@ export default function MaarifExamSessionPage({ params }: { params: Promise<{ sc
 
                   {/* AstraTutor Yapay Zeka Rubrik Değerlendirmesi */}
                   {evalData ? (
-                    <div style={{ backgroundColor: 'rgba(139, 92, 246, 0.08)', border: '1px solid rgba(139, 92, 246, 0.25)', borderRadius: '12px', padding: '12px 14px', marginBottom: '12px' }}>
+                    <div style={{ backgroundColor: 'rgba(37, 99, 235, 0.08)', border: '1px solid rgba(37, 99, 235, 0.25)', borderRadius: '12px', padding: '12px 14px', marginBottom: '12px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-                        <Sparkles size={15} color="#c084fc" />
-                        <span style={{ fontSize: '12px', fontWeight: 800, color: '#c084fc' }}>
+                        <Sparkles size={15} color="#38bdf8" />
+                        <span style={{ fontSize: '12px', fontWeight: 800, color: '#38bdf8' }}>
                           AstraTutor MEB Rubrik Değerlendirmesi:
                         </span>
                       </div>
@@ -834,9 +834,9 @@ export default function MaarifExamSessionPage({ params }: { params: Promise<{ sc
                           gap: '6px',
                           padding: '7px 14px',
                           borderRadius: '10px',
-                          backgroundColor: myAnswer.trim() ? 'rgba(139, 92, 246, 0.15)' : 'rgba(255, 255, 255, 0.05)',
-                          border: myAnswer.trim() ? '1px solid rgba(139, 92, 246, 0.3)' : '1px solid rgba(255, 255, 255, 0.1)',
-                          color: myAnswer.trim() ? '#c084fc' : '#64748b',
+                          backgroundColor: myAnswer.trim() ? 'rgba(37, 99, 235, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                          border: myAnswer.trim() ? '1px solid rgba(37, 99, 235, 0.3)' : '1px solid rgba(255, 255, 255, 0.1)',
+                          color: myAnswer.trim() ? '#38bdf8' : '#64748b',
                           fontWeight: 700,
                           fontSize: '12px',
                           cursor: myAnswer.trim() && !isCurrentEvaluating ? 'pointer' : 'not-allowed',
@@ -865,8 +865,8 @@ export default function MaarifExamSessionPage({ params }: { params: Promise<{ sc
 
                   {/* MEB Örnek Çözüm Adımları */}
                   {q.sample_solutions && q.sample_solutions.length > 0 && (
-                    <div style={{ backgroundColor: 'rgba(139, 92, 246, 0.05)', border: '1px solid rgba(139, 92, 246, 0.2)', padding: '10px 12px', borderRadius: '10px' }}>
-                      <div style={{ fontSize: '11px', fontWeight: 800, color: '#c084fc', marginBottom: '4px' }}>
+                    <div style={{ backgroundColor: 'rgba(37, 99, 235, 0.05)', border: '1px solid rgba(37, 99, 235, 0.2)', padding: '10px 12px', borderRadius: '10px' }}>
+                      <div style={{ fontSize: '11px', fontWeight: 800, color: '#38bdf8', marginBottom: '4px' }}>
                         💡 MEB Örnek Çözümü:
                       </div>
                       <div style={{ fontSize: '12px', color: '#e2e8f0', lineHeight: 1.5 }}>

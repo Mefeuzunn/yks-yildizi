@@ -308,7 +308,7 @@ export default function HataDefteriPage() {
             <button 
               onClick={() => startErrorQuizInStudio(false)}
               className="btn-interactive"
-              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.4rem', background: 'linear-gradient(135deg, #8b5cf6, #6366f1)', border: 'none', color: '#fff', fontWeight: 700, borderRadius: '12px', cursor: 'pointer', boxShadow: '0 4px 16px rgba(99,102,241,0.35)' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.4rem', background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', border: 'none', color: '#fff', fontWeight: 700, borderRadius: '12px', cursor: 'pointer', boxShadow: '0 4px 16px rgba(37, 99, 235, 0.35)' }}
             >
               <Sparkles size={18} /> Stüdyoda Çöz (ÖSYM Modu)
             </button>
@@ -366,7 +366,7 @@ export default function HataDefteriPage() {
                   style={{
                     padding: '0.7rem 1.3rem',
                     borderRadius: '10px',
-                    background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+                    background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
                     color: '#fff',
                     border: 'none',
                     fontWeight: 700,
@@ -475,9 +475,9 @@ export default function HataDefteriPage() {
                 borderRadius: '99px',
                 fontSize: '0.8rem',
                 fontWeight: 600,
-                border: activeFilter === 'Tümü' && boxFilter === 'all' ? '1px solid #6366f1' : '1px solid rgba(255,255,255,0.1)',
-                background: activeFilter === 'Tümü' && boxFilter === 'all' ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.03)',
-                color: activeFilter === 'Tümü' && boxFilter === 'all' ? '#c4b5fd' : 'var(--text-muted)',
+                border: activeFilter === 'Tümü' && boxFilter === 'all' ? '1px solid #2563eb' : '1px solid rgba(255,255,255,0.1)',
+                background: activeFilter === 'Tümü' && boxFilter === 'all' ? 'rgba(37, 99, 235, 0.2)' : 'rgba(255,255,255,0.03)',
+                color: activeFilter === 'Tümü' && boxFilter === 'all' ? '#93c5fd' : 'var(--text-muted)',
                 cursor: 'pointer',
               }}
             >
@@ -682,7 +682,7 @@ export default function HataDefteriPage() {
               {/* Modal Header */}
               <div style={{ padding: '1.25rem 1.75rem', background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h3 style={{ fontSize: '1.15rem', color: '#fff', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Zap size={18} color="#a855f7" /> Leitner Aralıklı Tekrar Sınavı
+                  <Zap size={18} color="#38bdf8" /> Leitner Aralıklı Tekrar Sınavı
                 </h3>
                 {currentQuizIdx >= 0 && (
                   <span style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>
@@ -699,7 +699,7 @@ export default function HataDefteriPage() {
                   <div>
                     {/* Lesson Subject & Topic badge */}
                     <div style={{ marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <span style={{ display: 'inline-flex', padding: '0.2rem 0.5rem', background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: '4px', fontSize: '0.75rem', color: '#a5b4fc', fontWeight: 600 }}>
+                      <span style={{ display: 'inline-flex', padding: '0.2rem 0.5rem', background: 'rgba(37,99,235,0.15)', border: '1px solid rgba(37,99,235,0.3)', borderRadius: '4px', fontSize: '0.75rem', color: '#38bdf8', fontWeight: 600 }}>
                         {quizQuestions[currentQuizIdx].subject}
                       </span>
                       <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
@@ -735,8 +735,8 @@ export default function HataDefteriPage() {
                             color = 'var(--text-muted)';
                           }
                         } else if (isSelected) {
-                          bg = 'rgba(99,102,241,0.25)';
-                          border = '1px solid #6366f1';
+                          bg = 'rgba(37,99,235,0.25)';
+                          border = '1px solid #2563eb';
                         }
 
                         return (
@@ -806,7 +806,7 @@ export default function HataDefteriPage() {
                     <button
                       onClick={() => setIsQuizActive(false)}
                       className="btn-interactive"
-                      style={{ width: '100%', padding: '0.8rem', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', border: 'none', color: '#fff', fontWeight: 700, borderRadius: '10px', cursor: 'pointer' }}
+                      style={{ width: '100%', padding: '0.8rem', background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', border: 'none', color: '#fff', fontWeight: 700, borderRadius: '10px', cursor: 'pointer' }}
                     >
                       Kapat ve Deftere Dön
                     </button>
