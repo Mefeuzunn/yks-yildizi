@@ -131,7 +131,7 @@ export default function StorePage() {
             particleCount: 80,
             spread: 60,
             origin: { y: 0.7 },
-            colors: [item.color, '#6366f1', '#10b981']
+            colors: [item.color, '#2563eb', '#10b981']
           });
         } else {
           setEquippedIds(prev => prev.filter(id => id !== item.id));
@@ -303,13 +303,13 @@ export default function StorePage() {
                   className="shop-buy-btn active:scale-[0.98]"
                   style={{
                     width: '100%', padding: '12px', borderRadius: '14px',
-                    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                    background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
                     color: '#fff',
                     border: 'none', fontWeight: 800, fontSize: '14px',
                     cursor: equippingId === item.id ? 'not-allowed' : 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                     transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)', marginTop: 'auto',
-                    boxShadow: '0 4px 16px rgba(99, 102, 241, 0.35)'
+                    boxShadow: '0 4px 16px rgba(37, 99, 235, 0.35)'
                   }}
                 >
                   {equippingId === item.id ? <Loader2 className="animate-spin" size={18} /> : <Sparkles size={18} />}

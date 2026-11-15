@@ -293,10 +293,10 @@ export default function ForumPage() {
           style={{ 
             display: 'flex', alignItems: 'center', gap: '0.5rem',
             padding: '0.65rem 1.4rem', borderRadius: '12px',
-            background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
+            background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
             color: '#fff', fontWeight: 800, fontSize: '0.9rem',
             border: 'none', cursor: 'pointer',
-            boxShadow: '0 4px 18px rgba(139, 92, 246, 0.45)',
+            boxShadow: '0 4px 18px rgba(37, 99, 235, 0.4)',
             transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
           }}
         >
@@ -320,9 +320,9 @@ export default function ForumPage() {
               fontWeight: 700,
               whiteSpace: 'nowrap',
               cursor: 'pointer',
-              border: selectedTag === t ? '1px solid rgba(139, 92, 246, 0.6)' : '1px solid rgba(255, 255, 255, 0.08)',
-              background: selectedTag === t ? 'rgba(139, 92, 246, 0.25)' : 'rgba(15, 21, 35, 0.6)',
-              color: selectedTag === t ? '#c084fc' : '#94a3b8',
+              border: selectedTag === t ? '1px solid rgba(37, 99, 235, 0.6)' : '1px solid rgba(255, 255, 255, 0.08)',
+              background: selectedTag === t ? 'rgba(37, 99, 235, 0.2)' : 'rgba(15, 21, 35, 0.6)',
+              color: selectedTag === t ? '#38bdf8' : '#94a3b8',
               transition: 'all 0.2s ease'
             }}
           >
@@ -334,7 +334,7 @@ export default function ForumPage() {
       {/* İçerik Listesi */}
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', padding: '5rem' }}>
-          <Loader2 size={36} color="#8b5cf6" className="spin" />
+          <Loader2 size={36} color="#2563eb" className="spin" />
         </div>
       ) : filteredPosts.length === 0 ? (
         <div className="premium-card" style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
@@ -369,8 +369,8 @@ export default function ForumPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.4rem', flexWrap: 'wrap' }}>
                     <span style={{ 
                       fontSize: '0.72rem', fontWeight: 800, padding: '3px 8px', 
-                      background: 'rgba(139, 92, 246, 0.18)', color: '#c084fc', 
-                      borderRadius: '6px', border: '1px solid rgba(139, 92, 246, 0.3)' 
+                      background: 'rgba(37, 99, 235, 0.15)', color: '#38bdf8', 
+                      borderRadius: '6px', border: '1px solid rgba(37, 99, 235, 0.3)' 
                     }}>
                       {post.tag}
                     </span>
@@ -455,7 +455,7 @@ export default function ForumPage() {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(139, 92, 246, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c084fc' }}>
+                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(37, 99, 235, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#38bdf8' }}>
                     <Camera size={20} />
                   </div>
                   <h2 style={{ fontSize: '1.35rem', color: '#fff', margin: 0, fontWeight: 800 }}>Yeni Soru / Konu Aç</h2>
@@ -508,7 +508,7 @@ export default function ForumPage() {
                   />
 
                   {imagePreview ? (
-                    <div style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(139, 92, 246, 0.4)', background: '#000' }}>
+                    <div style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(37, 99, 235, 0.4)', background: '#000' }}>
                       <img 
                         src={imagePreview} 
                         alt="Yüklenen Soru" 
@@ -532,13 +532,13 @@ export default function ForumPage() {
                       onClick={() => fileInputRef.current?.click()}
                       style={{
                         padding: '1.5rem', borderRadius: '12px',
-                        border: '2px dashed rgba(139, 92, 246, 0.35)',
-                        background: 'rgba(139, 92, 246, 0.05)',
+                        border: '2px dashed rgba(37, 99, 235, 0.35)',
+                        background: 'rgba(37, 99, 235, 0.05)',
                         textAlign: 'center', cursor: 'pointer',
                         transition: 'border-color 0.2s'
                       }}
                     >
-                      <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(139, 92, 246, 0.15)', margin: '0 auto 0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c084fc' }}>
+                      <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(37, 99, 235, 0.15)', margin: '0 auto 0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#38bdf8' }}>
                         <Upload size={20} />
                       </div>
                       <div style={{ color: '#e2e8f0', fontSize: '0.875rem', fontWeight: 600 }}>Fotoğraf Seç veya Sürükle</div>
@@ -572,7 +572,7 @@ export default function ForumPage() {
                     disabled={isSubmitting}
                     style={{ 
                       padding: '0.7rem 1.6rem', borderRadius: '10px', 
-                      background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)', 
+                      background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)', 
                       color: '#fff', fontWeight: 800, border: 'none', cursor: 'pointer',
                       display: 'flex', alignItems: 'center', gap: '0.5rem'
                     }}
@@ -613,7 +613,7 @@ export default function ForumPage() {
               <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', background: 'rgba(15, 21, 35, 0.8)' }}>
                 <div style={{ flex: 1, paddingRight: '1rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: '0.75rem', padding: '3px 8px', background: 'rgba(139, 92, 246, 0.2)', borderRadius: '6px', color: '#c084fc', fontWeight: 800 }}>
+                    <span style={{ fontSize: '0.75rem', padding: '3px 8px', background: 'rgba(37, 99, 235, 0.15)', borderRadius: '6px', color: '#38bdf8', fontWeight: 800 }}>
                       {activePost.tag}
                     </span>
                     <UserIdentityBadge 
@@ -646,12 +646,12 @@ export default function ForumPage() {
               {activePost.image_url && (
                 <div style={{ padding: '1rem 1.5rem', background: '#060810', borderBottom: '1px solid rgba(255,255,255,0.08)', position: 'relative' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                    <span style={{ fontSize: '0.75rem', color: '#a5b4fc', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <span style={{ fontSize: '0.75rem', color: '#38bdf8', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '5px' }}>
                       <Camera size={14} /> Soru Fotoğrafı (Büyütmek için tıklayın)
                     </span>
                     <button 
                       onClick={() => setLightboxImage(activePost.image_url)}
-                      style={{ background: 'none', border: 'none', color: '#818cf8', cursor: 'pointer', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}
+                      style={{ background: 'none', border: 'none', color: '#60a5fa', cursor: 'pointer', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}
                     >
                       <Maximize2 size={13} /> Tam Ekran
                     </button>
@@ -681,7 +681,7 @@ export default function ForumPage() {
 
                 {commentsLoading ? (
                   <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
-                    <Loader2 size={28} color="#8b5cf6" className="spin" />
+                    <Loader2 size={28} color="#2563eb" className="spin" />
                   </div>
                 ) : comments.length === 0 ? (
                   <div style={{ textAlign: 'center', color: '#64748b', padding: '3rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px' }}>
@@ -735,7 +735,7 @@ export default function ForumPage() {
                       className="active:scale-[0.98]"
                       style={{ 
                         padding: '0 1.5rem', borderRadius: '12px', 
-                        background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)', 
+                        background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)', 
                         color: '#fff', fontWeight: 800, border: 'none', cursor: 'pointer',
                         display: 'flex', alignItems: 'center', gap: '0.5rem'
                       }} 

@@ -135,8 +135,8 @@ export default function LeaderboardPage() {
             fontSize: '12px',
             fontWeight: 700,
             cursor: 'pointer',
-            border: selectedTierFilter === 'Hepsi' ? '1px solid #6366f1' : '1px solid transparent',
-            background: selectedTierFilter === 'Hepsi' ? 'rgba(99,102,241,0.2)' : 'transparent',
+            border: selectedTierFilter === 'Hepsi' ? '1px solid #2563eb' : '1px solid transparent',
+            background: selectedTierFilter === 'Hepsi' ? 'rgba(37, 99, 235, 0.2)' : 'transparent',
             color: selectedTierFilter === 'Hepsi' ? '#fff' : '#94a3b8',
             whiteSpace: 'nowrap',
             transition: 'all 0.15s ease'
@@ -259,7 +259,7 @@ export default function LeaderboardPage() {
                   transition={{ duration: 1.2, ease: 'easeOut' }} 
                   style={{ 
                     height: '100%', 
-                    background: `linear-gradient(90deg, #6366f1, ${currentLeagueInfo.color})`, 
+                    background: `linear-gradient(90deg, #2563eb, ${currentLeagueInfo.color})`, 
                     borderRadius: '999px', 
                     boxShadow: `0 0 10px ${currentLeagueInfo.glow}` 
                   }} 
@@ -427,11 +427,11 @@ export default function LeaderboardPage() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                           <div style={{
                             width: '36px', height: '36px', borderRadius: '50%',
-                            background: userRow.avatarEmoji ? `${userRow.avatarColor || '#6366f1'}25` : 'linear-gradient(135deg, #334155, #1e293b)',
+                            background: userRow.avatarEmoji ? `${userRow.avatarColor || '#2563eb'}25` : 'linear-gradient(135deg, #334155, #1e293b)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             fontSize: userRow.avatarEmoji ? '18px' : '13px', fontWeight: 700, color: '#fff',
-                            border: userRow.avatarEmoji ? `1.5px solid ${userRow.avatarColor || '#6366f1'}` : (isCurrentUser ? '2px solid #6366f1' : '1px solid rgba(255,255,255,0.1)'),
-                            boxShadow: userRow.avatarEmoji ? `0 0 10px ${userRow.avatarColor || '#6366f1'}40` : 'none',
+                            border: userRow.avatarEmoji ? `1.5px solid ${userRow.avatarColor || '#2563eb'}` : (isCurrentUser ? '2px solid #2563eb' : '1px solid rgba(255,255,255,0.1)'),
+                            boxShadow: userRow.avatarEmoji ? `0 0 10px ${userRow.avatarColor || '#2563eb'}40` : 'none',
                             flexShrink: 0
                           }}>
                             {userRow.avatarEmoji || (userRow.name || 'U').substring(0,2).toUpperCase()}
@@ -523,11 +523,11 @@ export default function LeaderboardPage() {
                       {/* Avatar */}
                       <div style={{
                         width: '36px', height: '36px', borderRadius: '50%',
-                        background: userRow.avatarEmoji ? `${userRow.avatarColor || '#6366f1'}25` : 'linear-gradient(135deg, #334155, #1e293b)',
+                        background: userRow.avatarEmoji ? `${userRow.avatarColor || '#2563eb'}25` : 'linear-gradient(135deg, #334155, #1e293b)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         fontSize: userRow.avatarEmoji ? '18px' : '12px', fontWeight: 700, color: '#fff',
-                        border: userRow.avatarEmoji ? `1.5px solid ${userRow.avatarColor || '#6366f1'}` : (isCurrentUser ? '2px solid #6366f1' : '1px solid rgba(255,255,255,0.1)'),
-                        boxShadow: userRow.avatarEmoji ? `0 0 10px ${userRow.avatarColor || '#6366f1'}40` : 'none',
+                        border: userRow.avatarEmoji ? `1.5px solid ${userRow.avatarColor || '#2563eb'}` : (isCurrentUser ? '2px solid #2563eb' : '1px solid rgba(255,255,255,0.1)'),
+                        boxShadow: userRow.avatarEmoji ? `0 0 10px ${userRow.avatarColor || '#2563eb'}40` : 'none',
                         flexShrink: 0
                       }}>
                         {userRow.avatarEmoji || (userRow.name || 'U').substring(0,2).toUpperCase()}

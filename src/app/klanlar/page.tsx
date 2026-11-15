@@ -13,7 +13,7 @@ const CLAN_CREATE_MIN_XP = 1000; // Level 3 (1000 XP)
 const CLAN_CREATE_MIN_LEVEL = 3;
 
 const ICON_OPTIONS = ['⚔️', '🛡️', '🔥', '⚡', '🌟', '🏆', '🦅', '🐉', '🎯', '💎', '🧠', '🚀'];
-const COLOR_OPTIONS = ['#8b5cf6', '#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#ec4899', '#06b6d4', '#f97316'];
+const COLOR_OPTIONS = ['#2563eb', '#0284c7', '#ef4444', '#10b981', '#f59e0b', '#ec4899', '#06b6d4', '#f97316'];
 
 export default function KlanlarPage() {
   const { user } = useAuth();
@@ -28,7 +28,7 @@ export default function KlanlarPage() {
   const [myLevel, setMyLevel] = useState(1);
 
   // Create form
-  const [createForm, setCreateForm] = useState({ name: '', description: '', icon: '⚔️', color: '#8b5cf6' });
+  const [createForm, setCreateForm] = useState({ name: '', description: '', icon: '⚔️', color: '#2563eb' });
   const [createLoading, setCreateLoading] = useState(false);
   const [createError, setCreateError] = useState('');
 
@@ -236,7 +236,7 @@ export default function KlanlarPage() {
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
-        <Loader2 size={40} style={{ color: '#8b5cf6', animation: 'spin 1s linear infinite' }} />
+        <Loader2 size={40} style={{ color: '#2563eb', animation: 'spin 1s linear infinite' }} />
         <style>{`@keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
       </div>
     );
@@ -263,7 +263,7 @@ export default function KlanlarPage() {
             <span style={{ color: '#64748b', fontSize: '0.75rem', marginLeft: 'auto' }}>{myXp} XP</span>
           </div>
           <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '99px', height: '6px', overflow: 'hidden' }}>
-            <div style={{ width: `${levelProgressPct}%`, height: '100%', background: 'linear-gradient(90deg, #8b5cf6, #ec4899)', borderRadius: '99px', transition: 'width 0.5s ease' }} />
+            <div style={{ width: `${levelProgressPct}%`, height: '100%', background: 'linear-gradient(90deg, #2563eb, #38bdf8)', borderRadius: '99px', transition: 'width 0.5s ease' }} />
           </div>
           <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '0.25rem' }}>{levelProgressInfo.currentLevelXp}/{XP_PER_LEVEL} XP → Seviye {myLevel + 1}</div>
         </div>
@@ -416,19 +416,19 @@ export default function KlanlarPage() {
                 <div style={{
                   padding: '1rem',
                   borderRadius: '12px',
-                  background: warsData.myWarMatchup.clan1.isUserClan ? 'rgba(139, 92, 246, 0.15)' : 'rgba(255,255,255,0.03)',
-                  border: warsData.myWarMatchup.clan1.isUserClan ? '1px solid rgba(139, 92, 246, 0.4)' : '1px solid rgba(255,255,255,0.06)'
+                  background: warsData.myWarMatchup.clan1.isUserClan ? 'rgba(37, 99, 235, 0.15)' : 'rgba(255,255,255,0.03)',
+                  border: warsData.myWarMatchup.clan1.isUserClan ? '1px solid rgba(37, 99, 235, 0.4)' : '1px solid rgba(255,255,255,0.06)'
                 }}>
                   <div style={{ fontSize: '2.5rem', marginBottom: '4px' }}>{warsData.myWarMatchup.clan1.icon}</div>
                   <div style={{ color: '#fff', fontWeight: 800, fontSize: '1rem' }}>
                     {warsData.myWarMatchup.clan1.name}
                   </div>
                   {warsData.myWarMatchup.clan1.isUserClan && (
-                    <span style={{ fontSize: '0.65rem', padding: '1px 6px', borderRadius: '10px', background: '#8b5cf6', color: '#fff', fontWeight: 700 }}>
+                    <span style={{ fontSize: '0.65rem', padding: '1px 6px', borderRadius: '10px', background: '#2563eb', color: '#fff', fontWeight: 700 }}>
                       SENİN KLANIN
                     </span>
                   )}
-                  <div style={{ color: '#a78bfa', fontWeight: 800, fontSize: '1.15rem', marginTop: '6px' }}>
+                  <div style={{ color: '#38bdf8', fontWeight: 800, fontSize: '1.15rem', marginTop: '6px' }}>
                     {warsData.myWarMatchup.clan1.weekly_xp.toLocaleString('tr-TR')} XP
                   </div>
                 </div>
@@ -462,15 +462,15 @@ export default function KlanlarPage() {
                   <div style={{
                     padding: '1rem',
                     borderRadius: '12px',
-                    background: warsData.myWarMatchup.clan2.isUserClan ? 'rgba(139, 92, 246, 0.15)' : 'rgba(255,255,255,0.03)',
-                    border: warsData.myWarMatchup.clan2.isUserClan ? '1px solid rgba(139, 92, 246, 0.4)' : '1px solid rgba(255,255,255,0.06)'
+                    background: warsData.myWarMatchup.clan2.isUserClan ? 'rgba(37, 99, 235, 0.15)' : 'rgba(255,255,255,0.03)',
+                    border: warsData.myWarMatchup.clan2.isUserClan ? '1px solid rgba(37, 99, 235, 0.4)' : '1px solid rgba(255,255,255,0.06)'
                   }}>
                     <div style={{ fontSize: '2.5rem', marginBottom: '4px' }}>{warsData.myWarMatchup.clan2.icon}</div>
                     <div style={{ color: '#fff', fontWeight: 800, fontSize: '1rem' }}>
                       {warsData.myWarMatchup.clan2.name}
                     </div>
                     {warsData.myWarMatchup.clan2.isUserClan && (
-                      <span style={{ fontSize: '0.65rem', padding: '1px 6px', borderRadius: '10px', background: '#8b5cf6', color: '#fff', fontWeight: 700 }}>
+                      <span style={{ fontSize: '0.65rem', padding: '1px 6px', borderRadius: '10px', background: '#2563eb', color: '#fff', fontWeight: 700 }}>
                         SENİN KLANIN
                       </span>
                     )}
@@ -490,11 +490,11 @@ export default function KlanlarPage() {
               {/* Progress Tug of War Bar */}
               <div style={{ marginBottom: '1.25rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 700, marginBottom: '4px' }}>
-                  <span style={{ color: '#a78bfa' }}>%{warsData.myWarMatchup.clan1.ratio}</span>
+                  <span style={{ color: '#38bdf8' }}>%{warsData.myWarMatchup.clan1.ratio}</span>
                   <span style={{ color: '#94a3b8' }}>%{warsData.myWarMatchup.clan2?.ratio || 0}</span>
                 </div>
                 <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '99px', overflow: 'hidden', display: 'flex' }}>
-                  <div style={{ width: `${warsData.myWarMatchup.clan1.ratio}%`, height: '100%', background: 'linear-gradient(90deg, #8b5cf6, #a855f7)', transition: 'width 0.5s ease' }} />
+                  <div style={{ width: `${warsData.myWarMatchup.clan1.ratio}%`, height: '100%', background: 'linear-gradient(90deg, #2563eb, #0284c7)', transition: 'width 0.5s ease' }} />
                   <div style={{ width: `${warsData.myWarMatchup.clan2?.ratio || 0}%`, height: '100%', background: 'linear-gradient(90deg, #ef4444, #f97316)', transition: 'width 0.5s ease' }} />
                 </div>
               </div>
@@ -667,7 +667,7 @@ export default function KlanlarPage() {
               ) : (
                 <div style={card}>
                   <h3 style={{ color: '#fff', margin: '0 0 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Plus size={18} color="#8b5cf6" /> Yeni Klan Kur
+                    <Plus size={18} color="#2563eb" /> Yeni Klan Kur
                   </h3>
 
                   {/* Icon seçici */}
@@ -676,7 +676,7 @@ export default function KlanlarPage() {
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
                       {ICON_OPTIONS.map(icon => (
                         <button key={icon} onClick={() => setCreateForm(f => ({ ...f, icon }))}
-                          style={{ width: '40px', height: '40px', fontSize: '1.2rem', border: createForm.icon === icon ? '2px solid #8b5cf6' : '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', background: createForm.icon === icon ? 'rgba(139,92,246,0.2)' : 'transparent', cursor: 'pointer' }}>
+                          style={{ width: '40px', height: '40px', fontSize: '1.2rem', border: createForm.icon === icon ? '2px solid #2563eb' : '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', background: createForm.icon === icon ? 'rgba(37,99,235,0.2)' : 'transparent', cursor: 'pointer' }}>
                           {icon}
                         </button>
                       ))}
@@ -704,7 +704,7 @@ export default function KlanlarPage() {
                     </div>
                   )}
                   <button onClick={createClan} disabled={createLoading || !createForm.name.trim() || !createForm.description.trim()}
-                    style={{ width: '100%', marginTop: '1rem', background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', border: 'none', borderRadius: '10px', padding: '12px', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem', opacity: createLoading ? 0.7 : 1 }}>
+                    style={{ width: '100%', marginTop: '1rem', background: 'linear-gradient(135deg, #2563eb, #0284c7)', border: 'none', borderRadius: '10px', padding: '12px', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem', opacity: createLoading ? 0.7 : 1 }}>
                     {createLoading ? '⏳ Kuruluyor...' : `${createForm.icon} Klan Kur`}
                   </button>
                 </div>
@@ -756,7 +756,7 @@ export default function KlanlarPage() {
                   <div style={{
                     width: `${Math.min(100, Math.round(((myClanDetails?.focusStats?.totalWeeklyFocusMinutes || 0) / (myClanDetails?.focusStats?.weeklyGoalMinutes || 3000)) * 100))}%`,
                     height: '100%',
-                    background: 'linear-gradient(90deg, #10b981, #6366f1, #f59e0b)',
+                    background: 'linear-gradient(90deg, #10b981, #2563eb, #f59e0b)',
                     borderRadius: '99px',
                     transition: 'width 0.8s ease'
                   }} />
@@ -793,14 +793,14 @@ export default function KlanlarPage() {
               {/* Davet Sistemi */}
               <div style={card}>
                 <h3 style={{ color: '#fff', margin: '0 0 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Mail size={18} color="#8b5cf6" /> Arkadaş Davet Et
+                  <Mail size={18} color="#2563eb" /> Arkadaş Davet Et
                 </h3>
                 <div style={{ display: 'flex', gap: '0.75rem' }}>
                   <input placeholder="Kullanıcı adı gir..." value={inviteUsername} onChange={e => setInviteUsername(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && sendInvite()}
                     style={{ flex: 1, padding: '10px 14px', background: '#0b0f19', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff', fontSize: '14px', outline: 'none' }} />
                   <button onClick={sendInvite} disabled={inviteLoading || !inviteUsername.trim()}
-                    style={{ background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', border: 'none', borderRadius: '10px', padding: '10px 18px', color: '#fff', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', opacity: inviteLoading ? 0.7 : 1 }}>
+                    style={{ background: 'linear-gradient(135deg, #2563eb, #0284c7)', border: 'none', borderRadius: '10px', padding: '10px 18px', color: '#fff', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', opacity: inviteLoading ? 0.7 : 1 }}>
                     {inviteLoading ? '⏳' : '📨 Davet Et'}
                   </button>
                 </div>
@@ -816,12 +816,12 @@ export default function KlanlarPage() {
               {/* Üyeler */}
               <div style={card}>
                 <h3 style={{ color: '#fff', margin: '0 0 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Users size={18} color="#8b5cf6" /> Üyeler
+                  <Users size={18} color="#2563eb" /> Üyeler
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   {(myClanDetails?.members || []).sort((a: any, b: any) => b.weekly_contribution - a.weekly_contribution).map((m: any, i: number) => (
                     <div key={m.user_id || i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 0.85rem', borderRadius: '10px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, rgba(139,92,246,0.3), rgba(99,102,241,0.2))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c4b5fd', fontWeight: 700, fontSize: '0.9rem', flexShrink: 0 }}>
+                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, rgba(37,99,235,0.3), rgba(2,132,199,0.2))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#93c5fd', fontWeight: 700, fontSize: '0.9rem', flexShrink: 0 }}>
                         {m.username?.charAt(0)?.toUpperCase()}
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
@@ -835,7 +835,7 @@ export default function KlanlarPage() {
                         </div>
                       </div>
                       <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                        <span style={{ color: '#a78bfa', fontWeight: 700, fontSize: '0.9rem', display: 'block' }}>+{m.weekly_contribution} XP</span>
+                        <span style={{ color: '#38bdf8', fontWeight: 700, fontSize: '0.9rem', display: 'block' }}>+{m.weekly_contribution} XP</span>
                       </div>
                     </div>
                   ))}
@@ -846,7 +846,7 @@ export default function KlanlarPage() {
               <div style={card}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                   <h3 style={{ color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem', fontWeight: 700 }}>
-                    <MessageSquare size={18} color="#8b5cf6" /> Klan Panosu & Sohbet
+                    <MessageSquare size={18} color="#2563eb" /> Klan Panosu & Sohbet
                   </h3>
                   <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
                     {clanMessages.length} mesaj
@@ -927,7 +927,7 @@ export default function KlanlarPage() {
                     onClick={sendClanMessage}
                     disabled={sendingMessage || !newClanMessage.trim()}
                     style={{
-                      background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
+                      background: 'linear-gradient(135deg, #2563eb, #0284c7)',
                       border: 'none',
                       borderRadius: '10px',
                       padding: '10px 18px',
@@ -971,7 +971,7 @@ export default function KlanlarPage() {
                 </button>
               )}
               {myClan?.id === clan.id && (
-                <span style={{ color: '#8b5cf6', fontWeight: 700, fontSize: '0.8rem' }}>✓ Klanın</span>
+                <span style={{ color: '#38bdf8', fontWeight: 700, fontSize: '0.8rem' }}>✓ Klanın</span>
               )}
             </div>
           ))}
@@ -1014,7 +1014,7 @@ export default function KlanlarPage() {
               </div>
               {!myClan && (
                 <button onClick={() => { joinClan(selectedClan.id); setSelectedClan(null); }}
-                  style={{ width: '100%', marginTop: '1.5rem', background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', border: 'none', borderRadius: '12px', padding: '14px', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}>
+                  style={{ width: '100%', marginTop: '1.5rem', background: 'linear-gradient(135deg, #2563eb, #0284c7)', border: 'none', borderRadius: '12px', padding: '14px', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}>
                   Bu Klana Katıl
                 </button>
               )}
