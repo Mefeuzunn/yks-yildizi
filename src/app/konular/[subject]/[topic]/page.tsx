@@ -339,13 +339,13 @@ export default function TopicStudyPage({ params }: { params: Promise<{ subject: 
   const results = calculateResults();
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0b0f19', color: '#fff', padding: '1.5rem 1rem calc(85px + env(safe-area-inset-bottom, 20px)) 1rem' }}>
+    <div style={{ minHeight: '100vh', background: '#090D16', color: '#fff', padding: '1.5rem 1rem calc(85px + env(safe-area-inset-bottom, 20px)) 1rem' }}>
       <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
         
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <Link href="/konular" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#8b5cf6', textDecoration: 'none', marginBottom: '0.75rem', fontWeight: 600, fontSize: '0.9rem' }}>
+            <Link href="/konular" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#38bdf8', textDecoration: 'none', marginBottom: '0.75rem', fontWeight: 600, fontSize: '0.9rem' }}>
               <ArrowLeft size={18} /> Konulara Dön
             </Link>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
@@ -363,7 +363,7 @@ export default function TopicStudyPage({ params }: { params: Promise<{ subject: 
                 haptics.selection();
                 setMode('video');
               }}
-              style={{ padding: '0.65rem 1.25rem', borderRadius: '8px', border: 'none', background: mode === 'video' ? '#8b5cf6' : 'transparent', color: mode === 'video' ? '#fff' : 'rgba(255,255,255,0.6)', cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'all 0.2s' }}
+              style={{ padding: '0.65rem 1.25rem', borderRadius: '8px', border: 'none', background: mode === 'video' ? '#2563eb' : 'transparent', color: mode === 'video' ? '#fff' : 'rgba(255,255,255,0.6)', cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'all 0.2s' }}
             >
               <PlayCircle size={17} /> Ders İzle
             </button>
@@ -456,7 +456,7 @@ export default function TopicStudyPage({ params }: { params: Promise<{ subject: 
                   <button 
                     onClick={handleStartInProStudio}
                     className="btn-interactive" 
-                    style={{ padding: '0.85rem 1.35rem', background: 'linear-gradient(135deg, #8b5cf6, #6366f1)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                    style={{ padding: '0.85rem 1.35rem', background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
                   >
                     <Sparkles size={18} /> ÖSYM Stüdyosunda Çöz &rarr;
                   </button>
@@ -522,7 +522,7 @@ export default function TopicStudyPage({ params }: { params: Promise<{ subject: 
 
                     {/* Explanation if showResults */}
                     {showResults && q.explanation && (
-                      <div style={{ marginTop: '1rem', padding: '0.85rem 1rem', background: 'rgba(99, 102, 241, 0.08)', border: '1px solid rgba(99, 102, 241, 0.2)', borderRadius: '10px', fontSize: '0.82rem', color: '#c7d2fe', lineHeight: 1.6 }}>
+                      <div style={{ marginTop: '1rem', padding: '0.85rem 1rem', background: 'rgba(37, 99, 235, 0.08)', border: '1px solid rgba(37, 99, 235, 0.2)', borderRadius: '10px', fontSize: '0.82rem', color: '#bfdbfe', lineHeight: 1.6 }}>
                         <strong>Çözüm & Açıklama:</strong> {q.explanation}
                       </div>
                     )}
@@ -534,7 +534,7 @@ export default function TopicStudyPage({ params }: { params: Promise<{ subject: 
                     onClick={finishTest} 
                     disabled={submittingResults}
                     className="btn-interactive" 
-                    style={{ padding: '1.1rem', background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)', color: '#fff', border: 'none', borderRadius: '14px', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', textAlign: 'center', marginTop: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                    style={{ padding: '1.1rem', background: 'linear-gradient(135deg, #2563eb, #0284c7)', color: '#fff', border: 'none', borderRadius: '14px', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', textAlign: 'center', marginTop: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
                   >
                     <CheckCircle2 size={20} />
                     {submittingResults ? 'Puanlar Kaydediliyor...' : 'Testi Bitir ve Analizi Gör'}
@@ -596,11 +596,11 @@ export default function TopicStudyPage({ params }: { params: Promise<{ subject: 
                                 setMode('video');
                                 setTimeout(() => window.scrollTo({top: 0, behavior: 'smooth'}), 100);
                               }}
-                              style={{ flex: 1, minWidth: '180px', padding: '0.75rem 1rem', background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.3)', borderRadius: '8px', color: '#c084fc', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                              style={{ flex: 1, minWidth: '180px', padding: '0.75rem 1rem', background: 'rgba(37, 99, 235, 0.1)', border: '1px solid rgba(37, 99, 235, 0.3)', borderRadius: '8px', color: '#38bdf8', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
                             >
                               <div>
                                 <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>Dersi Tekrar Et</div>
-                                <div style={{ fontSize: '0.75rem', color: 'rgba(192, 132, 252, 0.7)' }}>Videonun {formatTime(q.videoTimestamp)} anına git</div>
+                                <div style={{ fontSize: '0.75rem', color: 'rgba(56, 189, 248, 0.7)' }}>Videonun {formatTime(q.videoTimestamp)} anına git</div>
                               </div>
                               <PlayCircle size={20} />
                             </button>

@@ -86,7 +86,7 @@ const OSYM_PDF_ARCHIVE = [
   {
     year: 2019,
     badge: 'Klasik YKS Formatı',
-    badgeColor: '#6366f1',
+    badgeColor: '#0284c7',
     title: '2019 YKS (TYT & AYT) Resmi Soru Kitapçıkları',
     desc: 'Yeni nesil soruların ve problem metinlerinin tam oturduğu standart sınav oturumu.',
     tytPdf: 'https://dokuman.osym.gov.tr/pdfdokuman/2019/YKS/2019_TYT.pdf',
@@ -97,7 +97,7 @@ const OSYM_PDF_ARCHIVE = [
   {
     year: 2018,
     badge: 'İlk YKS Oturumu',
-    badgeColor: '#8b5cf6',
+    badgeColor: '#2563eb',
     title: '2018 YKS (TYT & AYT) Resmi Soru Kitapçıkları',
     desc: 'YGS/LYS sisteminden YKS sistemine geçiş yapılan ilk sınav soru kitapçıkları.',
     tytPdf: 'https://dokuman.osym.gov.tr/pdfdokuman/2018/YKS/TYT_2018.pdf',
@@ -254,7 +254,7 @@ export default function TestlerPage() {
           }}
           className="btn-interactive"
           style={{
-            background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
+            background: 'linear-gradient(135deg, #2563eb, #0284c7)',
             border: 'none',
             borderRadius: '14px',
             padding: '0.85rem 1.4rem',
@@ -370,11 +370,11 @@ export default function TestlerPage() {
             </div>
 
             <div className="premium-card" style={{ padding: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-              <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'rgba(168, 85, 247, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Award size={22} color="#a855f7" />
+              <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'rgba(37, 99, 235, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Award size={22} color="#38bdf8" />
               </div>
               <div>
-                <div style={{ fontSize: '1.4rem', color: '#c084fc', fontWeight: 800 }}>
+                <div style={{ fontSize: '1.4rem', color: '#38bdf8', fontWeight: 800 }}>
                   {pastSessions.length > 0 ? Math.max(...pastSessions.map(s => Number(s.score) || 0), 0).toFixed(2) : '0.00'} Net
                 </div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>En Yüksek Net Rekoru</div>
@@ -403,7 +403,7 @@ export default function TestlerPage() {
                 style={{
                   padding: '0.75rem 1.5rem',
                   borderRadius: '12px',
-                  background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                  background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
                   color: '#fff',
                   border: 'none',
                   fontWeight: 800,
@@ -521,8 +521,8 @@ export default function TestlerPage() {
             </div>
 
             <div className="premium-card" style={{ padding: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-              <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'rgba(168, 85, 247, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Sparkles size={22} color="#a855f7" />
+              <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'rgba(37, 99, 235, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Sparkles size={22} color="#38bdf8" />
               </div>
               <div>
                 <div style={{ fontSize: '1.4rem', color: '#fff', fontWeight: 800 }}>2025 - 2026</div>
@@ -531,7 +531,7 @@ export default function TestlerPage() {
             </div>
 
             <div className="premium-card" style={{ padding: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-              <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'rgba(168, 85, 247, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Zap size={22} color="#10b981" />
               </div>
               <div>
@@ -565,7 +565,7 @@ export default function TestlerPage() {
                     padding: '0.55rem 1rem',
                     borderRadius: '10px',
                     border: 'none',
-                    background: selectedCategory === tab.id ? 'linear-gradient(135deg, #6366f1, #8b5cf6)' : 'rgba(255,255,255,0.05)',
+                    background: selectedCategory === tab.id ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : 'rgba(255,255,255,0.05)',
                     color: selectedCategory === tab.id ? '#fff' : '#94a3b8',
                     fontWeight: 700,
                     fontSize: '0.82rem',
@@ -875,7 +875,7 @@ export default function TestlerPage() {
                       <div style={{ padding: '1.15rem', borderRadius: '12px', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <span style={{ fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: '6px', background: 'rgba(168, 85, 247, 0.15)', color: '#c084fc' }}>AYT</span>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: '6px', background: 'rgba(16, 185, 129, 0.15)', color: '#34d399' }}>AYT</span>
                             <span style={{ fontSize: '0.92rem', fontWeight: 700, color: '#fff' }}>Alan Yeterlilik Testi (Sayısal)</span>
                           </div>
                           <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>80 Soru • 180 Dk</span>
@@ -902,7 +902,7 @@ export default function TestlerPage() {
                               transition: 'all 0.15s ease'
                             }}
                           >
-                            <Download size={15} color="#c084fc" /> Resmi PDF İndir
+                            <Download size={15} color="#38bdf8" /> Resmi PDF İndir
                           </a>
                           <Link
                             href={`/test-coz?id=${item.aytSuiteId}`}
@@ -911,7 +911,7 @@ export default function TestlerPage() {
                               textDecoration: 'none',
                               padding: '0.65rem 0.85rem',
                               borderRadius: '8px',
-                              background: 'linear-gradient(135deg, #a855f7, #7c3aed)',
+                              background: 'linear-gradient(135deg, #10b981, #059669)',
                               border: 'none',
                               color: '#fff',
                               fontSize: '0.82rem',
@@ -1057,7 +1057,7 @@ export default function TestlerPage() {
                           <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                             <Clock size={15} color="#f59e0b" /> {suite.durationMinutes} Dakika
                           </span>
-                          <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#a855f7' }}>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#38bdf8' }}>
                             <Award size={15} /> +{suite.questionCount * 15} XP
                           </span>
                         </div>
@@ -1147,8 +1147,8 @@ export default function TestlerPage() {
                           flex: 1,
                           padding: '0.6rem',
                           borderRadius: '8px',
-                          border: customForm.examType === type ? '1px solid #6366f1' : '1px solid rgba(255,255,255,0.08)',
-                          background: customForm.examType === type ? 'rgba(99, 102, 241, 0.2)' : 'rgba(255,255,255,0.03)',
+                          border: customForm.examType === type ? '1px solid #2563eb' : '1px solid rgba(255,255,255,0.08)',
+                          background: customForm.examType === type ? 'rgba(37, 99, 235, 0.2)' : 'rgba(255,255,255,0.03)',
                           color: customForm.examType === type ? '#fff' : '#94a3b8',
                           fontWeight: 700,
                           fontSize: '0.85rem',

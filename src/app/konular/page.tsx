@@ -16,42 +16,42 @@ export default function KonularPage() {
   const [expandedSubject, setExpandedSubject] = useState<string | null>('Matematik');
 
   const icons: Record<string, React.ReactNode> = {
-    Matematik: <Calculator size={24} color="#38bdf8" />,
-    Geometri: <Compass size={24} color="#06b6d4" />,
-    Fizik: <Atom size={24} color="#8b5cf6" />,
-    Kimya: <FlaskConical size={24} color="#10b981" />,
-    Biyoloji: <Dna size={24} color="#f59e0b" />,
-    Türkçe: <Feather size={24} color="#ec4899" />,
-    "Türk Dili ve Edebiyatı": <BookOpen size={24} color="#f43f5e" />,
-    Tarih: <Landmark size={24} color="#eab308" />,
-    Coğrafya: <Globe size={24} color="#14b8a6" />,
-    "Felsefe & Din": <Lightbulb size={24} color="#a855f7" />
+    Matematik: <Calculator size={24} color="#2563eb" />,
+    Geometri: <Compass size={24} color="#0284c7" />,
+    Fizik: <Atom size={24} color="#0ea5e9" />,
+    Kimya: <FlaskConical size={24} color="#0d9488" />,
+    Biyoloji: <Dna size={24} color="#059669" />,
+    Türkçe: <Feather size={24} color="#dc2626" />,
+    "Türk Dili ve Edebiyatı": <BookOpen size={24} color="#d97706" />,
+    Tarih: <Landmark size={24} color="#b45309" />,
+    Coğrafya: <Globe size={24} color="#047857" />,
+    "Felsefe & Din": <Lightbulb size={24} color="#ca8a04" />
   };
 
   const colors: Record<string, string> = {
-    Matematik: 'rgba(56, 189, 248, 0.1)',
-    Geometri: 'rgba(6, 182, 212, 0.1)',
-    Fizik: 'rgba(139, 92, 246, 0.1)',
-    Kimya: 'rgba(16, 185, 129, 0.1)',
-    Biyoloji: 'rgba(245, 158, 11, 0.1)',
-    Türkçe: 'rgba(236, 72, 153, 0.1)',
-    "Türk Dili ve Edebiyatı": 'rgba(244, 63, 94, 0.1)',
-    Tarih: 'rgba(234, 179, 8, 0.1)',
-    Coğrafya: 'rgba(20, 184, 166, 0.1)',
-    "Felsefe & Din": 'rgba(168, 85, 247, 0.1)'
+    Matematik: 'rgba(37, 99, 235, 0.1)',
+    Geometri: 'rgba(2, 132, 199, 0.1)',
+    Fizik: 'rgba(14, 165, 233, 0.1)',
+    Kimya: 'rgba(13, 148, 136, 0.1)',
+    Biyoloji: 'rgba(5, 150, 105, 0.1)',
+    Türkçe: 'rgba(220, 38, 38, 0.1)',
+    "Türk Dili ve Edebiyatı": 'rgba(217, 119, 6, 0.1)',
+    Tarih: 'rgba(180, 83, 9, 0.1)',
+    Coğrafya: 'rgba(4, 120, 87, 0.1)',
+    "Felsefe & Din": 'rgba(202, 138, 4, 0.1)'
   };
 
   const borderColors: Record<string, string> = {
-    Matematik: '#38bdf8',
-    Geometri: '#06b6d4',
-    Fizik: '#8b5cf6',
-    Kimya: '#10b981',
-    Biyoloji: '#f59e0b',
-    Türkçe: '#ec4899',
-    "Türk Dili ve Edebiyatı": '#f43f5e',
-    Tarih: '#eab308',
-    Coğrafya: '#14b8a6',
-    "Felsefe & Din": '#a855f7'
+    Matematik: '#2563eb',
+    Geometri: '#0284c7',
+    Fizik: '#0ea5e9',
+    Kimya: '#0d9488',
+    Biyoloji: '#059669',
+    Türkçe: '#dc2626',
+    "Türk Dili ve Edebiyatı": '#d97706',
+    Tarih: '#b45309',
+    Coğrafya: '#047857',
+    "Felsefe & Din": '#ca8a04'
   };
 
   const currentData = (curriculumData as Record<string, any>)[activeTab] || {};
@@ -59,8 +59,8 @@ export default function KonularPage() {
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-        <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(139, 92, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <BookOpen size={24} color="#8b5cf6" />
+        <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(37, 99, 235, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <BookOpen size={24} color="#2563eb" />
         </div>
         <div>
           <h1 style={{ fontSize: '2rem', color: '#fff', marginBottom: '0.25rem', fontWeight: 800 }}>Dersler ve Konular</h1>
@@ -72,11 +72,11 @@ export default function KonularPage() {
       <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', padding: '4px', marginBottom: '2rem', maxWidth: '340px' }}>
         <button 
           onClick={() => setActiveTab('TYT')}
-          style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', fontSize: '0.95rem', fontWeight: 700, background: activeTab === 'TYT' ? 'linear-gradient(135deg, #6366f1, #8b5cf6)' : 'transparent', color: activeTab === 'TYT' ? '#fff' : 'var(--text-muted)', border: 'none', cursor: 'pointer', transition: 'all 0.2s' }}
+          style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', fontSize: '0.95rem', fontWeight: 700, background: activeTab === 'TYT' ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : 'transparent', color: activeTab === 'TYT' ? '#fff' : 'var(--text-muted)', border: 'none', cursor: 'pointer', transition: 'all 0.2s' }}
         >TYT (9-10. Sınıf)</button>
         <button 
           onClick={() => setActiveTab('AYT')}
-          style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', fontSize: '0.95rem', fontWeight: 700, background: activeTab === 'AYT' ? 'linear-gradient(135deg, #6366f1, #8b5cf6)' : 'transparent', color: activeTab === 'AYT' ? '#fff' : 'var(--text-muted)', border: 'none', cursor: 'pointer', transition: 'all 0.2s' }}
+          style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', fontSize: '0.95rem', fontWeight: 700, background: activeTab === 'AYT' ? 'linear-gradient(135deg, #10b981, #059669)' : 'transparent', color: activeTab === 'AYT' ? '#fff' : 'var(--text-muted)', border: 'none', cursor: 'pointer', transition: 'all 0.2s' }}
         >AYT (11-12. Sınıf)</button>
       </div>
 
@@ -84,9 +84,9 @@ export default function KonularPage() {
         {Object.keys(currentData).map((subject, index) => {
           const isExpanded = expandedSubject === subject;
           const topics = currentData[subject] || [];
-          const icon = icons[subject] || <Sparkles size={24} color="#8b5cf6" />;
-          const color = colors[subject] || 'rgba(139, 92, 246, 0.1)';
-          const borderColor = borderColors[subject] || '#8b5cf6';
+          const icon = icons[subject] || <Sparkles size={24} color="#2563eb" />;
+          const color = colors[subject] || 'rgba(37, 99, 235, 0.1)';
+          const borderColor = borderColors[subject] || '#2563eb';
 
           return (
             <motion.div 
@@ -135,7 +135,7 @@ export default function KonularPage() {
                         return (
                           <div key={idx} style={{ background: 'rgba(0,0,0,0.25)', padding: '1rem', borderRadius: '10px', borderLeft: `3px solid ${borderColor}`, border: '1px solid rgba(255,255,255,0.05)', borderLeftWidth: '3px', borderLeftColor: borderColor }}>
                             <Link href={`/konular/${subjSlug}/${slug}`} style={{ textDecoration: 'none' }}>
-                              <h4 style={{ color: '#fff', fontSize: '0.95rem', marginBottom: '0.65rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', fontWeight: 600 }} className="hover:text-purple-400 transition-colors">
+                              <h4 style={{ color: '#fff', fontSize: '0.95rem', marginBottom: '0.65rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', fontWeight: 600 }} className="hover:text-blue-400 transition-colors">
                                 <span>{t.topic}</span>
                                 <span style={{ fontSize: '0.7rem', padding: '2px 8px', background: 'rgba(255,255,255,0.08)', borderRadius: '6px', color: '#cbd5e1' }}>Derse Git ➔</span>
                               </h4>

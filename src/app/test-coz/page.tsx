@@ -409,7 +409,7 @@ function TestCozContent() {
         <ShieldAlert size={48} color="#ef4444" style={{ marginBottom: '1rem' }} />
         <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{error || 'Soru havuzu boş'}</h2>
         <Link href="/testler">
-          <button style={{ marginTop: '1rem', padding: '0.75rem 1.5rem', background: '#6366f1', color: '#fff', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 700 }}>
+          <button style={{ marginTop: '1rem', padding: '0.75rem 1.5rem', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 700 }}>
             Test Merkezine Dön
           </button>
         </Link>
@@ -742,7 +742,7 @@ function TestCozContent() {
                     style={{
                       padding: '1rem 1.25rem',
                       borderRadius: '14px',
-                      border: `1.5px solid ${isSelected ? '#6366f1' : borderColor}`,
+                      border: `1.5px solid ${isSelected ? '#2563eb' : borderColor}`,
                       background: bgColor,
                       color: textColor,
                       opacity: isEliminated ? 0.35 : 1,
@@ -758,7 +758,7 @@ function TestCozContent() {
                         width: '32px',
                         height: '32px',
                         borderRadius: '50%',
-                        border: isSelected ? '7px solid #6366f1' : '2px solid rgba(255,255,255,0.2)',
+                        border: isSelected ? '7px solid #2563eb' : '2px solid rgba(255,255,255,0.2)',
                         background: 'transparent',
                         display: 'flex',
                         alignItems: 'center',
@@ -921,7 +921,7 @@ function TestCozContent() {
               {/* Optik Durum Legend */}
               <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.72rem', color: '#94a3b8', flexWrap: 'wrap' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#6366f1' }} /> Cevaplandı
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#2563eb' }} /> Cevaplandı
                 </span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                   <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }} /> Bayraklı
@@ -959,7 +959,7 @@ function TestCozContent() {
                     }
                   } else {
                     if (isAnswered) {
-                      cellBg = '#6366f1';
+                      cellBg = '#2563eb';
                       cellColor = '#fff';
                     }
                   }
@@ -1185,7 +1185,7 @@ function TestCozContent() {
 
                 <Link href="/testler" style={{ textDecoration: 'none' }}>
                   <button
-                    style={{ width: '100%', padding: '0.8rem', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', border: 'none', borderRadius: '12px', color: '#fff', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer' }}
+                    style={{ width: '100%', padding: '0.8rem', background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', border: 'none', borderRadius: '12px', color: '#fff', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer' }}
                   >
                     Test Merkezine Dön &rarr;
                   </button>

@@ -116,7 +116,7 @@ function Scratchpad() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', height: '100%' }}>
       <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'space-between', padding: '0.25rem 0.5rem' }}>
         <div style={{ display: 'flex', gap: '0.4rem' }}>
-          {['#38bdf8', '#a855f7', '#ef4444', '#10b981', '#f1f5f9'].map(c => (
+          {['#38bdf8', '#2563eb', '#ef4444', '#10b981', '#f1f5f9'].map(c => (
             <button 
               key={c} 
               type="button"
@@ -608,7 +608,7 @@ function SoruCozContent() {
         {/* Left Side: Question Display */}
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           {loading ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, gap: '1rem', color: '#8b5cf6', padding: '6rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, gap: '1rem', color: '#2563eb', padding: '6rem' }}>
               <RefreshCw size={36} className="spin" />
               <span style={{ fontWeight: 700, fontSize: '1rem' }}>Eşsiz YKS Sorusu Üretiliyor...</span>
             </div>
@@ -643,9 +643,9 @@ function SoruCozContent() {
                       fontSize: '0.75rem',
                       fontWeight: 800,
                       textTransform: 'uppercase',
-                      color: question.subject === 'Matematik' ? '#60a5fa' : question.subject === 'Fizik' ? '#c084fc' : question.subject === 'Kimya' ? '#38bdf8' : '#fbbf24',
-                      background: question.subject === 'Matematik' ? 'rgba(59, 130, 246, 0.15)' : question.subject === 'Fizik' ? 'rgba(139, 92, 246, 0.15)' : question.subject === 'Kimya' ? 'rgba(6, 182, 212, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-                      border: `1px solid ${question.subject === 'Matematik' ? 'rgba(59, 130, 246, 0.3)' : question.subject === 'Fizik' ? 'rgba(139, 92, 246, 0.3)' : question.subject === 'Kimya' ? 'rgba(6, 182, 212, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`,
+                      color: question.subject === 'Matematik' ? '#2563eb' : question.subject === 'Fizik' ? '#0ea5e9' : question.subject === 'Kimya' ? '#0d9488' : '#fbbf24',
+                      background: question.subject === 'Matematik' ? 'rgba(37, 99, 235, 0.15)' : question.subject === 'Fizik' ? 'rgba(14, 165, 233, 0.15)' : question.subject === 'Kimya' ? 'rgba(13, 148, 136, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+                      border: `1px solid ${question.subject === 'Matematik' ? 'rgba(37, 99, 235, 0.3)' : question.subject === 'Fizik' ? 'rgba(14, 165, 233, 0.3)' : question.subject === 'Kimya' ? 'rgba(13, 148, 136, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`,
                       padding: '3px 10px',
                       borderRadius: '8px',
                       letterSpacing: '0.04em',
@@ -761,10 +761,10 @@ function SoruCozContent() {
                       pillColor = '#64748b';
                     }
                   } else if (opt === selectedOption) {
-                    bg = 'rgba(99, 102, 241, 0.18)';
-                    border = '1px solid rgba(99, 102, 241, 0.45)';
-                    pillBg = '#6366f1';
-                    pillBorder = '1px solid #6366f1';
+                    bg = 'rgba(37, 99, 235, 0.15)';
+                    border = '1px solid rgba(37, 99, 235, 0.45)';
+                    pillBg = '#2563eb';
+                    pillBorder = '1px solid #2563eb';
                     pillColor = '#ffffff';
                   }
 
@@ -966,7 +966,7 @@ function SoruCozContent() {
                       style={{ 
                         width: '100%',
                         padding: '1rem',
-                        background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                        background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -977,7 +977,7 @@ function SoruCozContent() {
                         border: 'none',
                         borderRadius: '14px',
                         cursor: 'pointer',
-                        boxShadow: '0 4px 18px rgba(99, 102, 241, 0.35)',
+                        boxShadow: '0 4px 18px rgba(37, 99, 235, 0.35)',
                         transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
                       }}
                     >
@@ -1027,9 +1027,9 @@ function SoruCozContent() {
                   <button
                     onClick={() => { haptics.selection(); setSidebarTab('tutor'); }}
                     style={{
-                      flex: 1, padding: '0.85rem', border: 'none', background: sidebarTab === 'tutor' ? 'rgba(168, 85, 247, 0.12)' : 'transparent',
-                      color: sidebarTab === 'tutor' ? '#c084fc' : '#94a3b8', fontSize: '0.85rem', fontWeight: 800,
-                      cursor: 'pointer', borderBottom: sidebarTab === 'tutor' ? '2px solid #a855f7' : '2px solid transparent',
+                      flex: 1, padding: '0.85rem', border: 'none', background: sidebarTab === 'tutor' ? 'rgba(37, 99, 235, 0.12)' : 'transparent',
+                      color: sidebarTab === 'tutor' ? '#38bdf8' : '#94a3b8', fontSize: '0.85rem', fontWeight: 800,
+                      cursor: 'pointer', borderBottom: sidebarTab === 'tutor' ? '2px solid #2563eb' : '2px solid transparent',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all 0.2s'
                     }}
                   >
