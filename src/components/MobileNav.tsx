@@ -5,59 +5,100 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, LogOut, ChevronRight } from 'lucide-react';
+import {
+  Home,
+  Calendar,
+  Timer,
+  BarChart3,
+  TrendingUp,
+  Target,
+  BrainCircuit,
+  Swords,
+  Shield,
+  MessageSquare,
+  Headphones,
+  Compass,
+  GraduationCap,
+  Calculator,
+  ClipboardList,
+  XCircle,
+  BookOpen,
+  FileText,
+  Trophy,
+  ShoppingBag,
+  Layers,
+  School,
+  User,
+  Settings,
+  Sprout,
+  FileEdit,
+  Atom,
+  Sparkles,
+  Users,
+  Bell,
+  Menu,
+  X,
+  LogOut,
+  type LucideIcon,
+} from 'lucide-react';
 import { triggerHaptic } from '@/lib/haptics';
 import NotificationCenter from '@/components/NotificationCenter';
 
-const MAIN_TABS = [
-  { emoji: '🏠', label: 'Ana Sayfa', href: '/dashboard?tab=home' },
-  { emoji: '📅', label: 'Program', href: '/dashboard?tab=schedule' },
-  { emoji: '🍅', label: 'Odak', href: '/dashboard?tab=focus' },
-  { emoji: '📊', label: 'Analiz', href: '/dashboard?tab=analysis' },
+interface MobileTabItem {
+  icon: LucideIcon;
+  label: string;
+  href: string;
+}
+
+const MAIN_TABS: MobileTabItem[] = [
+  { icon: Home, label: 'Ana Sayfa', href: '/dashboard?tab=home' },
+  { icon: Calendar, label: 'Program', href: '/dashboard?tab=schedule' },
+  { icon: Timer, label: 'Odak', href: '/dashboard?tab=focus' },
+  { icon: BarChart3, label: 'Analiz', href: '/dashboard?tab=analysis' },
 ];
 
-const MORE_TABS = [
-  { emoji: '📈', label: 'Denemeler', href: '/denemeler' },
-  { emoji: '🎯', label: 'Hedeflerim', href: '/dashboard?tab=hedef' },
-  { emoji: '🤖', label: 'Astra AI Koç', href: '/dashboard?tab=astratutor' },
-  { emoji: '⚔️', label: 'Bilgi Arenası', href: '/duello' },
-  { emoji: '🛡️', label: 'Klanlar', href: '/klanlar' },
-  { emoji: '💬', label: 'Topluluk Forumu', href: '/forum' },
-  { emoji: '🎧', label: 'Çalışma Odaları', href: '/calisma-odalari' },
-  { emoji: '🔬', label: 'Simülasyonlar', href: '/simulasyonlar' },
-  { emoji: '🎓', label: 'Tercih Robotu', href: '/dashboard?tab=tercih-robotu' },
-  { emoji: '🧮', label: 'Puan Hesaplama', href: '/puan-hesaplama' },
-  { emoji: '📋', label: 'Ödevlerim', href: '/odevlerim' },
-  { emoji: '❌', label: 'Yanlışlarım', href: '/dashboard?tab=mistakes' },
-  { emoji: '📚', label: 'Konular', href: '/dashboard?tab=topics' },
-  { emoji: '📝', label: 'Testler & Soru Havuzu', href: '/testler' },
-  { emoji: '🏆', label: 'Ligler', href: '/ligler' },
-  { emoji: '🛍️', label: 'Mağaza', href: '/magaza' },
-  { emoji: '🎴', label: 'Hafıza Kartları', href: '/dashboard?tab=cards' },
-  { emoji: '🏫', label: 'Sınıfım', href: '/dashboard?tab=sinif' },
-  { emoji: '👤', label: 'Profilim', href: '/dashboard?tab=profile' },
-  { emoji: '⚙️', label: 'Ayarlar', href: '/ayarlar' },
+const MORE_TABS: MobileTabItem[] = [
+  { icon: TrendingUp, label: 'Denemeler', href: '/denemeler' },
+  { icon: Target, label: 'Hedeflerim', href: '/dashboard?tab=hedef' },
+  { icon: BrainCircuit, label: 'Astra AI Koç', href: '/dashboard?tab=astratutor' },
+  { icon: Swords, label: 'Bilgi Arenası', href: '/duello' },
+  { icon: Shield, label: 'Klanlar', href: '/klanlar' },
+  { icon: MessageSquare, label: 'Topluluk Forumu', href: '/forum' },
+  { icon: Headphones, label: 'Çalışma Odaları', href: '/calisma-odalari' },
+  { icon: Compass, label: 'Simülasyonlar', href: '/simulasyonlar' },
+  { icon: GraduationCap, label: 'Tercih Robotu', href: '/dashboard?tab=tercih-robotu' },
+  { icon: Calculator, label: 'Puan Hesaplama', href: '/puan-hesaplama' },
+  { icon: ClipboardList, label: 'Ödevlerim', href: '/odevlerim' },
+  { icon: XCircle, label: 'Yanlışlarım', href: '/dashboard?tab=mistakes' },
+  { icon: BookOpen, label: 'Konular', href: '/dashboard?tab=topics' },
+  { icon: FileText, label: 'Testler & Soru Havuzu', href: '/testler' },
+  { icon: Trophy, label: 'Ligler', href: '/ligler' },
+  { icon: ShoppingBag, label: 'Mağaza', href: '/magaza' },
+  { icon: Layers, label: 'Hafıza Kartları', href: '/dashboard?tab=cards' },
+  { icon: School, label: 'Sınıfım', href: '/dashboard?tab=sinif' },
+  { icon: User, label: 'Profilim', href: '/dashboard?tab=profile' },
+  { icon: Settings, label: 'Ayarlar', href: '/ayarlar' },
 ];
 
-const MAARIF_MAIN_TABS = [
-  { emoji: '🌱', label: 'Maarif', href: '/maarif' },
-  { emoji: '📝', label: 'Yazılılar', href: '/maarif?tab=senaryolar' },
-  { emoji: '📚', label: 'Kazanımlar', href: '/maarif?tab=dersler' },
-  { emoji: '🤖', label: 'Mentor', href: '/maarif?tab=mentor' },
+const MAARIF_MAIN_TABS: MobileTabItem[] = [
+  { icon: Sprout, label: 'Maarif', href: '/maarif' },
+  { icon: FileEdit, label: 'Yazılılar', href: '/maarif?tab=senaryolar' },
+  { icon: BookOpen, label: 'Kazanımlar', href: '/maarif?tab=dersler' },
+  { icon: Sparkles, label: 'Mentor', href: '/maarif?tab=mentor' },
 ];
 
-const MAARIF_MORE_TABS = [
-  { emoji: '🔬', label: 'Deney & Simülasyon', href: '/maarif?tab=deneyler' },
-  { emoji: '📋', label: 'Ödevlerim', href: '/odevlerim' },
-  { emoji: '🎧', label: 'Çalışma Odaları', href: '/calisma-odalari' },
-  { emoji: '🔬', label: 'Tüm Simülasyonlar', href: '/simulasyonlar' },
-  { emoji: '⚔️', label: 'Bilgi Arenası', href: '/duello' },
-  { emoji: '🛡️', label: 'Klanlar', href: '/klanlar' },
-  { emoji: '💬', label: 'Topluluk Forumu', href: '/forum' },
-  { emoji: '🏆', label: 'Ligler', href: '/ligler' },
-  { emoji: '🛍️', label: 'Mağaza', href: '/magaza' },
-  { emoji: '👤', label: 'Profilim', href: '/maarif' },
-  { emoji: '⚙️', label: 'Ayarlar', href: '/ayarlar' },
+const MAARIF_MORE_TABS: MobileTabItem[] = [
+  { icon: Atom, label: 'Deney & Simülasyon', href: '/maarif?tab=deneyler' },
+  { icon: ClipboardList, label: 'Ödevlerim', href: '/odevlerim' },
+  { icon: Headphones, label: 'Çalışma Odaları', href: '/calisma-odalari' },
+  { icon: Compass, label: 'Tüm Simülasyonlar', href: '/simulasyonlar' },
+  { icon: Swords, label: 'Bilgi Arenası', href: '/duello' },
+  { icon: Shield, label: 'Klanlar', href: '/klanlar' },
+  { icon: MessageSquare, label: 'Topluluk Forumu', href: '/forum' },
+  { icon: Trophy, label: 'Ligler', href: '/ligler' },
+  { icon: ShoppingBag, label: 'Mağaza', href: '/magaza' },
+  { icon: User, label: 'Profilim', href: '/maarif' },
+  { icon: Settings, label: 'Ayarlar', href: '/ayarlar' },
 ];
 
 function MobileNavContent() {
@@ -66,19 +107,19 @@ function MobileNavContent() {
   const searchParams = useSearchParams();
   const { user, logout } = useAuth();
 
-  const TEACHER_MAIN_TABS = [
-    { emoji: '🏠', label: 'Genel Bakış', href: '/ogretmen/dashboard' },
-    { emoji: '🏫', label: 'Sınıflarım', href: '/ogretmen/dashboard?tab=siniflar' },
-    { emoji: '👥', label: 'Öğrenciler', href: '/ogretmen/dashboard?tab=ogrenciler' },
-    { emoji: '📋', label: 'Ödevler', href: '/ogretmen/dashboard?tab=odevler' },
+  const TEACHER_MAIN_TABS: MobileTabItem[] = [
+    { icon: Home, label: 'Genel Bakış', href: '/ogretmen/dashboard' },
+    { icon: School, label: 'Sınıflarım', href: '/ogretmen/dashboard?tab=siniflar' },
+    { icon: Users, label: 'Öğrenciler', href: '/ogretmen/dashboard?tab=ogrenciler' },
+    { icon: ClipboardList, label: 'Ödevler', href: '/ogretmen/dashboard?tab=odevler' },
   ];
 
-  const TEACHER_MORE_TABS = [
-    { emoji: '📊', label: 'Sınıf Analizi', href: '/ogretmen/dashboard?tab=analiz' },
-    { emoji: '📚', label: 'Kaynaklar', href: '/ogretmen/dashboard?tab=kaynaklar' },
-    { emoji: '📢', label: 'Duyurular', href: '/ogretmen/dashboard?tab=duyurular' },
-    { emoji: '👤', label: 'Profilim', href: '/ogretmen/dashboard?tab=profil' },
-    { emoji: '⚙️', label: 'Ayarlar', href: '/ayarlar' },
+  const TEACHER_MORE_TABS: MobileTabItem[] = [
+    { icon: BarChart3, label: 'Sınıf Analizi', href: '/ogretmen/dashboard?tab=analiz' },
+    { icon: BookOpen, label: 'Kaynaklar', href: '/ogretmen/dashboard?tab=kaynaklar' },
+    { icon: Bell, label: 'Duyurular', href: '/ogretmen/dashboard?tab=duyurular' },
+    { icon: User, label: 'Profilim', href: '/ogretmen/dashboard?tab=profil' },
+    { icon: Settings, label: 'Ayarlar', href: '/ayarlar' },
   ];
 
   const isMaarif =
@@ -139,11 +180,11 @@ function MobileNavContent() {
     return true;
   };
 
-  const accentColor = isMaarif ? '#10b981' : '#6366f1';
+  const accentColor = isMaarif ? '#10b981' : '#2563eb';
 
   return (
     <>
-      {/* ── Native Flutter-Style Bottom Navigation Bar ── */}
+      {/* ── Native Mobile Bottom Navigation Bar ── */}
       <nav
         className="mobile-flex"
         style={{
@@ -152,11 +193,11 @@ function MobileNavContent() {
           left: 0,
           right: 0,
           height: 'calc(60px + env(safe-area-inset-bottom))',
-          backgroundColor: 'var(--surface-header, rgba(8, 12, 20, 0.94))',
+          backgroundColor: 'var(--surface-header, rgba(9, 13, 22, 0.95))',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
           borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-          boxShadow: '0 -4px 28px rgba(0, 0, 0, 0.6)',
+          boxShadow: '0 -4px 28px rgba(0, 0, 0, 0.65)',
           display: 'flex',
           justifyContent: 'space-around',
           alignItems: 'center',
@@ -167,6 +208,7 @@ function MobileNavContent() {
       >
         {currentMainTabs.map((tab) => {
           const active = checkIsActive(tab.href);
+          const TabIcon = tab.icon;
           return (
             <Link
               key={tab.href}
@@ -187,7 +229,7 @@ function MobileNavContent() {
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '2px',
+                gap: '3px',
                 flex: 1,
                 height: '100%',
                 textDecoration: 'none',
@@ -210,15 +252,19 @@ function MobileNavContent() {
               )}
               <span
                 style={{
-                  fontSize: '20px',
-                  lineHeight: 1,
-                  opacity: active ? 1 : 0.65,
-                  transform: active ? 'scale(1.12)' : 'scale(1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '7px',
+                  backgroundColor: active ? `${accentColor}25` : 'transparent',
+                  color: active ? (accentColor === '#2563eb' ? '#38bdf8' : accentColor) : '#64748b',
+                  transform: active ? 'scale(1.08)' : 'scale(1)',
                   transition: 'all 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
-                  filter: active ? `drop-shadow(0 0 8px ${accentColor}80)` : 'none',
                 }}
               >
-                {tab.emoji}
+                <TabIcon size={19} strokeWidth={active ? 2.2 : 1.8} />
               </span>
               <span
                 style={{
@@ -246,7 +292,7 @@ function MobileNavContent() {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '2px',
+            gap: '3px',
             flex: 1,
             height: '100%',
             background: 'none',
@@ -261,15 +307,19 @@ function MobileNavContent() {
           <div style={{ position: 'relative', display: 'inline-flex' }}>
             <span
               style={{
-                fontSize: '20px',
-                lineHeight: 1,
-                opacity: isMoreOpen ? 1 : 0.65,
-                transform: isMoreOpen ? 'scale(1.12)' : 'scale(1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '28px',
+                height: '28px',
+                borderRadius: '7px',
+                backgroundColor: isMoreOpen ? `${accentColor}25` : 'transparent',
+                color: isMoreOpen ? '#38bdf8' : '#64748b',
+                transform: isMoreOpen ? 'scale(1.08)' : 'scale(1)',
                 transition: 'all 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
-                filter: isMoreOpen ? `drop-shadow(0 0 8px ${accentColor}80)` : 'none',
               }}
             >
-              ✨
+              <Menu size={19} strokeWidth={isMoreOpen ? 2.2 : 1.8} />
             </span>
             {unreadCount > 0 && (
               <span
@@ -289,7 +339,7 @@ function MobileNavContent() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   boxShadow: '0 0 8px rgba(239, 68, 68, 0.8)',
-                  border: '1.5px solid #080c14',
+                  border: '1.5px solid #090d16',
                 }}
               >
                 {unreadCount > 9 ? '9+' : unreadCount}
@@ -310,7 +360,7 @@ function MobileNavContent() {
         </button>
       </nav>
 
-      {/* ── Native Flutter Bottom Sheet Drawer ── */}
+      {/* ── Native Bottom Sheet Drawer ── */}
       <AnimatePresence>
         {isMoreOpen && (
           <>
@@ -327,9 +377,9 @@ function MobileNavContent() {
               style={{
                 position: 'fixed',
                 inset: 0,
-                backgroundColor: 'rgba(0, 0, 0, 0.65)',
-                backdropFilter: 'blur(6px)',
-                WebkitBackdropFilter: 'blur(6px)',
+                backgroundColor: 'rgba(0, 0, 0, 0.70)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
                 zIndex: 100,
               }}
             />
@@ -355,20 +405,20 @@ function MobileNavContent() {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                backgroundColor: '#0c101c',
-                borderTopLeftRadius: '24px',
-                borderTopRightRadius: '24px',
-                padding: '12px 18px',
+                backgroundColor: '#090d16',
+                borderTopLeftRadius: '22px',
+                borderTopRightRadius: '22px',
+                padding: '12px 16px',
                 paddingBottom: 'calc(24px + env(safe-area-inset-bottom))',
                 zIndex: 101,
-                borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                borderTop: '1px solid rgba(255, 255, 255, 0.10)',
                 maxHeight: '84dvh',
                 overflowY: 'auto',
-                boxShadow: '0 -12px 48px rgba(0, 0, 0, 0.75)',
+                boxShadow: '0 -16px 48px rgba(0, 0, 0, 0.85)',
                 touchAction: 'pan-y',
               }}
             >
-              {/* Native Drag Handle */}
+              {/* Drag Handle */}
               <div
                 style={{
                   width: '100%',
@@ -397,7 +447,7 @@ function MobileNavContent() {
                   alignItems: 'center',
                   marginBottom: '16px',
                   paddingBottom: '12px',
-                  borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.07)',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -408,14 +458,15 @@ function MobileNavContent() {
                       borderRadius: '9px',
                       background: isMaarif
                         ? 'linear-gradient(135deg, #10b981, #059669)'
-                        : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                        : 'linear-gradient(135deg, #2563eb, #1d4ed8)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: '15px',
+                      color: '#ffffff',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
                     }}
                   >
-                    {isMaarif ? '🌱' : '⭐'}
+                    {isMaarif ? <Sprout size={17} strokeWidth={2.2} /> : <GraduationCap size={18} strokeWidth={2.2} />}
                   </div>
                   <div>
                     <h2
@@ -472,6 +523,7 @@ function MobileNavContent() {
               >
                 {currentMoreTabs.map((tab) => {
                   const active = checkIsActive(tab.href);
+                  const TabIcon = tab.icon;
                   return (
                     <Link
                       key={tab.href}
@@ -498,41 +550,40 @@ function MobileNavContent() {
                         display: 'flex',
                         alignItems: 'center',
                         gap: '10px',
-                        padding: '11px 12px',
+                        padding: '10px 11px',
                         backgroundColor: active
                           ? `${accentColor}18`
                           : 'rgba(255, 255, 255, 0.03)',
-                        borderRadius: '12px',
+                        borderRadius: '10px',
                         textDecoration: 'none',
                         color: active ? '#ffffff' : '#cbd5e1',
                         fontWeight: active ? 700 : 500,
                         border: active
                           ? `1px solid ${accentColor}40`
-                          : '1px solid rgba(255, 255, 255, 0.05)',
+                          : '1px solid rgba(255, 255, 255, 0.06)',
                         transition: 'all 0.16s ease',
                       }}
                     >
                       <span
                         style={{
-                          fontSize: '18px',
-                          lineHeight: 1,
-                          width: '30px',
-                          height: '30px',
-                          borderRadius: '8px',
+                          width: '28px',
+                          height: '28px',
+                          borderRadius: '7px',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           backgroundColor: active
                             ? `${accentColor}30`
                             : 'rgba(255, 255, 255, 0.04)',
+                          color: active ? (accentColor === '#2563eb' ? '#38bdf8' : accentColor) : '#64748b',
                           flexShrink: 0,
                         }}
                       >
-                        {tab.emoji}
+                        <TabIcon size={16} strokeWidth={active ? 2.2 : 1.8} />
                       </span>
                       <span
                         style={{
-                          fontSize: '12.5px',
+                          fontSize: '12px',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
                           whiteSpace: 'nowrap',
@@ -560,13 +611,13 @@ function MobileNavContent() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '8px',
-                  padding: '12px',
+                  padding: '11px',
                   backgroundColor: 'rgba(239, 68, 68, 0.08)',
                   border: '1px solid rgba(239, 68, 68, 0.25)',
-                  borderRadius: '12px',
+                  borderRadius: '10px',
                   color: '#f87171',
                   fontSize: '13px',
-                  fontWeight: 700,
+                  fontWeight: 600,
                   cursor: 'pointer',
                   transition: 'background 0.16s ease',
                 }}

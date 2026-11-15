@@ -24,7 +24,7 @@ export default function GlobalTimerWidget() {
     return `${m.toString().padStart(2, '0')}:${rs.toString().padStart(2, '0')}`;
   };
 
-  const modeColor = timer.mode === 'pomodoro' ? '#8b5cf6' : timer.mode === 'shortBreak' ? '#38bdf8' : '#10b981';
+  const modeColor = timer.mode === 'pomodoro' ? '#2563eb' : timer.mode === 'shortBreak' ? '#38bdf8' : '#10b981';
 
   return (
     <AnimatePresence>

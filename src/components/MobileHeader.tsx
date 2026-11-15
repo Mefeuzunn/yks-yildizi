@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { GraduationCap, Sprout } from 'lucide-react';
 import NotificationCenter from '@/components/NotificationCenter';
 import DesignModeSwitcher from '@/components/DesignModeSwitcher';
 
@@ -38,15 +39,15 @@ export default function MobileHeader() {
         left: 0,
         right: 0,
         zIndex: 45,
-        backgroundColor: 'var(--surface-header, rgba(8, 12, 20, 0.92))',
+        backgroundColor: 'var(--surface-header, rgba(9, 13, 22, 0.94))',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.07)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
         paddingTop: 'env(safe-area-inset-top, 0px)',
         paddingLeft: 'env(safe-area-inset-left, 0px)',
         paddingRight: 'env(safe-area-inset-right, 0px)',
         minHeight: 'calc(50px + env(safe-area-inset-top, 0px))',
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)',
       }}
     >
       <div
@@ -77,17 +78,18 @@ export default function MobileHeader() {
                 borderRadius: '8px',
                 background: isMaarif
                   ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-                  : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                  : 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '14px',
+                color: '#ffffff',
                 boxShadow: isMaarif
                   ? '0 0 10px rgba(16, 185, 129, 0.35)'
-                  : '0 0 10px rgba(99, 102, 241, 0.35)',
+                  : '0 0 10px rgba(37, 99, 235, 0.35)',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
               }}
             >
-              {isMaarif ? '🌱' : '✨'}
+              {isMaarif ? <Sprout size={16} strokeWidth={2.2} /> : <GraduationCap size={16} strokeWidth={2.2} />}
             </div>
             <span
               style={{
@@ -97,7 +99,7 @@ export default function MobileHeader() {
                 letterSpacing: '-0.025em',
               }}
             >
-              YKS<span style={{ color: isMaarif ? '#10b981' : '#818cf8' }}>Yıldızı</span>
+              YKS<span style={{ color: isMaarif ? '#10b981' : '#38bdf8' }}>Yıldızı</span>
             </span>
           </Link>
 
@@ -106,10 +108,10 @@ export default function MobileHeader() {
             style={{
               fontSize: '9.5px',
               fontWeight: 700,
-              color: isMaarif ? '#34d399' : '#a5b4fc',
-              backgroundColor: isMaarif ? 'rgba(16, 185, 129, 0.12)' : 'rgba(99, 102, 241, 0.12)',
+              color: isMaarif ? '#34d399' : '#60a5fa',
+              backgroundColor: isMaarif ? 'rgba(16, 185, 129, 0.12)' : 'rgba(37, 99, 235, 0.14)',
               border: `1px solid ${
-                isMaarif ? 'rgba(16, 185, 129, 0.25)' : 'rgba(99, 102, 241, 0.25)'
+                isMaarif ? 'rgba(16, 185, 129, 0.25)' : 'rgba(37, 99, 235, 0.28)'
               }`,
               padding: '1px 6px',
               borderRadius: '5px',

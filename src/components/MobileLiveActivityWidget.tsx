@@ -129,9 +129,9 @@ export default function MobileLiveActivityWidget({
               display: 'inline-flex',
               alignItems: 'center',
               gap: 6,
-              background: isFocusActive ? 'rgba(168, 85, 247, 0.2)' : 'rgba(239, 68, 68, 0.15)',
-              border: isFocusActive ? '1px solid rgba(168, 85, 247, 0.45)' : '1px solid rgba(239, 68, 68, 0.35)',
-              color: isFocusActive ? '#c084fc' : '#f87171',
+              background: isFocusActive ? 'rgba(37, 99, 235, 0.2)' : 'rgba(239, 68, 68, 0.15)',
+              border: isFocusActive ? '1px solid rgba(37, 99, 235, 0.45)' : '1px solid rgba(239, 68, 68, 0.35)',
+              color: isFocusActive ? '#60a5fa' : '#f87171',
               padding: '3px 8px',
               borderRadius: 20,
               fontSize: '11px',
@@ -144,9 +144,9 @@ export default function MobileLiveActivityWidget({
                 width: 6,
                 height: 6,
                 borderRadius: '50%',
-                backgroundColor: isFocusActive ? (timer.isRunning ? '#a855f7' : '#eab308') : '#ef4444',
+                backgroundColor: isFocusActive ? (timer.isRunning ? '#2563eb' : '#eab308') : '#ef4444',
                 boxShadow: isFocusActive
-                  ? (timer.isRunning ? '0 0 8px #a855f7' : '0 0 8px #eab308')
+                  ? (timer.isRunning ? '0 0 8px #2563eb' : '0 0 8px #eab308')
                   : '0 0 8px #ef4444',
                 animation: timer.isRunning ? 'pulse 1.4s infinite' : 'none',
               }}
@@ -288,7 +288,7 @@ export default function MobileLiveActivityWidget({
                 style={{
                   padding: '6px 10px',
                   borderRadius: 10,
-                  background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+                  background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
                   color: '#ffffff',
                   fontSize: '11px',
                   fontWeight: 700,
@@ -296,7 +296,7 @@ export default function MobileLiveActivityWidget({
                   display: 'flex',
                   alignItems: 'center',
                   gap: 4,
-                  boxShadow: '0 2px 8px rgba(99, 102, 241, 0.4)',
+                  boxShadow: '0 2px 8px rgba(37, 99, 235, 0.4)',
                 }}
               >
                 Aç <ArrowRight size={12} />
@@ -332,7 +332,7 @@ export default function MobileLiveActivityWidget({
                 style={{
                   height: '100%',
                   width: `${focusProgressPercent}%`,
-                  background: 'linear-gradient(90deg, #8b5cf6, #d946ef)',
+                  background: 'linear-gradient(90deg, #2563eb, #38bdf8)',
                   borderRadius: 3,
                   transition: 'width 0.4s ease',
                 }}
@@ -523,7 +523,7 @@ export default function MobileLiveActivityWidget({
                   background:
                     progressPercent >= 100
                       ? 'linear-gradient(90deg, #10b981, #059669)'
-                      : 'linear-gradient(90deg, #8b5cf6, #ec4899)',
+                      : 'linear-gradient(90deg, #2563eb, #0284c7)',
                   borderRadius: 3,
                 }}
               />
@@ -549,17 +549,17 @@ export default function MobileLiveActivityWidget({
             justifyContent: 'center',
             gap: 5,
             padding: '8px 4px',
-            background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(99, 102, 241, 0.15))',
-            border: '1px solid rgba(139, 92, 246, 0.35)',
+            background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(2, 132, 199, 0.15))',
+            border: '1px solid rgba(37, 99, 235, 0.35)',
             borderRadius: 10,
-            color: '#c4b5fd',
+            color: '#93c5fd',
             fontSize: '11.5px',
             fontWeight: 700,
             textDecoration: 'none',
             textAlign: 'center',
           }}
         >
-          <Zap size={13} color="#a78bfa" />
+          <Zap size={13} color="#60a5fa" />
           Soru Çöz
         </Link>
 
@@ -573,18 +573,18 @@ export default function MobileLiveActivityWidget({
             gap: 5,
             padding: '8px 4px',
             background: isFocusActive
-              ? 'linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(239, 68, 68, 0.2))'
+              ? 'linear-gradient(135deg, rgba(37, 99, 235, 0.3), rgba(2, 132, 199, 0.2))'
               : 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(245, 158, 11, 0.1))',
-            border: isFocusActive ? '1px solid rgba(168, 85, 247, 0.5)' : '1px solid rgba(239, 68, 68, 0.3)',
+            border: isFocusActive ? '1px solid rgba(37, 99, 235, 0.5)' : '1px solid rgba(239, 68, 68, 0.3)',
             borderRadius: 10,
-            color: isFocusActive ? '#e9d5ff' : '#fca5a5',
+            color: isFocusActive ? '#bfdbfe' : '#fca5a5',
             fontSize: '11.5px',
             fontWeight: 700,
             textDecoration: 'none',
             textAlign: 'center',
           }}
         >
-          <Timer size={13} color={isFocusActive ? '#c084fc' : '#f87171'} />
+          <Timer size={13} color={isFocusActive ? '#60a5fa' : '#f87171'} />
           {isFocusActive ? 'Sayaca Git' : 'Odaklan'}
         </Link>
 

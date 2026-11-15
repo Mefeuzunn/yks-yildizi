@@ -18,15 +18,15 @@
   --surface-overlay: rgba(8, 12, 20, 0.85);
 
   /* Border Tokens */
-  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-subtle: rgba(255, 255, 255, 0.08);
   --border-default: rgba(255, 255, 255, 0.12);
   --border-strong: rgba(255, 255, 255, 0.20);
-  --border-focus: rgba(99, 102, 241, 0.55);
+  --border-focus: rgba(37, 99, 235, 0.55);
 
-  /* Brand Primary (Indigo & Academic Violet) */
-  --accent-primary: #6366f1;
-  --accent-primary-hover: #4f46e5;
-  --accent-glow: rgba(99, 102, 241, 0.25);
+  /* Brand Primary (Oxford Academic Blue) */
+  --accent-primary: #2563eb;
+  --accent-primary-hover: #1d4ed8;
+  --accent-glow: rgba(37, 99, 235, 0.20);
   
   /* Maarif Model Emerald Signature */
   --maarif-emerald: #10b981;
@@ -50,14 +50,14 @@
   --text-muted: #94a3b8;
   --text-faint: #64748b;
 
-  /* Subject Color Codes (Standardized Course Palettes) */
-  --color-math: #3b82f6;
-  --color-physics: #8b5cf6;
-  --color-chemistry: #06b6d4;
-  --color-biology: #ec4899;
-  --color-literature: #f59e0b;
-  --color-history: #d97706;
-  --color-geography: #14b8a6;
+  /* Subject Color Codes (Standardized Academic Palettes - No Purple Slop) */
+  --color-math: #2563eb;
+  --color-physics: #0284c7;
+  --color-chemistry: #0d9488;
+  --color-biology: #059669;
+  --color-literature: #d97706;
+  --color-history: #b45309;
+  --color-geography: #047857;
 
   /* Radii */
   --radius-xs: 6px;
@@ -71,7 +71,7 @@
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.35);
   --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
   --shadow-elevated: 0 12px 32px -4px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.09);
-  --shadow-glow-indigo: 0 0 24px -4px rgba(99, 102, 241, 0.3);
+  --shadow-glow-indigo: 0 0 24px -4px rgba(37, 99, 235, 0.25);
   --shadow-glow-maarif: 0 0 24px -4px rgba(16, 185, 129, 0.3);
 
   /* Fonts */
@@ -168,14 +168,14 @@
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-default: rgba(255, 255, 255, 0.13);
   --border-strong: rgba(255, 255, 255, 0.22);
-  --border-focus: rgba(99, 102, 241, 0.75);
+  --border-focus: rgba(37, 99, 235, 0.75);
 
   /* Deep Spatial Shadows & Specular Highlights */
   --shadow-sm: 0 2px 6px 0 rgba(0, 0, 0, 0.45);
   --shadow-card: 0 10px 36px -4px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.12);
   --shadow-elevated: 0 18px 48px -6px rgba(0, 0, 0, 0.70), 0 0 0 1px rgba(255, 255, 255, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.20);
-  --shadow-glow-indigo: 0 0 32px -4px rgba(99, 102, 241, 0.45);
-  --shadow-glow-maarif: 0 0 32px -4px rgba(16, 185, 129, 0.45);
+  --shadow-glow-indigo: 0 0 32px -4px rgba(37, 99, 235, 0.35);
+  --shadow-glow-maarif: 0 0 32px -4px rgba(16, 185, 129, 0.35);
 
   /* Rounded Radii for Modern Bento Geometry */
   --radius-lg: 18px;
@@ -186,8 +186,8 @@
 [data-design-mode="lumina"] body {
   background-color: #030712;
   background-image: 
-    radial-gradient(1200px 520px at 50% -40px, rgba(99, 102, 241, 0.14), transparent 70%),
-    radial-gradient(900px 480px at 85% 12%, rgba(139, 92, 246, 0.09), transparent 60%),
+    radial-gradient(1200px 520px at 50% -40px, rgba(37, 99, 235, 0.10), transparent 70%),
+    radial-gradient(900px 480px at 85% 12%, rgba(2, 132, 199, 0.08), transparent 60%),
     radial-gradient(850px 450px at 15% 45%, rgba(59, 130, 246, 0.06), transparent 55%),
     radial-gradient(1100px 600px at 50% 100%, rgba(16, 185, 129, 0.05), transparent 70%);
   background-attachment: fixed;

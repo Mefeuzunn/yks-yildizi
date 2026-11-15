@@ -1,126 +1,165 @@
 "use client";
 
-import React, { useState, useCallback, Suspense, useRef, useEffect } from 'react';
+import React, { useState, useCallback, Suspense, useRef } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { LogOut, Settings, User, Sparkles, ChevronRight } from 'lucide-react';
+import {
+  Home,
+  Target,
+  BarChart3,
+  TrendingUp,
+  BookOpen,
+  FileText,
+  XCircle,
+  Layers,
+  Timer,
+  Calendar,
+  Compass,
+  BrainCircuit,
+  GraduationCap,
+  Calculator,
+  ClipboardList,
+  Swords,
+  Shield,
+  MessageSquare,
+  Headphones,
+  School,
+  Trophy,
+  ShoppingBag,
+  Sprout,
+  FileEdit,
+  Atom,
+  Sparkles,
+  Users,
+  Bell,
+  LogOut,
+  Settings,
+  User,
+  ChevronDown,
+  type LucideIcon,
+} from 'lucide-react';
 import NotificationCenter from '@/components/NotificationCenter';
 import DesignModeSwitcher from '@/components/DesignModeSwitcher';
 
-// ─── Nav Data ────────────────────────────────────────────────────────
-const STUDENT_NAV_GROUPS: {
+// ─── Nav Data Interfaces ─────────────────────────────────────────────
+interface NavItemDef {
+  icon: LucideIcon;
+  label: string;
+  href: string;
+}
+
+interface NavGroupDef {
   label: string;
   color: string;
-  items: { emoji: string; label: string; href: string }[];
-}[] = [
+  items: NavItemDef[];
+}
+
+// ─── Student Nav Groups ──────────────────────────────────────────────
+const STUDENT_NAV_GROUPS: NavGroupDef[] = [
   {
     label: 'Ana Menü',
-    color: '#8b5cf6', // purple
+    color: '#2563eb', // Oxford Academic Blue
     items: [
-      { emoji: '🏠', label: 'Ana Sayfa', href: '/dashboard?tab=home' },
-      { emoji: '🎯', label: 'Hedeflerim', href: '/dashboard?tab=hedef' },
-      { emoji: '📊', label: 'Analizim', href: '/dashboard?tab=analysis' },
+      { icon: Home, label: 'Ana Sayfa', href: '/dashboard?tab=home' },
+      { icon: Target, label: 'Hedeflerim', href: '/dashboard?tab=hedef' },
+      { icon: BarChart3, label: 'Analizim', href: '/dashboard?tab=analysis' },
     ],
   },
   {
     label: 'Çalışma & Dersler',
-    color: '#3b82f6', // cobalt blue
+    color: '#0284c7', // Ocean Slate
     items: [
-      { emoji: '📈', label: 'Denemeler', href: '/denemeler' },
-      { emoji: '📚', label: 'Konular', href: '/dashboard?tab=topics' },
-      { emoji: '📝', label: 'Testler & Soru Havuzu', href: '/testler' },
-      { emoji: '❌', label: 'Yanlışlarım', href: '/dashboard?tab=mistakes' },
-      { emoji: '🎴', label: 'Hafıza Kartları', href: '/dashboard?tab=cards' },
-      { emoji: '🍅', label: 'Odaklanma', href: '/dashboard?tab=focus' },
-      { emoji: '📅', label: 'Haftalık Program', href: '/dashboard?tab=schedule' },
-      { emoji: '🔬', label: 'Simülasyonlar', href: '/simulasyonlar' },
+      { icon: TrendingUp, label: 'Denemeler', href: '/denemeler' },
+      { icon: BookOpen, label: 'Konular', href: '/dashboard?tab=topics' },
+      { icon: FileText, label: 'Testler & Soru Havuzu', href: '/testler' },
+      { icon: XCircle, label: 'Yanlışlarım', href: '/dashboard?tab=mistakes' },
+      { icon: Layers, label: 'Hafıza Kartları', href: '/dashboard?tab=cards' },
+      { icon: Timer, label: 'Odaklanma', href: '/dashboard?tab=focus' },
+      { icon: Calendar, label: 'Haftalık Program', href: '/dashboard?tab=schedule' },
+      { icon: Compass, label: 'Simülasyonlar', href: '/simulasyonlar' },
     ],
   },
   {
     label: 'Akıllı Araçlar',
-    color: '#10b981', // emerald
+    color: '#10b981', // Maarif Emerald
     items: [
-      { emoji: '🤖', label: 'Astra AI Rehber', href: '/dashboard?tab=astratutor' },
-      { emoji: '🎓', label: 'Tercih Robotu', href: '/dashboard?tab=tercih-robotu' },
-      { emoji: '🧮', label: 'Puan Hesaplama', href: '/puan-hesaplama' },
-      { emoji: '📋', label: 'Ödevlerim', href: '/odevlerim' },
+      { icon: BrainCircuit, label: 'Astra AI Rehber', href: '/dashboard?tab=astratutor' },
+      { icon: GraduationCap, label: 'Tercih Robotu', href: '/dashboard?tab=tercih-robotu' },
+      { icon: Calculator, label: 'Puan Hesaplama', href: '/puan-hesaplama' },
+      { icon: ClipboardList, label: 'Ödevlerim', href: '/odevlerim' },
     ],
   },
   {
     label: 'Sosyal & Arena',
-    color: '#f59e0b', // amber
+    color: '#f59e0b', // Amber
     items: [
-      { emoji: '⚔️', label: 'Bilgi Arenası', href: '/duello' },
-      { emoji: '🛡️', label: 'Klanlar', href: '/klanlar' },
-      { emoji: '💬', label: 'Topluluk Forumu', href: '/forum' },
-      { emoji: '🎧', label: 'Çalışma Odaları', href: '/calisma-odalari' },
-      { emoji: '🏫', label: 'Sınıfım', href: '/dashboard?tab=sinif' },
-      { emoji: '🏆', label: 'Lig Sıralaması', href: '/ligler' },
-      { emoji: '🛍️', label: 'Puan Mağazası', href: '/magaza' },
+      { icon: Swords, label: 'Bilgi Arenası', href: '/duello' },
+      { icon: Shield, label: 'Klanlar', href: '/klanlar' },
+      { icon: MessageSquare, label: 'Topluluk Forumu', href: '/forum' },
+      { icon: Headphones, label: 'Çalışma Odaları', href: '/calisma-odalari' },
+      { icon: School, label: 'Sınıfım', href: '/dashboard?tab=sinif' },
+      { icon: Trophy, label: 'Lig Sıralaması', href: '/ligler' },
+      { icon: ShoppingBag, label: 'Puan Mağazası', href: '/magaza' },
     ],
   },
 ];
 
 // ─── Maarif Modeli Öğrenci Navigasyonu (9, 10, 11. Sınıf) ────────────────
-const MAARIF_NAV_GROUPS: {
-  label: string;
-  color: string;
-  items: { emoji: string; label: string; href: string }[];
-}[] = [
+const MAARIF_NAV_GROUPS: NavGroupDef[] = [
   {
     label: 'Maarif Portalı',
     color: '#10b981', // emerald
     items: [
-      { emoji: '🌱', label: 'Maarif Ana Sayfa', href: '/maarif' },
-      { emoji: '📝', label: 'Yazılı Senaryoları', href: '/maarif?tab=senaryolar' },
-      { emoji: '📚', label: 'Müfredat & Kazanımlar', href: '/maarif?tab=dersler' },
-      { emoji: '🔬', label: 'Deney & Simülasyon', href: '/maarif?tab=deneyler' },
-      { emoji: '🤖', label: 'Sokratik Mentor', href: '/maarif?tab=mentor' },
+      { icon: Sprout, label: 'Maarif Ana Sayfa', href: '/maarif' },
+      { icon: FileEdit, label: 'Yazılı Senaryoları', href: '/maarif?tab=senaryolar' },
+      { icon: BookOpen, label: 'Müfredat & Kazanımlar', href: '/maarif?tab=dersler' },
+      { icon: Atom, label: 'Deney & Simülasyon', href: '/maarif?tab=deneyler' },
+      { icon: Sparkles, label: 'Sokratik Mentor', href: '/maarif?tab=mentor' },
     ],
   },
   {
     label: 'Çalışma & Araçlar',
-    color: '#3b82f6', // blue
+    color: '#0284c7', // sky
     items: [
-      { emoji: '📋', label: 'Ödevlerim', href: '/odevlerim' },
-      { emoji: '🎧', label: 'Çalışma Odaları', href: '/calisma-odalari' },
-      { emoji: '🔬', label: 'Tüm Simülasyonlar', href: '/simulasyonlar' },
+      { icon: ClipboardList, label: 'Ödevlerim', href: '/odevlerim' },
+      { icon: Headphones, label: 'Çalışma Odaları', href: '/calisma-odalari' },
+      { icon: Compass, label: 'Tüm Simülasyonlar', href: '/simulasyonlar' },
     ],
   },
   {
     label: 'Topluluk & Motivasyon',
     color: '#f59e0b', // amber
     items: [
-      { emoji: '⚔️', label: 'Bilgi Arenası', href: '/duello' },
-      { emoji: '🛡️', label: 'Klanlar', href: '/klanlar' },
-      { emoji: '💬', label: 'Topluluk Forumu', href: '/forum' },
-      { emoji: '🏆', label: 'Ligler', href: '/ligler' },
-      { emoji: '🛍️', label: 'Mağaza', href: '/magaza' },
+      { icon: Swords, label: 'Bilgi Arenası', href: '/duello' },
+      { icon: Shield, label: 'Klanlar', href: '/klanlar' },
+      { icon: MessageSquare, label: 'Topluluk Forumu', href: '/forum' },
+      { icon: Trophy, label: 'Ligler', href: '/ligler' },
+      { icon: ShoppingBag, label: 'Mağaza', href: '/magaza' },
     ],
   },
 ];
 
-const TEACHER_NAV_ITEMS: { emoji: string; label: string; href: string }[] = [
-  { emoji: '🏠', label: 'Genel Bakış', href: '/ogretmen/dashboard' },
-  { emoji: '🏫', label: 'Sınıflarım', href: '/ogretmen/dashboard?tab=siniflar' },
-  { emoji: '👥', label: 'Öğrenciler', href: '/ogretmen/dashboard?tab=ogrenciler' },
-  { emoji: '📋', label: 'Ödev Yönetimi', href: '/ogretmen/dashboard?tab=odevler' },
-  { emoji: '📊', label: 'Sınıf Analitiği', href: '/ogretmen/dashboard?tab=analiz' },
-  { emoji: '📚', label: 'Ders Kaynakları', href: '/ogretmen/dashboard?tab=kaynaklar' },
-  { emoji: '📢', label: 'Duyurular', href: '/ogretmen/dashboard?tab=duyurular' },
+const TEACHER_NAV_ITEMS: NavItemDef[] = [
+  { icon: Home, label: 'Genel Bakış', href: '/ogretmen/dashboard' },
+  { icon: School, label: 'Sınıflarım', href: '/ogretmen/dashboard?tab=siniflar' },
+  { icon: Users, label: 'Öğrenciler', href: '/ogretmen/dashboard?tab=ogrenciler' },
+  { icon: ClipboardList, label: 'Ödev Yönetimi', href: '/ogretmen/dashboard?tab=odevler' },
+  { icon: BarChart3, label: 'Sınıf Analitiği', href: '/ogretmen/dashboard?tab=analiz' },
+  { icon: BookOpen, label: 'Ders Kaynakları', href: '/ogretmen/dashboard?tab=kaynaklar' },
+  { icon: Bell, label: 'Duyurular', href: '/ogretmen/dashboard?tab=duyurular' },
 ];
 
 // ─── NavItem ─────────────────────────────────────────────────────────
 function NavItem({
-  emoji,
+  icon: Icon,
   label,
   href,
   active,
   accentColor,
   onClick,
 }: {
-  emoji: string;
+  icon: LucideIcon;
   label: string;
   href: string;
   active: boolean;
@@ -128,7 +167,7 @@ function NavItem({
   onClick?: () => void;
 }) {
   const [hovered, setHovered] = useState(false);
-  const accent = accentColor || '#6366f1';
+  const accent = accentColor || '#2563eb';
 
   return (
     <Link
@@ -140,62 +179,76 @@ function NavItem({
       style={{
         display: 'flex',
         alignItems: 'center',
-        gap: '10px',
-        padding: '7px 11px',
-        borderRadius: '10px',
+        gap: '9px',
+        padding: '7px 10px',
+        borderRadius: '8px',
         textDecoration: 'none',
         fontSize: '13px',
         fontWeight: active ? 600 : 500,
         color: active ? '#ffffff' : hovered ? '#f1f5f9' : '#94a3b8',
         background: active
-          ? `linear-gradient(90deg, ${accent}28 0%, ${accent}0e 100%)`
+          ? `linear-gradient(90deg, ${accent}22 0%, ${accent}0a 100%)`
           : hovered
           ? 'rgba(255, 255, 255, 0.04)'
           : 'transparent',
         border: active
-          ? `1px solid ${accent}45`
+          ? `1px solid ${accent}38`
           : hovered
           ? '1px solid rgba(255, 255, 255, 0.05)'
           : '1px solid transparent',
         transition: 'all 0.16s cubic-bezier(0.16, 1, 0.3, 1)',
         position: 'relative',
-        boxShadow: active ? `0 2px 10px ${accent}20` : 'none',
+        boxShadow: active ? `0 2px 10px ${accent}18` : 'none',
       }}
     >
+      {/* 2.5px Active indicator bar on the left */}
+      {active && (
+        <span
+          style={{
+            position: 'absolute',
+            left: 0,
+            top: '6px',
+            bottom: '6px',
+            width: '2.5px',
+            borderRadius: '0 3px 3px 0',
+            backgroundColor: accent,
+            boxShadow: `0 0 8px ${accent}90`,
+          }}
+        />
+      )}
       <span
         style={{
           width: '26px',
           height: '26px',
-          borderRadius: '8px',
+          borderRadius: '7px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           flexShrink: 0,
           backgroundColor: active
-            ? `${accent}30`
+            ? `${accent}25`
             : hovered
-            ? 'rgba(255, 255, 255, 0.05)'
+            ? 'rgba(255, 255, 255, 0.06)'
             : 'rgba(255, 255, 255, 0.02)',
-          fontSize: '15px',
-          lineHeight: 1,
+          color: active ? (accent === '#2563eb' ? '#60a5fa' : accent) : hovered ? '#e2e8f0' : '#64748b',
           transition: 'all 0.16s ease',
-          boxShadow: active ? `0 0 8px ${accent}40` : 'none',
+          border: active ? `1px solid ${accent}30` : '1px solid transparent',
         }}
       >
-        {emoji}
+        <Icon size={15} strokeWidth={active ? 2.2 : 1.8} />
       </span>
-      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', letterSpacing: '-0.01em' }}>
         {label}
       </span>
       {active && (
         <span
           style={{
-            width: '6px',
-            height: '6px',
+            width: '5px',
+            height: '5px',
             borderRadius: '50%',
             backgroundColor: accent,
             flexShrink: 0,
-            boxShadow: `0 0 8px ${accent}`,
+            boxShadow: `0 0 6px ${accent}`,
           }}
         />
       )}
@@ -212,7 +265,7 @@ function NavGroup({
 }: {
   label: string;
   color: string;
-  items: any[];
+  items: (NavItemDef & { active: boolean; onClick?: () => void })[];
   accentColor: string;
 }) {
   const [open, setOpen] = useState(true);
@@ -266,13 +319,13 @@ function NavGroup({
         <span
           style={{
             color: '#475569',
-            fontSize: '10px',
+            display: 'flex',
+            alignItems: 'center',
             transform: open ? 'rotate(0deg)' : 'rotate(-90deg)',
             transition: 'transform 0.2s ease',
-            lineHeight: 1,
           }}
         >
-          ▾
+          <ChevronDown size={13} strokeWidth={2} />
         </span>
       </button>
 
@@ -285,10 +338,10 @@ function NavGroup({
             gap: '2px',
           }}
         >
-          {items.map((item: any) => (
+          {items.map((item) => (
             <NavItem
               key={item.href}
-              emoji={item.emoji}
+              icon={item.icon}
               label={item.label}
               href={item.href}
               active={item.active}
@@ -396,12 +449,45 @@ function SidebarNav({ user }: { user: any }) {
 }
 
 // ─── Footer Action Item ────────────────────────────────────────────────
-function FooterLink({ icon, emoji, label, href, onClick, danger }: any) {
+function FooterLink({
+  icon: Icon,
+  label,
+  href,
+  onClick,
+  danger,
+}: {
+  icon: LucideIcon;
+  label: string;
+  href?: string;
+  onClick?: () => void;
+  danger?: boolean;
+}) {
   const [hovered, setHovered] = useState(false);
   const content = (
     <>
-      <span style={{ fontSize: '15px', lineHeight: 1, flexShrink: 0 }}>{emoji || icon}</span>
-      <span>{label}</span>
+      <span
+        style={{
+          width: '24px',
+          height: '24px',
+          borderRadius: '6px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+          backgroundColor: hovered && danger
+            ? 'rgba(239, 68, 68, 0.15)'
+            : hovered
+            ? 'rgba(255, 255, 255, 0.06)'
+            : 'rgba(255, 255, 255, 0.02)',
+          color: danger ? (hovered ? '#ef4444' : '#f87171') : hovered ? '#f1f5f9' : '#64748b',
+          transition: 'all 0.16s ease',
+        }}
+      >
+        <Icon size={14} strokeWidth={1.8} />
+      </span>
+      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        {label}
+      </span>
     </>
   );
 
@@ -409,12 +495,12 @@ function FooterLink({ icon, emoji, label, href, onClick, danger }: any) {
     display: 'flex',
     alignItems: 'center',
     gap: '9px',
-    padding: '8px 10px',
+    padding: '7px 10px',
     borderRadius: '8px',
     fontSize: '12.5px',
     fontWeight: 500,
     color: hovered && danger ? '#fca5a5' : hovered ? '#f1f5f9' : '#94a3b8',
-    background: hovered && danger ? 'rgba(239,68,68,0.1)' : hovered ? 'rgba(255,255,255,0.04)' : 'transparent',
+    background: hovered && danger ? 'rgba(239, 68, 68, 0.08)' : hovered ? 'rgba(255, 255, 255, 0.04)' : 'transparent',
     transition: 'all 0.16s ease',
     textDecoration: 'none',
     cursor: 'pointer',
@@ -426,6 +512,7 @@ function FooterLink({ icon, emoji, label, href, onClick, danger }: any) {
   if (onClick) {
     return (
       <button
+        type="button"
         onClick={onClick}
         style={baseStyle}
         onMouseEnter={() => setHovered(true)}
@@ -438,7 +525,7 @@ function FooterLink({ icon, emoji, label, href, onClick, danger }: any) {
 
   return (
     <Link
-      href={href}
+      href={href || '#'}
       prefetch={true}
       style={baseStyle}
       onMouseEnter={() => setHovered(true)}
@@ -480,12 +567,12 @@ export default function AppSidebar() {
       ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
       : isMaarif
       ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)'
-      : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
+      : 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
 
   const avatarGlow =
     user?.role === 'ogretmen' || isMaarif
-      ? 'rgba(16, 185, 129, 0.3)'
-      : 'rgba(99, 102, 241, 0.3)';
+      ? 'rgba(16, 185, 129, 0.25)'
+      : 'rgba(37, 99, 235, 0.25)';
 
   const handleAsideWheel = (e: React.WheelEvent) => {
     if (navScrollRef.current) {
@@ -500,8 +587,8 @@ export default function AppSidebar() {
       style={{
         width: '228px',
         height: '100vh',
-        backgroundColor: 'var(--bg-sidebar, #080c14)',
-        borderRight: '1px solid rgba(255, 255, 255, 0.07)',
+        backgroundColor: 'var(--bg-sidebar, #090d16)',
+        borderRight: '1px solid rgba(255, 255, 255, 0.08)',
         display: 'flex',
         flexDirection: 'column',
         position: 'fixed',
@@ -538,7 +625,7 @@ export default function AppSidebar() {
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
+            gap: '9px',
             textDecoration: 'none',
             cursor: 'pointer',
             flex: 1,
@@ -547,21 +634,22 @@ export default function AppSidebar() {
         >
           <div
             style={{
-              width: '30px',
-              height: '30px',
+              width: '32px',
+              height: '32px',
               borderRadius: '9px',
               flexShrink: 0,
               background: isMaarif
                 ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-                : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                : 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '15px',
-              boxShadow: `0 0 14px ${avatarGlow}`,
+              color: '#ffffff',
+              boxShadow: `0 0 16px ${avatarGlow}`,
+              border: '1px solid rgba(255, 255, 255, 0.15)',
             }}
           >
-            {isMaarif ? '🌱' : '✨'}
+            {isMaarif ? <Sprout size={17} strokeWidth={2.2} /> : <GraduationCap size={18} strokeWidth={2.2} />}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span
@@ -574,15 +662,16 @@ export default function AppSidebar() {
                 whiteSpace: 'nowrap',
               }}
             >
-              YKS<span style={{ color: isMaarif ? '#10b981' : '#818cf8' }}>Yıldızı</span>
+              YKS<span style={{ color: isMaarif ? '#10b981' : '#38bdf8' }}>Yıldızı</span>
             </span>
             <span
               style={{
-                fontSize: '9.5px',
+                fontSize: '9px',
                 fontWeight: 700,
-                color: isMaarif ? '#34d399' : '#94a3b8',
-                letterSpacing: '0.04em',
+                color: isMaarif ? '#34d399' : '#64748b',
+                letterSpacing: '0.06em',
                 textTransform: 'uppercase',
+                marginTop: '1px',
               }}
             >
               {isMaarif ? 'Maarif Portalı' : 'Hazırlık Portalı'}
@@ -599,7 +688,7 @@ export default function AppSidebar() {
             padding: '9px 10px',
             borderRadius: '11px',
             background: 'rgba(255, 255, 255, 0.025)',
-            border: '1px solid rgba(255, 255, 255, 0.06)',
+            border: '1px solid rgba(255, 255, 255, 0.07)',
             display: 'flex',
             alignItems: 'center',
             gap: '10px',
@@ -619,6 +708,7 @@ export default function AppSidebar() {
               fontWeight: 700,
               fontSize: '13px',
               boxShadow: `0 0 10px ${avatarGlow}`,
+              border: '1px solid rgba(255, 255, 255, 0.12)',
             }}
           >
             {initials}
@@ -656,7 +746,7 @@ export default function AppSidebar() {
       <div
         style={{
           height: '1px',
-          background: 'rgba(255, 255, 255, 0.05)',
+          background: 'rgba(255, 255, 255, 0.06)',
           margin: '0 10px 6px',
           flexShrink: 0,
         }}
@@ -689,20 +779,20 @@ export default function AppSidebar() {
       <div
         style={{
           height: '1px',
-          background: 'rgba(255, 255, 255, 0.05)',
+          background: 'rgba(255, 255, 255, 0.06)',
           margin: '0 10px 4px',
           flexShrink: 0,
         }}
       />
 
       {/* ── Footer ── */}
-      <div style={{ padding: '4px 8px 12px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+      <div style={{ padding: '4px 8px 12px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '3px' }}>
         <div style={{ padding: '0 2px 4px' }}>
           <DesignModeSwitcher variant="sidebar" />
         </div>
-        <FooterLink emoji="👤" label="Profilim" href={profileHref} />
-        <FooterLink emoji="⚙️" label="Ayarlar" href="/ayarlar" />
-        <FooterLink emoji="🚪" label="Çıkış Yap" onClick={logout} danger />
+        <FooterLink icon={User} label="Profilim" href={profileHref} />
+        <FooterLink icon={Settings} label="Ayarlar" href="/ayarlar" />
+        <FooterLink icon={LogOut} label="Çıkış Yap" onClick={logout} danger />
       </div>
     </aside>
   );

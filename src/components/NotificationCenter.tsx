@@ -183,7 +183,7 @@ export default function NotificationCenter({ align = 'right', className = '' }: 
               border: '1px solid rgba(139, 92, 246, 0.45)',
               borderRadius: '16px',
               padding: '14px 18px',
-              boxShadow: '0 12px 35px rgba(0, 0, 0, 0.6), 0 0 20px rgba(139, 92, 246, 0.25)',
+              boxShadow: '0 12px 35px rgba(0, 0, 0, 0.6), 0 0 20px rgba(37, 99, 235, 0.25)',
               backdropFilter: 'blur(20px)',
               color: '#fff',
               display: 'flex',
@@ -193,11 +193,13 @@ export default function NotificationCenter({ align = 'right', className = '' }: 
           >
             <div style={{
               width: 36, height: 36, borderRadius: 10,
-              background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+              background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 18, flexShrink: 0
+              flexShrink: 0,
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              boxShadow: '0 0 12px rgba(37, 99, 235, 0.35)',
             }}>
-              🔔
+              <Bell size={18} color="#fff" />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 700, fontSize: '13.5px', color: '#f1f5f9' }}>{inAppToast.title}</div>
@@ -450,8 +452,8 @@ export default function NotificationCenter({ align = 'right', className = '' }: 
                             width: 6,
                             height: 6,
                             borderRadius: '50%',
-                            backgroundColor: '#8b5cf6',
-                            boxShadow: '0 0 8px #8b5cf6',
+                            backgroundColor: '#2563eb',
+                            boxShadow: '0 0 8px #2563eb',
                             flexShrink: 0,
                             marginTop: 6,
                           }} />

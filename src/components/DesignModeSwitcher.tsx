@@ -116,13 +116,13 @@ export default function DesignModeSwitcher({
               width: '38px',
               height: '38px',
               borderRadius: '10px',
-              background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
+              background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: '#fff',
               marginBottom: '12px',
-              boxShadow: '0 4px 14px rgba(99, 102, 241, 0.4)',
+              boxShadow: '0 4px 14px rgba(37, 99, 235, 0.4)',
             }}
           >
             <Sparkles size={20} />
@@ -132,7 +132,7 @@ export default function DesignModeSwitcher({
             style={{
               fontWeight: 800,
               fontSize: '1.05rem',
-              color: mode === 'lumina' ? '#c7d2fe' : '#f8fafc',
+              color: mode === 'lumina' ? '#93c5fd' : '#f8fafc',
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
@@ -144,7 +144,7 @@ export default function DesignModeSwitcher({
                 fontSize: '10px',
                 padding: '2px 6px',
                 borderRadius: '6px',
-                background: 'linear-gradient(90deg, #6366f1, #8b5cf6)',
+                background: 'linear-gradient(90deg, #2563eb, #0284c7)',
                 color: '#fff',
                 fontWeight: 800,
                 letterSpacing: '0.04em',
@@ -295,7 +295,7 @@ export default function DesignModeSwitcher({
               height: '22px',
               borderRadius: '6px',
               background: isLumina
-                ? 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
+                ? 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)'
                 : 'rgba(255, 255, 255, 0.08)',
               display: 'flex',
               alignItems: 'center',
@@ -307,7 +307,7 @@ export default function DesignModeSwitcher({
           >
             {isLumina ? <Sparkles size={13} /> : <Layers size={13} />}
           </div>
-          <span style={{ color: isLumina ? '#e0e7ff' : '#94a3b8', letterSpacing: '-0.01em' }}>
+          <span style={{ color: isLumina ? '#bfdbfe' : '#94a3b8', letterSpacing: '-0.01em' }}>
             {isLumina ? 'Lumina Studio' : 'Klasik Mod'}
           </span>
         </div>
@@ -318,7 +318,7 @@ export default function DesignModeSwitcher({
             width: '32px',
             height: '18px',
             borderRadius: '9999px',
-            background: isLumina ? '#6366f1' : 'rgba(255, 255, 255, 0.12)',
+            background: isLumina ? '#2563eb' : 'rgba(255, 255, 255, 0.12)',
             position: 'relative',
             transition: 'background 0.2s ease',
             flexShrink: 0,
