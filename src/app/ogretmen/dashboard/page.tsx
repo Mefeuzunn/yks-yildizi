@@ -58,7 +58,7 @@ interface AssignmentItem { id: string; title: string; description?: string; cate
 // ─────────────────────────────────────────────
 const ANNOUNCEMENT_CATEGORIES = ['Tümü', 'Genel', 'Sınav Duyurusu', 'Ödev Hatırlatma', 'Etkinlik', 'Ders Programı', 'Önemli'];
 const ANNOUNCEMENT_CATEGORY_COLORS: Record<string, string> = {
-  Genel: '#8b5cf6',
+  Genel: '#2563eb',
   'Sınav Duyurusu': '#f43f5e',
   'Ödev Hatırlatma': '#f59e0b',
   Etkinlik: '#10b981',
@@ -70,19 +70,19 @@ const ASSIGNMENT_CATEGORIES = ['Tümü', 'Genel', 'TYT Deneme', 'AYT Deneme', 'K
 const ASSIGNMENT_CATEGORY_COLORS: Record<string, string> = {
   Genel: '#6b7280',
   'TYT Deneme': '#38bdf8',
-  'AYT Deneme': '#a855f7',
-  'Konu Testi': '#10b981',
+  'AYT Deneme': '#10b981',
+  'Konu Testi': '#059669',
   'Haftalık Ödev': '#f59e0b',
   'Soru Çözümü': '#ec4899',
-  Proje: '#6366f1',
+  Proje: '#0284c7',
 };
 
 const LEAGUE_COLORS: Record<string, string> = {
   Bronz: '#cd7f32', Gümüş: '#9ca3af', Altın: '#f59e0b',
-  Elmas: '#38bdf8', Zümrüt: '#10b981', Efsane: '#a855f7',
+  Elmas: '#38bdf8', Zümrüt: '#10b981', Efsane: '#eab308',
 };
 const ALAN_COLORS: Record<string, string> = {
-  Sayisal: '#38bdf8', 'Esit Agirlik': '#10b981', Sozel: '#a855f7', Dil: '#f59e0b',
+  Sayisal: '#38bdf8', 'Esit Agirlik': '#10b981', Sozel: '#d97706', Dil: '#f59e0b',
 };
 
 function successColor(rate: number) {
@@ -243,7 +243,7 @@ function AIAssistantWidget({ classId }: { classId: string | null }) {
   };
 
   if (!classId) return (
-    <div style={{ padding: 24, background: 'rgba(139,92,246,0.05)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: 12, marginBottom: 24, textAlign: 'center', color: '#94a3b8' }}>
+    <div style={{ padding: 24, background: 'rgba(37,99,235,0.05)', border: '1px solid rgba(37,99,235,0.2)', borderRadius: 12, marginBottom: 24, textAlign: 'center', color: '#94a3b8' }}>
       <span style={{ fontSize: 28 }}>🤖</span>
       <p style={{ margin: '8px 0 0' }}>AI önerileri için sol üstten bir sınıf seçin.</p>
     </div>
@@ -252,7 +252,7 @@ function AIAssistantWidget({ classId }: { classId: string | null }) {
   return (
     <div style={{ marginBottom: 24 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-        <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #8b5cf6, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🤖</div>
+        <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🤖</div>
         <div>
           <h3 style={{ color: '#fff', fontWeight: 700, margin: 0, fontSize: 16 }}>AstraTutor Sınıf Asistanı</h3>
           <p style={{ color: '#64748b', fontSize: 12, margin: 0 }}>Yapay zeka destekli ödev ve içerik önerileri</p>
@@ -501,7 +501,7 @@ function ClassMockExamAnalyticsWidget({ classId }: { classId: string | null }) {
                   </div>
                   <div style={{ background: 'rgba(255,255,255,0.03)', padding: '6px 10px', borderRadius: 8 }}>
                     <span style={{ color: '#94a3b8' }}>🔬 Fen: </span>
-                    <strong style={{ color: '#c084fc' }}>{data.tytAverages.scienceNet}</strong>
+                    <strong style={{ color: '#0ea5e9' }}>{data.tytAverages.scienceNet}</strong>
                   </div>
                   <div style={{ background: 'rgba(255,255,255,0.03)', padding: '6px 10px', borderRadius: 8 }}>
                     <span style={{ color: '#94a3b8' }}>🌍 Sosyal: </span>
@@ -516,13 +516,13 @@ function ClassMockExamAnalyticsWidget({ classId }: { classId: string | null }) {
 
             {/* AYT Karnesi */}
             {data.aytAverages ? (
-              <div style={{ background: 'rgba(168,85,247,0.05)', border: '1px solid rgba(168,85,247,0.2)', borderRadius: 12, padding: 16 }}>
+              <div style={{ background: 'rgba(16,185,129,0.05)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 12, padding: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ background: '#a855f720', color: '#c084fc', padding: '2px 8px', borderRadius: 6, fontSize: 11, fontWeight: 800 }}>AYT</span>
+                    <span style={{ background: 'rgba(16,185,129,0.15)', color: '#34d399', padding: '2px 8px', borderRadius: 6, fontSize: 11, fontWeight: 800 }}>AYT</span>
                     <span style={{ color: '#fff', fontWeight: 700, fontSize: 14 }}>Sınıf AYT Ortalaması</span>
                   </div>
-                  <span style={{ color: '#c084fc', fontSize: 20, fontWeight: 900 }}>{data.aytAverages.totalNet} Net</span>
+                  <span style={{ color: '#10b981', fontSize: 20, fontWeight: 900 }}>{data.aytAverages.totalNet} Net</span>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
                   <div style={{ background: 'rgba(255,255,255,0.03)', padding: '6px 10px', borderRadius: 8 }}>
@@ -531,7 +531,7 @@ function ClassMockExamAnalyticsWidget({ classId }: { classId: string | null }) {
                   </div>
                   <div style={{ background: 'rgba(255,255,255,0.03)', padding: '6px 10px', borderRadius: 8 }}>
                     <span style={{ color: '#94a3b8' }}>🔬 Fen: </span>
-                    <strong style={{ color: '#c084fc' }}>{data.aytAverages.scienceNet}</strong>
+                    <strong style={{ color: '#0ea5e9' }}>{data.aytAverages.scienceNet}</strong>
                   </div>
                   <div style={{ background: 'rgba(255,255,255,0.03)', padding: '6px 10px', borderRadius: 8 }}>
                     <span style={{ color: '#94a3b8' }}>📜 Edebiyat/Sos: </span>
@@ -834,7 +834,7 @@ function TeacherProfileTab() {
     setForm(f => ({ ...f, specialties: f.specialties.filter(x => x !== s) }));
   };
 
-  if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}><Loader2 className="animate-spin" size={32} color="#6366f1" /></div>;
+  if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}><Loader2 className="animate-spin" size={32} color="#2563eb" /></div>;
 
   const cardStyle: React.CSSProperties = {
     backgroundColor: '#0f1523',
@@ -875,7 +875,7 @@ function TeacherProfileTab() {
         {/* Basic Info Card */}
         <div style={cardStyle}>
           <h3 style={{ color: '#f1f5f9', fontSize: '1rem', fontWeight: 700, marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <User size={18} color="#6366f1" /> Temel Bilgiler
+            <User size={18} color="#2563eb" /> Temel Bilgiler
           </h3>
           <div className="teacher-form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div>
@@ -978,7 +978,7 @@ function TeacherProfileTab() {
               placeholder="Örn: Limit-Türev, Organik Kimya..."
               style={{ ...inputStyle, flex: 1 }}
             />
-            <button onClick={addSpecialty} style={{ padding: '0 1rem', borderRadius: '10px', background: 'rgba(99,102,241,0.2)', color: '#a5b4fc', border: '1px solid rgba(99,102,241,0.3)', cursor: 'pointer', fontWeight: 600 }}>Ekle</button>
+            <button onClick={addSpecialty} style={{ padding: '0 1rem', borderRadius: '10px', background: 'rgba(37,99,235,0.15)', color: '#38bdf8', border: '1px solid rgba(37,99,235,0.3)', cursor: 'pointer', fontWeight: 600 }}>Ekle</button>
           </div>
         </div>
 
@@ -988,14 +988,14 @@ function TeacherProfileTab() {
           disabled={saving}
           style={{
             padding: '0.75rem 1.5rem', borderRadius: '12px',
-            background: saved ? 'linear-gradient(135deg,#10b981,#059669)' : 'linear-gradient(135deg,#6366f1,#8b5cf6)',
+            background: saved ? 'linear-gradient(135deg,#10b981,#059669)' : 'linear-gradient(135deg,#2563eb,#1d4ed8)',
             color: '#fff', fontWeight: 700, fontSize: '0.9rem',
             border: 'none', cursor: 'pointer',
             display: 'flex', alignItems: 'center', gap: '0.5rem',
             justifyContent: 'center',
             opacity: saving ? 0.7 : 1,
             transition: 'all 0.3s',
-            boxShadow: saved ? '0 4px 16px rgba(16,185,129,0.3)' : '0 4px 16px rgba(99,102,241,0.3)',
+            boxShadow: saved ? '0 4px 16px rgba(16,185,129,0.3)' : '0 4px 16px rgba(37,99,235,0.3)',
           }}
         >
           {saving ? <Loader2 size={18} className="animate-spin" /> : saved ? <CheckCircle size={18} /> : <Star size={18} />}
@@ -1027,19 +1027,19 @@ function TeacherProfileTab() {
       <div>
         <div style={{
           ...cardStyle,
-          background: 'linear-gradient(180deg, rgba(99,102,241,0.08) 0%, rgba(99,102,241,0.02) 100%)',
-          border: '1px solid rgba(99,102,241,0.2)',
+          background: 'linear-gradient(180deg, rgba(37,99,235,0.08) 0%, rgba(37,99,235,0.02) 100%)',
+          border: '1px solid rgba(37,99,235,0.2)',
           position: 'sticky' as any,
           top: '2rem',
         }}>
           <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
             <div style={{
               width: '72px', height: '72px', borderRadius: '50%',
-              background: 'linear-gradient(135deg,#6366f1,#8b5cf6)',
+              background: 'linear-gradient(135deg,#2563eb,#1d4ed8)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: '#fff', fontWeight: 800, fontSize: '1.5rem',
               margin: '0 auto 0.75rem',
-              boxShadow: '0 0 24px rgba(99,102,241,0.4)',
+              boxShadow: '0 0 24px rgba(37,99,235,0.4)',
             }}>
               {profile?.username?.charAt(0)?.toUpperCase() || 'Ö'}
             </div>
@@ -1306,7 +1306,7 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
           {/* Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg,#38bdf8,#6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg,#38bdf8,#2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
                 <BarChart2 size={20} />
               </div>
               <div>
@@ -1338,7 +1338,7 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
               {/* ── 1. Öğrenci Kimlik Kartı ── */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.25rem', padding: '1.25rem', background: 'rgba(255,255,255,0.02)', borderRadius: 14, border: '1px solid rgba(255,255,255,0.06)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flex: 1, minWidth: 260 }}>
-                  <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'linear-gradient(135deg,#38bdf8,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.6rem', fontWeight: 800, flexShrink: 0, boxShadow: '0 4px 15px rgba(56,189,248,0.25)' }}>
+                  <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'linear-gradient(135deg,#38bdf8,#2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.6rem', fontWeight: 800, flexShrink: 0, boxShadow: '0 4px 15px rgba(56,189,248,0.25)' }}>
                     {data.student?.username?.charAt(0).toUpperCase()}
                   </div>
                   <div style={{ flex: 1 }}>
@@ -1350,7 +1350,7 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
                     <div style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: 5, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                       <span>🏫 <strong>Sınıf:</strong> {data.className || 'Sınıf Yok'}</span>
                       {data.student?.sinif && <span>• {data.student.sinif}. Sınıf</span>}
-                      {data.student?.target_university && <span style={{ color: '#a78bfa' }}>• 🎯 {data.student.target_university}</span>}
+                      {data.student?.target_university && <span style={{ color: '#38bdf8' }}>• 🎯 {data.student.target_university}</span>}
                     </div>
                   </div>
                 </div>
@@ -1641,8 +1641,8 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
 
               {/* ── 3. Genel KPI İstatistikleri ── */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '0.65rem' }}>
-                <div style={{ background: 'rgba(168,85,247,0.07)', padding: '0.85rem', borderRadius: 12, border: '1px solid rgba(168,85,247,0.2)', textAlign: 'center' }}>
-                  <div style={{ color: '#c084fc', fontSize: '1.25rem', fontWeight: 800 }}>
+                <div style={{ background: 'rgba(37,99,235,0.07)', padding: '0.85rem', borderRadius: 12, border: '1px solid rgba(37,99,235,0.2)', textAlign: 'center' }}>
+                  <div style={{ color: '#38bdf8', fontSize: '1.25rem', fontWeight: 800 }}>
                     {Math.round((data.totals?.totalMinutes || 0) / 60 * 10) / 10} <span style={{ fontSize: '0.75rem' }}>saat</span>
                   </div>
                   <div style={{ color: 'var(--text-muted)', fontSize: '0.7rem', marginTop: 3 }}>Toplam Odak</div>
@@ -1717,10 +1717,10 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
                   <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '1.25rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <BarChart2 size={16} color="#a855f7" />
+                        <BarChart2 size={16} color="#38bdf8" />
                         <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Son 14 Gün — Günlük Odak Süresi & Soru Trendi</span>
                       </div>
-                      <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Mor = Odak Dakikası • Mavi = Soru</span>
+                      <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Lacivert = Odak Dakikası • Gök Mavisi = Soru</span>
                     </div>
 
                     {(!data.dailyActivity || data.dailyActivity.length === 0) ? (
@@ -1745,10 +1745,10 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
                                     width: '100%',
                                     maxWidth: 32,
                                     height: `${pct}%`,
-                                    background: 'linear-gradient(180deg, #a855f7, #6366f1)',
+                                    background: 'linear-gradient(180deg, #2563eb, #1d4ed8)',
                                     borderRadius: '6px 6px 0 0',
                                     transition: 'height 0.4s ease',
-                                    boxShadow: '0 0 8px rgba(168,85,247,0.2)'
+                                    boxShadow: '0 0 8px rgba(37,99,235,0.2)'
                                   }}
                                 />
                                 <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
@@ -1778,7 +1778,7 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
                         {data.subjectBreakdown.map((s: any, idx: number) => {
                           const maxMin = data.subjectBreakdown[0]?.total_minutes || 1;
                           const pct = Math.round(((s.total_minutes || 0) / maxMin) * 100);
-                          const colors = ['#38bdf8', '#8b5cf6', '#10b981', '#f59e0b', '#ec4899', '#06b6d4', '#f97316'];
+                          const colors = ['#38bdf8', '#2563eb', '#10b981', '#f59e0b', '#0d9488', '#0ea5e9', '#f97316'];
                           const color = colors[idx % colors.length];
 
                           return (
@@ -1857,7 +1857,7 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
                                 <td style={{ padding: '10px 14px', color: '#fff', fontWeight: 600 }}>
                                   {session.topic || session.task_name || 'Genel Tekrar'}
                                 </td>
-                                <td style={{ padding: '10px 14px', color: '#a855f7', fontWeight: 700 }}>
+                                <td style={{ padding: '10px 14px', color: '#38bdf8', fontWeight: 700 }}>
                                   {session.duration_min} dk
                                 </td>
                                 <td style={{ padding: '10px 14px', color: hasQuestions ? '#fff' : 'var(--text-muted)', fontWeight: 600 }}>
@@ -2049,7 +2049,7 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
                                   </span>
                                 )}
                                 {exam.science_net != null && (
-                                  <span style={{ fontSize: '0.74rem', background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.2)', borderRadius: 6, padding: '2px 8px', color: '#c084fc' }}>
+                                  <span style={{ fontSize: '0.74rem', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 6, padding: '2px 8px', color: '#34d399' }}>
                                     🔬 Fen: <strong>{exam.science_net}</strong>
                                   </span>
                                 )}
@@ -2073,7 +2073,7 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
                 <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, overflow: 'hidden' }}>
                   <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <ClipboardList size={16} color="#6366f1" />
+                      <ClipboardList size={16} color="#2563eb" />
                       <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Bu Öğrenciye Atadığınız Ödevler</span>
                     </div>
                     <span style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>Yalnızca sizin ödevleriniz listelenir</span>
@@ -2125,15 +2125,15 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
                   <div style={{
                     padding: '12px 16px',
                     borderRadius: 12,
-                    background: 'rgba(99,102,241,0.08)',
-                    border: '1px solid rgba(99,102,241,0.2)',
+                    background: 'rgba(37,99,235,0.08)',
+                    border: '1px solid rgba(37,99,235,0.2)',
                     display: 'flex',
                     alignItems: 'center',
                     gap: 10,
-                    color: '#c7d2fe',
+                    color: '#93c5fd',
                     fontSize: '0.82rem'
                   }}>
-                    <BrainCircuit size={18} color="#818cf8" style={{ flexShrink: 0 }} />
+                    <BrainCircuit size={18} color="#38bdf8" style={{ flexShrink: 0 }} />
                     <span>Öğrencinin güçlü ve eksik yönleri, deneme analizi veya motivasyonu hakkında not kaydedin. "Veli İle Paylaş" seçeneğini işaretlerseniz not veli takip portalına otomatik yansıtılır.</span>
                   </div>
 
@@ -2145,7 +2145,7 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
                       {/* Kategori Seçici */}
                       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                         {[
-                          { key: 'rehberlik', label: '🎯 Rehberlik', col: '#a855f7' },
+                          { key: 'rehberlik', label: '🎯 Rehberlik', col: '#2563eb' },
                           { key: 'akademik', label: '📈 Akademik', col: '#38bdf8' },
                           { key: 'motivasyon', label: '🔥 Motivasyon', col: '#f59e0b' },
                           { key: 'genel', label: '📌 Genel', col: '#94a3b8' },
@@ -2208,7 +2208,7 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
                         onClick={handleAddNote}
                         disabled={savingNote || !newNoteText.trim()}
                         style={{
-                          background: 'linear-gradient(135deg,#6366f1,#8b5cf6)',
+                          background: 'linear-gradient(135deg,#2563eb,#1d4ed8)',
                           color: '#fff',
                           border: 'none',
                           borderRadius: 8,
@@ -2233,7 +2233,7 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
                   <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, overflow: 'hidden' }}>
                     <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <BookMarked size={16} color="#a855f7" />
+                        <BookMarked size={16} color="#2563eb" />
                         <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Öğrenci Gözlem & Görüşme Geçmişi</span>
                       </div>
                       <span style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>Toplam {notes.length} not</span>
@@ -2241,7 +2241,7 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
 
                     {loadingNotes ? (
                       <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
-                        <Loader2 size={24} color="#818cf8" style={{ animation: 'spin 1s linear infinite' }} />
+                        <Loader2 size={24} color="#38bdf8" style={{ animation: 'spin 1s linear infinite' }} />
                       </div>
                     ) : notes.length === 0 ? (
                       <div style={{ textAlign: 'center', padding: '3rem 1.5rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
@@ -2253,7 +2253,7 @@ function StudentDetailModal({ studentId, onClose, onStudentRemoved }: { studentI
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
                         {notes.map((n: any) => {
                           const catMeta: Record<string, { label: string; col: string }> = {
-                            rehberlik: { label: '🎯 Rehberlik Görüşmesi', col: '#a855f7' },
+                            rehberlik: { label: '🎯 Rehberlik Görüşmesi', col: '#2563eb' },
                             akademik: { label: '📈 Akademik Gelişim', col: '#38bdf8' },
                             motivasyon: { label: '🔥 Motivasyon', col: '#f59e0b' },
                             genel: { label: '📌 Genel', col: '#94a3b8' }
@@ -3201,12 +3201,12 @@ function TeacherDashboardContent() {
     { key: 'genel', label: 'Genel Bakış', icon: LayoutDashboard, color: '#38bdf8' },
     { key: 'maarif', label: '🌱 Maarif Modeli', icon: Award, color: '#10b981' },
     { key: 'siniflar', label: 'Sınıflarım', icon: GraduationCap, color: '#10b981' },
-    { key: 'ogrenciler', label: 'Öğrenciler', icon: Users, color: '#a855f7' },
+    { key: 'ogrenciler', label: 'Öğrenciler', icon: Users, color: '#0ea5e9' },
     { key: 'odevler', label: 'Ödevler', icon: ClipboardList, color: '#f59e0b' },
     { key: 'analiz', label: 'Analiz', icon: BarChart2, color: '#f43f5e' },
     { key: 'kaynaklar', label: 'Kaynaklar', icon: BookMarked, color: '#3b82f6' },
-    { key: 'duyurular', label: 'Duyurular', icon: Bell, color: '#8b5cf6' },
-    { key: 'profil', label: 'Profilim', icon: User, color: '#6366f1' },
+    { key: 'duyurular', label: 'Duyurular', icon: Bell, color: '#2563eb' },
+    { key: 'profil', label: 'Profilim', icon: User, color: '#0d9488' },
   ];
 
   const activeTabConfig = TABS.find(t => t.key === activeTab)!;
@@ -3418,10 +3418,10 @@ function TeacherDashboardContent() {
               <div className="premium-card" style={{ padding: '1.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Bell size={18} color="#8b5cf6" />
+                    <Bell size={18} color="#2563eb" />
                     <h3 style={{ color: '#fff', margin: 0, fontSize: '1rem', fontWeight: 700 }}>Son Duyurular</h3>
                   </div>
-                  <button onClick={() => { setActiveModal('duyuru'); setActiveTab('duyurular'); }} style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)', color: '#8b5cf6', borderRadius: 8, padding: '4px 10px', cursor: 'pointer', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <button onClick={() => { setActiveModal('duyuru'); setActiveTab('duyurular'); }} style={{ background: 'rgba(37,99,235,0.15)', border: '1px solid rgba(37,99,235,0.3)', color: '#38bdf8', borderRadius: 8, padding: '4px 10px', cursor: 'pointer', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: 4 }}>
                     <Plus size={12} /> Yeni
                   </button>
                 </div>
@@ -3450,7 +3450,7 @@ function TeacherDashboardContent() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '0.75rem' }}>
                 {[
                   { label: 'Yeni Ödev Ata', icon: ClipboardList, color: '#f59e0b', action: () => { setActiveTab('odevler'); setActiveModal('odev'); } },
-                  { label: 'Duyuru Yap', icon: Megaphone, color: '#8b5cf6', action: () => { setActiveTab('duyurular'); setActiveModal('duyuru'); } },
+                  { label: 'Duyuru Yap', icon: Megaphone, color: '#2563eb', action: () => { setActiveTab('duyurular'); setActiveModal('duyuru'); } },
                   { label: 'Kaynak Paylaş', icon: FileText, color: '#3b82f6', action: () => { setActiveTab('kaynaklar'); setActiveModal('kaynak'); } },
                   { label: 'Analiz Görüntüle', icon: BarChart2, color: '#f43f5e', action: () => setActiveTab('analiz') },
                 ].map((item) => (
@@ -3493,7 +3493,7 @@ function TeacherDashboardContent() {
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))', gap: '1.25rem' }}>
                 {classes.map((c, idx) => {
-                  const colors = ['#10b981', '#38bdf8', '#a855f7', '#f59e0b', '#f43f5e', '#3b82f6'];
+                  const colors = ['#10b981', '#38bdf8', '#2563eb', '#f59e0b', '#0ea5e9', '#3b82f6'];
                   const col = colors[idx % colors.length];
                   return (
                     <div key={c.id} className="premium-card" style={{ padding: '1.5rem', position: 'relative', overflow: 'hidden' }}>
@@ -3765,7 +3765,7 @@ function TeacherDashboardContent() {
                       >
                         <td style={{ padding: '0.85rem 1rem' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                            <div style={{ width: 34, height: 34, borderRadius: '50%', background: `linear-gradient(135deg, ${['#38bdf8','#10b981','#a855f7','#f59e0b','#f43f5e'][idx % 5]}, ${['#0ea5e9','#059669','#7c3aed','#d97706','#dc2626'][idx % 5]})`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '0.875rem', flexShrink: 0 }}>
+                            <div style={{ width: 34, height: 34, borderRadius: '50%', background: `linear-gradient(135deg, ${['#38bdf8','#10b981','#2563eb','#f59e0b','#f43f5e'][idx % 5]}, ${['#0ea5e9','#059669','#1d4ed8','#d97706','#dc2626'][idx % 5]})`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '0.875rem', flexShrink: 0 }}>
                               {s.username?.charAt(0).toUpperCase()}
                             </div>
                             <div>
@@ -3930,7 +3930,7 @@ function TeacherDashboardContent() {
                       {/* Header: Avatar, Name, Alan & Class Badges */}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <div style={{ width: 40, height: 40, borderRadius: '50%', background: `linear-gradient(135deg, ${['#38bdf8','#10b981','#a855f7','#f59e0b','#f43f5e'][idx % 5]}, ${['#0ea5e9','#059669','#7c3aed','#d97706','#dc2626'][idx % 5]})`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '1rem', flexShrink: 0 }}>
+                          <div style={{ width: 40, height: 40, borderRadius: '50%', background: `linear-gradient(135deg, ${['#38bdf8','#10b981','#2563eb','#f59e0b','#f43f5e'][idx % 5]}, ${['#0ea5e9','#059669','#1d4ed8','#d97706','#dc2626'][idx % 5]})`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '1rem', flexShrink: 0 }}>
                             {s.username?.charAt(0).toUpperCase()}
                           </div>
                           <div>
@@ -4288,14 +4288,14 @@ function TeacherDashboardContent() {
                 <ClassMockExamAnalyticsWidget classId={aiClassId} />
 
                 {/* Dinamik AI Kurumsal Yönetici Özeti */}
-                <div className="premium-card" style={{ padding: '1.5rem', background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(16, 185, 129, 0.08))', border: '1px solid rgba(139, 92, 246, 0.35)', borderRadius: 16 }}>
+                <div className="premium-card" style={{ padding: '1.5rem', background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(16, 185, 129, 0.08))', border: '1px solid rgba(37, 99, 235, 0.35)', borderRadius: 16 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '0.75rem' }}>
-                    <div style={{ width: 34, height: 34, borderRadius: 10, background: 'linear-gradient(135deg, #8b5cf6, #10b981)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ width: 34, height: 34, borderRadius: 10, background: 'linear-gradient(135deg, #2563eb, #10b981)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <BrainCircuit size={18} color="#fff" />
                     </div>
                     <div>
                       <h4 style={{ color: '#fff', margin: 0, fontSize: '1rem', fontWeight: 700 }}>AstraTutor Kurumsal Değerlendirme & Teşhis</h4>
-                      <span style={{ color: '#a78bfa', fontSize: '0.75rem', fontWeight: 600 }}>Yapay Zeka Destekli Kurum Analitiği</span>
+                      <span style={{ color: '#38bdf8', fontSize: '0.75rem', fontWeight: 600 }}>Yapay Zeka Destekli Kurum Analitiği</span>
                     </div>
                   </div>
                   <p style={{ color: '#e2e8f0', fontSize: '0.92rem', lineHeight: 1.7, margin: 0 }}>
@@ -4323,12 +4323,12 @@ function TeacherDashboardContent() {
                     <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', marginTop: 4 }}>Kurum Geneli Başarı</div>
                   </div>
 
-                  <div style={{ background: 'rgba(168,85,247,0.06)', border: '1px solid rgba(168,85,247,0.2)', borderRadius: 14, padding: '1.1rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#a855f7', marginBottom: 8 }}>
+                  <div style={{ background: 'rgba(37,99,235,0.06)', border: '1px solid rgba(37,99,235,0.2)', borderRadius: 14, padding: '1.1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#38bdf8', marginBottom: 8 }}>
                       <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.04em' }}>TOPLAM ODAK SÜRESİ</span>
                       <Clock size={18} />
                     </div>
-                    <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#c084fc' }}>{analytics.overview?.totalFocusHours || 0} <span style={{ fontSize: '0.85rem' }}>Saat</span></div>
+                    <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#60a5fa' }}>{analytics.overview?.totalFocusHours || 0} <span style={{ fontSize: '0.85rem' }}>Saat</span></div>
                     <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', marginTop: 4 }}>Tamamlanan Pomodoro Seansları</div>
                   </div>
 
@@ -4350,12 +4350,12 @@ function TeacherDashboardContent() {
                     <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', marginTop: 4 }}>Haftalık Çalışan Öğrenci</div>
                   </div>
 
-                  <div style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 14, padding: '1.1rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#6366f1', marginBottom: 8 }}>
+                  <div style={{ background: 'rgba(2,132,199,0.06)', border: '1px solid rgba(2,132,199,0.2)', borderRadius: 14, padding: '1.1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#0284c7', marginBottom: 8 }}>
                       <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.04em' }}>ÖDEV TESLİM ORANI</span>
                       <CheckCircle size={18} />
                     </div>
-                    <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#818cf8' }}>%{analytics.submissionStats?.rate ?? 0}</div>
+                    <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#38bdf8' }}>%{analytics.submissionStats?.rate ?? 0}</div>
                     <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', marginTop: 4 }}>{analytics.submissionStats?.submitted || 0}/{analytics.submissionStats?.total || 0} Teslim Edildi</div>
                   </div>
                 </div>
@@ -4387,7 +4387,7 @@ function TeacherDashboardContent() {
                         </thead>
                         <tbody>
                           {analytics.classPerformance.map((c: any, i: number) => {
-                            const colors = ['#10b981', '#38bdf8', '#a855f7', '#f59e0b', '#f43f5e'];
+                            const colors = ['#10b981', '#38bdf8', '#2563eb', '#f59e0b', '#f43f5e'];
                             const col = colors[i % colors.length];
                             return (
                               <tr key={c.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', transition: 'background 0.15s' }}>
@@ -4408,7 +4408,7 @@ function TeacherDashboardContent() {
                                 <td style={{ padding: '0.85rem 1rem', color: '#fbbf24', fontWeight: 700 }}>
                                   {c.total_solved || 0}
                                 </td>
-                                <td style={{ padding: '0.85rem 1rem', color: '#c084fc', fontWeight: 600 }}>
+                                <td style={{ padding: '0.85rem 1rem', color: '#38bdf8', fontWeight: 600 }}>
                                   {c.total_focus_hours || 0} saat
                                 </td>
                                 <td style={{ padding: '0.85rem 1rem', color: '#f59e0b' }}>
@@ -4458,7 +4458,7 @@ function TeacherDashboardContent() {
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '1rem' }}>
                       {analytics.subjectDistribution.map((s: any, idx: number) => {
-                        const colors = ['#38bdf8', '#a855f7', '#10b981', '#f59e0b', '#f43f5e', '#ec4899'];
+                        const colors = ['#38bdf8', '#2563eb', '#10b981', '#f59e0b', '#0ea5e9', '#ec4899'];
                         const col = colors[idx % colors.length];
                         return (
                           <div key={s.subject} style={{ padding: '1.1rem', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12 }}>
@@ -4577,7 +4577,7 @@ function TeacherDashboardContent() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                     <div>
                       <h3 style={{ color: '#fff', margin: 0, fontSize: '1.15rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <Sparkles size={20} color="#a855f7" style={{ fill: '#a855f7' }} /> Sınıf Odaklı AI Zayıf Yön Raporu
+                        <Sparkles size={20} color="#2563eb" style={{ fill: '#2563eb' }} /> Sınıf Odaklı AI Zayıf Yön Raporu
                       </h3>
                       <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: 4 }}>Seçilen sınıfa ait hata yoğunluğuna göre kişiselleştirilmiş analiz</p>
                     </div>
@@ -4602,7 +4602,7 @@ function TeacherDashboardContent() {
 
                   {classInsightsLoading ? (
                     <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
-                      <Loader2 size={24} color="#a855f7" className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
+                      <Loader2 size={24} color="#38bdf8" className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
                     </div>
                   ) : classInsights ? (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', alignItems: 'stretch' }}>
@@ -4633,9 +4633,9 @@ function TeacherDashboardContent() {
                         )}
                       </div>
 
-                      <div style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.08) 0%, rgba(99, 102, 241, 0.05) 100%)', border: '1px solid rgba(168, 85, 247, 0.15)', padding: '1.5rem', borderRadius: 16, display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative', overflow: 'hidden' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#a855f7', fontWeight: 700, fontSize: '0.9rem' }}>
-                          <Zap size={16} color="#a855f7" style={{ fill: '#a855f7' }} /> AI Koçun Sınıf Tavsiyesi
+                      <div style={{ background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(56, 189, 248, 0.05) 100%)', border: '1px solid rgba(37, 99, 235, 0.2)', padding: '1.5rem', borderRadius: 16, display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative', overflow: 'hidden' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#2563eb', fontWeight: 700, fontSize: '0.9rem' }}>
+                          <Zap size={16} color="#38bdf8" style={{ fill: '#38bdf8' }} /> AI Koçun Sınıf Tavsiyesi
                         </div>
                         <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6, textAlign: 'left', whiteSpace: 'pre-line' }}>
                           {classInsights.aiInsight}
@@ -4757,7 +4757,7 @@ function TeacherDashboardContent() {
                   {/* Lig Dağılımı */}
                   <div className="premium-card" style={{ padding: '1.5rem' }}>
                     <h3 style={{ color: '#fff', margin: '0 0 1.25rem', fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <Shield size={18} color="#a855f7" /> Kurum Lig Dağılımı
+                      <Shield size={18} color="#2563eb" /> Kurum Lig Dağılımı
                     </h3>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
                       {(analytics.leagueDistribution ?? []).map((l: any) => (
@@ -4833,7 +4833,7 @@ function TeacherDashboardContent() {
                   <h2 style={{ color: '#fff', fontSize: '1.4rem', fontWeight: 700, margin: 0 }}>Duyurular</h2>
                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', margin: '4px 0 0' }}>Sınıflara ve tüm öğrencilere yönelik bilgilendirme ve duyuru yönetimi</p>
                 </div>
-                <button onClick={() => setActiveModal('duyuru')} className="btn-interactive" style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}>
+                <button onClick={() => setActiveModal('duyuru')} className="btn-interactive" style={{ background: 'linear-gradient(135deg,#2563eb,#1d4ed8)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}>
                   <Plus size={16} /> Duyuru Gönder
                 </button>
               </div>
@@ -4842,7 +4842,7 @@ function TeacherDashboardContent() {
               <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', overflowX: 'auto', paddingBottom: '4px' }}>
                 {ANNOUNCEMENT_CATEGORIES.map(cat => {
                   const isActive = announcementCategory === cat;
-                  const catColor = ANNOUNCEMENT_CATEGORY_COLORS[cat] || '#8b5cf6';
+                  const catColor = ANNOUNCEMENT_CATEGORY_COLORS[cat] || '#2563eb';
                   return (
                     <button
                       key={cat}
@@ -4877,7 +4877,7 @@ function TeacherDashboardContent() {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {filteredAnnouncements.map((a) => {
-                    const catColor = ANNOUNCEMENT_CATEGORY_COLORS[a.category || 'Genel'] || '#8b5cf6';
+                    const catColor = ANNOUNCEMENT_CATEGORY_COLORS[a.category || 'Genel'] || '#2563eb';
                     return (
                       <div key={a.id} className="premium-card" style={{ padding: '1.5rem', borderLeft: `3px solid ${catColor}` }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem', gap: 10, flexWrap: 'wrap' }}>
@@ -5082,7 +5082,7 @@ function TeacherDashboardContent() {
             </div>
             <label style={{ position: "relative", display: "inline-block", width: "40px", height: "24px" }}>
               <input type="checkbox" checked={newAssignment.generateQuestions || false} onChange={e => setNewAssignment({ ...newAssignment, generateQuestions: e.target.checked })} style={{ opacity: 0, width: 0, height: 0 }} />
-              <span style={{ position: "absolute", cursor: "pointer", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: (newAssignment.generateQuestions) ? "#8b5cf6" : "rgba(255,255,255,0.1)", transition: ".4s", borderRadius: "24px" }}>
+              <span style={{ position: "absolute", cursor: "pointer", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: (newAssignment.generateQuestions) ? "#2563eb" : "rgba(255,255,255,0.1)", transition: ".4s", borderRadius: "24px" }}>
                 <span style={{ position: "absolute", content: "", height: "18px", width: "18px", left: "3px", bottom: "3px", backgroundColor: "white", transition: ".4s", borderRadius: "50%", transform: (newAssignment.generateQuestions) ? "translateX(16px)" : "translateX(0)" }} />
               </span>
             </label>
@@ -5187,7 +5187,7 @@ function TeacherDashboardContent() {
             <input type="date" value={newAnnouncement.event_date} onChange={e => setNewAnnouncement({ ...newAnnouncement, event_date: e.target.value })} style={inp} />
           </div>
 
-          <button type="submit" disabled={submitting} className="btn-interactive" style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)', width: '100%', padding: '0.75rem' }}>
+          <button type="submit" disabled={submitting} className="btn-interactive" style={{ background: 'linear-gradient(135deg,#2563eb,#1d4ed8)', width: '100%', padding: '0.75rem' }}>
             {submitting ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> : 'Duyuru Yayınla'}
           </button>
         </form>
@@ -5223,7 +5223,7 @@ function TeacherDashboardContent() {
               <input type="date" value={editingAnnouncement.event_date || ''} onChange={e => setEditingAnnouncement({ ...editingAnnouncement, event_date: e.target.value })} style={inp} />
             </div>
 
-            <button type="submit" disabled={submitting} className="btn-interactive" style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)', width: '100%', padding: '0.75rem' }}>
+            <button type="submit" disabled={submitting} className="btn-interactive" style={{ background: 'linear-gradient(135deg,#2563eb,#1d4ed8)', width: '100%', padding: '0.75rem' }}>
               {submitting ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> : 'Duyuruyu Güncelle'}
             </button>
           </form>
@@ -5516,7 +5516,7 @@ function TeacherDashboardContent() {
           <div>
             {/* Header — Kimlik */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '1.5rem', padding: '1.25rem', background: 'rgba(255,255,255,0.03)', borderRadius: 14, border: '1px solid rgba(255,255,255,0.07)' }}>
-              <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg,#38bdf8,#6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '1.6rem', flexShrink: 0 }}>
+              <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg,#38bdf8,#2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '1.6rem', flexShrink: 0 }}>
                 {selectedStudent.username?.charAt(0).toUpperCase()}
               </div>
               <div style={{ flex: 1 }}>
@@ -5525,7 +5525,7 @@ function TeacherDashboardContent() {
                   {selectedStudent.alan && <Badge label={selectedStudent.alan} color={ALAN_COLORS[selectedStudent.alan] ?? '#9ca3af'} />}
                   {selectedStudent.sinif && <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{selectedStudent.sinif}. Sınıf</span>}
                   {studentDetail?.student?.target_university && (
-                    <span style={{ color: '#a78bfa', fontSize: '0.78rem' }}>🎯 {studentDetail.student.target_university}</span>
+                    <span style={{ color: '#38bdf8', fontSize: '0.78rem' }}>🎯 {studentDetail.student.target_university}</span>
                   )}
                   {studentDetail?.lastActivity && (
                     <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
@@ -5563,7 +5563,7 @@ function TeacherDashboardContent() {
                     { label: 'Başarı Oranı', value: `%${(selectedStudent.success_rate ?? 0).toFixed(1)}`, color: successColor(selectedStudent.success_rate ?? 0), icon: TrendingUp },
                     { label: 'Streak', value: `${selectedStudent.streak_days ?? 0} gün`, color: selectedStudent.streak_days > 0 ? '#f59e0b' : '#6b7280', icon: Flame },
                     { label: 'Lig', value: selectedStudent.league ?? 'Bronz', color: LEAGUE_COLORS[selectedStudent.league] ?? '#cd7f32', icon: Trophy },
-                    { label: 'Haftalık Odak', value: studentDetail ? `${Math.round((studentDetail.weeklyTotalMinutes ?? 0) / 60 * 10) / 10} saat` : '—', color: '#a855f7', icon: Clock },
+                    { label: 'Haftalık Odak', value: studentDetail ? `${Math.round((studentDetail.weeklyTotalMinutes ?? 0) / 60 * 10) / 10} saat` : '—', color: '#2563eb', icon: Clock },
                     { label: 'Toplam XP', value: studentDetail?.student?.xp ?? selectedStudent.league_points ?? 0, color: '#f59e0b', icon: Star },
                   ].map((item) => (
                     <div key={item.label} style={{ padding: '0.9rem 1rem', background: `${item.color}0d`, borderRadius: 12, border: `1px solid ${item.color}20` }}>
@@ -5578,9 +5578,9 @@ function TeacherDashboardContent() {
 
                 {/* ── Blok 2: Haftalık Odak Grafiği (Mini Bar Chart) ── */}
                 {studentDetail?.weeklyFocus?.length > 0 && (
-                  <div style={{ background: 'rgba(168,85,247,0.04)', border: '1px solid rgba(168,85,247,0.15)', borderRadius: 14, padding: '1.25rem', marginBottom: '1.25rem' }}>
+                  <div style={{ background: 'rgba(37,99,235,0.04)', border: '1px solid rgba(37,99,235,0.15)', borderRadius: 14, padding: '1.25rem', marginBottom: '1.25rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: '1rem' }}>
-                      <BarChart2 size={16} color="#a855f7" />
+                      <BarChart2 size={16} color="#38bdf8" />
                       <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Son 7 Gün — Odak Çalışması</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.4rem', height: 70 }}>
@@ -5591,7 +5591,7 @@ function TeacherDashboardContent() {
                           const label = new Date(d.date).toLocaleDateString('tr-TR', { weekday: 'short' });
                           return (
                             <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flex: 1 }}>
-                              <div title={`${d.total_minutes} dk`} style={{ width: '100%', height: `${Math.max(pct, 4)}%`, background: 'linear-gradient(180deg, #a855f7, #7c3aed)', borderRadius: '4px 4px 0 0', transition: 'height 0.4s ease', minHeight: 4 }} />
+                              <div title={`${d.total_minutes} dk`} style={{ width: '100%', height: `${Math.max(pct, 4)}%`, background: 'linear-gradient(180deg, #38bdf8, #2563eb)', borderRadius: '4px 4px 0 0', transition: 'height 0.4s ease', minHeight: 4 }} />
                               <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)' }}>{label}</span>
                             </div>
                           );
@@ -5612,7 +5612,7 @@ function TeacherDashboardContent() {
                       {studentDetail.subjectBreakdown.slice(0, 5).map((s: any, i: number) => {
                         const maxMin = studentDetail.subjectBreakdown[0]?.total_minutes ?? 1;
                         const pct = Math.round((s.total_minutes / maxMin) * 100);
-                        const colors = ['#38bdf8', '#a855f7', '#10b981', '#f59e0b', '#f43f5e'];
+                        const colors = ['#38bdf8', '#2563eb', '#10b981', '#f59e0b', '#f43f5e'];
                         return (
                           <div key={i}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
@@ -5681,7 +5681,7 @@ function TeacherDashboardContent() {
                 {(studentDetail?.recentSessions?.length ?? 0) > 0 && (
                   <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: '1.25rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: '0.875rem' }}>
-                      <Clock size={16} color="#a855f7" />
+                      <Clock size={16} color="#38bdf8" />
                       <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Son Çalışma Oturumları</span>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
@@ -5692,7 +5692,7 @@ function TeacherDashboardContent() {
                             {s.topic && <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginLeft: 6 }}>· {s.topic}</span>}
                           </div>
                           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                            <span style={{ fontSize: '0.78rem', color: '#a855f7', fontWeight: 600 }}>{s.duration_minutes} dk</span>
+                            <span style={{ fontSize: '0.78rem', color: '#38bdf8', fontWeight: 600 }}>{s.duration_minutes} dk</span>
                             <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{formatDate(s.created_at)}</span>
                           </div>
                         </div>

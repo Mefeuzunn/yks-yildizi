@@ -432,8 +432,8 @@ export default function TeacherMaarifTab({ classes }: TeacherMaarifTabProps) {
                           fontWeight: 800,
                           padding: '3px 8px',
                           borderRadius: '6px',
-                          backgroundColor: 'rgba(139, 92, 246, 0.15)',
-                          color: '#c084fc',
+                          backgroundColor: 'rgba(37, 99, 235, 0.15)',
+                          color: '#38bdf8',
                         }}
                       >
                         🤖 AI Puanı: {ev.ai_score ?? 0} / {ev.max_score || 10}P ({ev.mastery_level})

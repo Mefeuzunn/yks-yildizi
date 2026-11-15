@@ -381,7 +381,7 @@ export default function VeliDashboardPage() {
           <button 
             onClick={() => setIsReportModalOpen(true)}
             className="active:scale-[0.98]"
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'linear-gradient(135deg, #6366f1, #4f46e5)', color: '#fff', padding: '0.6rem 1.25rem', borderRadius: '12px', border: '1px solid rgba(99, 102, 241, 0.4)', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 800, boxShadow: '0 4px 14px rgba(99, 102, 241, 0.35)', transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: '#fff', padding: '0.6rem 1.25rem', borderRadius: '12px', border: '1px solid rgba(37, 99, 235, 0.4)', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 800, boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)', transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)' }}
           >
             <FileText size={16} /> Resmi Karne / PDF
           </button>
@@ -635,7 +635,7 @@ export default function VeliDashboardPage() {
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
               <UserCheck size={22} />
             </div>
             <div>
@@ -647,7 +647,7 @@ export default function VeliDashboardPage() {
               </p>
             </div>
           </div>
-          <span style={{ fontSize: '0.75rem', color: '#a5b4fc', background: 'rgba(99, 102, 241, 0.15)', padding: '4px 12px', borderRadius: '20px', border: '1px solid rgba(99, 102, 241, 0.3)', fontWeight: 700 }}>
+          <span style={{ fontSize: '0.75rem', color: '#38bdf8', background: 'rgba(37, 99, 235, 0.15)', padding: '4px 12px', borderRadius: '20px', border: '1px solid rgba(37, 99, 235, 0.3)', fontWeight: 700 }}>
             {teacherNotes?.length || 0} Öğretmen Notu
           </span>
         </div>
@@ -656,7 +656,7 @@ export default function VeliDashboardPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1rem' }}>
             {teacherNotes.map((tn: any, idx: number) => {
               const categoryTags: Record<string, { label: string; color: string }> = {
-                rehberlik: { label: '🎯 Rehberlik', color: '#a855f7' },
+                rehberlik: { label: '🎯 Rehberlik', color: '#2563eb' },
                 akademik: { label: '📈 Akademik', color: '#38bdf8' },
                 motivasyon: { label: '🔥 Motivasyon', color: '#f59e0b' },
                 genel: { label: '📌 Genel', color: '#94a3b8' }
@@ -704,7 +704,7 @@ export default function VeliDashboardPage() {
           </div>
         ) : (
           <div style={{ padding: '2rem', textAlign: 'center', background: 'rgba(255,255,255,0.02)', borderRadius: '14px', border: '1px dashed rgba(255,255,255,0.08)', color: '#94a3b8', fontSize: '0.85rem' }}>
-            <MessageSquare size={28} color="#6366f1" style={{ margin: '0 auto 8px auto', opacity: 0.8 }} />
+            <MessageSquare size={28} color="#2563eb" style={{ margin: '0 auto 8px auto', opacity: 0.8 }} />
             Öğretmenler tarafından veliyle paylaşılan not henüz bulunmuyor.
             <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: '#64748b' }}>Öğretmen öğrenci için gelişim notu girdiğinde bu alanda otomatik listelenecektir.</p>
           </div>
@@ -1015,11 +1015,11 @@ export default function VeliDashboardPage() {
           }}
         >
           <h2 style={{ fontSize: '1.2rem', color: '#fff', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 800 }}>
-            <TrendingUp size={20} color="#c084fc" /> Günlük Çalışma Akışı (Timeline)
+            <TrendingUp size={20} color="#38bdf8" /> Günlük Çalışma Akışı (Timeline)
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', maxHeight: '350px', overflowY: 'auto' }}>
             {timeline.length > 0 ? timeline.map((item: any, idx: number) => (
-              <div key={idx} style={{ display: 'flex', gap: '1rem', padding: '0.85rem 1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', borderLeft: `4px solid ${item.mode === 'pomodoro' ? '#8b5cf6' : '#38bdf8'}`, border: '1px solid rgba(255,255,255,0.05)' }}>
+              <div key={idx} style={{ display: 'flex', gap: '1rem', padding: '0.85rem 1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', borderLeft: `4px solid ${item.mode === 'pomodoro' ? '#2563eb' : '#38bdf8'}`, border: '1px solid rgba(255,255,255,0.05)' }}>
                 <div style={{ color: '#94a3b8', fontSize: '0.85rem', width: '60px', flexShrink: 0, fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>
                   {new Date(item.started_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
                 </div>
@@ -1029,7 +1029,7 @@ export default function VeliDashboardPage() {
                   </div>
                   {item.topic && <div style={{ color: '#94a3b8', fontSize: '0.82rem', marginTop: '2px' }}>{item.topic}</div>}
                 </div>
-                <div style={{ marginLeft: 'auto', color: item.mode === 'pomodoro' ? '#c084fc' : '#38bdf8', fontWeight: 800, fontSize: '0.9rem', fontVariantNumeric: 'tabular-nums' }}>
+                <div style={{ marginLeft: 'auto', color: item.mode === 'pomodoro' ? '#38bdf8' : '#60a5fa', fontWeight: 800, fontSize: '0.9rem', fontVariantNumeric: 'tabular-nums' }}>
                   {item.duration_min} dk
                 </div>
               </div>
@@ -1847,7 +1847,7 @@ export default function VeliDashboardPage() {
                         return (
                           <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0', textAlign: 'center', backgroundColor: idx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
                             <td style={{ padding: '6px 8px', textAlign: 'left', color: '#475569', fontWeight: 600 }}>{exam.exam_date || exam.date || 'Son Dönem'}</td>
-                            <td style={{ padding: '6px 8px', fontWeight: 700, color: exam.type === 'AYT' ? '#7c3aed' : '#2563eb' }}>{exam.type || 'TYT'}</td>
+                            <td style={{ padding: '6px 8px', fontWeight: 700, color: exam.type === 'AYT' ? '#10b981' : '#2563eb' }}>{exam.type || 'TYT'}</td>
                             <td style={{ padding: '6px 8px', color: '#334155' }}>{d.turkce ?? exam.turkish_net ?? '-'}</td>
                             <td style={{ padding: '6px 8px', color: '#334155' }}>{d.matematik ?? exam.math_net ?? '-'}</td>
                             <td style={{ padding: '6px 8px', color: '#334155' }}>{d.fen ?? exam.science_net ?? '-'}</td>
@@ -1932,8 +1932,8 @@ export default function VeliDashboardPage() {
                   </h4>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     {teacherNotes.slice(0, 2).map((note: any, idx: number) => (
-                      <div key={idx} style={{ padding: '8px 12px', background: '#f8fafc', borderRadius: '6px', borderLeft: '3px solid #6366f1', fontSize: '0.72rem', color: '#334155' }}>
-                        <div style={{ fontWeight: 800, color: '#4338ca', marginBottom: '2px' }}>
+                      <div key={idx} style={{ padding: '8px 12px', background: '#f8fafc', borderRadius: '6px', borderLeft: '3px solid #2563eb', fontSize: '0.72rem', color: '#334155' }}>
+                        <div style={{ fontWeight: 800, color: '#1e3a8a', marginBottom: '2px' }}>
                           {note.teacher_name} ({note.teacher_brans || 'Öğretmen'}) — {note.created_at ? new Date(note.created_at).toLocaleDateString('tr-TR') : ''}
                         </div>
                         <div>"{note.note}"</div>

@@ -437,7 +437,7 @@ export default function PuanHesaplamaPage() {
           
           <div style={{ position: 'sticky', top: '2rem' }}>
             <h2 style={{ fontSize: '1.5rem', color: '#fff', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <BarChart size={24} color="#8b5cf6" /> Hesaplanan Puanlar
+              <BarChart size={24} color="#2563eb" /> Hesaplanan Puanlar
             </h2>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -445,7 +445,7 @@ export default function PuanHesaplamaPage() {
               <ResultCard title="Sayısal (SAY)" rawScore={results.sayPuan} placedScore={results.sayYerlestirme} rank={getEstimatedRank(results.sayYerlestirme)} color="#10b981" />
               <ResultCard title="Eşit Ağırlık (EA)" rawScore={results.eaPuan} placedScore={results.eaYerlestirme} rank={getEstimatedRank(results.eaYerlestirme)} color="#f59e0b" />
               <ResultCard title="Sözel (SÖZ)" rawScore={results.sozPuan} placedScore={results.sozYerlestirme} rank={getEstimatedRank(results.sozYerlestirme)} color="#ec4899" />
-              <ResultCard title="Yabancı Dil (DİL)" rawScore={results.dilPuan} placedScore={results.dilYerlestirme} rank={getEstimatedRank(results.dilYerlestirme)} color="#8b5cf6" />
+              <ResultCard title="Yabancı Dil (DİL)" rawScore={results.dilPuan} placedScore={results.dilYerlestirme} rank={getEstimatedRank(results.dilYerlestirme)} color="#0284c7" />
             </div>
 
             {/* Action Buttons */}
@@ -460,13 +460,13 @@ export default function PuanHesaplamaPage() {
                   gap: '8px',
                   padding: '12px 18px',
                   borderRadius: '12px',
-                  background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+                  background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
                   color: '#fff',
                   fontWeight: 700,
                   fontSize: '0.95rem',
                   border: 'none',
                   cursor: saving ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 4px 16px rgba(139, 92, 246, 0.3)',
+                  boxShadow: '0 4px 16px rgba(37, 99, 235, 0.3)',
                   transition: 'all 0.2s',
                 }}
               >
