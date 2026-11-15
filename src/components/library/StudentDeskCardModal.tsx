@@ -80,7 +80,7 @@ export default function StudentDeskCardModal({
 
           {/* Student Profile Info */}
           <div className="flex items-center gap-3.5 mb-5">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xl font-black shadow-lg">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-xl font-black shadow-lg">
               {student.username?.[0]?.toUpperCase() || 'Ö'}
             </div>
             <div>
@@ -88,7 +88,7 @@ export default function StudentDeskCardModal({
                 {student.username}
               </h3>
               <div className="flex items-center gap-1.5 mt-1">
-                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-600/20 text-blue-300 border border-blue-500/30">
                   {student.league || 'Elmas Ligi'}
                 </span>
               </div>
@@ -170,7 +170,7 @@ export default function StudentDeskCardModal({
                     onClick={() => handleAction('brain')}
                     className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-200 hover:text-white border border-white/10 flex flex-col items-center gap-1 text-xs font-bold transition-all cursor-pointer active:scale-95"
                   >
-                    <Brain size={18} className="text-purple-400" />
+                    <Brain size={18} className="text-sky-400" />
                     <span>Zihin Açık</span>
                   </button>
 

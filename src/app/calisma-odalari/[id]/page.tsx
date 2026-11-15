@@ -98,13 +98,13 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
       case 'room-1':
         return { name: 'Sessiz Kütüphane', theme: 'library', color: '#10b981', gradient: 'from-emerald-500/20 via-emerald-500/5 to-transparent' };
       case 'room-2':
-        return { name: 'Lofi Chill Cafe', theme: 'lofi', color: '#8b5cf6', gradient: 'from-purple-500/20 via-purple-500/5 to-transparent' };
+        return { name: 'Lofi Chill Cafe', theme: 'lofi', color: '#d97706', gradient: 'from-amber-500/20 via-amber-500/5 to-transparent' };
       case 'room-3':
         return { name: 'Gece & Yağmur', theme: 'rain', color: '#0ea5e9', gradient: 'from-sky-500/20 via-sky-500/5 to-transparent' };
       case 'room-4':
         return { name: 'Sayısalcılar Zirvesi', theme: 'tech', color: '#f59e0b', gradient: 'from-amber-500/20 via-amber-500/5 to-transparent' };
       default:
-        return { name: 'Çalışma Odası', theme: 'general', color: '#6366f1', gradient: 'from-indigo-500/20 via-indigo-500/5 to-transparent' };
+        return { name: 'Çalışma Odası', theme: 'general', color: '#2563eb', gradient: 'from-blue-600/20 via-blue-600/5 to-transparent' };
     }
   };
 
@@ -882,7 +882,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm active:scale-95 ${
                 isZenMode
                   ? 'bg-amber-500 text-black font-extrabold shadow-amber-500/25'
-                  : 'bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 border border-purple-500/30'
+                  : 'bg-blue-600/15 hover:bg-blue-600/25 text-blue-300 border border-blue-500/30'
               }`}
               title={isZenMode ? 'Zen Modundan Çık' : 'Tam Ekran Zen Odak Modu'}
             >
@@ -1003,7 +1003,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
                     haptics.impact('light');
                     setShowNeuroStudio(true);
                   }}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-emerald-500/15 hover:from-indigo-500/30 hover:to-purple-500/30 text-indigo-300 border border-indigo-500/40 text-[11px] sm:text-xs font-black transition-all cursor-pointer shadow-sm active:scale-95 whitespace-nowrap shrink-0"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-blue-600/20 via-sky-500/20 to-emerald-500/15 hover:from-blue-600/30 hover:to-sky-500/30 text-sky-300 border border-blue-500/40 text-[11px] sm:text-xs font-black transition-all cursor-pointer shadow-sm active:scale-95 whitespace-nowrap shrink-0"
                   title="40Hz Gama & 10Hz Alfa Beyin Dalgaları ve Ses Mikseri"
                 >
                   <Headphones className="w-3.5 h-3.5 text-indigo-400" />
@@ -1053,7 +1053,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
                       onClick={() => playAmbientSound(snd.id as any)}
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                         isCurrent
-                          ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-[0_0_15px_rgba(99,102,241,0.4)]'
+                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.4)]'
                           : 'bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5'
                       }`}
                     >
@@ -1068,7 +1068,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
                     haptics.impact('light');
                     setShowNeuroStudio(true);
                   }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-emerald-500/15 hover:from-indigo-500/30 hover:to-purple-500/30 text-indigo-300 border border-indigo-500/40 text-xs font-black transition-all cursor-pointer shadow-sm active:scale-95"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600/20 via-sky-500/20 to-emerald-500/15 hover:from-blue-600/30 hover:to-sky-500/30 text-sky-300 border border-blue-500/40 text-xs font-black transition-all cursor-pointer shadow-sm active:scale-95"
                   title="40Hz Gama & 10Hz Alfa Beyin Dalgaları ve Ses Mikseri"
                 >
                   <Headphones className="w-3.5 h-3.5 text-indigo-400" />
@@ -1133,7 +1133,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
 
               <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden mb-8 border border-white/5">
                 <div 
-                  className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-300"
+                  className="h-full bg-gradient-to-r from-blue-600 to-sky-500 rounded-full transition-all duration-300"
                   style={{ width: `${timerProgress}%` }}
                 />
               </div>
@@ -1144,7 +1144,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
                   className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-200 cursor-pointer shadow-lg active:scale-[0.98] ${
                     timerActive
                       ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 shadow-[0_0_25px_rgba(245,158,11,0.25)]'
-                      : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-[0_4px_25px_rgba(99,102,241,0.4)] hover:brightness-110'
+                      : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-[0_4px_25px_rgba(37,99,235,0.4)] hover:brightness-110'
                   }`}
                   title={timerActive ? 'Durdur' : 'Başlat'}
                 >
@@ -1223,7 +1223,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
                         )}
                         <div className={`px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm leading-relaxed ${
                           msg.sender === user?.username 
-                            ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-br-xs shadow-md' 
+                            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-br-xs shadow-md' 
                             : 'bg-white/[0.06] text-gray-200 border border-white/10 rounded-bl-xs'
                         }`}>
                           {msg.text}
@@ -1265,7 +1265,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
                 className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] border border-white/5"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-xs font-bold">
                     {p.username?.[0]?.toUpperCase() || 'Ö'}
                   </div>
                   <div>
@@ -1274,7 +1274,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
                   </div>
                 </div>
 
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/25">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-600/15 text-blue-300 border border-blue-500/25">
                   {p.league || 'Öğrenci'}
                 </span>
               </div>
@@ -1290,7 +1290,7 @@ export default function LiveStudyRoomPage({ params }: { params: Promise<{ id: st
             haptics.selection();
             setShowMobileDrawer(true);
           }}
-          className="lg:hidden fixed bottom-[calc(76px+env(safe-area-inset-bottom,20px))] left-4 z-40 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-2.5 rounded-full shadow-[0_8px_25px_rgba(99,102,241,0.5)] flex items-center gap-2 font-bold text-xs border border-white/20 cursor-pointer"
+          className="lg:hidden fixed bottom-[calc(76px+env(safe-area-inset-bottom,20px))] left-4 z-40 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2.5 rounded-full shadow-[0_8px_25px_rgba(37,99,235,0.5)] flex items-center gap-2 font-bold text-xs border border-white/20 cursor-pointer"
         >
           <MessageSquare className="w-4 h-4" />
           <span>Sohbet & Kişiler</span>

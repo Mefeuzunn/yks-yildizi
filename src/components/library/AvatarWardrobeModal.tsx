@@ -39,7 +39,7 @@ const OUTFIT_TYPES = [
 
 const OUTFIT_COLORS = [
   { color: '#38bdf8', name: 'Siber Mavi' },
-  { color: '#8b5cf6', name: 'Kozmik Mor' },
+  { color: '#2563eb', name: 'Safir Mavi' },
   { color: '#10b981', name: 'Zümrüt Yeşili' },
   { color: '#f59e0b', name: 'Sıcak Kehribar' },
   { color: '#ef4444', name: 'Kiraz Kırmızısı' },
@@ -69,7 +69,7 @@ const LAMP_COLORS: { id: 'green' | 'amber' | 'cyan' | 'purple'; name: string; he
   { id: 'green', name: 'Yeşil Banker', hex: '#10b981', desc: 'Klasik Oxford pirinç banker lambası' },
   { id: 'amber', name: 'Sıcak Kehribar', hex: '#f59e0b', desc: 'Gözü yormayan loş mum ışığı sıcaklığı' },
   { id: 'cyan', name: 'Siber Camgöbeği', hex: '#38bdf8', desc: 'Yüksek odaklı neon çalışma ışığı' },
-  { id: 'purple', name: 'Lavanta Parıltısı', hex: '#a855f7', desc: 'Gece çalışmaları için meditatif ton' },
+  { id: 'purple', name: 'Derin Safir', hex: '#2563eb', desc: 'Gece çalışmaları için odaklayıcı mavi ışık' },
 ];
 
 const PET_OPTIONS: { id: 'none' | 'cat' | 'owl'; name: string; emoji: string; desc: string }[] = [
@@ -139,13 +139,13 @@ export default function AvatarWardrobeModal({
           {/* Header */}
           <div className="relative px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white shadow-md">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md">
                 <Shirt size={18} />
               </div>
               <div>
                 <h3 className="text-base font-black text-white flex items-center gap-1.5">
                   <span>Kütüphane Gardırobu</span>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30">
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-600/20 text-blue-300 font-bold border border-blue-500/30">
                     Özelleştir
                   </span>
                 </h3>
@@ -209,7 +209,7 @@ export default function AvatarWardrobeModal({
                   }}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                     activeTab === tab.id
-                      ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md'
+                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
                       : 'text-gray-400 hover:text-white hover:bg-white/5'
                   }`}
                 >
@@ -283,7 +283,7 @@ export default function AvatarWardrobeModal({
                           onClick={() => handleUpdate({ hairStyle: style.id as any })}
                           className={`p-3 rounded-xl border text-left flex items-center gap-2.5 transition-all cursor-pointer ${
                             (config.hairStyle || 'short') === style.id
-                              ? 'bg-purple-500/20 border-purple-500 text-white shadow-md'
+                              ? 'bg-blue-600/20 border-blue-500 text-white shadow-md'
                               : 'bg-white/[0.03] border-white/5 text-gray-400 hover:bg-white/5'
                           }`}
                         >

@@ -36,7 +36,7 @@ export default function TableSynergyModal({
   if (count >= 4) {
     synergyTier = { label: 'Maksimum Masa Sinerjisi', bonus: '+%25 XP Bonusu', color: '#f59e0b', badgeBg: 'rgba(245, 158, 11, 0.2)' };
   } else if (count === 3) {
-    synergyTier = { label: 'Yüksek Masa Sinerjisi', bonus: '+%20 XP Bonusu', color: '#8b5cf6', badgeBg: 'rgba(139, 92, 246, 0.2)' };
+    synergyTier = { label: 'Yüksek Masa Sinerjisi', bonus: '+%20 XP Bonusu', color: '#2563eb', badgeBg: 'rgba(37, 99, 235, 0.2)' };
   } else if (count === 2) {
     synergyTier = { label: 'Çiftli Odak Sinerjisi', bonus: '+%10 XP Bonusu', color: '#10b981', badgeBg: 'rgba(16, 185, 129, 0.2)' };
   }
@@ -144,7 +144,7 @@ export default function TableSynergyModal({
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black text-sm shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-sm shrink-0">
                           {student.username?.[0]?.toUpperCase() || 'Ö'}
                         </div>
                         <div className="min-w-0">
@@ -155,7 +155,7 @@ export default function TableSynergyModal({
                                 SEN
                               </span>
                             )}
-                            <span className="px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 text-[10px] font-bold">
+                            <span className="px-1.5 py-0.2 rounded bg-blue-600/20 text-blue-300 text-[10px] font-bold">
                               {student.league || 'Elmas'}
                             </span>
                           </div>
@@ -199,7 +199,7 @@ export default function TableSynergyModal({
                               <button
                                 onClick={() => handleQuickGift(student.id, 'brain')}
                                 title="Zihin Açıklığı Dile"
-                                className="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-purple-400 border border-white/10 transition-all cursor-pointer active:scale-90"
+                                className="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-sky-400 border border-white/10 transition-all cursor-pointer active:scale-90"
                               >
                                 <Brain size={15} />
                               </button>

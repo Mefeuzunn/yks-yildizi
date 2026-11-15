@@ -412,7 +412,7 @@ export default function LibraryStudyHall({
               haptics.impact('light');
               setIsWardrobeOpen(true);
             }}
-            className="px-3 py-1.5 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 text-purple-200 border border-purple-500/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm hover:scale-[1.02] active:scale-95"
+            className="px-3 py-1.5 rounded-xl bg-blue-600/15 hover:bg-blue-600/25 text-blue-200 border border-blue-500/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm hover:scale-[1.02] active:scale-95"
             title="Karakterini, saçını, kıyafetini ve masa lambanı özelleştir"
           >
             <Shirt size={13} />
@@ -556,7 +556,7 @@ export default function LibraryStudyHall({
                   <span className="w-2.5 h-6 bg-blue-900/60 rounded-t-sm" />
                   <span className="w-2 h-4 bg-emerald-900/60 rounded-t-sm" />
                   <span className="w-3 h-5.5 bg-amber-900/60 rounded-t-sm" />
-                  <span className="w-2 h-5 bg-purple-900/60 rounded-t-sm" />
+                  <span className="w-2 h-5 bg-slate-800/60 rounded-t-sm" />
                   <span className="w-3 h-4 bg-sky-900/60 rounded-t-sm" />
                   <span className="w-2 h-5 bg-rose-900/60 rounded-t-sm" />
                 </div>

@@ -107,13 +107,13 @@ export default function CalismaOdalariLobby() {
         };
       case 'lofi':
         return {
-          icon: <Headphones className="w-6 h-6 text-purple-400" />,
+          icon: <Headphones className="w-6 h-6 text-amber-400" />,
           emoji: '☕',
-          accent: '#8b5cf6',
-          glow: 'rgba(139, 92, 246, 0.25)',
-          gradient: 'from-purple-500/15 via-purple-500/5 to-transparent',
-          border: 'rgba(139, 92, 246, 0.3)',
-          badge: 'bg-purple-500/10 text-purple-300 border-purple-500/20',
+          accent: '#d97706',
+          glow: 'rgba(217, 119, 6, 0.25)',
+          gradient: 'from-amber-500/15 via-amber-500/5 to-transparent',
+          border: 'rgba(217, 119, 6, 0.3)',
+          badge: 'bg-amber-500/10 text-amber-300 border-amber-500/20',
           title: 'Lofi Chill Cafe',
           desc: 'Yumuşak lofi beatleri eşliğinde motivasyonu tazeleyen kahve molası ambiyansı.',
           features: ['Lofi Hip Hop', 'Canlı Sohbet', 'Motivasyon']
@@ -146,13 +146,13 @@ export default function CalismaOdalariLobby() {
         };
       default:
         return {
-          icon: <Users className="w-6 h-6 text-indigo-400" />,
+          icon: <Users className="w-6 h-6 text-blue-400" />,
           emoji: '👥',
-          accent: '#6366f1',
-          glow: 'rgba(99, 102, 241, 0.25)',
-          gradient: 'from-indigo-500/15 via-indigo-500/5 to-transparent',
-          border: 'rgba(99, 102, 241, 0.3)',
-          badge: 'bg-indigo-500/10 text-indigo-300 border-indigo-500/20',
+          accent: '#2563eb',
+          glow: 'rgba(37, 99, 235, 0.25)',
+          gradient: 'from-blue-600/15 via-blue-600/5 to-transparent',
+          border: 'rgba(37, 99, 235, 0.3)',
+          badge: 'bg-blue-600/10 text-blue-300 border-blue-600/20',
           title: 'Genel Çalışma',
           desc: 'Tüm branşlardan öğrencilerin birlikte hazırlandığı serbest etüt salonu.',
           features: ['Serbest Etüt', 'Sohbet', 'Pomodoro']
@@ -165,7 +165,7 @@ export default function CalismaOdalariLobby() {
   if (loading) {
     return (
       <div className="min-h-[calc(100vh-140px)] flex flex-col items-center justify-center gap-3">
-        <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
+        <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
         <p className="text-sm text-gray-400 font-medium">Sanal çalışma odaları yükleniyor...</p>
       </div>
     );
@@ -176,7 +176,7 @@ export default function CalismaOdalariLobby() {
       {/* Hero Header */}
       <div className="relative mb-10 p-6 sm:p-8 rounded-3xl bg-[#0f1523]/80 border border-white/10 backdrop-blur-xl overflow-hidden shadow-2xl">
         <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-purple-500/10 rounded-full blur-[90px] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-sky-500/10 rounded-full blur-[90px] pointer-events-none" />
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div>
@@ -209,13 +209,13 @@ export default function CalismaOdalariLobby() {
 
             <button
               onClick={() => setWardrobeOpen(true)}
-              className="px-4 py-3 rounded-2xl bg-gradient-to-r from-purple-500/15 via-indigo-500/15 to-purple-500/10 hover:from-purple-500/25 hover:to-indigo-500/25 border border-purple-500/30 text-white flex items-center gap-3 backdrop-blur-md transition-all hover:scale-[1.02] cursor-pointer shadow-lg active:scale-95"
+              className="px-4 py-3 rounded-2xl bg-gradient-to-r from-blue-600/15 via-indigo-600/15 to-blue-600/10 hover:from-blue-600/25 hover:to-indigo-600/25 border border-blue-500/30 text-white flex items-center gap-3 backdrop-blur-md transition-all hover:scale-[1.02] cursor-pointer shadow-lg active:scale-95"
             >
-              <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-300">
+              <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-300">
                 <Shirt className="w-5 h-5" />
               </div>
               <div className="text-left">
-                <div className="text-xs font-black text-purple-200">Karakterini Özelleştir</div>
+                <div className="text-xs font-black text-blue-200">Karakterini Özelleştir</div>
                 <div className="text-[11px] text-gray-400 font-medium">Gardırop & Masa</div>
               </div>
             </button>
@@ -231,7 +231,7 @@ export default function CalismaOdalariLobby() {
             </div>
 
             <div className="px-4 py-3 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center gap-3 min-w-[140px] backdrop-blur-md">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400">
+              <div className="w-10 h-10 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400">
                 <Timer className="w-5 h-5" />
               </div>
               <div>
@@ -264,7 +264,7 @@ export default function CalismaOdalariLobby() {
               onClick={() => setFilter(tab.id as any)}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap active:scale-[0.98] ${
                 isActive
-                  ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-[0_4px_20px_rgba(99,102,241,0.35)]'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-[0_4px_20px_rgba(37,99,235,0.35)]'
                   : 'bg-[#0f1523]/80 hover:bg-white/[0.07] text-gray-400 hover:text-white border border-white/10'
               }`}
             >
@@ -418,7 +418,7 @@ export default function CalismaOdalariLobby() {
                   <Link href={`/calisma-odalari/${room.id}`} className="no-underline flex-1 block">
                     <button 
                       type="button"
-                      className="w-full py-3.5 px-4 rounded-2xl bg-white/[0.06] hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 text-white font-bold text-sm border border-white/10 hover:border-transparent transition-all duration-200 flex items-center justify-center gap-2 group-hover:shadow-[0_0_25px_rgba(99,102,241,0.3)] cursor-pointer active:scale-[0.98]"
+                      className="w-full py-3.5 px-4 rounded-2xl bg-white/[0.06] hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-600 text-white font-bold text-sm border border-white/10 hover:border-transparent transition-all duration-200 flex items-center justify-center gap-2 group-hover:shadow-[0_0_25px_rgba(37,99,235,0.3)] cursor-pointer active:scale-[0.98]"
                     >
                       <Radio className="w-4 h-4 text-emerald-400 animate-pulse" />
                       <span>Odaya Katıl & Odaklan</span>
@@ -567,7 +567,7 @@ export default function CalismaOdalariLobby() {
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-sm shadow-lg shadow-indigo-500/25 transition-all cursor-pointer"
+                    className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm shadow-lg shadow-blue-500/25 transition-all cursor-pointer"
                   >
                     Odaya Gir
                   </button>

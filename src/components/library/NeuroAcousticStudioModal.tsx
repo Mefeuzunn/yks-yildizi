@@ -77,12 +77,12 @@ export default function NeuroAcousticStudioModal({
         className="w-full max-w-2xl bg-[#0b0f19] border border-white/10 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.85)] flex flex-col max-h-[92vh] overflow-hidden relative"
       >
         {/* Ambient Top Glow */}
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-96 h-48 bg-gradient-to-r from-indigo-500/15 via-purple-500/15 to-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-96 h-48 bg-gradient-to-r from-blue-600/15 via-sky-500/15 to-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
 
         {/* ── Header Bar ── */}
         <div className="p-4 sm:p-6 border-b border-white/10 flex items-center justify-between relative z-10">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 shadow-md">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600/20 to-indigo-600/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 shadow-md">
               <Headphones className="w-5 h-5" />
             </div>
             <div>
@@ -183,7 +183,7 @@ export default function NeuroAcousticStudioModal({
                       onClick={() => handleApplyPreset(preset.id)}
                       className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between gap-3 group relative overflow-hidden ${
                         isSelected
-                          ? 'bg-gradient-to-br from-indigo-500/20 via-purple-500/10 to-transparent border-indigo-500/50 shadow-[0_0_25px_rgba(99,102,241,0.2)]'
+                          ? 'bg-gradient-to-br from-blue-600/20 via-indigo-600/10 to-transparent border-blue-500/50 shadow-[0_0_25px_rgba(37,99,235,0.2)]'
                           : 'bg-white/[0.03] hover:bg-white/[0.06] border-white/10 hover:border-white/20'
                       }`}
                     >
@@ -275,7 +275,7 @@ export default function NeuroAcousticStudioModal({
                             <div className="flex items-center gap-1.5">
                               <span className="text-xs sm:text-sm font-bold text-white">{track.label}</span>
                               {track.frequencyLabel && (
-                                <span className="text-[9px] px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 font-mono font-bold">
+                                <span className="text-[9px] px-1.5 py-0.2 rounded bg-blue-600/20 text-blue-300 font-mono font-bold">
                                   {track.frequencyLabel}
                                 </span>
                               )}
@@ -329,7 +329,7 @@ export default function NeuroAcousticStudioModal({
 
           <button
             onClick={onClose}
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:brightness-110 text-white text-xs sm:text-sm font-bold transition-all shadow-md cursor-pointer active:scale-95"
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:brightness-110 text-white text-xs sm:text-sm font-bold transition-all shadow-md cursor-pointer active:scale-95"
           >
             Tamam
           </button>

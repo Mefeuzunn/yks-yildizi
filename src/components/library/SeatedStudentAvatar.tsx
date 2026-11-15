@@ -50,7 +50,7 @@ const SeatedStudentAvatar = React.memo(function SeatedStudentAvatar({
   isHallChampion = false,
 }: SeatedStudentProps) {
   const config = user.avatarConfig || {};
-  const outfitColor = config.outfitColor || (isCurrentUser ? '#38bdf8' : '#8b5cf6');
+  const outfitColor = config.outfitColor || (isCurrentUser ? '#38bdf8' : '#2563eb');
   const outfitType = config.outfitType || 'hoodie';
   const hairStyle = config.hairStyle || 'short';
   const hairColor = config.hairColor || '#2d1b00';
@@ -65,14 +65,14 @@ const SeatedStudentAvatar = React.memo(function SeatedStudentAvatar({
     green: 'rgba(16, 185, 129, 0.45)',
     amber: 'rgba(245, 158, 11, 0.45)',
     cyan: 'rgba(56, 189, 248, 0.45)',
-    purple: 'rgba(168, 85, 247, 0.45)',
+    purple: 'rgba(37, 99, 235, 0.45)',
   }[lampType];
 
   const lampColorHex = {
     green: '#10b981',
     amber: '#f59e0b',
     cyan: '#38bdf8',
-    purple: '#a855f7',
+    purple: '#2563eb',
   }[lampType];
 
   return (
@@ -96,7 +96,7 @@ const SeatedStudentAvatar = React.memo(function SeatedStudentAvatar({
             {user.tempInteraction === 'wave' && <span className="text-sky-300">👋 Selam!</span>}
             {user.tempInteraction === 'energy' && <span className="text-yellow-300">⚡ +100 Odak!</span>}
             {user.tempInteraction === 'fire' && <span className="text-orange-400">🔥 Odak Tavan!</span>}
-            {user.tempInteraction === 'brain' && <span className="text-purple-300">🧠 Zihin Açık!</span>}
+            {user.tempInteraction === 'brain' && <span className="text-blue-300">🧠 Zihin Açık!</span>}
             {user.tempInteraction === 'star' && <span className="text-amber-300">⭐ Sen de Yıldızsın!</span>}
           </motion.div>
         )}
@@ -577,11 +577,11 @@ const SeatedStudentAvatar = React.memo(function SeatedStudentAvatar({
               {/* Perch Stand / Mini Wooden Perch */}
               <rect x="5" y="19" width="10" height="3" rx="1.5" fill="#78350f" />
               {/* Owl Body */}
-              <ellipse cx="10" cy="13" rx="8" ry="9" fill="#6366f1" stroke="#4338ca" strokeWidth="0.8" />
+              <ellipse cx="10" cy="13" rx="8" ry="9" fill="#1e3a8a" stroke="#172554" strokeWidth="0.8" />
               {/* Belly Patch with star-like feathers */}
               <ellipse cx="10" cy="15" rx="5" ry="6" fill="#e0e7ff" />
-              <path d="M 8 13 Q 10 14 12 13" fill="none" stroke="#818cf8" strokeWidth="0.7" />
-              <path d="M 8 16 Q 10 17 12 16" fill="none" stroke="#818cf8" strokeWidth="0.7" />
+              <path d="M 8 13 Q 10 14 12 13" fill="none" stroke="#38bdf8" strokeWidth="0.7" />
+              <path d="M 8 16 Q 10 17 12 16" fill="none" stroke="#38bdf8" strokeWidth="0.7" />
               {/* Ear Tufts */}
               <polygon points="5,7 4,3 8,6" fill="#4338ca" />
               <polygon points="15,7 16,3 12,6" fill="#4338ca" />

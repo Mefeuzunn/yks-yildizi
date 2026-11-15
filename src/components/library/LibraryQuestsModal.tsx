@@ -97,7 +97,7 @@ export default function LibraryQuestsModal({
       title: 'Kolektif Güç (Masa Sinerjisi)',
       description: 'En az 2 öğrencinin oturduğu bir sinerji masasında çalış ve bonus kazan.',
       icon: Users,
-      iconColor: 'from-purple-500 to-indigo-500',
+      iconColor: 'from-blue-600 to-indigo-600',
       current: progress.synergyJoined ? 1 : 0,
       target: 1,
       unit: 'seans',
@@ -199,7 +199,7 @@ export default function LibraryQuestsModal({
         particleCount: 90,
         spread: 60,
         origin: { y: 0.6 },
-        colors: ['#10b981', '#6366f1', '#f59e0b', '#ec4899', '#38bdf8']
+        colors: ['#10b981', '#2563eb', '#f59e0b', '#0284c7', '#38bdf8']
       });
     } catch (_) {}
 
@@ -303,7 +303,7 @@ export default function LibraryQuestsModal({
             }}
             className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               activeTab === 'badges'
-                ? 'bg-gradient-to-r from-purple-500/20 to-indigo-500/20 text-purple-300 border border-purple-500/40 shadow-sm'
+                ? 'bg-gradient-to-r from-blue-600/20 to-indigo-600/20 text-blue-300 border border-blue-500/40 shadow-sm'
                 : 'text-gray-400 hover:text-gray-200'
             }`}
           >
@@ -403,14 +403,14 @@ export default function LibraryQuestsModal({
                     key={badge.id}
                     className={`p-3.5 rounded-2xl border transition-all flex flex-col justify-between gap-3 ${
                       badge.unlocked
-                        ? 'bg-gradient-to-br from-purple-500/10 to-indigo-500/10 border-purple-500/30 shadow-md'
+                        ? 'bg-gradient-to-br from-blue-600/10 to-indigo-600/10 border-blue-500/30 shadow-md'
                         : 'bg-white/[0.02] border-white/5 opacity-60'
                     }`}
                   >
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-2xl">{badge.icon}</span>
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-200 border border-purple-500/30">
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-600/20 text-blue-200 border border-blue-500/30">
                           +{badge.rewardXp} XP
                         </span>
                       </div>
@@ -432,7 +432,7 @@ export default function LibraryQuestsModal({
                         <button
                           onClick={() => handleClaim(badge.id, badge.rewardXp, badge.rewardLp, 'badge')}
                           disabled={claimingId === badge.id}
-                          className="px-2.5 py-1 rounded-lg bg-purple-500 hover:bg-purple-600 text-white text-[11px] font-black cursor-pointer shadow-sm transition-all active:scale-95"
+                          className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-black cursor-pointer shadow-sm transition-all active:scale-95"
                         >
                           Ödülü Al
                         </button>
