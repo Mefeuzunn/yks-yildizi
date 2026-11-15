@@ -113,8 +113,8 @@ export default function MistakeDetailModal({ isOpen, onClose, mistakeData }: Mis
             <div style={{ flex: '1 1 300px', backgroundColor: '#050505', display: 'flex', flexDirection: 'column' }}>
               {!showAI ? (
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', textAlign: 'center' }}>
-                  <div style={{ width: '80px', height: '80px', borderRadius: '40px', backgroundColor: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>
-                    <Sparkles size={40} color="#6366f1" />
+                  <div style={{ width: '80px', height: '80px', borderRadius: '40px', backgroundColor: 'rgba(37, 99, 235, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>
+                    <Sparkles size={40} color="#2563eb" />
                   </div>
                   <h3 style={{ color: '#fff', fontSize: '1.2rem', fontWeight: 700, marginBottom: '0.5rem' }}>Soruyu Anlayamadın mı?</h3>
                   <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem', marginBottom: '2rem' }}>
@@ -122,8 +122,8 @@ export default function MistakeDetailModal({ isOpen, onClose, mistakeData }: Mis
                   </p>
                   <button 
                     onClick={() => setShowAI(true)}
-                    style={{ padding: '0.75rem 2rem', backgroundColor: '#6366f1', color: '#fff', borderRadius: '8px', fontWeight: 700, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-                    className="hover:bg-indigo-500 transition-colors"
+                    style={{ padding: '0.75rem 2rem', backgroundColor: '#2563eb', color: '#fff', borderRadius: '8px', fontWeight: 700, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                    className="hover:bg-blue-600 transition-colors"
                   >
                     AstraTutor'a Sor <ArrowRight size={18} />
                   </button>
@@ -131,19 +131,19 @@ export default function MistakeDetailModal({ isOpen, onClose, mistakeData }: Mis
               ) : (
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '1.5rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-                    <Sparkles size={20} color="#6366f1" />
+                    <Sparkles size={20} color="#38bdf8" />
                     <span style={{ color: '#fff', fontWeight: 700 }}>AstraTutor Çözümü</span>
                   </div>
 
                   <div style={{ flex: 1, overflowY: 'auto', paddingRight: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <div style={{ backgroundColor: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.2)', padding: '1rem', borderRadius: '12px', color: '#e0e7ff', fontSize: '0.95rem', lineHeight: '1.6' }}>
-                      Merhaba Efe! Bu soruda "İşlem Hatası" yaptığını görüyorum. Formülü doğru hatırlamışsın ancak değerleri yerine koyarken küçük bir dikkatsizlik olmuş.
+                    <div style={{ backgroundColor: 'rgba(37, 99, 235, 0.08)', border: '1px solid rgba(37, 99, 235, 0.2)', padding: '1rem', borderRadius: '12px', color: '#e0e7ff', fontSize: '0.95rem', lineHeight: '1.6' }}>
+                      Merhaba! Bu soruda işlem adımlarında küçük bir dikkatsizlik yapılmış. Temel bağıntıyı doğru hatırladın ancak parametreleri yerleştirirken dikkat edilmesi gereken bir ayrıntı bulunuyor.
                     </div>
                     <div style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', padding: '1rem', borderRadius: '12px', color: 'rgba(255,255,255,0.8)', fontSize: '0.95rem', lineHeight: '1.6' }}>
                       <strong>1. Adım:</strong> F = m * a formülünü uygulayacağız.<br/><br/>
                       <strong>2. Adım:</strong> Toplam kütle m1 + m2 = 5kg.<br/><br/>
-                      <strong>3. Adım:</strong> F = 125N. 125 = 5 * a'dan a = 25 bulmalıyız. <br/><br/>
-                      Senin işaretlediğin 15 değeri, sadece 3kg'lık cismi hesaba kattığında çıkar. Ortak ivmeyi bulurken toplam kütleyi almayı unutma! 😊
+                      <strong>3. Adım:</strong> F = 125N. 125 = 5 * a'dan a = 25 m/s² bulmalıyız. <br/><br/>
+                      Seçilen 15 değeri sadece 3kg'lık cisim hesaba katıldığında çıkar. Ortak ivmeyi bulurken sistemin toplam kütlesini dahil etmeyi unutma.
                     </div>
                   </div>
 
@@ -153,7 +153,7 @@ export default function MistakeDetailModal({ isOpen, onClose, mistakeData }: Mis
                       placeholder="Başka bir sorun var mı?"
                       style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', padding: '0.75rem 1rem', borderRadius: '8px', color: '#fff' }}
                     />
-                    <button style={{ backgroundColor: '#6366f1', border: 'none', width: '45px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', cursor: 'pointer' }}>
+                    <button style={{ backgroundColor: '#2563eb', border: 'none', width: '45px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', cursor: 'pointer' }}>
                        <MessageSquare size={18} />
                     </button>
                   </div>

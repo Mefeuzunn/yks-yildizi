@@ -48,7 +48,7 @@ export default function TestsTab() {
       difficulty: 'Derece',
       questions: 120,
       time: '165 Dk',
-      color: '#a855f7'
+      color: '#2563eb'
     },
     {
       id: 5,
@@ -101,7 +101,7 @@ export default function TestsTab() {
   };
 
   if (loading) {
-    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}><Loader2 className="animate-spin text-purple-500" size={32} /></div>;
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}><Loader2 className="animate-spin text-blue-500" size={32} /></div>;
   }
 
   return (
@@ -153,12 +153,12 @@ export default function TestsTab() {
               gap: '0.5rem',
               padding: '0.75rem 1.4rem',
               borderRadius: '12px',
-              background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+              background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
               color: '#ffffff',
               fontWeight: 700,
               fontSize: '0.9rem',
               textDecoration: 'none',
-              boxShadow: '0 4px 18px rgba(99,102,241,0.35)',
+              boxShadow: '0 4px 18px rgba(37,99,235,0.35)',
               transition: 'all 0.2s ease',
               whiteSpace: 'nowrap'
             }}
@@ -210,7 +210,7 @@ export default function TestsTab() {
                       gap: '0.4rem',
                       padding: '0.65rem 1rem',
                       borderRadius: '10px',
-                      background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+                      background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
                       color: '#ffffff',
                       fontSize: '0.82rem',
                       fontWeight: 700,

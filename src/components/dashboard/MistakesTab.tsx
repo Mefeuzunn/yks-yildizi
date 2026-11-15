@@ -113,7 +113,7 @@ export default function MistakesTab() {
   const solvedCount = mistakes.filter(m => (m.leitnerBox || 1) > 1 || (m.reviewCount || 0) > 0).length;
 
   if (loading) {
-    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}><Loader2 className="animate-spin text-purple-500" size={32} /></div>;
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}><Loader2 className="animate-spin text-blue-500" size={32} /></div>;
   }
 
   return (
@@ -121,7 +121,7 @@ export default function MistakesTab() {
       <div className="mistakes-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h2 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#fff', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            ❌ Yanlışlarım (Hata Defteri)
+            <AlertCircle size={24} className="text-rose-500" /> Yanlışlarım (Hata Defteri)
           </h2>
           <p style={{ color: 'rgba(255,255,255,0.4)', margin: 0 }}>Deneme ve testlerde yanlış yaptığınız veya boş bıraktığınız sorular burada listelenir. Tekrar çözerek kalıcı öğrenme sağlayın.</p>
         </div>
@@ -133,7 +133,7 @@ export default function MistakesTab() {
               disabled={studioLoading}
               style={{
                 padding: '10px 18px',
-                background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+                background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
                 color: '#fff',
                 border: 'none',
                 borderRadius: '12px',
@@ -143,7 +143,7 @@ export default function MistakesTab() {
                 alignItems: 'center',
                 gap: '8px',
                 cursor: studioLoading ? 'not-allowed' : 'pointer',
-                boxShadow: '0 4px 16px rgba(99,102,241,0.35)',
+                boxShadow: '0 4px 16px rgba(37,99,235,0.35)',
                 opacity: studioLoading ? 0.7 : 1
               }}
             >
@@ -172,8 +172,8 @@ export default function MistakesTab() {
 
           <button 
             onClick={() => setIsScanModalOpen(true)}
-            style={{ padding: '10px 16px', backgroundColor: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.3)', borderRadius: '12px', fontWeight: 600, fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', transition: 'all 0.2s' }}
-            className="hover:bg-purple-500/25"
+            style={{ padding: '10px 16px', backgroundColor: 'rgba(37,99,235,0.12)', color: '#38bdf8', border: '1px solid rgba(56,189,248,0.3)', borderRadius: '12px', fontWeight: 600, fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', transition: 'all 0.2s' }}
+            className="hover:bg-blue-600/20"
           >
             <Camera size={18} /> Fotoğraftan Ekle
           </button>
@@ -209,13 +209,13 @@ export default function MistakesTab() {
             <Filter size={16} color="rgba(255,255,255,0.5)" />
             <button 
               onClick={() => setActiveFilter(null)}
-              style={{ padding: '0.25rem 0.75rem', borderRadius: '8px', border: `1px solid ${!activeFilter ? '#6366f1' : 'transparent'}`, backgroundColor: !activeFilter ? 'rgba(99, 102, 241, 0.1)' : 'transparent', color: !activeFilter ? '#6366f1' : 'rgba(255,255,255,0.5)', cursor: 'pointer', fontSize: '0.85rem' }}
+              style={{ padding: '0.25rem 0.75rem', borderRadius: '8px', border: `1px solid ${!activeFilter ? '#2563eb' : 'transparent'}`, backgroundColor: !activeFilter ? 'rgba(37, 99, 235, 0.15)' : 'transparent', color: !activeFilter ? '#38bdf8' : 'rgba(255,255,255,0.5)', cursor: 'pointer', fontSize: '0.85rem', fontWeight: !activeFilter ? 600 : 400 }}
             >Tümü</button>
             {subjects.map(sub => (
               <button 
                 key={sub as string}
                 onClick={() => setActiveFilter(sub as string)}
-                style={{ padding: '0.25rem 0.75rem', borderRadius: '8px', border: `1px solid ${activeFilter === sub ? '#6366f1' : 'transparent'}`, backgroundColor: activeFilter === sub ? 'rgba(99, 102, 241, 0.1)' : 'transparent', color: activeFilter === sub ? '#6366f1' : 'rgba(255,255,255,0.5)', cursor: 'pointer', fontSize: '0.85rem' }}
+                style={{ padding: '0.25rem 0.75rem', borderRadius: '8px', border: `1px solid ${activeFilter === sub ? '#2563eb' : 'transparent'}`, backgroundColor: activeFilter === sub ? 'rgba(37, 99, 235, 0.15)' : 'transparent', color: activeFilter === sub ? '#38bdf8' : 'rgba(255,255,255,0.5)', cursor: 'pointer', fontSize: '0.85rem', fontWeight: activeFilter === sub ? 600 : 400 }}
               >{sub as string}</button>
             ))}
           </div>
@@ -237,7 +237,7 @@ export default function MistakesTab() {
               </div>
               <button 
                 onClick={() => setSelectedMistake(m)}
-                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', backgroundColor: 'rgba(139, 92, 246, 0.1)', color: '#c084fc', border: '1px solid rgba(139, 92, 246, 0.2)', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }} className="hover:bg-purple-500/20 mistake-solve-btn"
+                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', backgroundColor: 'rgba(37, 99, 235, 0.12)', color: '#38bdf8', border: '1px solid rgba(37, 99, 235, 0.25)', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }} className="hover:bg-blue-600/20 mistake-solve-btn"
               >
                 Çözümü İncele <ArrowRight size={14} />
               </button>

@@ -126,12 +126,12 @@ export default function TercihListemTab() {
           </div>
           <div className="w-px bg-white/10 hidden md:block" />
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-purple-500/20 rounded-2xl flex items-center justify-center border border-purple-500/30">
-              <Target className="w-6 h-6 text-purple-400" />
+            <div className="w-12 h-12 bg-amber-500/20 rounded-2xl flex items-center justify-center border border-amber-500/30">
+              <Target className="w-6 h-6 text-amber-400" />
             </div>
             <div>
               <div className="text-sm text-gray-400 font-bold uppercase tracking-wider mb-1">EA Puanınız</div>
-              <div className="text-2xl font-black text-purple-400">{userScores.ea_score.toFixed(2)}</div>
+              <div className="text-2xl font-black text-amber-400">{userScores.ea_score.toFixed(2)}</div>
             </div>
           </div>
         </div>

@@ -52,7 +52,7 @@ const VISUALS: VisualItem[] = [
     title: 'Bilişsel Yetkinlik & Konu Hakimiyet Haritası',
     subtitle: '12 Temel Branşta %94+ Hakimiyet • 47 Telafi Edilmiş Hata',
     icon: <Brain size={18} />,
-    accentColor: '#8b5cf6'
+    accentColor: '#2563eb'
   },
   {
     id: 'hiz',
@@ -103,11 +103,11 @@ export default function DemoVisualsShowcase() {
                 width: '46px',
                 height: '46px',
                 borderRadius: '14px',
-                background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
+                background: 'linear-gradient(135deg, #2563eb, #0284c7)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 6px 20px rgba(139, 92, 246, 0.4)',
+                boxShadow: '0 6px 20px rgba(37, 99, 235, 0.4)',
                 color: '#fff',
                 fontSize: '22px'
               }}
@@ -441,15 +441,15 @@ function VisualKarneContent({ isLarge }: { isLarge?: boolean }) {
         </div>
 
         {/* AYT Box */}
-        <div style={{ padding: '1.25rem', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(139,92,246,0.25)', borderRadius: '12px' }}>
+        <div style={{ padding: '1.25rem', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: '12px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-            <span style={{ fontSize: '13px', fontWeight: 800, color: '#a78bfa' }}>AYT Sayısal (80 Soru)</span>
+            <span style={{ fontSize: '13px', fontWeight: 800, color: '#34d399' }}>AYT Sayısal (80 Soru)</span>
             <span style={{ fontSize: '1.35rem', fontWeight: 900, color: '#ffffff' }}>75.50 <span style={{ fontSize: '11px', color: '#94a3b8' }}>Net</span></span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px', textAlign: 'center' }}>
             {[
               { label: 'Matematik', net: '37.50', color: '#38bdf8' },
-              { label: 'Fizik', net: '12.50', color: '#8b5cf6' },
+              { label: 'Fizik', net: '12.50', color: '#0ea5e9' },
               { label: 'Kimya', net: '12.75', color: '#10b981' },
               { label: 'Biyoloji', net: '12.75', color: '#ec4899' },
             ].map((s, i) => (
@@ -477,7 +477,7 @@ function VisualKarneContent({ isLarge }: { isLarge?: boolean }) {
         </div>
         <div style={{ padding: '12px 16px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '10px' }}>
           <div style={{ fontSize: '11px', color: '#94a3b8' }}>AI Koç Güvenilirlik Skoru</div>
-          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#a78bfa', marginTop: '2px' }}>9.8 / 10</div>
+          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#38bdf8', marginTop: '2px' }}>9.8 / 10</div>
           <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '2px' }}>11 Deneme Analiz Verisiyle</div>
         </div>
       </div>
@@ -523,14 +523,14 @@ function VisualRadarContent({ isLarge }: { isLarge?: boolean }) {
                 <div style={{ fontSize: '13px', fontWeight: 700, color: '#f1f5f9' }}>{t.topic}</div>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: '13px', fontWeight: 900, color: '#a78bfa' }}>%{t.mastery}</span>
+                <span style={{ fontSize: '13px', fontWeight: 900, color: '#38bdf8' }}>%{t.mastery}</span>
                 <span style={{ fontSize: '10px', display: 'block', color: '#10b981' }}>{t.status}</span>
               </div>
             </div>
             
             {/* Progress Bar */}
             <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
-              <div style={{ width: `${t.mastery}%`, height: '100%', background: 'linear-gradient(90deg, #8b5cf6, #10b981)', borderRadius: '3px' }} />
+              <div style={{ width: `${t.mastery}%`, height: '100%', background: 'linear-gradient(90deg, #2563eb, #10b981)', borderRadius: '3px' }} />
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#64748b', marginTop: '6px' }}>
@@ -577,9 +577,9 @@ function VisualHizContent({ isLarge }: { isLarge?: boolean }) {
           <div style={{ fontSize: '11px', color: '#94a3b8' }}>165 dakikalık sürenin %65'i</div>
         </div>
 
-        <div style={{ padding: '14px', background: 'rgba(139, 92, 246, 0.08)', border: '1px solid rgba(139, 92, 246, 0.25)', borderRadius: '12px', textAlign: 'center' }}>
-          <div style={{ fontSize: '11px', color: '#c4b5fd', fontWeight: 700 }}>Hız & Stres Seviyesi</div>
-          <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#a78bfa', marginTop: '2px' }}>🏆 S-Tier</div>
+        <div style={{ padding: '14px', background: 'rgba(37, 99, 235, 0.08)', border: '1px solid rgba(37, 99, 235, 0.25)', borderRadius: '12px', textAlign: 'center' }}>
+          <div style={{ fontSize: '11px', color: '#93c5fd', fontWeight: 700 }}>Hız & Stres Seviyesi</div>
+          <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#38bdf8', marginTop: '2px' }}>🏆 S-Tier</div>
           <div style={{ fontSize: '11px', color: '#94a3b8' }}>Elit Zaman Yönetimi</div>
         </div>
       </div>

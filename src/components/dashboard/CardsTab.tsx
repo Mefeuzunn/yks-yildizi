@@ -54,16 +54,16 @@ interface SubjectGroup {
 }
 
 const SUBJECT_COLORS: Record<string, { bg: string; text: string; border: string; gradient: string }> = {
-  'Matematik': { bg: 'rgba(99, 102, 241, 0.12)', text: '#818cf8', border: 'rgba(99, 102, 241, 0.3)', gradient: 'linear-gradient(135deg, #6366f1, #4f46e5)' },
-  'Geometri': { bg: 'rgba(168, 85, 247, 0.12)', text: '#c084fc', border: 'rgba(168, 85, 247, 0.3)', gradient: 'linear-gradient(135deg, #a855f7, #9333ea)' },
-  'Fizik': { bg: 'rgba(6, 182, 212, 0.12)', text: '#22d3ee', border: 'rgba(6, 182, 212, 0.3)', gradient: 'linear-gradient(135deg, #06b6d4, #0891b2)' },
-  'Kimya': { bg: 'rgba(16, 185, 129, 0.12)', text: '#34d399', border: 'rgba(16, 185, 129, 0.3)', gradient: 'linear-gradient(135deg, #10b981, #059669)' },
-  'Biyoloji': { bg: 'rgba(132, 204, 22, 0.12)', text: '#a3e635', border: 'rgba(132, 204, 22, 0.3)', gradient: 'linear-gradient(135deg, #84cc16, #65a30d)' },
-  'Türkçe': { bg: 'rgba(245, 158, 11, 0.12)', text: '#fbbf24', border: 'rgba(245, 158, 11, 0.3)', gradient: 'linear-gradient(135deg, #f59e0b, #d97706)' },
-  'Türk Dili ve Edebiyatı': { bg: 'rgba(236, 72, 153, 0.12)', text: '#f472b6', border: 'rgba(236, 72, 153, 0.3)', gradient: 'linear-gradient(135deg, #ec4899, #db2777)' },
-  'Tarih': { bg: 'rgba(249, 115, 22, 0.12)', text: '#fb923c', border: 'rgba(249, 115, 22, 0.3)', gradient: 'linear-gradient(135deg, #f97316, #ea580c)' },
-  'Coğrafya': { bg: 'rgba(20, 184, 166, 0.12)', text: '#2dd4bf', border: 'rgba(20, 184, 166, 0.3)', gradient: 'linear-gradient(135deg, #14b8a6, #0d9488)' },
-  'Felsefe & Din': { bg: 'rgba(192, 132, 252, 0.12)', text: '#d8b4fe', border: 'rgba(192, 132, 252, 0.3)', gradient: 'linear-gradient(135deg, #c084fc, #9333ea)' },
+  'Matematik': { bg: 'rgba(37, 99, 235, 0.12)', text: '#38bdf8', border: 'rgba(37, 99, 235, 0.3)', gradient: 'linear-gradient(135deg, #2563eb, #1d4ed8)' },
+  'Geometri': { bg: 'rgba(2, 132, 199, 0.12)', text: '#38bdf8', border: 'rgba(2, 132, 199, 0.3)', gradient: 'linear-gradient(135deg, #0284c7, #0369a1)' },
+  'Fizik': { bg: 'rgba(14, 165, 233, 0.12)', text: '#38bdf8', border: 'rgba(14, 165, 233, 0.3)', gradient: 'linear-gradient(135deg, #0ea5e9, #0284c7)' },
+  'Kimya': { bg: 'rgba(13, 148, 136, 0.12)', text: '#2dd4bf', border: 'rgba(13, 148, 136, 0.3)', gradient: 'linear-gradient(135deg, #0d9488, #0f766e)' },
+  'Biyoloji': { bg: 'rgba(5, 150, 105, 0.12)', text: '#34d399', border: 'rgba(5, 150, 105, 0.3)', gradient: 'linear-gradient(135deg, #059669, #047857)' },
+  'Türkçe': { bg: 'rgba(220, 38, 38, 0.12)', text: '#f87171', border: 'rgba(220, 38, 38, 0.3)', gradient: 'linear-gradient(135deg, #dc2626, #b91c1c)' },
+  'Türk Dili ve Edebiyatı': { bg: 'rgba(217, 119, 6, 0.12)', text: '#fbbf24', border: 'rgba(217, 119, 6, 0.3)', gradient: 'linear-gradient(135deg, #d97706, #b45309)' },
+  'Tarih': { bg: 'rgba(180, 83, 9, 0.12)', text: '#f59e0b', border: 'rgba(180, 83, 9, 0.3)', gradient: 'linear-gradient(135deg, #b45309, #92400e)' },
+  'Coğrafya': { bg: 'rgba(4, 120, 87, 0.12)', text: '#34d399', border: 'rgba(4, 120, 87, 0.3)', gradient: 'linear-gradient(135deg, #047857, #065f46)' },
+  'Felsefe & Din': { bg: 'rgba(202, 138, 4, 0.12)', text: '#fde047', border: 'rgba(202, 138, 4, 0.3)', gradient: 'linear-gradient(135deg, #ca8a04, #a16207)' },
 };
 
 const DEFAULT_SUBJECT_COLOR = { bg: 'rgba(148, 163, 184, 0.12)', text: '#cbd5e1', border: 'rgba(148, 163, 184, 0.3)', gradient: 'linear-gradient(135deg, #64748b, #475569)' };
@@ -269,7 +269,7 @@ export default function CardsTab() {
   if (loading && !studying) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '340px', gap: '1rem' }}>
-        <Loader2 className="animate-spin" size={36} color="#8b5cf6" />
+        <Loader2 className="animate-spin" size={36} color="#2563eb" />
         <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>MEB / ÖSYM Bilgi Kartları Yükleniyor...</span>
       </div>
     );
@@ -284,7 +284,7 @@ export default function CardsTab() {
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }} 
           animate={{ opacity: 1, scale: 1 }} 
-          style={{ maxWidth: '640px', margin: '2rem auto', textAlign: 'center', padding: '2.5rem 1.5rem', background: 'rgba(15, 23, 42, 0.85)', borderRadius: '24px', border: '1px solid rgba(139, 92, 246, 0.3)', backdropFilter: 'blur(16px)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}
+          style={{ maxWidth: '640px', margin: '2rem auto', textAlign: 'center', padding: '2.5rem 1.5rem', background: 'rgba(15, 23, 42, 0.85)', borderRadius: '24px', border: '1px solid rgba(37, 99, 235, 0.3)', backdropFilter: 'blur(16px)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}
         >
           <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg, #10b981, #059669)', margin: '0 auto 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 30px rgba(16, 185, 129, 0.4)' }}>
             <Sparkles size={36} color="#fff" />
@@ -305,9 +305,9 @@ export default function CardsTab() {
               <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#10b981' }}>{sessionStats.good + sessionStats.easy}</div>
               <div style={{ fontSize: '0.75rem', color: '#34d399' }}>Öğrenildi</div>
             </div>
-            <div style={{ background: 'rgba(139,92,246,0.08)', padding: '1rem 0.5rem', borderRadius: '14px', border: '1px solid rgba(139,92,246,0.2)' }}>
-              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#a855f7' }}>+{sessionStats.xp}</div>
-              <div style={{ fontSize: '0.75rem', color: '#c084fc' }}>Kazanılan XP</div>
+            <div style={{ background: 'rgba(37,99,235,0.08)', padding: '1rem 0.5rem', borderRadius: '14px', border: '1px solid rgba(37,99,235,0.2)' }}>
+              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#38bdf8' }}>+{sessionStats.xp}</div>
+              <div style={{ fontSize: '0.75rem', color: '#93c5fd' }}>Kazanılan XP</div>
             </div>
           </div>
 
@@ -318,7 +318,7 @@ export default function CardsTab() {
                 setStudyCards([]);
                 fetchFlashcards();
               }}
-              style={{ padding: '0.85rem 1.75rem', borderRadius: '14px', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', fontWeight: 700, fontSize: '0.95rem', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(99,102,241,0.3)' }}
+              style={{ padding: '0.85rem 1.75rem', borderRadius: '14px', background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: '#fff', fontWeight: 700, fontSize: '0.95rem', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(37,99,235,0.3)' }}
             >
               📚 Kütüphaneye Dön
             </button>
@@ -343,7 +343,7 @@ export default function CardsTab() {
           <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '1.5rem' }}>Bu konu veya dersteki tüm kartları gününde tekrar ettin. Genel pratik için kütüphaneye dönebilirsin.</p>
           <button 
             onClick={() => { setStudying(false); fetchFlashcards(); }}
-            style={{ padding: '0.75rem 1.5rem', borderRadius: '12px', background: 'rgba(139,92,246,0.15)', color: '#c084fc', border: '1px solid rgba(139,92,246,0.3)', fontWeight: 600, cursor: 'pointer' }}
+            style={{ padding: '0.75rem 1.5rem', borderRadius: '12px', background: 'rgba(37,99,235,0.15)', color: '#38bdf8', border: '1px solid rgba(37,99,235,0.3)', fontWeight: 600, cursor: 'pointer' }}
           >
             ← Kütüphaneye Dön
           </button>
@@ -381,7 +381,7 @@ export default function CardsTab() {
             style={{ 
               height: '100%', 
               width: `${((currentIndex + 1) / studyCards.length) * 100}%`, 
-              background: 'linear-gradient(90deg, #8b5cf6, #38bdf8)', 
+              background: 'linear-gradient(90deg, #2563eb, #38bdf8)', 
               transition: 'width 0.3s ease' 
             }} 
           />
@@ -410,7 +410,7 @@ export default function CardsTab() {
                 borderRadius: '24px',
                 padding: '2rem 1.75rem',
                 background: 'linear-gradient(145deg, #131b2e, #0b0f19)',
-                border: '1px solid rgba(139, 92, 246, 0.25)',
+                border: '1px solid rgba(37, 99, 235, 0.25)',
                 boxShadow: '0 20px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
                 display: 'flex',
                 flexDirection: 'column',
@@ -459,7 +459,7 @@ export default function CardsTab() {
                 <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
                   💡 Boşluk (Space) veya tıkla: Cevabı Gör
                 </span>
-                <span style={{ fontSize: '0.75rem', color: '#a855f7', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontSize: '0.75rem', color: '#38bdf8', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
                   <RotateCw size={14} /> Çevir
                 </span>
               </div>
@@ -685,9 +685,9 @@ export default function CardsTab() {
             onClick={() => setShowCreateModal(true)} 
             style={{ 
               padding: '10px 18px', 
-              backgroundColor: 'rgba(139, 92, 246, 0.15)', 
-              color: '#c084fc', 
-              border: '1px solid rgba(139, 92, 246, 0.3)', 
+              backgroundColor: 'rgba(37, 99, 235, 0.15)', 
+              color: '#38bdf8', 
+              border: '1px solid rgba(37, 99, 235, 0.3)', 
               borderRadius: '12px', 
               fontWeight: 600, 
               display: 'flex', 
@@ -735,8 +735,8 @@ export default function CardsTab() {
             fontSize: '0.85rem',
             fontWeight: 700,
             whiteSpace: 'nowrap',
-            border: activeSubject === 'Tümü' ? '1px solid #8b5cf6' : '1px solid rgba(255,255,255,0.08)',
-            background: activeSubject === 'Tümü' ? 'linear-gradient(135deg, #8b5cf6, #6366f1)' : 'rgba(255,255,255,0.03)',
+            border: activeSubject === 'Tümü' ? '1px solid #2563eb' : '1px solid rgba(255,255,255,0.08)',
+            background: activeSubject === 'Tümü' ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : 'rgba(255,255,255,0.03)',
             color: activeSubject === 'Tümü' ? '#fff' : '#94a3b8',
             cursor: 'pointer'
           }}
@@ -924,11 +924,11 @@ export default function CardsTab() {
               animate={{ scale: 1, opacity: 1 }} 
               exit={{ scale: 0.95, opacity: 0 }} 
               onClick={e => e.stopPropagation()}
-              style={{ background: '#0f172a', border: '1px solid rgba(139,92,246,0.3)', borderRadius: 24, padding: '2rem', width: '100%', maxWidth: 520, maxHeight: '90vh', overflowY: 'auto' }}
+              style={{ background: '#090d16', border: '1px solid rgba(37,99,235,0.3)', borderRadius: 24, padding: '2rem', width: '100%', maxWidth: 520, maxHeight: '90vh', overflowY: 'auto' }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Sparkles size={20} color="#a855f7" />
+                  <Sparkles size={20} color="#38bdf8" />
                   <h3 style={{ color: '#fff', fontSize: '1.2rem', fontWeight: 800, margin: 0 }}>Özel Tekrar Kartı Ekle</h3>
                 </div>
                 <button onClick={() => setShowCreateModal(false)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer' }}>
@@ -1012,12 +1012,12 @@ export default function CardsTab() {
                     padding: '12px', 
                     borderRadius: 14, 
                     border: 'none', 
-                    background: creating ? '#334155' : 'linear-gradient(135deg, #8b5cf6, #6366f1)', 
+                    background: creating ? '#334155' : 'linear-gradient(135deg, #2563eb, #1d4ed8)', 
                     color: '#fff', 
                     fontWeight: 800, 
                     cursor: creating ? 'not-allowed' : 'pointer', 
                     fontSize: 15,
-                    boxShadow: '0 4px 16px rgba(139,92,246,0.3)'
+                    boxShadow: '0 4px 16px rgba(37,99,235,0.3)'
                   }}
                 >
                   {creating ? 'Kaydediliyor...' : '✨ Kartı Sisteme Ekle'}

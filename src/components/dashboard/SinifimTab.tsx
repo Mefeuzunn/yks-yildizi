@@ -157,7 +157,7 @@ export default function SinifimTab() {
   if (loading) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh', gap: '1rem' }}>
-        <Loader2 className="animate-spin" size={40} color="#8b5cf6" />
+        <Loader2 className="animate-spin" size={40} color="#2563eb" />
         <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Sınıf bilgileri yükleniyor...</p>
       </div>
     );
@@ -173,26 +173,26 @@ export default function SinifimTab() {
         style={{ maxWidth: '640px', margin: '2rem auto', padding: '0 1rem' }}
       >
         <div style={{
-          background: 'linear-gradient(180deg, rgba(30, 27, 75, 0.4) 0%, rgba(15, 17, 23, 0.95) 100%)',
-          border: '1px solid rgba(139, 92, 246, 0.25)',
+          background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.6) 0%, rgba(9, 13, 22, 0.95) 100%)',
+          border: '1px solid rgba(37, 99, 235, 0.25)',
           borderRadius: '24px',
           padding: '3rem 2.5rem',
           textAlign: 'center',
-          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.4), 0 0 30px rgba(139, 92, 246, 0.1)',
+          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.4), 0 0 30px rgba(37, 99, 235, 0.1)',
           position: 'relative',
           overflow: 'hidden'
         }}>
           {/* Neon background blur */}
           <div style={{
             position: 'absolute', top: '-60px', left: '50%', transform: 'translateX(-50%)',
-            width: '200px', height: '120px', background: '#8b5cf6', filter: 'blur(80px)',
+            width: '200px', height: '120px', background: '#2563eb', filter: 'blur(80px)',
             opacity: 0.25, pointerEvents: 'none'
           }} />
 
           {/* Icon */}
           <div style={{
             width: '76px', height: '76px', borderRadius: '22px',
-            background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(99, 102, 241, 0.1))',
+            background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(2, 132, 199, 0.1))',
             border: '1px solid rgba(139, 92, 246, 0.4)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             margin: '0 auto 1.5rem',
@@ -277,14 +277,14 @@ export default function SinifimTab() {
                 width: '100%',
                 padding: '1rem',
                 borderRadius: '14px',
-                background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
+                background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
                 color: '#fff',
                 fontSize: '1rem',
                 fontWeight: 700,
                 border: 'none',
                 cursor: joinSubmitting || !classCodeInput.trim() ? 'not-allowed' : 'pointer',
                 opacity: joinSubmitting || !classCodeInput.trim() ? 0.6 : 1,
-                boxShadow: '0 8px 24px rgba(139, 92, 246, 0.35)',
+                boxShadow: '0 8px 24px rgba(37, 99, 235, 0.35)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
                 transition: 'all 0.2s ease'
               }}
@@ -342,8 +342,8 @@ export default function SinifimTab() {
     >
       {/* Sınıf Header Kartı */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(30, 27, 75, 0.5) 0%, rgba(17, 24, 39, 0.8) 100%)',
-        border: '1px solid rgba(139, 92, 246, 0.25)',
+        background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.7) 0%, rgba(9, 13, 22, 0.95) 100%)',
+        border: '1px solid rgba(37, 99, 235, 0.25)',
         borderRadius: '20px',
         padding: '2rem',
         display: 'flex',
@@ -355,9 +355,9 @@ export default function SinifimTab() {
       }}>
         <div style={{
           width: '68px', height: '68px', borderRadius: '18px',
-          background: 'linear-gradient(135deg, #8b5cf6, #d946ef)',
+          background: 'linear-gradient(135deg, #2563eb, #0284c7)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: '#fff', boxShadow: '0 8px 24px rgba(139, 92, 246, 0.35)', flexShrink: 0
+          color: '#fff', boxShadow: '0 8px 24px rgba(37, 99, 235, 0.35)', flexShrink: 0
         }}>
           <Users size={34} />
         </div>
@@ -444,7 +444,7 @@ export default function SinifimTab() {
               {t.count !== undefined && t.count > 0 && (
                 <span style={{
                   fontSize: '0.75rem',
-                  background: isActive ? '#8b5cf6' : 'rgba(255, 255, 255, 0.1)',
+                  background: isActive ? '#2563eb' : 'rgba(255, 255, 255, 0.1)',
                   color: '#fff',
                   padding: '2px 7px',
                   borderRadius: '10px',
@@ -486,7 +486,7 @@ export default function SinifimTab() {
                 <div key={a.id} style={{
                   background: 'rgba(255,255,255,0.03)',
                   border: '1px solid rgba(255,255,255,0.07)',
-                  borderLeft: '4px solid #8b5cf6',
+                  borderLeft: '4px solid #2563eb',
                   borderRadius: '14px',
                   padding: '1.5rem',
                 }}>
@@ -516,7 +516,7 @@ export default function SinifimTab() {
           >
             {assignmentsLoading ? (
               <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
-                <Loader2 className="animate-spin" size={32} color="#8b5cf6" />
+                <Loader2 className="animate-spin" size={32} color="#2563eb" />
               </div>
             ) : assignments.length === 0 ? (
               <div style={{
@@ -639,7 +639,7 @@ export default function SinifimTab() {
           >
             {notesLoading ? (
               <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
-                <Loader2 className="animate-spin" size={32} color="#8b5cf6" />
+                <Loader2 className="animate-spin" size={32} color="#2563eb" />
               </div>
             ) : teacherNotes.length === 0 ? (
               <div style={{
@@ -647,7 +647,7 @@ export default function SinifimTab() {
                 border: '1px solid rgba(255,255,255,0.06)',
                 borderRadius: '16px', padding: '3.5rem 2rem', textAlign: 'center', color: '#64748b'
               }}>
-                <MessageSquare size={44} color="#8b5cf6" style={{ margin: '0 auto 1rem', opacity: 0.6 }} />
+                <MessageSquare size={44} color="#2563eb" style={{ margin: '0 auto 1rem', opacity: 0.6 }} />
                 <h3 style={{ color: '#e2e8f0', fontSize: '1.1rem', marginBottom: '0.25rem' }}>Öğretmen Görüşü Bulunmuyor</h3>
                 <p style={{ margin: 0, fontSize: '0.85rem' }}>Öğretmeniniz sizin için rehberlik notu veya tavsiye yazdığında burada görünecektir.</p>
               </div>
@@ -658,7 +658,7 @@ export default function SinifimTab() {
                     n.category === 'rehberlik' ? { label: '🎯 Rehberlik & Strateji', color: '#38bdf8', bg: 'rgba(56,189,248,0.15)' } :
                     n.category === 'akademik' ? { label: '📈 Akademik Gelişim', color: '#10b981', bg: 'rgba(16,185,129,0.15)' } :
                     n.category === 'motivasyon' ? { label: '🔥 Moral & Motivasyon', color: '#f59e0b', bg: 'rgba(245,158,11,0.15)' } :
-                    { label: '📌 Genel Tavsiye', color: '#a78bfa', bg: 'rgba(167,139,250,0.15)' };
+                    { label: '📌 Genel Tavsiye', color: '#38bdf8', bg: 'rgba(56,189,248,0.15)' };
 
                   return (
                     <div
@@ -677,7 +677,7 @@ export default function SinifimTab() {
                       <div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem', flexWrap: 'wrap', gap: 6 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '0.8rem' }}>
+                            <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, #2563eb, #0284c7)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '0.8rem' }}>
                               {n.teacher_name?.charAt(0)?.toUpperCase() || 'Ö'}
                             </div>
                             <div>
@@ -808,7 +808,7 @@ export default function SinifimTab() {
                       </div>
                       <div style={{
                         width: '36px', height: '36px', borderRadius: '50%',
-                        background: isCurrentUser ? 'linear-gradient(135deg, #8b5cf6, #6366f1)' : 'rgba(255,255,255,0.08)',
+                        background: isCurrentUser ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : 'rgba(255,255,255,0.08)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         color: '#fff', fontWeight: 700, fontSize: '0.85rem'
                       }}>
@@ -816,7 +816,7 @@ export default function SinifimTab() {
                       </div>
                       <div>
                         <div style={{ color: '#fff', fontWeight: 700, fontSize: '0.95rem' }}>
-                          {student.username} {isCurrentUser && <span style={{ color: '#c4b5fd', fontSize: '0.8rem', fontWeight: 600 }}>(Sen)</span>}
+                          {student.username} {isCurrentUser && <span style={{ color: '#38bdf8', fontSize: '0.8rem', fontWeight: 600 }}>(Sen)</span>}
                         </div>
                         <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
                           {student.sinif || '12'}. Sınıf {student.alan && `· ${student.alan}`} · {student.league || 'Bronz'} Lig
@@ -825,7 +825,7 @@ export default function SinifimTab() {
                     </div>
 
                     <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontWeight: 800, color: '#c084fc', fontSize: '1rem' }}>
+                      <div style={{ fontWeight: 800, color: '#38bdf8', fontSize: '1rem' }}>
                         {(student.league_points || 0).toLocaleString()} <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Puan</span>
                       </div>
                       {student.xp && (

@@ -210,7 +210,7 @@ export default function SpeedAnalyticsTab() {
         <div style={{ background: 'rgba(15, 23, 42, 0.75)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '1.25rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
             <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#94a3b8' }}>Doğruluk Oranı</span>
-            <div style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(139, 92, 246, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8b5cf6' }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(37, 99, 235, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563eb' }}>
               <ShieldCheck size={16} />
             </div>
           </div>
@@ -281,7 +281,7 @@ export default function SpeedAnalyticsTab() {
         <div style={{ background: 'rgba(15, 23, 42, 0.75)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '18px', padding: '1.35rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div>
             <h3 style={{ fontSize: '0.98rem', fontWeight: 800, color: '#ffffff', margin: '0 0 0.85rem 0', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <TrendingUp size={17} color="#a855f7" /> Hız & Doğruluk Korelasyonu
+              <TrendingUp size={17} color="#38bdf8" /> Hız & Doğruluk Korelasyonu
             </h3>
             <p style={{ fontSize: '0.82rem', color: '#94a3b8', lineHeight: 1.5, margin: '0 0 1rem 0' }}>
               Soruları daha hızlı çözdüğünüzde mi yoksa üzerinde uzun süre düşündüğünüzde mi daha başarılısınız?
@@ -500,7 +500,7 @@ export default function SpeedAnalyticsTab() {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '1rem' }}>
-          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff' }}>
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff' }}>
             <Lightbulb size={20} />
           </div>
           <div>

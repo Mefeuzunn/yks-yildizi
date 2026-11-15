@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Image as ImageIcon, MessageCircle, Heart, Loader2, ChevronDown } from 'lucide-react';
+import { Send, Image as ImageIcon, MessageCircle, MessageSquare, Heart, Loader2, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { haptics } from '@/lib/haptics';
 
@@ -124,20 +124,20 @@ export default function ForumTab() {
   };
 
   if (loading) {
-    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}><Loader2 className="animate-spin" size={32} color="#a855f7" /></div>;
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}><Loader2 className="animate-spin text-blue-500" size={32} /></div>;
   }
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 20px))' }}>
       <div>
         <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#fff', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          💬 Sınıf Forumu
+          <MessageSquare size={26} className="text-blue-500" /> Sınıf Forumu
         </h2>
         <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem' }}>Soruları tartış, fikirlerini paylaş, birlikte öğren.</p>
       </div>
 
       {/* New Post */}
-      <div style={{ backgroundColor: '#0f172a', borderRadius: 16, border: '1px solid #1e293b', padding: '1.25rem' }}>
+      <div style={{ backgroundColor: '#090D16', borderRadius: 16, border: '1px solid rgba(255,255,255,0.08)', padding: '1.25rem' }}>
         <textarea
           value={newPost}
           onChange={e => setNewPost(e.target.value)}
@@ -147,7 +147,7 @@ export default function ForumTab() {
           style={{ width: '100%', background: 'transparent', border: 'none', color: '#fff', fontSize: 14, resize: 'none', outline: 'none', lineHeight: 1.6 }}
         />
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
-          <button onClick={handlePost} disabled={posting || !newPost.trim()} style={{ padding: '10px 20px', borderRadius: 10, border: 'none', background: !newPost.trim() ? '#374151' : 'linear-gradient(135deg, #a855f7, #7c3aed)', color: '#fff', fontWeight: 600, cursor: newPost.trim() ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', gap: 6, fontSize: 14, minHeight: '44px' }}>
+          <button onClick={handlePost} disabled={posting || !newPost.trim()} style={{ padding: '10px 20px', borderRadius: 10, border: 'none', background: !newPost.trim() ? '#1e293b' : 'linear-gradient(135deg, #2563eb, #1d4ed8)', color: '#fff', fontWeight: 600, cursor: newPost.trim() ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', gap: 6, fontSize: 14, minHeight: '44px' }}>
             <Send size={16} /> {posting ? 'Paylaşılıyor...' : 'Paylaş'}
           </button>
         </div>
@@ -155,16 +155,16 @@ export default function ForumTab() {
 
       {/* Posts */}
       {posts.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '3rem 1.5rem', backgroundColor: '#0f172a', borderRadius: 16, border: '1px solid #1e293b' }}>
+        <div style={{ textAlign: 'center', padding: '3rem 1.5rem', backgroundColor: '#090D16', borderRadius: 16, border: '1px solid rgba(255,255,255,0.08)' }}>
           <MessageCircle size={44} color="#374151" style={{ margin: '0 auto 1rem' }} />
           <p style={{ color: '#6b7280', fontSize: 14 }}>Henüz hiç paylaşım yok. İlk gönderiyi sen at!</p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {posts.map(post => (
-            <div key={post.id} style={{ backgroundColor: '#0f172a', borderRadius: 16, border: '1px solid #1e293b', padding: '1.25rem' }}>
+            <div key={post.id} style={{ backgroundColor: '#090D16', borderRadius: 16, border: '1px solid rgba(255,255,255,0.08)', padding: '1.25rem' }}>
               <div style={{ display: 'flex', gap: 12, marginBottom: 10 }}>
-                <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #a855f7, #ec4899)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 14, flexShrink: 0 }}>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #2563eb, #0284c7)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 14, flexShrink: 0 }}>
                   {post.username?.[0]?.toUpperCase() || '?'}
                 </div>
                 <div style={{ flex: 1 }}>
@@ -192,7 +192,7 @@ export default function ForumTab() {
                   <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="forum-comments-box" style={{ overflow: 'hidden', paddingLeft: 48, marginTop: 12 }}>
                     {(comments[post.id] || []).map(c => (
                       <div key={c.id} style={{ padding: '8px 0', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-                        <span style={{ color: '#a855f7', fontWeight: 600, fontSize: 13 }}>{c.username}</span>
+                        <span style={{ color: '#38bdf8', fontWeight: 600, fontSize: 13 }}>{c.username}</span>
                         <span style={{ color: '#4b5563', fontSize: 12, marginLeft: 8 }}>{timeAgo(c.created_at)}</span>
                         <p style={{ color: '#d1d5db', fontSize: 13, margin: '4px 0 0' }}>{c.content}</p>
                       </div>
@@ -204,9 +204,9 @@ export default function ForumTab() {
                         onKeyDown={e => e.key === 'Enter' && handleComment(post.id)} 
                         placeholder="Yorum yaz..." 
                         className="forum-comment-input"
-                        style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: '1px solid #374151', background: '#1e293b', color: '#fff', fontSize: 13, outline: 'none' }} 
+                        style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.12)', background: '#0f172a', color: '#fff', fontSize: 13, outline: 'none' }} 
                       />
-                      <button onClick={() => handleComment(post.id)} disabled={commentLoading} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#a855f7', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 600, minHeight: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <button onClick={() => handleComment(post.id)} disabled={commentLoading} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#2563eb', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 600, minHeight: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Send size={15} />
                       </button>
                     </div>

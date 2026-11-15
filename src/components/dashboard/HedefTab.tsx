@@ -179,7 +179,7 @@ export default function HedefTab() {
         {/* Right Side: AI Assistant Net wizard suggestions */}
         <div className="premium-card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', background: 'rgba(245, 158, 11, 0.03)', border: '1px solid rgba(245, 158, 11, 0.1)' }}>
           <h3 style={{ color: 'var(--text-primary)', fontSize: '1.1rem', margin: 0, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Sparkles size={18} color="#a855f7" style={{ fill: '#a855f7' }} /> AI Net Sihirbazı Önerileri
+            <Sparkles size={18} color="#38bdf8" style={{ fill: '#38bdf8' }} /> Hedef & Net Optimizasyon Analizi
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1, justifyContent: 'center' }}>
             {netAnalysis.some(n => n.diff < 0) ? (

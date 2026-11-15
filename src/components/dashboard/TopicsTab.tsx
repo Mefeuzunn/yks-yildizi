@@ -372,7 +372,7 @@ export default function TopicsTab() {
   const overallPct = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
 
   if (loading) {
-    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}><div className="animate-spin text-purple-500">Yükleniyor...</div></div>;
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}><div className="animate-spin text-blue-500">Yükleniyor...</div></div>;
   }
 
   return (
@@ -390,23 +390,23 @@ export default function TopicsTab() {
 
       {/* Overall progress card */}
       <div style={{
-        background: '#0f172a', border: '1px solid rgba(168,85,247,0.15)', borderRadius: '20px',
+        background: '#090d16', border: '1px solid rgba(37,99,235,0.2)', borderRadius: '20px',
         padding: '24px', display: 'flex', flexWrap: 'wrap', gap: '20px', alignItems: 'center',
         position: 'relative', overflow: 'hidden',
       }}>
-        <div style={{ position: 'absolute', right: '-40px', top: '-40px', width: '180px', height: '180px', borderRadius: '50%', background: '#a855f7', filter: 'blur(80px)', opacity: 0.08, pointerEvents: 'none' }}/>
+        <div style={{ position: 'absolute', right: '-40px', top: '-40px', width: '180px', height: '180px', borderRadius: '50%', background: '#2563eb', filter: 'blur(80px)', opacity: 0.1, pointerEvents: 'none' }}/>
 
         {/* Ring */}
         <div style={{ position: 'relative', width: '80px', height: '80px', flexShrink: 0 }}>
           <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
             <circle cx="50" cy="50" r="42" fill="none" stroke="#1e293b" strokeWidth="8"/>
-            <motion.circle cx="50" cy="50" r="42" fill="none" stroke="#a855f7" strokeWidth="8"
+            <motion.circle cx="50" cy="50" r="42" fill="none" stroke="#2563eb" strokeWidth="8"
               strokeDasharray={2 * Math.PI * 42}
               initial={{ strokeDashoffset: 2 * Math.PI * 42 }}
               animate={{ strokeDashoffset: 2 * Math.PI * 42 * (1 - overallPct / 100) }}
               strokeLinecap="round"
               transition={{ duration: 1.5, ease: 'easeOut' }}
-              style={{ filter: 'drop-shadow(0 0 6px #a855f7)' }}
+              style={{ filter: 'drop-shadow(0 0 6px rgba(37,99,235,0.6))' }}
             />
           </svg>
           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -429,7 +429,7 @@ export default function TopicsTab() {
             <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: 600 }}>Kalan</div>
           </div>
           <div style={{ flex: 1, minWidth: '80px' }}>
-            <div style={{ fontSize: '24px', fontWeight: 800, color: '#a855f7' }}>{subjects.length}</div>
+            <div style={{ fontSize: '24px', fontWeight: 800, color: '#38bdf8' }}>{subjects.length}</div>
             <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: 600 }}>Branş</div>
           </div>
         </div>

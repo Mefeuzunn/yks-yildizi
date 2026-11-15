@@ -14,18 +14,18 @@ export const FOCUS_SUBJECTS = [
   { label: 'Genel Deneme', emoji: '🏆', color: '#10b981', desc: 'TYT & AYT Tam Deneme' },
 
   // ── Temel YKS Dersleri ──
-  { label: 'Türkçe', emoji: '📚', color: '#f43f5e', desc: 'TYT Dil Bilgisi & Anlam' },
-  { label: 'Matematik', emoji: '📐', color: '#3b82f6', desc: 'TYT & AYT Matematik' },
-  { label: 'Geometri', emoji: '📏', color: '#6366f1', desc: 'TYT & AYT Geometri' },
+  { label: 'Türkçe', emoji: '📚', color: '#dc2626', desc: 'TYT Dil Bilgisi & Anlam' },
+  { label: 'Matematik', emoji: '📐', color: '#2563eb', desc: 'TYT & AYT Matematik' },
+  { label: 'Geometri', emoji: '📏', color: '#0284c7', desc: 'TYT & AYT Geometri' },
   { label: 'Fizik', emoji: '⚡', color: '#0ea5e9', desc: 'TYT & AYT Fizik' },
-  { label: 'Kimya', emoji: '🧪', color: '#14b8a6', desc: 'TYT & AYT Kimya' },
-  { label: 'Biyoloji', emoji: '🔬', color: '#8b5cf6', desc: 'TYT & AYT Biyoloji' },
-  { label: 'Edebiyat', emoji: '✍️', color: '#ec4899', desc: 'AYT Edebiyat' },
-  { label: 'Tarih', emoji: '🏺', color: '#f59e0b', desc: 'TYT & AYT Tarih' },
-  { label: 'Coğrafya', emoji: '🌍', color: '#059669', desc: 'TYT & AYT Coğrafya' },
-  { label: 'Felsefe', emoji: '🤔', color: '#fb923c', desc: 'TYT Felsefe & Mantık' },
-  { label: 'Din Kültürü', emoji: '🕌', color: '#0891b2', desc: 'TYT Din Kültürü' },
-  { label: 'İngilizce (YDT)', emoji: '🇬🇧', color: '#a855f7', desc: 'Yabancı Dil Testi' },
+  { label: 'Kimya', emoji: '🧪', color: '#0d9488', desc: 'TYT & AYT Kimya' },
+  { label: 'Biyoloji', emoji: '🔬', color: '#059669', desc: 'TYT & AYT Biyoloji' },
+  { label: 'Edebiyat', emoji: '✍️', color: '#d97706', desc: 'AYT Edebiyat' },
+  { label: 'Tarih', emoji: '🏺', color: '#b45309', desc: 'TYT & AYT Tarih' },
+  { label: 'Coğrafya', emoji: '🌍', color: '#047857', desc: 'TYT & AYT Coğrafya' },
+  { label: 'Felsefe', emoji: '🤔', color: '#ca8a04', desc: 'TYT Felsefe & Mantık' },
+  { label: 'Din Kültürü', emoji: '🕌', color: '#65a30d', desc: 'TYT Din Kültürü' },
+  { label: 'İngilizce (YDT)', emoji: '🇬🇧', color: '#0284c7', desc: 'Yabancı Dil Testi' },
 ];
 
 export function getTopicsForSubject(subjectName: string | null): { name: string; tag?: string }[] {
@@ -324,10 +324,10 @@ export default function SessionLogModal() {
             <div style={{ textAlign: 'center', marginBottom: '16px' }}>
               <div style={{
                 width: '64px', height: '64px', borderRadius: '50%',
-                background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
+                background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 margin: '0 auto 12px',
-                boxShadow: '0 8px 24px rgba(139,92,246,0.4)',
+                boxShadow: '0 8px 24px rgba(37,99,235,0.4)',
               }}>
                 <Trophy size={30} color="#fff" />
               </div>
@@ -446,10 +446,10 @@ export default function SessionLogModal() {
                 style={{
                   flex: 1, padding: '10px 12px', borderRadius: '10px', fontSize: '13px', fontWeight: 700,
                   border: 'none', cursor: 'pointer', transition: 'all 0.2s',
-                  background: step === 'subject' ? 'linear-gradient(135deg, #8b5cf6, #7c3aed)' : 'transparent',
+                  background: step === 'subject' ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : 'transparent',
                   color: step === 'subject' ? '#fff' : '#94a3b8',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-                  boxShadow: step === 'subject' ? '0 4px 12px rgba(139,92,246,0.3)' : 'none'
+                  boxShadow: step === 'subject' ? '0 4px 12px rgba(37,99,235,0.3)' : 'none'
                 }}
               >
                 <span>1. 📚 Ders Seçimi</span>
@@ -465,11 +465,11 @@ export default function SessionLogModal() {
                 style={{
                   flex: 1, padding: '10px 12px', borderRadius: '10px', fontSize: '13px', fontWeight: 700,
                   border: 'none', cursor: selectedSubject ? 'pointer' : 'not-allowed', transition: 'all 0.2s',
-                  background: step === 'topic' ? 'linear-gradient(135deg, #8b5cf6, #7c3aed)' : 'transparent',
+                  background: step === 'topic' ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : 'transparent',
                   color: step === 'topic' ? '#fff' : selectedSubject ? '#cbd5e1' : '#475569',
                   opacity: selectedSubject ? 1 : 0.6,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-                  boxShadow: step === 'topic' ? '0 4px 12px rgba(139,92,246,0.3)' : 'none'
+                  boxShadow: step === 'topic' ? '0 4px 12px rgba(37,99,235,0.3)' : 'none'
                 }}
               >
                 <span>2. 📝 Konu & Test</span>
@@ -570,11 +570,11 @@ export default function SessionLogModal() {
                         onClick={() => setStep('topic')}
                         style={{
                           flex: 1, padding: '12px', borderRadius: '12px',
-                          background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
+                          background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
                           border: 'none', color: '#fff', cursor: 'pointer',
                           fontSize: '13px', fontWeight: 700,
                           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-                          boxShadow: '0 4px 14px rgba(139,92,246,0.3)'
+                          boxShadow: '0 4px 14px rgba(37,99,235,0.3)'
                         }}
                       >
                         <span>{selectedSubject} Konusunu Seç</span>
@@ -631,8 +631,8 @@ export default function SessionLogModal() {
                             onClick={() => setTagFilter(tag)}
                             style={{
                               padding: '3px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700,
-                              border: `1px solid ${tagFilter === tag ? '#8b5cf6' : 'rgba(255,255,255,0.08)'}`,
-                              background: tagFilter === tag ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.03)',
+                              border: `1px solid ${tagFilter === tag ? '#2563eb' : 'rgba(255,255,255,0.08)'}`,
+                              background: tagFilter === tag ? 'rgba(37,99,235,0.25)' : 'rgba(255,255,255,0.03)',
                               color: tagFilter === tag ? '#fff' : '#94a3b8', cursor: 'pointer',
                               transition: 'all 0.15s'
                             }}
@@ -671,15 +671,15 @@ export default function SessionLogModal() {
                       onClick={() => setSelectedTopic(null)}
                       style={{
                         padding: '10px 14px', borderRadius: '10px', textAlign: 'left',
-                        border: `1px solid ${selectedTopic === null ? '#8b5cf6' : 'rgba(255,255,255,0.05)'}`,
-                        background: selectedTopic === null ? 'rgba(139,92,246,0.18)' : 'rgba(255,255,255,0.02)',
-                        color: selectedTopic === null ? '#c4b5fd' : '#94a3b8',
+                        border: `1px solid ${selectedTopic === null ? '#2563eb' : 'rgba(255,255,255,0.05)'}`,
+                        background: selectedTopic === null ? 'rgba(37,99,235,0.18)' : 'rgba(255,255,255,0.02)',
+                        color: selectedTopic === null ? '#93c5fd' : '#94a3b8',
                         cursor: 'pointer', fontSize: '13px', fontWeight: selectedTopic === null ? 700 : 500,
                         display: 'flex', justifyContent: 'space-between', alignItems: 'center'
                       }}
                     >
                       <span>🎯 Genel {selectedSubject} Çalışması (Konu Belirtme)</span>
-                      {selectedTopic === null && <Check size={16} color="#8b5cf6" />}
+                      {selectedTopic === null && <Check size={16} color="#2563eb" />}
                     </button>
 
                     {filteredTopics.length === 0 ? (
@@ -689,8 +689,8 @@ export default function SessionLogModal() {
                           type="button"
                           onClick={() => setSelectedTopic(topicSearch.trim())}
                           style={{
-                            display: 'block', margin: '8px auto 0', background: 'rgba(139,92,246,0.15)',
-                            border: '1px solid rgba(139,92,246,0.3)', color: '#c4b5fd', borderRadius: '8px',
+                            display: 'block', margin: '8px auto 0', background: 'rgba(37,99,235,0.15)',
+                            border: '1px solid rgba(37,99,235,0.3)', color: '#93c5fd', borderRadius: '8px',
                             padding: '6px 12px', fontSize: '12px', cursor: 'pointer', fontWeight: 600
                           }}
                         >
@@ -707,9 +707,9 @@ export default function SessionLogModal() {
                             onClick={() => setSelectedTopic(t.name)}
                             style={{
                               padding: '9px 12px', borderRadius: '10px', textAlign: 'left',
-                              border: `1px solid ${isChosen ? '#8b5cf6' : 'rgba(255,255,255,0.05)'}`,
-                              background: isChosen ? 'rgba(139,92,246,0.18)' : 'rgba(255,255,255,0.02)',
-                              color: isChosen ? '#c4b5fd' : '#e2e8f0',
+                              border: `1px solid ${isChosen ? '#2563eb' : 'rgba(255,255,255,0.05)'}`,
+                              background: isChosen ? 'rgba(37,99,235,0.18)' : 'rgba(255,255,255,0.02)',
+                              color: isChosen ? '#93c5fd' : '#e2e8f0',
                               cursor: 'pointer', fontSize: '13px', fontWeight: isChosen ? 700 : 500,
                               display: 'flex', justifyContent: 'space-between', alignItems: 'center'
                             }}
@@ -724,7 +724,7 @@ export default function SessionLogModal() {
                                   {t.tag}
                                 </span>
                               )}
-                              {isChosen && <Check size={16} color="#8b5cf6" />}
+                              {isChosen && <Check size={16} color="#2563eb" />}
                             </div>
                           </button>
                         );
@@ -753,9 +753,9 @@ export default function SessionLogModal() {
                         onClick={() => setSolvedTest(!solvedTest)}
                         style={{
                           padding: '6px 14px', borderRadius: '10px', fontSize: '12px', fontWeight: 700,
-                          background: solvedTest ? 'linear-gradient(135deg, #8b5cf6, #6d28d9)' : 'rgba(255,255,255,0.06)',
+                          background: solvedTest ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : 'rgba(255,255,255,0.06)',
                           color: solvedTest ? '#fff' : '#94a3b8',
-                          border: `1px solid ${solvedTest ? '#8b5cf6' : 'rgba(255,255,255,0.1)'}`,
+                          border: `1px solid ${solvedTest ? '#2563eb' : 'rgba(255,255,255,0.1)'}`,
                           cursor: 'pointer', transition: 'all 0.2s'
                         }}
                       >
@@ -781,9 +781,9 @@ export default function SessionLogModal() {
                               }}
                               style={{
                                 padding: '3px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700,
-                                background: parseInt(questionsCount) === cnt ? 'rgba(139,92,246,0.3)' : 'rgba(255,255,255,0.04)',
-                                border: `1px solid ${parseInt(questionsCount) === cnt ? '#8b5cf6' : 'rgba(255,255,255,0.08)'}`,
-                                color: parseInt(questionsCount) === cnt ? '#c4b5fd' : '#94a3b8',
+                                background: parseInt(questionsCount) === cnt ? 'rgba(37,99,235,0.3)' : 'rgba(255,255,255,0.04)',
+                                border: `1px solid ${parseInt(questionsCount) === cnt ? '#2563eb' : 'rgba(255,255,255,0.08)'}`,
+                                color: parseInt(questionsCount) === cnt ? '#93c5fd' : '#94a3b8',
                                 cursor: 'pointer', transition: 'all 0.15s'
                               }}
                             >
@@ -893,10 +893,10 @@ export default function SessionLogModal() {
                       disabled={isSaving}
                       style={{
                         flex: 1, padding: '12px', borderRadius: '12px',
-                        background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
+                        background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
                         border: 'none', color: '#fff', cursor: 'pointer',
                         fontSize: '14px', fontWeight: 700,
-                        boxShadow: '0 4px 16px rgba(139,92,246,0.3)',
+                        boxShadow: '0 4px 16px rgba(37,99,235,0.3)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
                       }}
                     >

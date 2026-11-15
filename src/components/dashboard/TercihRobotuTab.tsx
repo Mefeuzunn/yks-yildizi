@@ -224,7 +224,7 @@ export default function TercihRobotuTab() {
           onClick={() => setIsModalOpen(true)}
           className={`px-5 py-3.5 rounded-2xl flex items-center gap-3 shadow-lg backdrop-blur-sm transition-all text-left group border ${
             prefList.length > 0
-              ? 'bg-gradient-to-r from-sky-500/20 via-indigo-500/15 to-purple-500/20 border-sky-400/40 hover:border-sky-400 hover:shadow-[0_0_25px_rgba(56,189,248,0.35)]'
+              ? 'bg-gradient-to-r from-sky-500/20 via-blue-500/15 to-indigo-500/20 border-sky-400/40 hover:border-sky-400 hover:shadow-[0_0_25px_rgba(56,189,248,0.35)]'
               : 'bg-white/5 border-white/10 hover:border-white/20'
           }`}
         >
@@ -304,7 +304,7 @@ export default function TercihRobotuTab() {
 
           {/* Uni Type */}
           <div className="relative">
-            <Building2 className="w-4 h-4 text-purple-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Building2 className="w-4 h-4 text-sky-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <select 
               value={uniType} 
               onChange={e => {
@@ -461,7 +461,7 @@ export default function TercihRobotuTab() {
                     <div className="w-px h-7 bg-white/10" />
                     <div className="text-center flex-1">
                       <p className="text-[11px] text-gray-400 font-bold uppercase tracking-wider mb-0.5">Sıralama</p>
-                      <p className="font-extrabold text-purple-400 text-base">
+                      <p className="font-extrabold text-sky-400 text-base">
                         {rankingVal > 0 ? rankingVal.toLocaleString('tr-TR') : '-'}
                       </p>
                     </div>
@@ -583,7 +583,7 @@ export default function TercihRobotuTab() {
                 <div className="flex items-center gap-2 w-full sm:w-auto">
                   <div className="flex-1 sm:w-48 h-2 bg-white/10 rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-400 rounded-full transition-all duration-300"
+                      className="h-full bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 rounded-full transition-all duration-300"
                       style={{ width: `${Math.min(100, (prefList.length / 24) * 100)}%` }}
                     />
                   </div>
@@ -666,7 +666,7 @@ export default function TercihRobotuTab() {
                               <span>•</span>
                               <span>Puan: <strong className="text-emerald-400">{baseScore > 0 ? baseScore.toFixed(1) : 'Dolmadı'}</strong></span>
                               <span>•</span>
-                              <span>Sıra: <strong className="text-purple-400">{ranking > 0 ? ranking.toLocaleString('tr-TR') : '-'}</strong></span>
+                              <span>Sıra: <strong className="text-sky-400">{ranking > 0 ? ranking.toLocaleString('tr-TR') : '-'}</strong></span>
                             </div>
                           </div>
                         </div>

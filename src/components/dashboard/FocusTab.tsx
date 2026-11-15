@@ -18,7 +18,7 @@ import { triggerHaptic } from '@/lib/haptics';
 type Mode = 'pomodoro' | 'shortBreak' | 'longBreak';
 
 const MODE_CONFIG: Record<Mode, { label: string; color: string; glow: string; minutes: number }> = {
-  pomodoro:   { label: 'Odak',      color: '#8b5cf6', glow: 'rgba(139,92,246,0.35)', minutes: 25 },
+  pomodoro:   { label: 'Odak',      color: '#2563eb', glow: 'rgba(37,99,235,0.35)', minutes: 25 },
   shortBreak: { label: 'Kısa Ara',  color: '#38bdf8', glow: 'rgba(56,189,248,0.35)', minutes: 5  },
   longBreak:  { label: 'Uzun Ara',  color: '#10b981', glow: 'rgba(16,185,129,0.35)', minutes: 15 },
 };
@@ -45,7 +45,7 @@ export const FOCUS_PRESETS: FocusPreset[] = [
     topic: '',
     desc: '25 dk odaklanma & 5 dk mola döngüsü',
     badge: 'Klasik',
-    color: '#8b5cf6',
+    color: '#2563eb',
   },
   {
     id: 'paragraf',
@@ -109,23 +109,23 @@ const SUBJECTS = [
   { label: 'Sosyal Bilimler', emoji: '🏛️', color: '#d97706' },
   { label: 'Fen Bilimleri', emoji: '🧪', color: '#06b6d4' },
   { label: 'Genel Deneme', emoji: '🏆', color: '#10b981' },
-  { label: 'Matematik', emoji: '📐', color: '#3b82f6' },
-  { label: 'Geometri', emoji: '📏', color: '#6366f1' },
-  { label: 'Türkçe', emoji: '📚', color: '#f43f5e' },
-  { label: 'Edebiyat', emoji: '✍️', color: '#ec4899' },
+  { label: 'Matematik', emoji: '📐', color: '#2563eb' },
+  { label: 'Geometri', emoji: '📏', color: '#0284c7' },
+  { label: 'Türkçe', emoji: '📚', color: '#dc2626' },
+  { label: 'Edebiyat', emoji: '✍️', color: '#d97706' },
   { label: 'Fizik', emoji: '⚡', color: '#0ea5e9' },
-  { label: 'Kimya', emoji: '🧪', color: '#14b8a6' },
-  { label: 'Biyoloji', emoji: '🔬', color: '#8b5cf6' },
-  { label: 'Tarih', emoji: '🏺', color: '#f59e0b' },
-  { label: 'Coğrafya', emoji: '🌍', color: '#059669' },
-  { label: 'Felsefe', emoji: '🤔', color: '#fb923c' },
-  { label: 'Din Kültürü', emoji: '🕌', color: '#0891b2' },
-  { label: 'İngilizce (YDT)', emoji: '🇬🇧', color: '#a855f7' },
+  { label: 'Kimya', emoji: '🧪', color: '#0d9488' },
+  { label: 'Biyoloji', emoji: '🔬', color: '#059669' },
+  { label: 'Tarih', emoji: '🏺', color: '#b45309' },
+  { label: 'Coğrafya', emoji: '🌍', color: '#047857' },
+  { label: 'Felsefe', emoji: '🤔', color: '#ca8a04' },
+  { label: 'Din Kültürü', emoji: '🕌', color: '#65a30d' },
+  { label: 'İngilizce (YDT)', emoji: '🇬🇧', color: '#0284c7' },
 ];
 
 const AMBIENT_SOUNDS = [
   { id: 'rain',   label: 'Yağmur',    icon: <CloudRain size={18}/>, color: '#38bdf8', url: 'https://actions.google.com/sounds/v1/weather/rain_heavy_loud.ogg' },
-  { id: 'wind',   label: 'Rüzgar',    icon: <Wind size={18}/>,     color: '#a78bfa', url: 'https://actions.google.com/sounds/v1/weather/strong_wind.ogg' },
+  { id: 'wind',   label: 'Rüzgar',    icon: <Wind size={18}/>,     color: '#38bdf8', url: 'https://actions.google.com/sounds/v1/weather/strong_wind.ogg' },
   { id: 'waves',  label: 'Dalga',     icon: <Waves size={18}/>,    color: '#06b6d4', url: 'https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg' },
   { id: 'cafe',   label: 'Kafe',      icon: <Coffee size={18}/>,   color: '#f59e0b', url: 'https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg' },
   { id: 'forest', label: 'Orman',     icon: <TreePine size={18}/>, color: '#10b981', url: 'https://actions.google.com/sounds/v1/ambiences/outdoor_summer_ambience.ogg' },
@@ -167,14 +167,14 @@ function SettingsModal({ durations, onSave, onClose }: {
         className="modal-content"
         initial={{ scale: 0.85, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.85, y: 30 }}
         onClick={(e: React.MouseEvent) => e.stopPropagation()}
-        style={{ background: '#131827', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '24px',
+        style={{ background: '#131827', border: '1px solid rgba(37,99,235,0.3)', borderRadius: '24px',
                  padding: 'clamp(20px, 4vw, 36px)', width: '440px', maxWidth: '95vw', maxHeight: '85dvh', overflowY: 'auto',
-                 boxShadow: '0 20px 60px rgba(139,92,246,0.2)' }}
+                 boxShadow: '0 20px 60px rgba(37,99,235,0.2)' }}
       >
         <div className="modal-drag-handle" />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
           <h3 style={{ color: '#fff', fontSize: '20px', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Settings size={20} style={{ color: '#8b5cf6' }}/> Süre Ayarları
+            <Settings size={20} style={{ color: '#2563eb' }}/> Süre Ayarları
           </h3>
           <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: '50%', width: '36px', height: '36px', color: '#9ca3af', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={18}/></button>
         </div>
@@ -189,9 +189,9 @@ function SettingsModal({ durations, onSave, onClose }: {
                 }}
                 style={{
                   padding: '7px 14px', borderRadius: '10px', fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer',
-                  background: local.pomodoro === min ? '#8b5cf6' : 'rgba(255,255,255,0.05)',
+                  background: local.pomodoro === min ? '#2563eb' : 'rgba(255,255,255,0.05)',
                   color: local.pomodoro === min ? '#fff' : '#9ca3af',
-                  boxShadow: local.pomodoro === min ? '0 4px 12px rgba(139,92,246,0.4)' : 'none',
+                  boxShadow: local.pomodoro === min ? '0 4px 12px rgba(37,99,235,0.4)' : 'none',
                   transition: 'all 0.15s'
                 }}>
                 {min >= 60 ? `${Math.floor(min/60)}s${min%60>0?` ${min%60}dk`:''}` : `${min}dk`}
@@ -254,9 +254,9 @@ function SettingsModal({ durations, onSave, onClose }: {
             onSave(local);
             onClose();
           }}
-          style={{ width: '100%', minHeight: '48px', padding: '14px', background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', border: 'none',
+          style={{ width: '100%', minHeight: '48px', padding: '14px', background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', border: 'none',
                    borderRadius: '14px', color: '#fff', fontWeight: 700, fontSize: '15px', cursor: 'pointer', marginTop: '8px',
-                   boxShadow: '0 8px 20px rgba(139,92,246,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                   boxShadow: '0 8px 20px rgba(37,99,235,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         >
           Kaydet & Uygula
         </button>
@@ -300,8 +300,8 @@ function SubjectPickerModal({ selected, onSelect, onClose }: {
             onSelect(null);
             onClose();
           }}
-            style={{ padding: '12px 14px', minHeight: '44px', borderRadius: '14px', border: `2px solid ${!selected ? '#8b5cf6' : 'rgba(255,255,255,0.06)'}`,
-                     background: !selected ? 'rgba(139,92,246,0.1)' : 'rgba(255,255,255,0.02)', cursor: 'pointer',
+            style={{ padding: '12px 14px', minHeight: '44px', borderRadius: '14px', border: `2px solid ${!selected ? '#2563eb' : 'rgba(255,255,255,0.06)'}`,
+                     background: !selected ? 'rgba(37,99,235,0.1)' : 'rgba(255,255,255,0.02)', cursor: 'pointer',
                      color: '#9ca3af', fontWeight: 600, fontSize: '13px', textAlign: 'left',
                      display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '18px' }}>🎯</span> Serbest Çalışma
@@ -486,9 +486,9 @@ function EditSessionModal({
                   borderRadius: '8px',
                   fontSize: '12px',
                   fontWeight: 700,
-                  border: `1px solid ${totalQ === cnt ? '#8b5cf6' : 'rgba(255,255,255,0.08)'}`,
-                  background: totalQ === cnt ? 'rgba(139,92,246,0.3)' : 'rgba(255,255,255,0.03)',
-                  color: totalQ === cnt ? '#c4b5fd' : '#94a3b8',
+                  border: `1px solid ${totalQ === cnt ? '#2563eb' : 'rgba(255,255,255,0.08)'}`,
+                  background: totalQ === cnt ? 'rgba(37,99,235,0.25)' : 'rgba(255,255,255,0.03)',
+                  color: totalQ === cnt ? '#93c5fd' : '#94a3b8',
                   cursor: 'pointer',
                 }}
               >
@@ -671,13 +671,13 @@ function EditSessionModal({
                 flex: 2,
                 padding: '12px',
                 borderRadius: '12px',
-                background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
+                background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
                 border: 'none',
                 color: '#fff',
                 fontWeight: 700,
                 fontSize: '14px',
                 cursor: 'pointer',
-                boxShadow: '0 4px 14px rgba(139,92,246,0.35)',
+                boxShadow: '0 4px 14px rgba(37,99,235,0.35)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -804,7 +804,7 @@ export default function FocusTab() {
         <div style={{ minWidth: 0 }}>
           <h2 style={{ fontSize: 'clamp(20px, 3.5vw, 28px)', fontWeight: 800, color: '#fff', margin: '0 0 6px 0',
                        display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Target size={26} style={{ color: '#8b5cf6' }}/> Odak Merkezi
+            <Target size={26} style={{ color: '#2563eb' }}/> Odak Merkezi
           </h2>
           <p style={{ color: '#9ca3af', fontSize: '13.5px', margin: 0, display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             Bugün <strong style={{ color: '#fff' }}>{todayMinutes} dk</strong> çalıştın &nbsp;·&nbsp;
@@ -816,7 +816,7 @@ export default function FocusTab() {
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
           {[
             { icon: <Flame size={14}/>, label: 'Bugün', value: `${todayMinutes}dk`, color: '#f97316' },
-            { icon: <Zap size={14}/>, label: 'Oturum', value: `${allTimeCount}`, color: '#8b5cf6' },
+            { icon: <Zap size={14}/>, label: 'Oturum', value: `${allTimeCount}`, color: '#2563eb' },
             { icon: <Trophy size={14}/>, label: 'Pomodoro', value: `${pomodoroCount}`, color: '#fcd34d' },
           ].map(s => (
             <div key={s.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: '#131827',
@@ -1209,8 +1209,8 @@ export default function FocusTab() {
                 transition={{ duration: 0.8, ease: 'easeOut' }}
                 style={{ height: '100%', borderRadius: '100px',
                          background: dailyPct >= 100 ? 'linear-gradient(to right, #10b981, #34d399)' :
-                                     dailyPct >= 50 ? 'linear-gradient(to right, #8b5cf6, #38bdf8)' :
-                                     'linear-gradient(to right, #8b5cf6, #a78bfa)' }}
+                                     dailyPct >= 50 ? 'linear-gradient(to right, #2563eb, #38bdf8)' :
+                                     'linear-gradient(to right, #2563eb, #60a5fa)' }}
               />
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
@@ -1226,9 +1226,9 @@ export default function FocusTab() {
                        background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div style={{ width: '34px', height: '34px', borderRadius: '10px',
-                              background: activeSound ? '#8b5cf620' : '#1e293b',
+                              background: activeSound ? 'rgba(37,99,235,0.18)' : '#1e293b',
                               display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Music size={16} style={{ color: activeSound ? '#a78bfa' : '#6b7280' }}/>
+                  <Music size={16} style={{ color: activeSound ? '#38bdf8' : '#6b7280' }}/>
                 </div>
                 <div style={{ textAlign: 'left' }}>
                   <div style={{ fontSize: '14px', fontWeight: 700, color: '#e2e8f0' }}>🎵 Ortam Sesleri</div>
@@ -1269,7 +1269,7 @@ export default function FocusTab() {
                       <VolumeX size={16} color="#6b7280" style={{ cursor: 'pointer' }} onClick={() => setVolume(0)}/>
                       <input type="range" min="0" max="1" step="0.01" value={volume}
                         onChange={e => setVolume(parseFloat(e.target.value))}
-                        style={{ flex: 1, accentColor: '#8b5cf6', cursor: 'pointer' }}
+                        style={{ flex: 1, accentColor: '#2563eb', cursor: 'pointer' }}
                       />
                       <Volume2 size={16} color="#6b7280"/>
                     </div>
@@ -1297,7 +1297,7 @@ export default function FocusTab() {
                          padding: '10px 14px', borderRadius: '12px', color: '#fff', fontSize: '13px',
                          outline: 'none', fontFamily: 'inherit' }}/>
               <button type="submit"
-                style={{ background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', border: 'none', borderRadius: '12px',
+                style={{ background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', border: 'none', borderRadius: '12px',
                          width: '42px', height: '42px', display: 'flex', alignItems: 'center', justifyContent: 'center',
                          color: '#fff', cursor: 'pointer', flexShrink: 0, touchAction: 'manipulation' }}>
                 <Plus size={18}/>
@@ -1351,7 +1351,7 @@ export default function FocusTab() {
       {/* ── Recent Sessions ── */}
       <div style={{ marginTop: '24px', background: '#0f172a', border: `1px solid rgba(255,255,255,0.04)`, borderRadius: '24px', padding: 'clamp(18px, 4vw, 32px)' }}>
         <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#fff', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <BookOpen size={18} style={{ color: '#8b5cf6' }}/> Son Çalışmalar
+          <BookOpen size={18} style={{ color: '#2563eb' }}/> Son Çalışmalar
         </h3>
         {recentSessions.length > 0 ? (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '16px' }}>
@@ -1360,7 +1360,7 @@ export default function FocusTab() {
                 background: '#131827', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px',
                 padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px',
                 transition: 'all 0.2s', cursor: 'default'
-              }} onMouseEnter={(e) => e.currentTarget.style.borderColor = 'rgba(139,92,246,0.3)'}
+              }} onMouseEnter={(e) => e.currentTarget.style.borderColor = 'rgba(37,99,235,0.3)'}
                  onMouseLeave={(e) => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
@@ -1384,7 +1384,7 @@ export default function FocusTab() {
                     </div>
                     {session.topic && (
                       <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#8b5cf6' }}/>
+                        <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#2563eb' }}/>
                         {session.topic}
                       </div>
                     )}

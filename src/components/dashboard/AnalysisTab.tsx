@@ -12,18 +12,18 @@ import { useAuth } from '@/context/AuthContext';
 import DemoVisualsShowcase, { DEMO_TYT_FALLBACK, DEMO_AYT_FALLBACK } from './DemoVisualsShowcase';
 
 const SUBJECT_CONFIG: Record<string, { emoji: string; color: string }> = {
-  'Matematik':   { emoji: '📐', color: '#3b82f6' },
-  'Geometri':    { emoji: '📐', color: '#6366f1' },
-  'Türkçe':      { emoji: '📖', color: '#ef4444' },
-  'Edebiyat':    { emoji: '✍️', color: '#ec4899' },
-  'Fizik':       { emoji: '⚡', color: '#06b6d4' },
-  'Kimya':       { emoji: '🧪', color: '#10b981' },
-  'Biyoloji':    { emoji: '🔬', color: '#8b5cf6' },
-  'Tarih':       { emoji: '🏛️', color: '#f59e0b' },
-  'Coğrafya':    { emoji: '🌍', color: '#14b8a6' },
-  'Felsefe':     { emoji: '🤔', color: '#fb923c' },
-  'Din Kültürü': { emoji: '☪️', color: '#84cc16' },
-  'Diğer':       { emoji: '🎯', color: '#a855f7' },
+  'Matematik':   { emoji: '📐', color: '#2563eb' },
+  'Geometri':    { emoji: '📐', color: '#0284c7' },
+  'Türkçe':      { emoji: '📖', color: '#dc2626' },
+  'Edebiyat':    { emoji: '✍️', color: '#d97706' },
+  'Fizik':       { emoji: '⚡', color: '#0ea5e9' },
+  'Kimya':       { emoji: '🧪', color: '#0d9488' },
+  'Biyoloji':    { emoji: '🔬', color: '#059669' },
+  'Tarih':       { emoji: '🏛️', color: '#b45309' },
+  'Coğrafya':    { emoji: '🌍', color: '#047857' },
+  'Felsefe':     { emoji: '🤔', color: '#ca8a04' },
+  'Din Kültürü': { emoji: '☪️', color: '#65a30d' },
+  'Diğer':       { emoji: '🎯', color: '#475569' },
 };
 
 export default function AnalysisTab() {
@@ -326,7 +326,7 @@ export default function AnalysisTab() {
             fontSize: '0.84rem',
             fontWeight: 800,
             cursor: 'pointer',
-            backgroundColor: subTab === 'overview' ? 'var(--primary, #6366f1)' : 'transparent',
+            backgroundColor: subTab === 'overview' ? 'var(--primary, #2563eb)' : 'transparent',
             color: subTab === 'overview' ? '#ffffff' : 'var(--text-muted, #94a3b8)',
             transition: 'all 0.2s',
           }}
@@ -373,7 +373,7 @@ export default function AnalysisTab() {
             value: `${weeklyQuestions} Soru`, 
             sub: allTimeQuestions > 0 ? `Tüm zamanlar: ${allTimeQuestions} soru` : 'Oturum sonlarında soru kaydet', 
             icon: <Target size={20} />, 
-            color: '#8b5cf6' 
+            color: '#2563eb' 
           },
           { 
             title: 'Soru Doğruluk Oranı', 
@@ -413,7 +413,7 @@ export default function AnalysisTab() {
         <div className="premium-card" style={{ padding: '1.75rem', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-              <LineChart size={18} color={examType === 'TYT' ? "#38bdf8" : "#8b5cf6"} /> Deneme Net Gelişimi
+              <LineChart size={18} color={examType === 'TYT' ? "#38bdf8" : "#10b981"} /> Deneme Net Gelişimi
             </h3>
             
             <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
@@ -441,7 +441,7 @@ export default function AnalysisTab() {
                   onClick={() => { setExamType('AYT'); setSelectedExam(null); }}
                   style={{ 
                     padding: '0.25rem 0.85rem', borderRadius: '6px', border: 'none', 
-                    backgroundColor: examType === 'AYT' ? '#8b5cf6' : 'transparent', 
+                    backgroundColor: examType === 'AYT' ? '#10b981' : 'transparent', 
                     color: examType === 'AYT' ? '#fff' : 'var(--text-muted)', 
                     fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' 
                   }}
@@ -493,7 +493,7 @@ export default function AnalysisTab() {
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <button type="submit" disabled={isSubmittingExam} className="btn-interactive" style={{ backgroundColor: examType === 'TYT' ? '#38bdf8' : '#8b5cf6', fontSize: '13px', padding: '0.45rem 1rem' }}>
+                  <button type="submit" disabled={isSubmittingExam} className="btn-interactive" style={{ backgroundColor: examType === 'TYT' ? '#38bdf8' : '#10b981', fontSize: '13px', padding: '0.45rem 1rem' }}>
                     {isSubmittingExam ? 'Kaydediliyor...' : 'Kaydet'}
                   </button>
                 </div>
@@ -511,7 +511,7 @@ export default function AnalysisTab() {
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '180px', color: '#64748b' }}>
                 <BookOpen size={32} style={{ opacity: 0.3, marginBottom: '8px' }} />
                 <span style={{ fontSize: '13px' }}>Henüz kaydedilmiş {examType} denemesi bulunamadı.</span>
-                <button onClick={() => setShowAddForm(true)} style={{ marginTop: '8px', background: 'none', border: 'none', color: '#8b5cf6', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
+                <button onClick={() => setShowAddForm(true)} style={{ marginTop: '8px', background: 'none', border: 'none', color: '#2563eb', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
                   + İlk Denemeni Ekle
                 </button>
               </div>
@@ -543,7 +543,7 @@ export default function AnalysisTab() {
                         <motion.polyline 
                           key={`line-${examType}-${currentExams.length}`}
                           initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2, ease: "easeInOut" }}
-                          fill="none" stroke={examType === 'TYT' ? "#38bdf8" : "#8b5cf6"} strokeWidth="3" points={pointsString} strokeLinejoin="round" strokeLinecap="round" 
+                          fill="none" stroke={examType === 'TYT' ? "#38bdf8" : "#10b981"} strokeWidth="3" points={pointsString} strokeLinejoin="round" strokeLinecap="round" 
                         />
                       </>
                     )}
@@ -559,8 +559,8 @@ export default function AnalysisTab() {
                           <motion.circle 
                             initial={{ scale: 0 }} animate={{ scale: isSelected ? 1.5 : 1 }} transition={{ delay: 0.2 + (i * 0.05), type: 'spring' }}
                             cx={x} cy={y} r="5" 
-                            fill={isSelected ? (examType === 'TYT' ? "#38bdf8" : "#8b5cf6") : "var(--surface)"} 
-                            stroke={examType === 'TYT' ? "#38bdf8" : "#8b5cf6"} strokeWidth="2" 
+                            fill={isSelected ? (examType === 'TYT' ? "#38bdf8" : "#10b981") : "var(--surface)"} 
+                            stroke={examType === 'TYT' ? "#38bdf8" : "#10b981"} strokeWidth="2" 
                           />
                         </g>
                       );
@@ -591,7 +591,7 @@ export default function AnalysisTab() {
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
                   <div>
-                    <div style={{ fontSize: '0.75rem', color: examType === 'TYT' ? '#38bdf8' : '#8b5cf6', fontWeight: 700 }}>{selectedExam.date}</div>
+                    <div style={{ fontSize: '0.75rem', color: examType === 'TYT' ? '#38bdf8' : '#10b981', fontWeight: 700 }}>{selectedExam.date}</div>
                     <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>{selectedExam.name}</h4>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -655,7 +655,7 @@ export default function AnalysisTab() {
 
                   <span style={{ fontSize: '0.75rem', color: d.hours > 0 ? '#e2e8f0' : 'var(--text-muted)', fontWeight: 600 }}>{d.day}</span>
                   {d.questions > 0 && (
-                    <span style={{ fontSize: '10px', color: '#8b5cf6', fontWeight: 700 }}>{d.questions}S</span>
+                    <span style={{ fontSize: '10px', color: '#2563eb', fontWeight: 700 }}>{d.questions}S</span>
                   )}
                 </div>
               );
@@ -664,7 +664,7 @@ export default function AnalysisTab() {
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.25rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.05)', fontSize: '11px', color: '#94a3b8' }}>
             <span>🟡 Odak Süresi (Saat)</span>
-            <span>🟣 Çözülen Soru Sayısı</span>
+            <span>🔵 Çözülen Soru Sayısı</span>
           </div>
         </div>
 
@@ -675,12 +675,12 @@ export default function AnalysisTab() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
           <div>
             <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-              <BookOpen size={18} color="#8b5cf6" /> Derslere Göre Odak & Soru Dağılımı
+              <BookOpen size={18} color="#2563eb" /> Derslere Göre Odak & Soru Dağılımı
             </h3>
             <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#94a3b8' }}>Hangi derse ne kadar çalıştın ve ne kadar soru çözdün?</p>
           </div>
           {subjectBreakdown.length > 0 && (
-            <span style={{ fontSize: '12px', color: '#a78bfa', fontWeight: 700, background: 'rgba(139,92,246,0.15)', padding: '4px 10px', borderRadius: '12px' }}>
+            <span style={{ fontSize: '12px', color: '#38bdf8', fontWeight: 700, background: 'rgba(37,99,235,0.15)', padding: '4px 10px', borderRadius: '12px' }}>
               {subjectBreakdown.length} Farklı Ders
             </span>
           )}
@@ -768,11 +768,11 @@ export default function AnalysisTab() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '1.5rem' }}>
         
         {/* YZ Eğitim Koçu Analizi (Dinamik & Gerçek Verilere Dayalı) */}
-        <div className="premium-card" style={{ padding: '1.75rem', position: 'relative', overflow: 'hidden', borderLeft: '4px solid #8b5cf6' }}>
-          <div style={{ position: 'absolute', top: 0, right: 0, width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 70%)', transform: 'translate(30%, -30%)' }}></div>
+        <div className="premium-card" style={{ padding: '1.75rem', position: 'relative', overflow: 'hidden', borderLeft: '4px solid #2563eb' }}>
+          <div style={{ position: 'absolute', top: 0, right: 0, width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(37,99,235,0.12) 0%, transparent 70%)', transform: 'translate(30%, -30%)' }}></div>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem', position: 'relative', zIndex: 2 }}>
-            <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'linear-gradient(135deg, #8b5cf6, #d946ef)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+            <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
               <Brain size={22} />
             </div>
             <div>
@@ -788,7 +788,7 @@ export default function AnalysisTab() {
               </p>
             ) : (
               <p>
-                Bu hafta toplam <strong style={{ color: '#f59e0b' }}>{Math.floor(weekTotalMin / 60)} saat {weekTotalMin % 60} dakika</strong> odaklandın ve <strong style={{ color: '#8b5cf6' }}>{weeklyQuestions} soru</strong> çözdün. 
+                Bu hafta toplam <strong style={{ color: '#f59e0b' }}>{Math.floor(weekTotalMin / 60)} saat {weekTotalMin % 60} dakika</strong> odaklandın ve <strong style={{ color: '#2563eb' }}>{weeklyQuestions} soru</strong> çözdün. 
                 {topSubject && (
                   <> En yoğun çalıştığın alan <strong style={{ color: '#38bdf8' }}>{topSubject.subject}</strong> oldu.</>
                 )}
@@ -876,9 +876,9 @@ export default function AnalysisTab() {
 
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.85rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ width: '10px', height: '10px', borderRadius: '3px', backgroundColor: '#8b5cf6' }}></span> Toplam Odak
+                  <span style={{ width: '10px', height: '10px', borderRadius: '3px', backgroundColor: '#0284c7' }}></span> Toplam Odak
                 </div>
-                <span style={{ fontWeight: 700, color: '#c4b5fd' }}>
+                <span style={{ fontWeight: 700, color: '#38bdf8' }}>
                   {Math.floor(allTimeTotalMin / 60)}s {allTimeTotalMin % 60}d
                 </span>
               </div>

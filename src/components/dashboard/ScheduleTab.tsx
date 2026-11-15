@@ -38,16 +38,16 @@ function periodOf(hour: number): 'night' | 'morning' | 'afternoon' | 'evening' {
   return 'evening';
 }
 const PERIOD_COLORS: Record<string, string> = {
-  night:     'rgba(99,102,241,0.04)',
+  night:     'rgba(37,99,235,0.04)',
   morning:   'rgba(251,191,36,0.04)',
-  afternoon: 'rgba(59,130,246,0.04)',
-  evening:   'rgba(168,85,247,0.04)',
+  afternoon: 'rgba(2,132,199,0.04)',
+  evening:   'rgba(56,189,248,0.04)',
 };
 
 const PRESET_COLORS = [
-  '#8b5cf6','#3b82f6','#10b981','#f59e0b',
+  '#2563eb','#3b82f6','#10b981','#f59e0b',
   '#ef4444','#ec4899','#14b8a6','#f97316',
-  '#6366f1','#84cc16','#06b6d4','#a855f7',
+  '#0284c7','#84cc16','#06b6d4','#0d9488',
 ];
 
 const DAYS = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
@@ -179,14 +179,14 @@ export default function ScheduleTab() {
   const [selectedCellHour, setSelectedCellHour] = useState<{ day: number; hour: number } | null>(null);
   const [customTitle, setCustomTitle]       = useState('');
   const [customNotes, setCustomNotes]       = useState('');
-  const [customColor, setCustomColor]       = useState('#8b5cf6');
+  const [customColor, setCustomColor]       = useState('#2563eb');
   const [customDuration, setCustomDuration] = useState(2);
   const [showCustomForm, setShowCustomForm] = useState(false);
   const [editBlock, setEditBlock]           = useState<ScheduleBlock | null>(null);
   const [editTitle, setEditTitle]           = useState('');
   const [editNotes, setEditNotes]           = useState('');
   const [editDuration, setEditDuration]     = useState(2);
-  const [editColor, setEditColor]           = useState('#8b5cf6');
+  const [editColor, setEditColor]           = useState('#2563eb');
   const [editDay, setEditDay]               = useState(0);
   const [editTime, setEditTime]             = useState(7);
   const [editCompleted, setEditCompleted]   = useState(false);
@@ -240,7 +240,7 @@ export default function ScheduleTab() {
 
   const openAddModal = (di: number, ti: number) => {
     setSelectedCellHour({day: di, hour: slotIndexToHour(ti)}); 
-    setCustomTitle(''); setCustomNotes(''); setCustomColor('#8b5cf6'); setCustomDuration(2); setShowCustomForm(false); setIsModalOpen(true);
+    setCustomTitle(''); setCustomNotes(''); setCustomColor('#2563eb'); setCustomDuration(2); setShowCustomForm(false); setIsModalOpen(true);
   };
   const handleQuickAdd = (title: string, color: string) => {
     if (selectedCellHour) { addBlock({day:selectedCellHour.day, time:selectedCellHour.hour, duration:2, title, notes:'', color}); setIsModalOpen(false); setSelectedCellHour(null); }
@@ -303,12 +303,12 @@ export default function ScheduleTab() {
             onClick={() => setShowAiPlanModal(true)}
             disabled={aiPlanGenerating}
             style={{
-              background: 'linear-gradient(135deg, #a855f7, #ec4899)',
+              background: 'linear-gradient(135deg, #2563eb, #0284c7)',
               border: 'none', borderRadius: '12px', padding: '12px 20px',
               color: '#fff', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px',
               cursor: aiPlanGenerating ? 'not-allowed' : 'pointer',
               opacity: aiPlanGenerating ? 0.7 : 1,
-              boxShadow: '0 4px 15px rgba(168, 85, 247, 0.4)'
+              boxShadow: '0 4px 15px rgba(37, 99, 235, 0.4)'
             }}
           >
             <Sparkles size={18} /> {aiPlanGenerating ? 'Plan Çiziliyor...' : 'Yapay Zeka Planı Çiz'}
@@ -392,7 +392,7 @@ export default function ScheduleTab() {
             type="button"
             onClick={() => openAddModal(currentDayView, Math.min(22, Math.max(7, nowHour)))}
             style={{
-              background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+              background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
               border: 'none',
               color: '#fff',
               padding: '9px 14px',
@@ -509,7 +509,7 @@ export default function ScheduleTab() {
                     </span>
                     <span style={{
                       fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '6px',
-                      background: 'rgba(168,85,247,0.12)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)',
+                      background: 'rgba(37,99,235,0.12)', color: '#38bdf8', border: '1px solid rgba(37,99,235,0.25)',
                       display: 'inline-flex', alignItems: 'center', gap: '4px'
                     }}>
                       🎯 {b.questions_solved || 0} Soru
@@ -637,7 +637,7 @@ export default function ScheduleTab() {
         {[
           {label:'Sabah (06-12)', color:'#f59e0b', icon:'🌅'},
           {label:'Öğleden Sonra (12-18)', color:'#3b82f6', icon:'☀️'},
-          {label:'Akşam (18-24)', color:'#a855f7', icon:'🌆'},
+          {label:'Akşam (18-24)', color:'#0284c7', icon:'🌆'},
         ].map(p => (
           <div key={p.label} style={{display:'flex',alignItems:'center',gap:'6px',fontSize:'11px',color:'#6b7280',fontWeight:600}}>
             <div style={{width:'10px',height:'10px',borderRadius:'3px',background:p.color+'80'}}/>
@@ -782,7 +782,7 @@ export default function ScheduleTab() {
                           <span style={{color:'#38bdf8'}}>
                             ⏱️{b.studied_minutes && b.studied_minutes > 0 ? `${b.studied_minutes}dk` : `${b.duration*60}dk`}
                           </span>
-                          <span style={{color:'#c084fc'}}>
+                          <span style={{color:'#38bdf8'}}>
                             🎯{b.questions_solved || 0}S
                           </span>
                         </div>
@@ -1057,20 +1057,20 @@ export default function ScheduleTab() {
               exit={{opacity:0,scale:0.95,y:10}}
               style={{
                 backgroundColor:'#0f172a',
-                border:'1px solid rgba(168, 85, 247, 0.35)',
+                border:'1px solid rgba(37, 99, 235, 0.35)',
                 borderRadius:'24px',
                 padding:'2rem',
                 maxWidth:'440px',
                 width:'100%',
-                boxShadow:'0 25px 50px -12px rgba(0,0,0,0.5), 0 0 35px rgba(168, 85, 247, 0.2)',
+                boxShadow:'0 25px 50px -12px rgba(0,0,0,0.5), 0 0 35px rgba(37, 99, 235, 0.2)',
                 textAlign:'center'
               }}
             >
               <div style={{
                 width:'60px',height:'60px',borderRadius:'20px',
-                background:'linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(236, 72, 153, 0.2))',
-                border:'1px solid rgba(168, 85, 247, 0.4)',
-                color:'#c084fc',display:'flex',alignItems:'center',justifyContent:'center',
+                background:'linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(2, 132, 199, 0.2))',
+                border:'1px solid rgba(37, 99, 235, 0.4)',
+                color:'#38bdf8',display:'flex',alignItems:'center',justifyContent:'center',
                 margin:'0 auto 1.25rem'
               }}>
                 <Sparkles size={28} />
@@ -1101,9 +1101,9 @@ export default function ScheduleTab() {
                   disabled={aiPlanGenerating}
                   style={{
                     flex:1,padding:'12px',borderRadius:'14px',
-                    background:'linear-gradient(135deg, #a855f7, #ec4899)',border:'none',
+                    background:'linear-gradient(135deg, #2563eb, #0284c7)',border:'none',
                     color:'#fff',fontWeight:700,fontSize:'14px',cursor:'pointer',
-                    boxShadow:'0 4px 15px rgba(168, 85, 247, 0.4)'
+                    boxShadow:'0 4px 15px rgba(37, 99, 235, 0.4)'
                   }}
                 >
                   {aiPlanGenerating ? 'Hazırlanıyor...' : 'Evet, Oluştur'}

@@ -152,9 +152,9 @@ export default function ScanMistakeModal({ isOpen, onClose, onSaved }: Props) {
         <div className="mobile-only modal-drag-handle" style={{ marginTop: 8 }} />
 
         {/* Header */}
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#1e293b' }}>
+        <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#090D16' }}>
           <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Camera size={20} color="#a855f7" /> Fotoğraftan Soru Ekle
+            <Camera size={20} color="#38bdf8" /> Fotoğraftan Soru Ekle
           </h3>
           <button onClick={handleClose} style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer' }}>
             <X size={24} />
@@ -165,8 +165,8 @@ export default function ScanMistakeModal({ isOpen, onClose, onSaved }: Props) {
         <div className="custom-scrollbar" style={{ padding: '24px', overflowY: 'auto', flex: 1 }}>
           
           {!imageSrc ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px', padding: '40px 20px', border: '2px dashed rgba(255,255,255,0.1)', borderRadius: '16px' }}>
-              <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: 'rgba(168,85,247,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#a855f7' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px', padding: '40px 20px', border: '2px dashed rgba(255,255,255,0.12)', borderRadius: '16px' }}>
+              <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: 'rgba(37,99,235,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#38bdf8' }}>
                 <Camera size={32} />
               </div>
               <div style={{ textAlign: 'center' }}>
@@ -183,7 +183,7 @@ export default function ScanMistakeModal({ isOpen, onClose, onSaved }: Props) {
               />
               <button 
                 onClick={() => fileInputRef.current?.click()}
-                style={{ padding: '12px 24px', backgroundColor: '#a855f7', color: '#fff', borderRadius: '12px', fontWeight: 600, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                style={{ padding: '12px 24px', backgroundColor: '#2563eb', color: '#fff', borderRadius: '12px', fontWeight: 600, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
               >
                 <Upload size={18} /> Resim Seç / Çek
               </button>
@@ -192,8 +192,8 @@ export default function ScanMistakeModal({ isOpen, onClose, onSaved }: Props) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               
               {isProcessing ? (
-                <div style={{ padding: '40px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', backgroundColor: 'rgba(168,85,247,0.05)', borderRadius: '16px', border: '1px solid rgba(168,85,247,0.1)' }}>
-                  <Loader2 className="animate-spin" size={40} color="#a855f7" />
+                <div style={{ padding: '40px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', backgroundColor: 'rgba(37,99,235,0.06)', borderRadius: '16px', border: '1px solid rgba(37,99,235,0.15)' }}>
+                  <Loader2 className="animate-spin" size={40} color="#2563eb" />
                   <div>
                     <h4 style={{ color: '#fff', margin: '0 0 4px 0' }}>Yapay Zeka Soruyu Okuyor...</h4>
                     <p style={{ color: '#9ca3af', fontSize: '0.85rem', margin: 0 }}>Bu işlem cihazınızda (çevrimdışı) gerçekleştiği için birkaç saniye sürebilir.</p>
@@ -211,7 +211,7 @@ export default function ScanMistakeModal({ isOpen, onClose, onSaved }: Props) {
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '8px', color: '#9ca3af', fontSize: '0.85rem' }}>
                         Ders
-                        <select value={subject} onChange={e => setSubject(e.target.value)} style={{ padding: '10px', backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px' }}>
+                        <select value={subject} onChange={e => setSubject(e.target.value)} style={{ padding: '10px', backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px' }}>
                           <option value="Türkçe">Türkçe</option>
                           <option value="Matematik">Matematik</option>
                           <option value="Fizik">Fizik</option>
@@ -223,7 +223,7 @@ export default function ScanMistakeModal({ isOpen, onClose, onSaved }: Props) {
                       </label>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '8px', color: '#9ca3af', fontSize: '0.85rem' }}>
                         Konu
-                        <input type="text" value={topic} onChange={e => setTopic(e.target.value)} placeholder="Örn: Türev" style={{ padding: '10px', backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px' }} />
+                        <input type="text" value={topic} onChange={e => setTopic(e.target.value)} placeholder="Örn: Türev" style={{ padding: '10px', backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px' }} />
                       </label>
                     </div>
 
@@ -231,19 +231,19 @@ export default function ScanMistakeModal({ isOpen, onClose, onSaved }: Props) {
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <span>Soru Metni (OCR ile Çıkarıldı)</span>
                       </div>
-                      <textarea value={ocrText} onChange={e => setOcrText(e.target.value)} rows={5} style={{ padding: '12px', backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px', fontFamily: 'inherit', resize: 'vertical' }} />
+                      <textarea value={ocrText} onChange={e => setOcrText(e.target.value)} rows={5} style={{ padding: '12px', backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px', fontFamily: 'inherit', resize: 'vertical' }} />
                     </label>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '8px', color: '#9ca3af', fontSize: '0.85rem' }}>
                         Doğru Cevap
-                        <select value={correctAnswer} onChange={e => setCorrectAnswer(e.target.value)} style={{ padding: '10px', backgroundColor: '#1e293b', border: '1px solid rgba(16,185,129,0.3)', color: '#10b981', borderRadius: '8px', fontWeight: 600 }}>
+                        <select value={correctAnswer} onChange={e => setCorrectAnswer(e.target.value)} style={{ padding: '10px', backgroundColor: '#0f172a', border: '1px solid rgba(16,185,129,0.3)', color: '#10b981', borderRadius: '8px', fontWeight: 600 }}>
                           {['A', 'B', 'C', 'D', 'E'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         </select>
                       </label>
                       <label style={{ display: 'flex', flexDirection: 'column', gap: '8px', color: '#9ca3af', fontSize: '0.85rem' }}>
                         Senin Cevabın
-                        <select value={selectedAnswer} onChange={e => setSelectedAnswer(e.target.value)} style={{ padding: '10px', backgroundColor: '#1e293b', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', borderRadius: '8px', fontWeight: 600 }}>
+                        <select value={selectedAnswer} onChange={e => setSelectedAnswer(e.target.value)} style={{ padding: '10px', backgroundColor: '#0f172a', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', borderRadius: '8px', fontWeight: 600 }}>
                           {['A', 'B', 'C', 'D', 'E', 'Boş'].map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         </select>
                       </label>
@@ -258,11 +258,11 @@ export default function ScanMistakeModal({ isOpen, onClose, onSaved }: Props) {
 
         {/* Footer */}
         {imageSrc && !isProcessing && (
-          <div style={{ padding: '16px 24px', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'flex-end', gap: '12px', backgroundColor: '#1e293b' }}>
+          <div style={{ padding: '16px 24px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'flex-end', gap: '12px', backgroundColor: '#090D16' }}>
             <button onClick={() => setImageSrc(null)} style={{ padding: '10px 20px', borderRadius: '10px', background: 'transparent', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.1)', fontWeight: 600, cursor: 'pointer' }}>
               Yeniden Çek
             </button>
-            <button onClick={handleSave} disabled={isSaving} style={{ padding: '10px 24px', borderRadius: '10px', background: 'linear-gradient(to right, #a855f7, #8b5cf6)', color: '#fff', border: 'none', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button onClick={handleSave} disabled={isSaving} style={{ padding: '10px 24px', borderRadius: '10px', background: 'linear-gradient(to right, #2563eb, #1d4ed8)', color: '#fff', border: 'none', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
               {isSaving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
               {isSaving ? 'Kaydediliyor...' : 'Deftere Kaydet'}
             </button>

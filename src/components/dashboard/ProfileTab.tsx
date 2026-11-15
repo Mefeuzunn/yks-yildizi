@@ -155,7 +155,7 @@ export default function ProfileTab() {
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
-        <Loader2 className="animate-spin" size={36} color="#6366f1" />
+        <Loader2 className="animate-spin" size={36} color="#2563eb" />
       </div>
     );
   }
@@ -188,9 +188,9 @@ export default function ProfileTab() {
   const sectionBtnStyle = (active: boolean): React.CSSProperties => ({
     display: 'flex', alignItems: 'center', gap: '0.65rem',
     padding: '0.75rem 1rem', borderRadius: '10px', width: '100%',
-    background: active ? 'rgba(99,102,241,0.12)' : 'transparent',
-    color: active ? '#a5b4fc' : '#64748b',
-    border: active ? '1px solid rgba(99,102,241,0.25)' : '1px solid transparent',
+    background: active ? 'rgba(37,99,235,0.15)' : 'transparent',
+    color: active ? '#38bdf8' : '#64748b',
+    border: active ? '1px solid rgba(37,99,235,0.3)' : '1px solid transparent',
     cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600,
     transition: 'all 0.2s', textAlign: 'left' as const,
   });
@@ -203,7 +203,7 @@ export default function ProfileTab() {
       {/* Header */}
       <div style={{ marginBottom: '1.5rem' }}>
         <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-          👤 Profilim
+          <User size={22} className="text-blue-500" /> Profilim
         </h2>
         <p style={{ color: '#475569', fontSize: '0.85rem', marginTop: '0.25rem' }}>
           Hesap bilgilerini düzenle, hedeflerini belirle, bildirim tercihlerini yönet.
@@ -218,17 +218,17 @@ export default function ProfileTab() {
           {/* Avatar Card */}
           <div style={{
             ...cardStyle,
-            background: 'linear-gradient(180deg, rgba(99,102,241,0.08) 0%, rgba(99,102,241,0.02) 100%)',
-            border: '1px solid rgba(99,102,241,0.15)',
+            background: 'linear-gradient(180deg, rgba(37,99,235,0.08) 0%, rgba(37,99,235,0.02) 100%)',
+            border: '1px solid rgba(37,99,235,0.18)',
             textAlign: 'center',
           }}>
             <div style={{
               width: '72px', height: '72px', borderRadius: '50%',
-              background: equippedAvatar ? `${equippedAvatar.color}25` : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+              background: equippedAvatar ? `${equippedAvatar.color}25` : 'linear-gradient(135deg, #2563eb, #0284c7)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: '#fff', fontWeight: 800, fontSize: equippedAvatar ? '2.2rem' : '1.5rem',
               margin: '0 auto 0.75rem',
-              boxShadow: equippedAvatar ? `0 0 25px ${equippedAvatar.color}55` : '0 0 20px rgba(99,102,241,0.35)',
+              boxShadow: equippedAvatar ? `0 0 25px ${equippedAvatar.color}55` : '0 0 20px rgba(37,99,235,0.35)',
               border: equippedAvatar ? `2.5px solid ${equippedAvatar.color}` : 'none',
               transition: 'all 0.3s ease'
             }}>
@@ -280,7 +280,7 @@ export default function ProfileTab() {
                 <div style={{ color: '#475569', fontSize: '0.65rem' }}>🔥 Seri</div>
               </div>
               <div style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
-                <div style={{ color: '#a855f7', fontWeight: 800, fontSize: '1.1rem' }}>{stats.xp}</div>
+                <div style={{ color: '#38bdf8', fontWeight: 800, fontSize: '1.1rem' }}>{stats.xp}</div>
                 <div style={{ color: '#475569', fontSize: '0.65rem' }}>XP</div>
               </div>
             </div>
@@ -321,7 +321,7 @@ export default function ProfileTab() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <div style={cardStyle}>
                   <h3 style={{ color: '#f1f5f9', fontSize: '1rem', fontWeight: 700, marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <User size={18} color="#6366f1" /> Kişisel Bilgiler
+                    <User size={18} color="#2563eb" /> Kişisel Bilgiler
                   </h3>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <div>
@@ -417,13 +417,13 @@ export default function ProfileTab() {
                   disabled={saving}
                   style={{
                     padding: '0.75rem 1.5rem', borderRadius: '12px',
-                    background: saved ? 'linear-gradient(135deg,#10b981,#059669)' : 'linear-gradient(135deg,#6366f1,#8b5cf6)',
+                    background: saved ? 'linear-gradient(135deg,#10b981,#059669)' : 'linear-gradient(135deg,#2563eb,#1d4ed8)',
                     color: '#fff', fontWeight: 700, fontSize: '0.9rem',
                     border: 'none', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center',
                     opacity: saving ? 0.7 : 1,
                     transition: 'all 0.3s',
-                    boxShadow: saved ? '0 4px 16px rgba(16,185,129,0.3)' : '0 4px 16px rgba(99,102,241,0.3)',
+                    boxShadow: saved ? '0 4px 16px rgba(16,185,129,0.3)' : '0 4px 16px rgba(37,99,235,0.3)',
                   }}
                 >
                   {saving ? <Loader2 size={18} className="animate-spin" /> : saved ? <CheckCircle size={18} /> : <Save size={18} />}
