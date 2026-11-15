@@ -22,9 +22,9 @@ export const BADGES = [
     icon: '⚔️',
     title: 'Gladyatör',
     description: 'Altın Lige yüksel.',
-    colorClass: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(109, 40, 217, 0.1))',
-    borderColor: 'rgba(139, 92, 246, 0.2)',
-    textColor: '#a855f7'
+    colorClass: 'linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(29, 78, 216, 0.1))',
+    borderColor: 'rgba(37, 99, 235, 0.2)',
+    textColor: '#2563eb'
   },
   {
     id: 'soru_canavari',

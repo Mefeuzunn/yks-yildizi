@@ -165,7 +165,7 @@ export default function OdevlerimPage() {
   if (loading) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '60vh', color: '#94a3b8', gap: 12 }}>
-        <div style={{ width: 40, height: 40, borderRadius: '50%', border: '3px solid rgba(139,92,246,0.2)', borderTopColor: '#8b5cf6', animation: 'spin 0.8s linear infinite' }} />
+        <div style={{ width: 40, height: 40, borderRadius: '50%', border: '3px solid rgba(37,99,235,0.2)', borderTopColor: '#2563eb', animation: 'spin 0.8s linear infinite' }} />
         <p style={{ fontSize: '0.9rem' }}>Ödevler ve öğretmen notları yükleniyor...</p>
       </div>
     );
@@ -186,8 +186,8 @@ export default function OdevlerimPage() {
               top: 24,
               right: 24,
               zIndex: 9999,
-              background: 'linear-gradient(135deg, #1e1b4b, #0f172a)',
-              border: '1px solid #8b5cf6',
+              background: 'linear-gradient(135deg, #0f172a, #1e293b)',
+              border: '1px solid #2563eb',
               borderRadius: 12,
               padding: '12px 20px',
               color: '#fff',
@@ -208,7 +208,7 @@ export default function OdevlerimPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem', flexWrap: 'wrap', gap: 16 }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '3px 10px', borderRadius: 20, background: 'rgba(139,92,246,0.15)', color: '#c4b5fd', border: '1px solid rgba(139,92,246,0.3)' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '3px 10px', borderRadius: 20, background: 'rgba(37,99,235,0.15)', color: '#93c5fd', border: '1px solid rgba(37,99,235,0.3)' }}>
               ÖĞRENCİ AKADEMİK PANELİ
             </span>
             {pendingCount > 0 && (
@@ -218,7 +218,7 @@ export default function OdevlerimPage() {
             )}
           </div>
           <h1 style={{ fontSize: '2rem', color: '#fff', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <ClipboardList size={32} color="#8b5cf6" /> Ödevlerim & Öğretmen Notları
+            <ClipboardList size={32} color="#2563eb" /> Ödevlerim & Öğretmen Notları
           </h1>
           <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: '6px 0 0' }}>
             Öğretmenlerinizin atadığı ödevler, çözümlü testler ve sizin için paylaştıkları rehberlik görüşleri
@@ -233,7 +233,7 @@ export default function OdevlerimPage() {
               padding: '8px 18px',
               borderRadius: 10,
               border: 'none',
-              background: activeTab === 'odevler' ? 'linear-gradient(135deg, #8b5cf6, #6366f1)' : 'transparent',
+              background: activeTab === 'odevler' ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : 'transparent',
               color: activeTab === 'odevler' ? '#fff' : '#94a3b8',
               fontWeight: 700,
               fontSize: '0.85rem',
@@ -252,7 +252,7 @@ export default function OdevlerimPage() {
               padding: '8px 18px',
               borderRadius: 10,
               border: 'none',
-              background: activeTab === 'notlar' ? 'linear-gradient(135deg, #8b5cf6, #6366f1)' : 'transparent',
+              background: activeTab === 'notlar' ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : 'transparent',
               color: activeTab === 'notlar' ? '#fff' : '#94a3b8',
               fontWeight: 700,
               fontSize: '0.85rem',
@@ -283,9 +283,9 @@ export default function OdevlerimPage() {
                 fontSize: '0.8rem',
                 fontWeight: 600,
                 cursor: 'pointer',
-                background: statusFilter === 'all' ? 'rgba(139,92,246,0.2)' : 'rgba(255,255,255,0.03)',
-                color: statusFilter === 'all' ? '#c4b5fd' : '#94a3b8',
-                border: statusFilter === 'all' ? '1px solid #8b5cf6' : '1px solid rgba(255,255,255,0.08)'
+                background: statusFilter === 'all' ? 'rgba(37,99,235,0.2)' : 'rgba(255,255,255,0.03)',
+                color: statusFilter === 'all' ? '#93c5fd' : '#94a3b8',
+                border: statusFilter === 'all' ? '1px solid #2563eb' : '1px solid rgba(255,255,255,0.08)'
               }}
             >
               Tümü ({assignments.length})
@@ -351,7 +351,7 @@ export default function OdevlerimPage() {
                     {/* Top Meta: Teacher & Status */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem', gap: 8, flexWrap: 'wrap' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, #8b5cf6, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', color: '#fff', fontWeight: 700 }}>
+                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', color: '#fff', fontWeight: 700 }}>
                           {a.teacher_name?.charAt(0)?.toUpperCase() || 'Ö'}
                         </div>
                         <div>
@@ -435,7 +435,7 @@ export default function OdevlerimPage() {
                           onClick={() => openAssignment(a)}
                           style={{
                             flex: 1, padding: '0.65rem', borderRadius: '10px', border: 'none',
-                            background: !isCompleted ? 'linear-gradient(135deg, #8b5cf6, #6366f1)' : 'rgba(255,255,255,0.06)',
+                            background: !isCompleted ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : 'rgba(255,255,255,0.06)',
                             color: '#fff', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer',
                             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                             transition: 'all 0.2s'
@@ -517,7 +517,7 @@ export default function OdevlerimPage() {
                     {/* Header: Teacher Avatar + Name + Category */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', gap: 8, flexWrap: 'wrap' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '0.9rem' }}>
+                        <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #2563eb, #38bdf8)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '0.9rem' }}>
                           {n.teacher_name?.charAt(0)?.toUpperCase() || 'Ö'}
                         </div>
                         <div>
@@ -630,15 +630,15 @@ export default function OdevlerimPage() {
                                 disabled={isChecking}
                                 style={{
                                   padding: '1.25rem', borderRadius: '12px', 
-                                  background: isSelected ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.03)', 
-                                  border: isSelected ? '1px solid #8b5cf6' : '1px solid rgba(255,255,255,0.08)',
+                                  background: isSelected ? 'rgba(37,99,235,0.25)' : 'rgba(255,255,255,0.03)', 
+                                  border: isSelected ? '1px solid #2563eb' : '1px solid rgba(255,255,255,0.08)',
                                   color: '#fff', textAlign: 'left', fontSize: '1rem', cursor: isChecking ? 'default' : 'pointer', 
                                   transition: 'all 0.2s', display: 'flex', gap: '1rem'
                                 }} 
                                 onMouseEnter={e => { if (!isSelected && !isChecking) e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }} 
                                 onMouseLeave={e => { if (!isSelected && !isChecking) e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
                               >
-                                <span style={{ color: '#8b5cf6', fontWeight: 700 }}>{['A', 'B', 'C', 'D', 'E'][i]})</span> {opt}
+                                <span style={{ color: '#2563eb', fontWeight: 700 }}>{['A', 'B', 'C', 'D', 'E'][i]})</span> {opt}
                               </button>
                             );
                           })}

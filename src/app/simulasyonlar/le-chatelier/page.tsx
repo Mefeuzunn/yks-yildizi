@@ -103,7 +103,7 @@ export default function LeChatelierSimulation() {
         vx: (Math.random() - 0.5) * 4 * speedBase,
         vy: (Math.random() - 0.5) * 4 * speedBase,
         radius: type === 'n2' ? 8 : type === 'h2' ? 4 : 10,
-        color: type === 'n2' ? '#3b82f6' : type === 'h2' ? '#e2e8f0' : '#8b5cf6'
+        color: type === 'n2' ? '#3b82f6' : type === 'h2' ? '#e2e8f0' : '#0284c7'
       };
     };
 
@@ -300,7 +300,7 @@ export default function LeChatelierSimulation() {
                   </motion.div>
                 </div>
 
-                <span style={{ color: '#8b5cf6' }}>2NH₃</span> + <span style={{ color: '#f59e0b' }}>Isı</span>
+                <span style={{ color: '#0284c7' }}>2NH₃</span> + <span style={{ color: '#f59e0b' }}>Isı</span>
               </div>
               <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>Egzotermik Tepkime (ΔH &lt; 0)</div>
             </div>
@@ -324,7 +324,7 @@ export default function LeChatelierSimulation() {
                 <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>H₂ Miktarı</div>
               </div>
               <div style={{ background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.2)', padding: '1rem', borderRadius: '12px', textAlign: 'center' }}>
-                <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#8b5cf6' }}>{moles.nh3.toFixed(1)} mol</div>
+                <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0284c7' }}>{moles.nh3.toFixed(1)} mol</div>
                 <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>NH₃ Miktarı</div>
               </div>
             </div>

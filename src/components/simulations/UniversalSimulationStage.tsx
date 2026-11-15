@@ -50,7 +50,7 @@ export default function UniversalSimulationStage({ sim, onBack }: Props) {
 
   const categoryColor: Record<string, string> = {
     TYT: '#10b981',
-    AYT: '#8b5cf6',
+    AYT: '#2563eb',
     'TYT/AYT': '#f59e0b',
   };
 
@@ -170,10 +170,10 @@ export default function UniversalSimulationStage({ sim, onBack }: Props) {
           <div style={{ marginBottom: '20px', position: 'relative' }}>
             <div style={{
               width: '64px', height: '64px', borderRadius: '50%',
-              background: 'linear-gradient(135deg, rgba(139,92,246,0.3), rgba(59,130,246,0.3))',
+              background: 'linear-gradient(135deg, rgba(37,99,235,0.3), rgba(56,189,248,0.3))',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <Loader2 size={32} color="#8b5cf6" style={{ animation: 'spin 1s linear infinite' }} />
+              <Loader2 size={32} color="#2563eb" style={{ animation: 'spin 1s linear infinite' }} />
               <style>{`@keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
             </div>
           </div>

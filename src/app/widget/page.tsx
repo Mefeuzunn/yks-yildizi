@@ -38,7 +38,7 @@ interface WidgetData {
 }
 
 type WidgetType = 'compact' | 'medium' | 'tip' | 'live';
-type WidgetTheme = 'oled' | 'purple' | 'emerald' | 'gold';
+type WidgetTheme = 'oled' | 'oxford' | 'emerald' | 'gold';
 
 const THEMES: Record<WidgetTheme, {
   name: string;
@@ -60,15 +60,15 @@ const THEMES: Record<WidgetTheme, {
     cardBg: 'rgba(15, 23, 42, 0.85)',
     highlightBg: 'rgba(56, 189, 248, 0.15)',
   },
-  purple: {
-    name: 'Kozmik Mor',
-    bg: 'radial-gradient(circle at 50% 20%, #1e1b4b 0%, #0f172a 100%)',
-    border: 'rgba(168, 85, 247, 0.4)',
-    accent: '#c084fc',
-    accentGlow: 'rgba(168, 85, 247, 0.3)',
-    textMuted: '#cbd5e1',
-    cardBg: 'rgba(30, 27, 75, 0.85)',
-    highlightBg: 'rgba(168, 85, 247, 0.15)',
+  oxford: {
+    name: 'Oxford Lacivert',
+    bg: 'radial-gradient(circle at 50% 20%, #0f1d38 0%, #090d16 100%)',
+    border: 'rgba(37, 99, 235, 0.4)',
+    accent: '#38bdf8',
+    accentGlow: 'rgba(37, 99, 235, 0.3)',
+    textMuted: '#93c5fd',
+    cardBg: 'rgba(15, 29, 56, 0.85)',
+    highlightBg: 'rgba(37, 99, 235, 0.15)',
   },
   emerald: {
     name: 'Siber Zümrüt',
@@ -363,7 +363,7 @@ function WidgetContent() {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'linear-gradient(135deg, #0284c7, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'linear-gradient(135deg, #0284c7, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Sparkles size={16} color="#fff" />
               </div>
               <span style={{ fontSize: '13px', fontWeight: 800, color: '#fff', letterSpacing: '0.04em' }}>YKS 2027</span>
@@ -455,7 +455,7 @@ function WidgetContent() {
                   width: '34px',
                   height: '34px',
                   borderRadius: '10px',
-                  background: 'linear-gradient(135deg, #0284c7, #6366f1)',
+                  background: 'linear-gradient(135deg, #0284c7, #2563eb)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -835,7 +835,7 @@ function WidgetContent() {
             }}
             style={{
               width: '100%',
-              background: 'linear-gradient(135deg, #0284c7, #8b5cf6)',
+              background: 'linear-gradient(135deg, #0284c7, #2563eb)',
               border: 'none',
               color: '#ffffff',
               fontSize: '13.5px',

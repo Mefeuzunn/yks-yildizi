@@ -15,7 +15,7 @@ export default function EmbeddedSimulation() {
     <div style={{ minHeight: '100vh', background: '#0b0c10', color: '#fff', padding: '2rem' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
         <div>
-          <Link href="/simulasyonlar" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#8b5cf6', textDecoration: 'none', marginBottom: '1rem', fontWeight: 600 }}>
+          <Link href="/simulasyonlar" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#38bdf8', textDecoration: 'none', marginBottom: '1rem', fontWeight: 600 }}>
             <ArrowLeft size={18} /> Simülasyonlara Dön
           </Link>
           <h1 style={{ fontSize: '2.5rem', fontWeight: 800, margin: 0 }}>Atom Oluştur</h1>

@@ -19,8 +19,8 @@ export default function Loading() {
           width: '54px',
           height: '54px',
           borderRadius: '50%',
-          border: '3px solid rgba(99, 102, 241, 0.15)',
-          borderTopColor: '#6366f1',
+          border: '3px solid rgba(37, 99, 235, 0.15)',
+          borderTopColor: '#2563eb',
           animation: 'spin 0.8s linear infinite',
         }}
       />

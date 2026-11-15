@@ -46,7 +46,7 @@ export async function POST(req: Request) {
       { day: 'Salı', title: `${topic1}: Çıkmış Sorular & Formül Analizi (AI Kampı)`, subject: subject1, color: '#f59e0b' },
       { day: 'Çarşamba', title: `${topic1}: Konu Kavrama Testi Çöz (AI Kampı)`, subject: subject1, color: '#10b981' },
       { day: 'Perşembe', title: `${topic2}: Video Çözüm & Soru Tipleri (AI Kampı)`, subject: subject2, color: '#38bdf8' },
-      { day: 'Cuma', title: `${topic2}: Kavrama Testi ve Not Defteri (AI Kampı)`, subject: subject2, color: '#a855f7' },
+      { day: 'Cuma', title: `${topic2}: Kavrama Testi ve Not Defteri (AI Kampı)`, subject: subject2, color: '#2563eb' },
       { day: 'Cumartesi', title: `${topic1} & ${topic2}: AI Hata Sınavı Yap (AI Kampı)`, subject: subject1, color: '#ec4899' },
       { day: 'Pazar', title: `Genel AI Kamp Değerlendirmesi & Badge Kazan (AI Kampı)`, subject: 'Karma', color: '#14b8a6' }
     ];

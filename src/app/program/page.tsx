@@ -398,7 +398,7 @@ export default function ProgramPage() {
                             <span style={{ color: '#38bdf8', background: 'rgba(56,189,248,0.12)', padding: '2px 6px', borderRadius: '4px' }}>
                               ⏱️ {task.studied_minutes && task.studied_minutes > 0 ? `${task.studied_minutes} dk` : 'Tamamlandı'}
                             </span>
-                            <span style={{ color: '#c084fc', background: 'rgba(168,85,247,0.12)', padding: '2px 6px', borderRadius: '4px' }}>
+                            <span style={{ color: '#38bdf8', background: 'rgba(56,189,248,0.12)', padding: '2px 6px', borderRadius: '4px' }}>
                               🎯 {task.questions_solved || 0} Soru
                             </span>
                           </div>
@@ -554,7 +554,7 @@ export default function ProgramPage() {
                           <span style={{ color: '#38bdf8', background: 'rgba(56,189,248,0.12)', padding: '2px 6px', borderRadius: '4px' }}>
                             ⏱️ {task.studied_minutes && task.studied_minutes > 0 ? `${task.studied_minutes} dk` : 'Tamamlandı'}
                           </span>
-                          <span style={{ color: '#c084fc', background: 'rgba(168,85,247,0.12)', padding: '2px 6px', borderRadius: '4px' }}>
+                          <span style={{ color: '#38bdf8', background: 'rgba(56,189,248,0.12)', padding: '2px 6px', borderRadius: '4px' }}>
                             🎯 {task.questions_solved || 0} Soru
                           </span>
                         </div>
@@ -624,7 +624,7 @@ export default function ProgramPage() {
             onClick={generateAIPlan}
             disabled={isAIGenerating}
             className="btn-interactive" 
-            style={{ background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', padding: '0.65rem 1rem', fontSize: '0.85rem', minHeight: '40px' }}
+            style={{ background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', padding: '0.65rem 1rem', fontSize: '0.85rem', minHeight: '40px' }}
           >
             {isAIGenerating ? <Bot size={18} className="animate-spin" /> : <Bot size={18} />} 
             {isAIGenerating ? 'Planlanıyor...' : 'AI ile Planla'}
@@ -722,7 +722,7 @@ export default function ProgramPage() {
                 <div>
                   <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '0.35rem' }}>Renk</label>
                   <div style={{ display: 'flex', gap: '0.75rem' }}>
-                    {['#38bdf8', '#8b5cf6', '#ec4899', '#10b981', '#f59e0b'].map(c => (
+                    {['#38bdf8', '#2563eb', '#ec4899', '#10b981', '#f59e0b'].map(c => (
                       <div 
                         key={c} 
                         onClick={() => { haptics.selection(); setNewTask({...newTask, color: c}); }}

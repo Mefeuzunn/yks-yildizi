@@ -12,7 +12,7 @@ import { showLocalNotification } from '@/lib/client-notifications';
 export type Mode = 'pomodoro' | 'shortBreak' | 'longBreak';
 
 export const MODE_CONFIG: Record<Mode, { label: string; color: string; glow: string; minutes: number }> = {
-  pomodoro:   { label: 'Odak',      color: '#8b5cf6', glow: 'rgba(139,92,246,0.35)', minutes: 25 },
+  pomodoro:   { label: 'Odak',      color: '#2563eb', glow: 'rgba(37,99,235,0.35)', minutes: 25 },
   shortBreak: { label: 'Kısa Ara',  color: '#38bdf8', glow: 'rgba(56,189,248,0.35)', minutes: 5  },
   longBreak:  { label: 'Uzun Ara',  color: '#10b981', glow: 'rgba(16,185,129,0.35)', minutes: 15 },
 };

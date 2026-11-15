@@ -72,7 +72,7 @@ export default function PolinomSimulation() {
       }
 
       // Polinom Eğrisi
-      ctx.strokeStyle = '#8b5cf6'; // Mor
+      ctx.strokeStyle = '#0284c7'; // Safir Mavi
       ctx.lineWidth = 3;
       ctx.lineJoin = 'round';
       ctx.beginPath();
@@ -179,7 +179,7 @@ export default function PolinomSimulation() {
             <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
                <span style={{ fontSize: '2rem', fontWeight: 'bold', fontFamily: 'serif' }}>
                  P(x) = 
-                 <span style={{ color: '#8b5cf6' }}> {a !== 0 ? (a === 1 ? 'x³' : a === -1 ? '-x³' : `${a}x³`) : ''} </span>
+                 <span style={{ color: '#0284c7' }}> {a !== 0 ? (a === 1 ? 'x³' : a === -1 ? '-x³' : `${a}x³`) : ''} </span>
                  <span style={{ color: '#ec4899' }}> {b !== 0 ? (b > 0 ? (a!==0 ? '+ ' : '') + (b===1 ? 'x²' : `${b}x²`) : (b===-1 ? '-x²' : `${b}x²`)) : ''} </span>
                  <span style={{ color: '#38bdf8' }}> {c !== 0 ? (c > 0 ? ((a!==0 || b!==0) ? '+ ' : '') + (c===1 ? 'x' : `${c}x`) : (c===-1 ? '-x' : `${c}x`)) : ''} </span>
                  <span style={{ color: '#f59e0b' }}> {d !== 0 ? (d > 0 ? ((a!==0 || b!==0 || c!==0) ? '+ ' : '') + d : d) : ((a===0&&b===0&&c===0) ? '0' : '')} </span>
@@ -201,16 +201,16 @@ export default function PolinomSimulation() {
 
           <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-              <Settings size={20} color="#8b5cf6" />
+              <Settings size={20} color="#0284c7" />
               <h3 style={{ fontSize: '1.25rem', margin: 0 }}>Katsayılar</h3>
             </div>
 
             <div style={{ marginBottom: '1.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                <label style={{ fontSize: '0.9rem', fontWeight: 600, color: '#8b5cf6' }}>a (x³ katsayısı)</label>
+                <label style={{ fontSize: '0.9rem', fontWeight: 600, color: '#0284c7' }}>a (x³ katsayısı)</label>
                 <span style={{ fontSize: '0.9rem', color: '#fff', fontWeight: 700 }}>{a}</span>
               </div>
-              <input type="range" min="-5" max="5" step="0.5" value={a} onChange={(e) => setA(Number(e.target.value))} style={{ width: '100%', accentColor: '#8b5cf6' }} />
+              <input type="range" min="-5" max="5" step="0.5" value={a} onChange={(e) => setA(Number(e.target.value))} style={{ width: '100%', accentColor: '#0284c7' }} />
             </div>
 
             <div style={{ marginBottom: '1.5rem' }}>
@@ -238,9 +238,9 @@ export default function PolinomSimulation() {
             </div>
 
             <div style={{ background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.2)', padding: '1rem', borderRadius: '8px', display: 'flex', gap: '0.75rem' }}>
-              <Calculator size={24} color="#8b5cf6" style={{ flexShrink: 0 }} />
+              <Calculator size={24} color="#0284c7" style={{ flexShrink: 0 }} />
               <div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#8b5cf6', marginBottom: '0.25rem' }}>Matematiksel Analiz</div>
+                <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#0284c7', marginBottom: '0.25rem' }}>Matematiksel Analiz</div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
                   <ul style={{ paddingLeft: '1.2rem', margin: 0 }}>
                     <li><b>a {'>'} 0</b> ise sağ kol yukarı, sol kol aşağı bakar.</li>

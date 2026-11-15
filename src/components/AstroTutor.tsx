@@ -55,9 +55,9 @@ export default function AstroTutor() {
         style={{
           position: 'fixed', bottom: '2rem', right: '2rem', zIndex: 50,
           width: '64px', height: '64px', borderRadius: '50%',
-          background: 'linear-gradient(135deg, #6366f1, #a855f7)',
+          background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
           border: 'none', cursor: 'pointer',
-          boxShadow: '0 10px 25px -5px rgba(99, 102, 241, 0.5)',
+          boxShadow: '0 10px 25px -5px rgba(37, 99, 235, 0.5)',
           display: 'flex', alignItems: 'center', justifyContent: 'center'
         }}
       >
@@ -75,20 +75,20 @@ export default function AstroTutor() {
               position: 'fixed', bottom: '2rem', right: '2rem', zIndex: 51,
               width: '380px', height: '600px', maxHeight: '80vh',
               background: '#0f1015', borderRadius: '24px',
-              border: '1px solid rgba(139, 92, 246, 0.3)',
-              boxShadow: '0 20px 40px -10px rgba(0,0,0,0.8), 0 0 20px rgba(139, 92, 246, 0.2)',
+              border: '1px solid rgba(37, 99, 235, 0.3)',
+              boxShadow: '0 20px 40px -10px rgba(0,0,0,0.8), 0 0 20px rgba(37, 99, 235, 0.2)',
               display: 'flex', flexDirection: 'column', overflow: 'hidden'
             }}
           >
             {/* Header */}
-            <div style={{ padding: '1.25rem', background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2))', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ padding: '1.25rem', background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(56, 189, 248, 0.2))', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Bot size={24} color="#fff" />
                 </div>
                 <div>
                   <h3 style={{ margin: 0, color: '#fff', fontSize: '1.125rem' }}>AstroTutor</h3>
-                  <span style={{ color: '#a855f7', fontSize: '0.75rem', fontWeight: 600 }}>Sokratik AI Asistan</span>
+                  <span style={{ color: '#38bdf8', fontSize: '0.75rem', fontWeight: 600 }}>Sokratik AI Asistan</span>
                 </div>
               </div>
               <button onClick={() => setIsOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
@@ -100,13 +100,13 @@ export default function AstroTutor() {
             <div className="custom-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               {messages.map((m, i) => (
                 <div key={i} style={{ display: 'flex', gap: '0.75rem', flexDirection: m.role === 'ai' ? 'row' : 'row-reverse' }}>
-                  <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: m.role === 'ai' ? '#6366f1' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: m.role === 'ai' ? '#2563eb' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     {m.role === 'ai' ? <Bot size={18} color="#fff" /> : <User size={18} color="#fff" />}
                   </div>
                   <div style={{ 
                     padding: '1rem', borderRadius: '16px', fontSize: '0.9rem', lineHeight: 1.5,
-                    background: m.role === 'ai' ? 'rgba(99, 102, 241, 0.1)' : 'rgba(255,255,255,0.05)',
-                    color: '#fff', border: m.role === 'ai' ? '1px solid rgba(99, 102, 241, 0.2)' : '1px solid rgba(255,255,255,0.1)',
+                    background: m.role === 'ai' ? 'rgba(37, 99, 235, 0.1)' : 'rgba(255,255,255,0.05)',
+                    color: '#fff', border: m.role === 'ai' ? '1px solid rgba(37, 99, 235, 0.2)' : '1px solid rgba(255,255,255,0.1)',
                     borderTopLeftRadius: m.role === 'ai' ? '4px' : '16px',
                     borderTopRightRadius: m.role === 'user' ? '4px' : '16px'
                   }}>
@@ -129,7 +129,7 @@ export default function AstroTutor() {
               />
               <button 
                 onClick={handleSend}
-                style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'linear-gradient(135deg, #6366f1, #4f46e5)', border: 'none', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', border: 'none', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
               >
                 <Send size={20} />
               </button>

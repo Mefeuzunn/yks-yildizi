@@ -8,7 +8,7 @@ export interface ShopItem {
 }
 
 export const SHOP_ITEMS: ShopItem[] = [
-  { id: 'a1', category: 'avatars', name: 'Kozmik Baykuş', price: 500, emoji: '🦉', color: '#8b5cf6' },
+  { id: 'a1', category: 'avatars', name: 'Kozmik Baykuş', price: 500, emoji: '🦉', color: '#0284c7' },
   { id: 'a2', category: 'avatars', name: 'Siber Kaplan', price: 1200, emoji: '🐯', color: '#f97316' },
   { id: 'a3', category: 'avatars', name: 'Astro-Kedi', price: 2500, emoji: '🐱‍🚀', color: '#06b6d4' },
   
@@ -16,10 +16,10 @@ export const SHOP_ITEMS: ShopItem[] = [
   { id: 'p2', category: 'pets', name: 'Bilge Kaplumbağa', price: 1500, emoji: '🐢', color: '#10b981' },
   { id: 'p3', category: 'pets', name: 'Ateş Ejderhası', price: 5000, emoji: '🐉', color: '#ef4444' },
 
-  { id: 't1', category: 'themes', name: 'Neon Cyberpunk', price: 3000, emoji: '🌆', color: '#d946ef' },
+  { id: 't1', category: 'themes', name: 'Oxford Lacivert', price: 3000, emoji: '🏛️', color: '#2563eb' },
   { id: 't2', category: 'themes', name: 'Karanlık Orman', price: 3000, emoji: '🌲', color: '#059669' },
   
-  { id: 'b1', category: 'badges', name: 'Soru Canavarı', price: 1000, emoji: '👾', color: '#6366f1' },
+  { id: 'b1', category: 'badges', name: 'Soru Canavarı', price: 1000, emoji: '👾', color: '#2563eb' },
   { id: 'b2', category: 'badges', name: 'Gece Kuşu', price: 1500, emoji: '🌙', color: '#3b82f6' },
 ];
 

@@ -33,10 +33,10 @@ export const StatWidget: React.FC<StatWidgetProps> = ({
       glow: 'shadow-[0_0_20px_rgba(99,102,241,0.15)]',
     },
     purple: {
-      bg: 'bg-purple-500/15',
-      border: 'border-purple-500/25',
-      text: 'text-purple-400',
-      glow: 'shadow-[0_0_20px_rgba(139,92,246,0.15)]',
+      bg: 'bg-sky-500/15',
+      border: 'border-sky-500/25',
+      text: 'text-sky-400',
+      glow: 'shadow-[0_0_20px_rgba(56,189,248,0.15)]',
     },
     emerald: {
       bg: 'bg-emerald-500/15',

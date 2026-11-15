@@ -221,7 +221,7 @@ export default function PillerSimulation() {
         } else if (p.type === 'k') {
            if (p.x > rightBeakerX + 30) { p.vx = 0; p.vy = 2; }
            if (p.y > beakerY + 80) p.life = 0;
-           ctx.fillStyle = '#c084fc';
+           ctx.fillStyle = '#38bdf8';
            ctx.beginPath(); ctx.arc(p.x, p.y, 8, 0, Math.PI*2); ctx.fill();
            ctx.fillStyle = '#fff'; ctx.font = '9px sans-serif'; ctx.fillText('K⁺', p.x, p.y+3);
         }

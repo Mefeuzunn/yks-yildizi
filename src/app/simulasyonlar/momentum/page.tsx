@@ -223,8 +223,8 @@ export default function MomentumSimulation() {
               <div style={{ background: 'var(--bg-card)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
                 <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Toplam Momentum (P = mv)</div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <div>İlk: <span style={{ color: '#8b5cf6', fontWeight: 'bold' }}>{initialP.toFixed(2)}</span> kg.m/s</div>
-                  <div>Son: <span style={{ color: '#8b5cf6', fontWeight: 'bold' }}>{currentP.toFixed(2)}</span> kg.m/s</div>
+                  <div>İlk: <span style={{ color: '#2563eb', fontWeight: 'bold' }}>{initialP.toFixed(2)}</span> kg.m/s</div>
+                  <div>Son: <span style={{ color: '#2563eb', fontWeight: 'bold' }}>{currentP.toFixed(2)}</span> kg.m/s</div>
                 </div>
               </div>
               <div style={{ background: 'var(--bg-card)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
@@ -275,13 +275,13 @@ export default function MomentumSimulation() {
             <div style={{ marginBottom: '2rem', display: 'flex', gap: '1rem' }}>
               <button 
                 onClick={() => { setIsElastic(true); resetSim(); }} 
-                style={{ flex: 1, padding: '0.5rem', borderRadius: '8px', border: isElastic ? '2px solid #8b5cf6' : '1px solid rgba(255,255,255,0.1)', background: isElastic ? 'rgba(139, 92, 246, 0.2)' : 'transparent', color: '#fff', cursor: 'pointer' }}
+                style={{ flex: 1, padding: '0.5rem', borderRadius: '8px', border: isElastic ? '2px solid #2563eb' : '1px solid rgba(255,255,255,0.1)', background: isElastic ? 'rgba(37, 99, 235, 0.2)' : 'transparent', color: '#fff', cursor: 'pointer' }}
               >
                 Esnek Çarpışma
               </button>
               <button 
                 onClick={() => { setIsElastic(false); resetSim(); }} 
-                style={{ flex: 1, padding: '0.5rem', borderRadius: '8px', border: !isElastic ? '2px solid #8b5cf6' : '1px solid rgba(255,255,255,0.1)', background: !isElastic ? 'rgba(139, 92, 246, 0.2)' : 'transparent', color: '#fff', cursor: 'pointer' }}
+                style={{ flex: 1, padding: '0.5rem', borderRadius: '8px', border: !isElastic ? '2px solid #2563eb' : '1px solid rgba(255,255,255,0.1)', background: !isElastic ? 'rgba(37, 99, 235, 0.2)' : 'transparent', color: '#fff', cursor: 'pointer' }}
               >
                 Esnek Olmayan
               </button>

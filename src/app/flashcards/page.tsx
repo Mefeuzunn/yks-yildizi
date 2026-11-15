@@ -170,11 +170,11 @@ export default function FlashcardsDashboard() {
                 borderRadius: '8px',
                 fontSize: '12px',
                 fontWeight: alanMode === 'all' ? 800 : 600,
-                background: alanMode === 'all' ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : 'transparent',
+                background: alanMode === 'all' ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : 'transparent',
                 color: alanMode === 'all' ? '#fff' : '#94a3b8',
                 cursor: 'pointer',
                 border: 'none',
-                boxShadow: alanMode === 'all' ? '0 2px 10px rgba(99,102,241,0.35)' : 'none'
+                boxShadow: alanMode === 'all' ? '0 2px 10px rgba(37,99,235,0.35)' : 'none'
               }}
             >
               📚 Tüm Dersler (Genel)

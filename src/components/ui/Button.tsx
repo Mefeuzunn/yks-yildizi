@@ -49,7 +49,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
 
   // Variant styles
   const variantClasses = {
-    primary: "bg-gradient-to-r from-indigo-500 via-purple-600 to-indigo-600 text-white shadow-[0_0_20px_rgba(99,102,241,0.35)] hover:shadow-[0_0_25px_rgba(99,102,241,0.5)] border border-white/10 hover:brightness-110",
+    primary: "bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 text-white shadow-[0_0_20px_rgba(37,99,235,0.35)] hover:shadow-[0_0_25px_rgba(37,99,235,0.5)] border border-white/10 hover:brightness-110",
     secondary: "bg-white/[0.06] hover:bg-white/[0.1] text-gray-200 hover:text-white border border-white/10 backdrop-blur-md",
     glass: "bg-white/[0.035] hover:bg-white/[0.08] text-gray-200 hover:text-white border border-white/10 hover:border-white/20 backdrop-blur-xl shadow-lg",
     outline: "bg-transparent hover:bg-white/5 text-gray-300 hover:text-white border border-white/20 hover:border-white/40",

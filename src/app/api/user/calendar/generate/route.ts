@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     };
     
     const isSayisal = user.alan === 'Sayisal';
-    const colors = { mat: '#3b82f6', fen: '#10b981', turkce: '#ef4444', sosyal: '#f59e0b', deneme: '#8b5cf6' };
+    const colors = { mat: '#3b82f6', fen: '#10b981', turkce: '#ef4444', sosyal: '#f59e0b', deneme: '#2563eb' };
 
     await generateSchedule(0, 16, 2, 'Matematik Soru Çözümü', colors.mat);
     await generateSchedule(0, 19, 2, isSayisal ? 'Fizik Tekrarı' : 'Edebiyat Tekrarı', colors.fen);

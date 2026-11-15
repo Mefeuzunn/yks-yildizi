@@ -52,9 +52,9 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#080c14] text-slate-300 font-sans flex flex-col overflow-x-hidden selection:bg-violet-600 selection:text-white relative">
+    <div className="min-h-screen bg-[#080c14] text-slate-300 font-sans flex flex-col overflow-x-hidden selection:bg-blue-600 selection:text-white relative">
       {/* Arka Plan Ambient Radial Işıkları */}
-      <div className="fixed top-0 left-1/4 w-[500px] h-[500px] bg-violet-600/10 rounded-full blur-[140px] pointer-events-none -z-10" />
+      <div className="fixed top-0 left-1/4 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[140px] pointer-events-none -z-10" />
       <div className="fixed top-1/3 right-10 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[160px] pointer-events-none -z-10" />
       <div className="fixed bottom-10 left-10 w-[450px] h-[450px] bg-emerald-600/5 rounded-full blur-[140px] pointer-events-none -z-10" />
 
@@ -63,13 +63,13 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 text-decoration-none group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-violet-500/25 group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/25 group-hover:scale-105 transition-transform">
               <Star size={20} className="fill-amber-300 text-amber-300 animate-pulse" />
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-extrabold text-white tracking-tight flex items-center gap-1.5">
                 YKS Yıldızı
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-violet-500/20 text-violet-300 border border-violet-500/30">
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-500/20 text-sky-300 border border-blue-500/30">
                   PRO
                 </span>
               </span>
@@ -89,7 +89,7 @@ export default function LandingPage() {
               >
                 {item.title}
                 {item.badge && (
-                  <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30">
+                  <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-blue-500/20 text-sky-300 border border-blue-500/30">
                     {item.badge}
                   </span>
                 )}
@@ -105,7 +105,7 @@ export default function LandingPage() {
               </button>
             </Link>
             <Link href="/register">
-              <button className="px-5 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 rounded-xl shadow-lg shadow-violet-600/30 transition-all hover:scale-[1.02] active:scale-[0.98] border border-violet-400/30">
+              <button className="px-5 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 rounded-xl shadow-lg shadow-blue-600/30 transition-all hover:scale-[1.02] active:scale-[0.98] border border-sky-400/30">
                 Ücretsiz Kayıt Ol
               </button>
             </Link>
@@ -138,11 +138,11 @@ export default function LandingPage() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center justify-between p-3.5 rounded-xl bg-slate-900/60 border border-slate-800/80 text-white font-semibold text-base hover:bg-violet-950/30 hover:border-violet-500/40 transition-all"
+                  className="flex items-center justify-between p-3.5 rounded-xl bg-slate-900/60 border border-slate-800/80 text-white font-semibold text-base hover:bg-blue-950/30 hover:border-blue-500/40 transition-all"
                 >
                   <span>{link.title}</span>
                   {link.badge ? (
-                    <span className="text-xs px-2 py-0.5 rounded-md bg-violet-500/20 text-violet-300 border border-violet-500/30 font-mono">
+                    <span className="text-xs px-2 py-0.5 rounded-md bg-blue-500/20 text-sky-300 border border-blue-500/30 font-mono">
                       {link.badge}
                     </span>
                   ) : (
@@ -159,7 +159,7 @@ export default function LandingPage() {
                 </button>
               </Link>
               <Link href="/register" onClick={() => setIsMobileMenuOpen(false)}>
-                <button className="w-full py-3.5 text-center text-white font-bold rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 shadow-lg shadow-violet-600/30">
+                <button className="w-full py-3.5 text-center text-white font-bold rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-600/30">
                   Ücretsiz Başla
                 </button>
               </Link>
@@ -178,15 +178,15 @@ export default function LandingPage() {
           className="space-y-6 lg:pr-6"
         >
           {/* Üst Rozet */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/30 text-violet-300 text-xs font-semibold backdrop-blur-md shadow-inner">
-            <Sparkles size={14} className="text-violet-400" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-sky-300 text-xs font-semibold backdrop-blur-md shadow-inner">
+            <Sparkles size={14} className="text-sky-400" />
             <span>49+ İnteraktif Laboratuvar • Gemini 3.5 AI Koçu</span>
           </div>
 
           {/* Ana Başlık */}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.12] tracking-tight">
             YKS'yi Ezberleme, <br />
-            <span className="bg-gradient-to-r from-violet-400 via-indigo-300 to-emerald-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-sky-400 via-indigo-300 to-emerald-400 bg-clip-text text-transparent">
               Görselleştir ve Kazan.
             </span>
           </h1>
@@ -199,7 +199,7 @@ export default function LandingPage() {
           {/* Aksiyon Butonları */}
           <div className="flex flex-wrap items-center gap-4 pt-2">
             <Link href="/register">
-              <button className="px-7 py-3.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-xl text-base font-bold shadow-xl shadow-violet-600/35 transition-all hover:scale-[1.02] active:scale-[0.98] border border-violet-400/30 flex items-center gap-2">
+              <button className="px-7 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-base font-bold shadow-xl shadow-blue-600/35 transition-all hover:scale-[1.02] active:scale-[0.98] border border-sky-400/30 flex items-center gap-2">
                 <span>Hemen Ücretsiz Başla</span>
                 <ArrowRight size={18} />
               </button>
@@ -219,7 +219,7 @@ export default function LandingPage() {
               <span>%100 Ücretsiz Erişim</span>
             </div>
             <div className="flex items-center gap-1.5 text-slate-300">
-              <CheckCircle2 size={16} className="text-violet-400" />
+              <CheckCircle2 size={16} className="text-sky-400" />
               <span>Kredi Kartı Gerekmez</span>
             </div>
             <div className="flex items-center gap-1.5 text-slate-300">
@@ -254,7 +254,7 @@ export default function LandingPage() {
           <div className="p-4 rounded-2xl bg-slate-900/40 border border-slate-800/60">
             <div className="text-3xl md:text-4xl font-extrabold text-white flex justify-center items-center">
               <AnimatedCounter targetValue={49} />
-              <span className="text-violet-400 ml-0.5">+</span>
+              <span className="text-sky-400 ml-0.5">+</span>
             </div>
             <p className="text-xs md:text-sm font-semibold text-slate-400 mt-1">İnteraktif Laboratuvar</p>
           </div>
@@ -289,7 +289,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="max-w-2xl text-center mx-auto mb-16 space-y-3">
             <FadeInUp delay={0.1}>
-              <span className="text-xs font-bold text-violet-400 uppercase tracking-widest px-3 py-1 rounded-full bg-violet-500/10 border border-violet-500/20">
+              <span className="text-xs font-bold text-sky-400 uppercase tracking-widest px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20">
                 PİYASA ÜSTÜ EĞİTİM STANDARDI
               </span>
               <h2 className="text-3xl md:text-5xl font-extrabold text-white mt-3 tracking-tight">
@@ -306,9 +306,9 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Kart 1: Simülasyonlar */}
             <FadeInUp delay={0.2}>
-              <div className="h-full p-7 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-violet-500/50 hover:bg-slate-900/90 transition-all group flex flex-col justify-between">
+              <div className="h-full p-7 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-blue-500/50 hover:bg-slate-900/90 transition-all group flex flex-col justify-between">
                 <div>
-                  <div className="w-12 h-12 rounded-xl bg-violet-500/15 border border-violet-500/30 flex items-center justify-center text-violet-300 text-2xl mb-5 group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-sky-300 text-2xl mb-5 group-hover:scale-110 transition-transform">
                     🔬
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2.5">
@@ -318,7 +318,7 @@ export default function LandingPage() {
                     Fizik, Kimya, Biyoloji ve Matematik formüllerini ezberlemek yerine; dalgaları, gaz difüzyonunu, pilleri ve fotosentezi tarayıcında canlı deneyerek kavra.
                   </p>
                 </div>
-                <div className="mt-5 pt-4 border-t border-slate-800/80 text-xs font-bold text-violet-400 flex items-center gap-1">
+                <div className="mt-5 pt-4 border-t border-slate-800/80 text-xs font-bold text-sky-400 flex items-center gap-1">
                   <span>Deneyleri Keşfet</span>
                   <ChevronRight size={14} />
                 </div>
@@ -436,19 +436,19 @@ export default function LandingPage() {
       {/* ─── BÜYÜK ÇAĞRI BÖLÜMÜ (CTA BANNER) ─── */}
       <section className="py-20 relative">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="relative rounded-3xl p-10 md:p-16 overflow-hidden bg-gradient-to-r from-violet-900/40 via-indigo-900/40 to-slate-900/80 border border-violet-500/30 text-center shadow-2xl shadow-violet-950/50 backdrop-blur-xl">
+          <div className="relative rounded-3xl p-10 md:p-16 overflow-hidden bg-gradient-to-r from-blue-950/40 via-indigo-900/40 to-slate-900/80 border border-blue-500/30 text-center shadow-2xl shadow-blue-950/50 backdrop-blur-xl">
             {/* Parıltı Efekti */}
-            <div className="absolute top-0 right-1/4 w-80 h-80 bg-violet-500/20 rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute top-0 right-1/4 w-80 h-80 bg-blue-500/20 rounded-full blur-[100px] pointer-events-none" />
             <div className="absolute bottom-0 left-1/4 w-80 h-80 bg-indigo-500/20 rounded-full blur-[100px] pointer-events-none" />
 
             <div className="relative z-10 max-w-2xl mx-auto space-y-6">
-              <span className="text-xs font-bold px-3 py-1.5 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/40">
+              <span className="text-xs font-bold px-3 py-1.5 rounded-full bg-blue-500/20 text-sky-300 border border-blue-500/40">
                 🚀 YKS 2027 İÇİN ŞİMDİDEN BAŞLA
               </span>
 
               <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
                 Hayalindeki Üniversiteye <br />
-                <span className="bg-gradient-to-r from-violet-400 to-indigo-300 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-sky-400 to-indigo-300 bg-clip-text text-transparent">
                   Bir Adım Kaldı.
                 </span>
               </h2>
@@ -459,7 +459,7 @@ export default function LandingPage() {
 
               <div className="pt-2">
                 <Link href="/register">
-                  <button className="px-9 py-4 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-2xl text-lg font-extrabold shadow-xl shadow-violet-600/40 transition-all hover:scale-105 active:scale-95 border border-violet-400/30 inline-flex items-center gap-2.5">
+                  <button className="px-9 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-2xl text-lg font-extrabold shadow-xl shadow-blue-600/40 transition-all hover:scale-105 active:scale-95 border border-sky-400/30 inline-flex items-center gap-2.5">
                     <span>Ücretsiz Hesabını Oluştur</span>
                     <ArrowRight size={20} />
                   </button>
@@ -477,7 +477,7 @@ export default function LandingPage() {
             {/* 1. Sütun: Marka */}
             <div className="md:col-span-1 space-y-3">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-violet-600 to-indigo-500 flex items-center justify-center text-white">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white">
                   <Star size={16} className="fill-amber-300 text-amber-300" />
                 </div>
                 <span className="text-lg font-bold text-white tracking-tight">YKS Yıldızı</span>
@@ -496,11 +496,11 @@ export default function LandingPage() {
                 Platform
               </h4>
               <ul className="space-y-2.5 text-xs text-slate-400 font-medium">
-                <li><Link href="/soru-coz" className="hover:text-violet-400 transition-colors">Soru Çöz (AI Destekli)</Link></li>
-                <li><Link href="/simulasyonlar" className="hover:text-violet-400 transition-colors">49+ İnteraktif Deney</Link></li>
-                <li><Link href="/calisma-odalari" className="hover:text-violet-400 transition-colors">Lofi Çalışma Odaları</Link></li>
-                <li><Link href="/duello" className="hover:text-violet-400 transition-colors">Bilgi Arenası Düello</Link></li>
-                <li><Link href="/ligler" className="hover:text-violet-400 transition-colors">Şampiyonlar Ligi</Link></li>
+                <li><Link href="/soru-coz" className="hover:text-sky-400 transition-colors">Soru Çöz (AI Destekli)</Link></li>
+                <li><Link href="/simulasyonlar" className="hover:text-sky-400 transition-colors">49+ İnteraktif Deney</Link></li>
+                <li><Link href="/calisma-odalari" className="hover:text-sky-400 transition-colors">Lofi Çalışma Odaları</Link></li>
+                <li><Link href="/duello" className="hover:text-sky-400 transition-colors">Bilgi Arenası Düello</Link></li>
+                <li><Link href="/ligler" className="hover:text-sky-400 transition-colors">Şampiyonlar Ligi</Link></li>
               </ul>
             </div>
 
@@ -510,11 +510,11 @@ export default function LandingPage() {
                 Araçlar & Rehberlik
               </h4>
               <ul className="space-y-2.5 text-xs text-slate-400 font-medium">
-                <li><Link href="/rehberlik" className="hover:text-violet-400 transition-colors">AstraTutor Sınav Koçu</Link></li>
-                <li><Link href="/puan-hesaplama" className="hover:text-violet-400 transition-colors">YKS Puan Hesaplama</Link></li>
-                <li><Link href="/denemeler" className="hover:text-violet-400 transition-colors">Net Sihirbazı & Takip</Link></li>
-                <li><Link href="/dashboard?tab=focus" className="hover:text-violet-400 transition-colors">Pomodoro Odak Modu</Link></li>
-                <li><Link href="/veli" className="hover:text-violet-400 transition-colors">Veli Bilgilendirme</Link></li>
+                <li><Link href="/rehberlik" className="hover:text-sky-400 transition-colors">AstraTutor Sınav Koçu</Link></li>
+                <li><Link href="/puan-hesaplama" className="hover:text-sky-400 transition-colors">YKS Puan Hesaplama</Link></li>
+                <li><Link href="/denemeler" className="hover:text-sky-400 transition-colors">Net Sihirbazı & Takip</Link></li>
+                <li><Link href="/dashboard?tab=focus" className="hover:text-sky-400 transition-colors">Pomodoro Odak Modu</Link></li>
+                <li><Link href="/veli" className="hover:text-sky-400 transition-colors">Veli Bilgilendirme</Link></li>
               </ul>
             </div>
 

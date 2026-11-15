@@ -236,13 +236,13 @@ export default function KeplerSimulation() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <label style={{ color: '#cbd5e1', fontSize: '0.9rem', display: 'flex', justifyContent: 'space-between' }}>
               <span>İlk Hız (V0)</span>
-              <span style={{ color: '#a855f7' }}>{initialVelocityY.toFixed(1)}</span>
+              <span style={{ color: '#0284c7' }}>{initialVelocityY.toFixed(1)}</span>
             </label>
             <input 
               type="range" min="1" max="8" step="0.1" value={initialVelocityY}
               onChange={(e) => setInitialVelocityY(Number(e.target.value))}
               disabled={isRunning}
-              style={{ width: '100%', accentColor: '#a855f7' }}
+              style={{ width: '100%', accentColor: '#0284c7' }}
             />
           </div>
 

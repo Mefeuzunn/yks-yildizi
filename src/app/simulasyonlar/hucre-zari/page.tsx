@@ -136,7 +136,7 @@ export default function HucreZariSimulation() {
       const proteinWidth = 60;
       if (mode !== 'simple') {
         // Zarı delip geçen protein
-        ctx.fillStyle = mode === 'active' ? '#a855f7' : '#10b981';
+        ctx.fillStyle = mode === 'active' ? '#2563eb' : '#10b981';
         ctx.fillRect(proteinX, membraneY - membraneThickness/2 - 5, proteinWidth, membraneThickness + 10);
         // Protein kanalı (delik)
         ctx.fillStyle = '#0b0f19';
@@ -333,7 +333,7 @@ export default function HucreZariSimulation() {
                 </button>
                 <button 
                   onClick={() => { setMode('active'); setIsRunning(false); }}
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: mode === 'active' ? '2px solid #a855f7' : '1px solid rgba(255,255,255,0.1)', background: mode === 'active' ? 'rgba(168, 85, 247, 0.2)' : 'transparent', color: '#fff', cursor: 'pointer', textAlign: 'left' }}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: mode === 'active' ? '2px solid #2563eb' : '1px solid rgba(255,255,255,0.1)', background: mode === 'active' ? 'rgba(37, 99, 235, 0.2)' : 'transparent', color: '#fff', cursor: 'pointer', textAlign: 'left' }}
                 >
                   Aktif Taşıma (Na⁺/K⁺ pompası)
                 </button>

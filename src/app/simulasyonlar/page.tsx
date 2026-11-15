@@ -102,9 +102,9 @@ export default function SimulasyonlarPage() {
       case 'Biyoloji': 
         return { icon: <Dna color="#4ade80" size={32} />, emoji: '🧬', color: '#4ade80', bg: 'rgba(74,222,128,0.1)' };
       case 'Matematik': 
-        return { icon: <Calculator color="#c084fc" size={32} />, emoji: '📐', color: '#c084fc', bg: 'rgba(192,132,252,0.1)' };
+        return { icon: <Calculator color="#0284c7" size={32} />, emoji: '📐', color: '#0284c7', bg: 'rgba(2,132,199,0.1)' };
       default: 
-        return { icon: <Compass color="#a78bfa" size={32} />, emoji: '🔬', color: '#a78bfa', bg: 'rgba(167,139,250,0.1)' };
+        return { icon: <Compass color="#2563eb" size={32} />, emoji: '🔬', color: '#2563eb', bg: 'rgba(37,99,235,0.1)' };
     }
   };
 
@@ -155,14 +155,14 @@ export default function SimulasyonlarPage() {
             gap: '8px',
             padding: '10px 18px',
             borderRadius: '12px',
-            background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(99, 102, 241, 0.15))',
-            color: '#c4b5fd',
-            border: '1px solid rgba(139, 92, 246, 0.35)',
+            background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.25), rgba(56, 189, 248, 0.15))',
+            color: '#93c5fd',
+            border: '1px solid rgba(37, 99, 235, 0.35)',
             fontWeight: 700,
             fontSize: '13px',
             textDecoration: 'none',
             transition: 'all 0.2s ease',
-            boxShadow: '0 4px 15px rgba(139, 92, 246, 0.15)'
+            boxShadow: '0 4px 15px rgba(37, 99, 235, 0.15)'
           }}
         >
           <Sparkles size={16} /> Fen Deney Testleri & Çıkmış Sorular &rarr;

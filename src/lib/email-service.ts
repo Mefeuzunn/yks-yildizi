@@ -64,7 +64,7 @@ export function generatePasswordResetEmailHtml({
     .header {
       padding: 36px 32px 24px;
       text-align: center;
-      background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
+      background: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.25) 0%, transparent 70%);
       border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
     .brand-badge {
@@ -72,10 +72,10 @@ export function generatePasswordResetEmailHtml({
       align-items: center;
       gap: 8px;
       padding: 8px 18px;
-      background: rgba(99, 102, 241, 0.15);
-      border: 1px solid rgba(99, 102, 241, 0.4);
+      background: rgba(37, 99, 235, 0.15);
+      border: 1px solid rgba(37, 99, 235, 0.4);
       border-radius: 9999px;
-      color: #a5b4fc;
+      color: #93c5fd;
       font-size: 13px;
       font-weight: 700;
       letter-spacing: 0.5px;
@@ -108,13 +108,13 @@ export function generatePasswordResetEmailHtml({
     .btn {
       display: inline-block;
       padding: 14px 36px;
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
       color: #ffffff !important;
       text-decoration: none;
       font-size: 15px;
       font-weight: 800;
       border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.45);
+      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.45);
       letter-spacing: 0.2px;
     }
     .warning-box {
@@ -136,7 +136,7 @@ export function generatePasswordResetEmailHtml({
       word-break: break-all;
     }
     .alt-link a {
-      color: #818cf8;
+      color: #60a5fa;
       text-decoration: none;
     }
     .footer {

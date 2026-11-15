@@ -13,7 +13,7 @@ const getPhenotype = (genotype: Genotype) => {
 
 const getColor = (genotype: Genotype) => {
   if (genotype[0] === 'A' && genotype[1] === 'A') return '#38bdf8'; // AA: Saf Baskın (Mavi)
-  if (genotype.includes('A') && genotype.includes('a')) return '#a855f7'; // Aa: Melez Baskın (Mor)
+  if (genotype.includes('A') && genotype.includes('a')) return '#0284c7'; // Aa: Melez Baskın (Safir Mavi)
   return '#f43f5e'; // aa: Saf Çekinik (Kırmızı)
 };
 
@@ -74,7 +74,7 @@ export default function PunnettSimulation() {
             
             {/* Punnett Karesi Görseli */}
             <div style={{ background: '#0b0f19', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <h3 style={{ marginBottom: '2rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Dna size={20} color="#a855f7" /> Punnett Karesi Çaprazlaması</h3>
+              <h3 style={{ marginBottom: '2rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Dna size={20} color="#0284c7" /> Punnett Karesi Çaprazlaması</h3>
               
               <div style={{ display: 'grid', gridTemplateColumns: '50px 100px 100px', gridTemplateRows: '50px 100px 100px', gap: '4px' }}>
                 {/* Boş Köşe */}
@@ -155,7 +155,7 @@ export default function PunnettSimulation() {
           {/* Sağ: Kontrol Paneli */}
           <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-              <Settings size={20} color="#a855f7" />
+              <Settings size={20} color="#0284c7" />
               <h3 style={{ fontSize: '1.25rem', margin: 0 }}>Ebeveyn Genotipleri</h3>
             </div>
 
@@ -194,7 +194,7 @@ export default function PunnettSimulation() {
             </div>
 
             <div style={{ background: '#0b0f19', border: '1px solid rgba(255,255,255,0.1)', padding: '1rem', borderRadius: '8px', marginBottom: '2rem' }}>
-              <h4 style={{ margin: '0 0 1rem 0', color: '#a855f7' }}>Oluşma Olasılıkları</h4>
+              <h4 style={{ margin: '0 0 1rem 0', color: '#0284c7' }}>Oluşma Olasılıkları</h4>
               
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><div style={{ width: 12, height: 12, background: '#38bdf8', borderRadius: 2 }}></div> AA (Saf Baskın)</div>
@@ -203,10 +203,10 @@ export default function PunnettSimulation() {
               <div style={{ width: '100%', height: '4px', background: 'rgba(255,255,255,0.1)', marginBottom: '1rem', borderRadius: '2px' }}><div style={{ width: `${counts['AA'] * 25}%`, height: '100%', background: '#38bdf8', borderRadius: '2px' }}></div></div>
 
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><div style={{ width: 12, height: 12, background: '#a855f7', borderRadius: 2 }}></div> Aa (Melez Baskın)</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><div style={{ width: 12, height: 12, background: '#0284c7', borderRadius: 2 }}></div> Aa (Melez Baskın)</div>
                 <div style={{ fontWeight: 'bold' }}>%{counts['Aa'] * 25}</div>
               </div>
-              <div style={{ width: '100%', height: '4px', background: 'rgba(255,255,255,0.1)', marginBottom: '1rem', borderRadius: '2px' }}><div style={{ width: `${counts['Aa'] * 25}%`, height: '100%', background: '#a855f7', borderRadius: '2px' }}></div></div>
+              <div style={{ width: '100%', height: '4px', background: 'rgba(255,255,255,0.1)', marginBottom: '1rem', borderRadius: '2px' }}><div style={{ width: `${counts['Aa'] * 25}%`, height: '100%', background: '#0284c7', borderRadius: '2px' }}></div></div>
 
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><div style={{ width: 12, height: 12, background: '#f43f5e', borderRadius: 2 }}></div> aa (Saf Çekinik)</div>

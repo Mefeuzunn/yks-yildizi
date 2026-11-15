@@ -84,7 +84,7 @@ function JoinClassContent() {
             <div className="confetti-container absolute inset-0 w-full h-full">
                <div className="confetti bg-blue-500 w-3 h-3 absolute rounded-full top-0 left-1/4 animate-[confetti_1s_ease-out_forwards]"></div>
                <div className="confetti bg-green-500 w-3 h-3 absolute rounded-full top-0 left-2/4 animate-[confetti_1.5s_ease-out_forwards]"></div>
-               <div className="confetti bg-purple-500 w-3 h-3 absolute rounded-full top-0 left-3/4 animate-[confetti_1.2s_ease-out_forwards]"></div>
+               <div className="confetti bg-sky-500 w-3 h-3 absolute rounded-full top-0 left-3/4 animate-[confetti_1.2s_ease-out_forwards]"></div>
                <div className="confetti bg-yellow-500 w-3 h-3 absolute rounded-full top-0 left-1/3 animate-[confetti_1.8s_ease-out_forwards]"></div>
                <div className="confetti bg-red-500 w-3 h-3 absolute rounded-full top-0 left-2/3 animate-[confetti_1.3s_ease-out_forwards]"></div>
             </div>

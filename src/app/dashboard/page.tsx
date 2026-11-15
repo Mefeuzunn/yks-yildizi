@@ -325,8 +325,8 @@ function MascotVillageModal({
                         display: 'inline-block',
                         fontSize: '10px',
                         fontWeight: 700,
-                        color: '#c084fc',
-                        backgroundColor: 'rgba(168, 85, 247, 0.12)',
+                        color: '#38bdf8',
+                        backgroundColor: 'rgba(56, 189, 248, 0.12)',
                         padding: '1px 6px',
                         borderRadius: '6px',
                         marginTop: '4px',
@@ -384,7 +384,7 @@ function MascotVillageModal({
                         width: '100%',
                         padding: '8px',
                         borderRadius: '12px',
-                        background: `linear-gradient(135deg, ${m.color}, #6366f1)`,
+                        background: `linear-gradient(135deg, ${m.color}, #1d4ed8)`,
                         border: 'none',
                         color: '#ffffff',
                         fontSize: '12px',
@@ -833,7 +833,7 @@ function DashboardContent() {
                     transition: 'all 0.15s ease',
                   }}
                 >
-                  <Icon size={14} color={isActive ? (tab.isAi ? '#c084fc' : '#818cf8') : '#64748b'} />
+                  <Icon size={14} color={isActive ? (tab.isAi ? '#38bdf8' : '#60a5fa') : '#64748b'} />
                   <span>{tab.label}</span>
                   {tab.badge && (
                     <span
@@ -932,7 +932,7 @@ function DashboardContent() {
               style={{
                 backgroundColor: 'var(--bg-card, #0f1523)',
                 border: '1px solid rgba(255, 255, 255, 0.08)',
-                borderTop: '2.5px solid #8b5cf6',
+                borderTop: '2.5px solid #2563eb',
                 borderRadius: '16px',
                 padding: '18px 20px',
                 cursor: 'pointer',
@@ -1446,7 +1446,7 @@ function DashboardContent() {
                   <span style={{ color: '#f472b6', fontVariantNumeric: 'tabular-nums' }}>{stats?.pofuduk_happiness ?? 85}%</span>
                 </div>
                 <div style={{ width: '100%', height: '6px', backgroundColor: '#090e18', borderRadius: '999px', overflow: 'hidden' }}>
-                  <div style={{ width: `${stats?.pofuduk_happiness ?? 85}%`, height: '100%', backgroundImage: 'linear-gradient(to right, #ec4899, #a855f7)', borderRadius: '999px' }} />
+                  <div style={{ width: `${stats?.pofuduk_happiness ?? 85}%`, height: '100%', backgroundImage: 'linear-gradient(to right, #ec4899, #38bdf8)', borderRadius: '999px' }} />
                 </div>
               </div>
               <div style={{ width: '100%', zIndex: 1 }}>
@@ -1463,11 +1463,11 @@ function DashboardContent() {
             {/* 4 Core Stat Cards */}
             <div style={{ flex: '2 1 320px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px' }}>
               {/* Çözülen Soru */}
-              <div style={{ backgroundColor: 'var(--bg-card, #0f1523)', border: '1px solid rgba(255, 255, 255, 0.08)', borderTop: '2.5px solid #a855f7', borderRadius: '16px', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'center', boxShadow: '0 4px 14px rgba(0,0,0,0.25)' }}>
+              <div style={{ backgroundColor: 'var(--bg-card, #0f1523)', border: '1px solid rgba(255, 255, 255, 0.08)', borderTop: '2.5px solid #2563eb', borderRadius: '16px', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'center', boxShadow: '0 4px 14px rgba(0,0,0,0.25)' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: 'rgba(168,85,247,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <FileText size={13} color="#c084fc" />
+                    <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: 'rgba(37,99,235,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <FileText size={13} color="#38bdf8" />
                     </div>
                     <span>Çözülen Soru</span>
                   </div>
@@ -1586,7 +1586,7 @@ function DashboardContent() {
                         particleCount: 80,
                         spread: 70,
                         origin: { y: 0.7 },
-                        colors: ['#a855f7', '#fcd34d', '#22c55e', '#3b82f6', '#ec4899'],
+                        colors: ['#2563eb', '#fcd34d', '#22c55e', '#3b82f6', '#ec4899'],
                       });
                       fetchGamificationData();
                     }
@@ -1761,7 +1761,7 @@ function DashboardContent() {
                 <Trophy size={18} color="#eab308" />
                 <span>Kazanılan Başarımlar</span>
               </h3>
-              <span style={{ backgroundColor: 'rgba(168, 85, 247, 0.12)', color: '#c084fc', fontSize: '11.5px', padding: '4px 12px', borderRadius: '9999px', fontWeight: 700, border: '1px solid rgba(168, 85, 247, 0.25)' }}>
+              <span style={{ backgroundColor: 'rgba(37, 99, 235, 0.12)', color: '#60a5fa', fontSize: '11.5px', padding: '4px 12px', borderRadius: '9999px', fontWeight: 700, border: '1px solid rgba(37, 99, 235, 0.25)' }}>
                 {achievements.length} Başarım
               </span>
             </div>

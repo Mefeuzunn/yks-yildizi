@@ -144,16 +144,16 @@ export default function SimulationLabPanel({ sim }: Props) {
           onClick={() => setActiveTab('quests')}
           style={{
             flex: 1, padding: '12px 14px', border: 'none', background: 'none',
-            color: activeTab === 'quests' ? '#a78bfa' : '#94a3b8',
+            color: activeTab === 'quests' ? '#60a5fa' : '#94a3b8',
             fontWeight: 700, fontSize: '13px', cursor: 'pointer',
-            borderBottom: activeTab === 'quests' ? '2px solid #8b5cf6' : '2px solid transparent',
+            borderBottom: activeTab === 'quests' ? '2px solid #2563eb' : '2px solid transparent',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
           }}
         >
           <BookOpen size={16} />
           Deney Föyü & Görevler
           {completedCount > 0 && (
-            <span style={{ fontSize: '11px', background: '#8b5cf6', color: '#fff', padding: '1px 6px', borderRadius: '10px' }}>
+            <span style={{ fontSize: '11px', background: '#2563eb', color: '#fff', padding: '1px 6px', borderRadius: '10px' }}>
               {completedCount}/{totalCount}
             </span>
           )}
@@ -181,18 +181,18 @@ export default function SimulationLabPanel({ sim }: Props) {
           <div style={{ padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
               <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Lab İlerlemesi</span>
-              <span style={{ fontSize: '12px', color: '#a78bfa', fontWeight: 700 }}>
+              <span style={{ fontSize: '12px', color: '#60a5fa', fontWeight: 700 }}>
                 {completedCount === totalCount ? 'Tamamlandı! 🎉 (+50 XP)' : `${completedCount} / ${totalCount} Görev`}
               </span>
             </div>
             <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
-              <div style={{ width: `${progressPercent}%`, height: '100%', background: 'linear-gradient(90deg, #8b5cf6, #38bdf8)', transition: 'width 0.4s ease' }} />
+              <div style={{ width: `${progressPercent}%`, height: '100%', background: 'linear-gradient(90deg, #2563eb, #38bdf8)', transition: 'width 0.4s ease' }} />
             </div>
           </div>
 
           {/* Konu Özeti & YKS İpucu */}
-          <div style={{ padding: '12px 14px', background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '10px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#c4b5fd', fontSize: '12px', fontWeight: 700, marginBottom: '6px' }}>
+          <div style={{ padding: '12px 14px', background: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.2)', borderRadius: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#93c5fd', fontSize: '12px', fontWeight: 700, marginBottom: '6px' }}>
               <Lightbulb size={14} color="#fcd34d" />
               ÖSYM YKS İPUCU
             </div>
@@ -223,7 +223,7 @@ export default function SimulationLabPanel({ sim }: Props) {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{
                       width: '22px', height: '22px', borderRadius: '50%',
-                      background: isCompleted ? '#10b981' : '#8b5cf6',
+                      background: isCompleted ? '#10b981' : '#2563eb',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontSize: '11px', fontWeight: 800, color: '#fff'
                     }}>
@@ -350,7 +350,7 @@ export default function SimulationLabPanel({ sim }: Props) {
                   maxWidth: '88%',
                   padding: '10px 14px',
                   borderRadius: m.role === 'user' ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
-                  backgroundColor: m.role === 'user' ? '#7c3aed' : 'rgba(255,255,255,0.06)',
+                  backgroundColor: m.role === 'user' ? '#2563eb' : 'rgba(255,255,255,0.06)',
                   color: '#fff', fontSize: '12px', lineHeight: 1.6,
                   border: m.role === 'user' ? 'none' : '1px solid rgba(255,255,255,0.08)'
                 }}
@@ -382,7 +382,7 @@ export default function SimulationLabPanel({ sim }: Props) {
               onClick={() => handleSendAi()}
               disabled={isAiLoading || !aiInput.trim()}
               style={{
-                backgroundColor: '#7c3aed', border: 'none', borderRadius: '8px',
+                backgroundColor: '#2563eb', border: 'none', borderRadius: '8px',
                 padding: '0 12px', color: '#fff', cursor: 'pointer', display: 'flex',
                 alignItems: 'center', justifyContent: 'center'
               }}

@@ -67,7 +67,7 @@ export default function SigacKondansatorPage() {
       const slabHeight = gap;
       ctx.fillStyle = dielectricK >= 5 ? 'rgba(168, 85, 247, 0.35)' : 'rgba(56, 189, 248, 0.3)';
       ctx.fillRect(centerX - plateWidth / 2, topPlateY + plateHeight, plateWidth, slabHeight);
-      ctx.strokeStyle = dielectricK >= 5 ? '#c084fc' : '#38bdf8';
+      ctx.strokeStyle = dielectricK >= 5 ? '#0284c7' : '#38bdf8';
       ctx.lineWidth = 1.5;
       ctx.strokeRect(centerX - plateWidth / 2, topPlateY + plateHeight, plateWidth, slabHeight);
 
@@ -185,7 +185,7 @@ export default function SigacKondansatorPage() {
               <h1 style={{ fontSize: 'clamp(1.2rem, 3vw, 1.6rem)', fontWeight: 800, margin: 0 }}>
                 Kondansatör (Sığaç) & Dielektrik
               </h1>
-              <span style={{ fontSize: '11px', fontWeight: 800, padding: '2px 8px', borderRadius: '20px', background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.3)' }}>
+              <span style={{ fontSize: '11px', fontWeight: 800, padding: '2px 8px', borderRadius: '20px', background: 'rgba(2,132,199,0.15)', color: '#38bdf8', border: '1px solid rgba(2,132,199,0.3)' }}>
                 AYT FİZİK
               </span>
             </div>
@@ -246,7 +246,7 @@ export default function SigacKondansatorPage() {
           <div style={{ padding: '14px 20px', background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '12px' }}>
             <div>
               <span style={{ fontSize: '11px', color: '#94a3b8', display: 'block' }}>Sığa (C = ε·A / d)</span>
-              <strong style={{ fontSize: '16px', color: '#c084fc' }}>{capacitance.toFixed(2)} pF</strong>
+              <strong style={{ fontSize: '16px', color: '#38bdf8' }}>{capacitance.toFixed(2)} pF</strong>
             </div>
             <div>
               <span style={{ fontSize: '11px', color: '#94a3b8', display: 'block' }}>Depolanan Yük (Q)</span>
@@ -273,7 +273,7 @@ export default function SigacKondansatorPage() {
           
           <div style={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '20px' }}>
             <h3 style={{ fontSize: '14px', fontWeight: 700, margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px', color: '#f1f5f9' }}>
-              <Sliders size={18} color="#c084fc" /> Deney Kontrolleri
+              <Sliders size={18} color="#38bdf8" /> Deney Kontrolleri
             </h3>
 
             {/* Distance d */}
@@ -298,7 +298,7 @@ export default function SigacKondansatorPage() {
             <div style={{ marginBottom: '16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px' }}>
                 <span style={{ color: '#94a3b8' }}>Plaka Alanı ($A$)</span>
-                <strong style={{ color: '#c084fc' }}>{plateArea} mm²</strong>
+                <strong style={{ color: '#38bdf8' }}>{plateArea} mm²</strong>
               </div>
               <input
                 type="range"
@@ -307,7 +307,7 @@ export default function SigacKondansatorPage() {
                 step={10}
                 value={plateArea}
                 onChange={e => setPlateArea(Number(e.target.value))}
-                style={{ width: '100%', accentColor: '#c084fc' }}
+                style={{ width: '100%', accentColor: '#38bdf8' }}
               />
             </div>
 

@@ -115,7 +115,7 @@ export default function TransformatorlerSimulation() {
             </Link>
             <div>
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded bg-violet-500/20 text-violet-300 border border-violet-500/30 text-xs font-semibold">
+                <span className="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30 text-xs font-semibold">
                   AYT Fizik
                 </span>
                 <span className="text-xs text-slate-400">Alternatif Akım & İndüksiyon</span>
@@ -132,7 +132,7 @@ export default function TransformatorlerSimulation() {
               onClick={() => { triggerHaptic('light'); setActiveTab('simulasyon'); }}
               className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
                 activeTab === 'simulasyon'
-                  ? 'bg-violet-600 text-white shadow-lg shadow-violet-600/30'
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -142,7 +142,7 @@ export default function TransformatorlerSimulation() {
               onClick={() => { triggerHaptic('light'); setActiveTab('rehber'); }}
               className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
                 activeTab === 'rehber'
-                  ? 'bg-violet-600 text-white shadow-lg shadow-violet-600/30'
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -152,7 +152,7 @@ export default function TransformatorlerSimulation() {
               onClick={() => { triggerHaptic('light'); setActiveTab('sorular'); }}
               className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
                 activeTab === 'sorular'
-                  ? 'bg-violet-600 text-white shadow-lg shadow-violet-600/30'
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -196,8 +196,8 @@ export default function TransformatorlerSimulation() {
                         <stop offset="100%" stopColor="#0f172a" />
                       </linearGradient>
                       <radialGradient id="fluxGlow">
-                        <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.8" />
-                        <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
+                        <stop offset="0%" stopColor="#0284c7" stopOpacity="0.8" />
+                        <stop offset="100%" stopColor="#0284c7" stopOpacity="0" />
                       </radialGradient>
                     </defs>
 
@@ -219,7 +219,7 @@ export default function TransformatorlerSimulation() {
 
                     {/* SOL BOBİN (PRİMER) */}
                     <g transform="translate(60, 60)">
-                      <rect x="0" y="0" width="20" height="160" rx="4" fill="#0f172a" stroke="#6366f1" strokeWidth="2" />
+                      <rect x="0" y="0" width="20" height="160" rx="4" fill="#0f172a" stroke="#2563eb" strokeWidth="2" />
                       {/* Sarım sargıları */}
                       {Array.from({ length: Math.min(24, Math.max(6, Math.round(primerSarim / 6))) }).map((_, i) => (
                         <rect
@@ -234,7 +234,7 @@ export default function TransformatorlerSimulation() {
                         />
                       ))}
                       {/* Sol AC Kaynak Bağlantısı */}
-                      <path d="M-6,20 L-40,20 L-40,140 L-6,140" fill="none" stroke="#6366f1" strokeWidth="3" />
+                      <path d="M-6,20 L-40,20 L-40,140 L-6,140" fill="none" stroke="#2563eb" strokeWidth="3" />
                       {/* AC Sembolü */}
                       <circle cx="-40" cy="80" r="16" fill="#1e1b4b" stroke="#818cf8" strokeWidth="2" />
                       <text x="-40" y="85" textAnchor="middle" fill="#c7d2fe" fontSize="14" fontWeight="bold">~</text>
@@ -293,7 +293,7 @@ export default function TransformatorlerSimulation() {
                 <div className="bg-slate-900/90 rounded-xl p-3 border border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
                   <div className="flex items-center gap-2">
                     <span className="text-slate-400">Dönüşüm Bağıntısı:</span>
-                    <span className="font-mono text-violet-300 font-bold bg-violet-950/60 px-2 py-0.5 rounded border border-violet-800">
+                    <span className="font-mono text-sky-300 font-bold bg-blue-950/60 px-2 py-0.5 rounded border border-blue-800">
                       Vp / Vs = Np / Ns = {primerSarim} / {sekonderSarim} = {(primerSarim / sekonderSarim).toFixed(2)}
                     </span>
                   </div>
@@ -312,7 +312,7 @@ export default function TransformatorlerSimulation() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="bg-slate-900/70 border border-slate-800 rounded-xl p-3.5 text-center">
                   <div className="text-[10px] text-slate-400 uppercase font-semibold">Çıkış Gerilimi (Vs)</div>
-                  <div className="text-2xl font-black text-violet-300 mt-1">{cikisVoltaj} V</div>
+                  <div className="text-2xl font-black text-sky-300 mt-1">{cikisVoltaj} V</div>
                   <div className="text-[10px] text-slate-500 mt-0.5">Giriş: {girisVoltaj} V</div>
                 </div>
 
@@ -341,7 +341,7 @@ export default function TransformatorlerSimulation() {
               <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-5">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                   <h3 className="font-bold text-white text-sm flex items-center gap-2">
-                    <Zap size={16} className="text-violet-400" />
+                    <Zap size={16} className="text-sky-400" />
                     Kontrol Parametreleri
                   </h3>
                   <button
@@ -406,7 +406,7 @@ export default function TransformatorlerSimulation() {
                 <div>
                   <div className="flex justify-between text-xs font-semibold mb-1.5">
                     <span className="text-slate-400">Giriş Gerilimi (Vp):</span>
-                    <span className="font-mono text-violet-400">{girisVoltaj} V</span>
+                    <span className="font-mono text-sky-400">{girisVoltaj} V</span>
                   </div>
                   <input
                     type="range"
@@ -418,7 +418,7 @@ export default function TransformatorlerSimulation() {
                       triggerHaptic('light');
                       setGirisVoltaj(Number(e.target.value));
                     }}
-                    className="w-full accent-violet-500 cursor-pointer"
+                    className="w-full accent-sky-500 cursor-pointer"
                   />
                   <div className="flex justify-between text-[10px] text-slate-500">
                     <span>10 V</span>
@@ -471,13 +471,13 @@ export default function TransformatorlerSimulation() {
                 </div>
 
                 {/* YKS İpucu Kartı */}
-                <div className="p-3 bg-violet-950/30 border border-violet-800/40 rounded-xl text-xs text-violet-300 space-y-1">
-                  <div className="font-bold flex items-center gap-1 text-violet-200">
+                <div className="p-3 bg-blue-950/30 border border-blue-800/40 rounded-xl text-xs text-sky-300 space-y-1">
+                  <div className="font-bold flex items-center gap-1 text-sky-200">
                     <Lightbulb size={13} className="text-amber-400" />
                     ÖSYM Sınav Taktikleri:
                   </div>
                   <p className="text-[11px] leading-relaxed text-slate-300">
-                    Gerilim yükselirse akım azalır (<span className="text-violet-300 font-mono">Vs &gt; Vp ise Is &lt; Ip</span>). Uzun mesafeli elektrik iletim hatlarında enerjiyi az kayıpla taşımak için gerilim yükseltilir!
+                    Gerilim yükselirse akım azalır (<span className="text-sky-300 font-mono">Vs &gt; Vp ise Is &lt; Ip</span>). Uzun mesafeli elektrik iletim hatlarında enerjiyi az kayıpla taşımak için gerilim yükseltilir!
                   </p>
                 </div>
               </div>
@@ -489,16 +489,16 @@ export default function TransformatorlerSimulation() {
         {activeTab === 'rehber' && (
           <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 md:p-8 space-y-6">
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <BookOpen size={20} className="text-violet-400" />
+              <BookOpen size={20} className="text-sky-400" />
               YKS Transformatörler Konu Özeti & Formüller
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-slate-300">
               <div className="p-5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-3">
-                <h3 className="font-bold text-violet-300 text-base">1. Temel Çalışma İlkesi</h3>
+                <h3 className="font-bold text-sky-300 text-base">1. Temel Çalışma İlkesi</h3>
                 <p className="leading-relaxed text-xs">
                   Transformatörler, alternatif akımın gerilimini yükseltmek ya da alçaltmak için kullanılan indüksiyon aygıtlarıdır. 
-                  Faraday İndüksiyon Kanununa göre demir çekirdekteki manyetik akı değişimi (<span className="font-mono text-violet-400">ΔΦ/Δt</span>) sekonder bobinde gerilim indükler.
+                  Faraday İndüksiyon Kanununa göre demir çekirdekteki manyetik akı değişimi (<span className="font-mono text-sky-400">ΔΦ/Δt</span>) sekonder bobinde gerilim indükler.
                 </p>
                 <div className="p-3 bg-slate-900 rounded-lg font-mono text-xs text-indigo-300 border border-slate-800">
                   Vp / Vs = Np / Ns
@@ -547,7 +547,7 @@ export default function TransformatorlerSimulation() {
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">
               <div>
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <HelpCircle size={20} className="text-violet-400" />
+                  <HelpCircle size={20} className="text-sky-400" />
                   YKS Formatında Transformatör Soruları
                 </h2>
                 <p className="text-xs text-slate-400 mt-1">Önceki yıllarda sorulmuş benzer kalıpları çözerek konuyu pekiştirin.</p>
@@ -574,7 +574,7 @@ export default function TransformatorlerSimulation() {
                 return (
                   <div key={qIdx} className="p-5 rounded-xl bg-slate-950/70 border border-slate-800 space-y-3">
                     <div className="font-semibold text-sm text-slate-200">
-                      <span className="text-violet-400 font-bold mr-2">Soru {qIdx + 1}:</span>
+                      <span className="text-sky-400 font-bold mr-2">Soru {qIdx + 1}:</span>
                       {item.q}
                     </div>
 
@@ -590,7 +590,7 @@ export default function TransformatorlerSimulation() {
                             btnStyle = 'bg-rose-950/60 border-rose-500 text-rose-300 font-bold';
                           }
                         } else if (isChosen) {
-                          btnStyle = 'bg-violet-600/30 border-violet-500 text-white font-bold';
+                          btnStyle = 'bg-blue-600/30 border-sky-500 text-white font-bold';
                         }
 
                         return (
@@ -617,7 +617,7 @@ export default function TransformatorlerSimulation() {
 
                     {quizSubmitted && (
                       <div className="p-3 rounded-lg bg-slate-900/90 border border-slate-800 text-xs text-slate-400 mt-2">
-                        <strong className="text-violet-300">Açıklama:</strong> {item.exp}
+                        <strong className="text-sky-300">Açıklama:</strong> {item.exp}
                       </div>
                     )}
                   </div>
@@ -632,7 +632,7 @@ export default function TransformatorlerSimulation() {
                   setQuizSubmitted(true);
                 }}
                 disabled={Object.keys(quizAnswers).length < QUIZ_QUESTIONS.length}
-                className="w-full py-3.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold rounded-xl text-sm shadow-lg shadow-violet-600/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-bold rounded-xl text-sm shadow-lg shadow-blue-600/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 Cevapları Kontrol Et
               </button>

@@ -41,28 +41,28 @@ export const LEAGUE_TIERS: LeagueTier[] = [
   {
     name: 'Platin',
     minXp: 3500,
-    color: '#38bdf8',
-    bg: 'rgba(56, 189, 248, 0.15)',
-    border: 'rgba(56, 189, 248, 0.35)',
-    glow: 'rgba(56, 189, 248, 0.35)',
+    color: '#2dd4bf',
+    bg: 'rgba(45, 212, 191, 0.15)',
+    border: 'rgba(45, 212, 191, 0.35)',
+    glow: 'rgba(45, 212, 191, 0.35)',
     emoji: '💠'
   },
   {
     name: 'Elmas',
     minXp: 7500,
-    color: '#818cf8',
-    bg: 'rgba(99, 102, 241, 0.15)',
-    border: 'rgba(99, 102, 241, 0.4)',
-    glow: 'rgba(99, 102, 241, 0.35)',
+    color: '#38bdf8',
+    bg: 'rgba(56, 189, 248, 0.15)',
+    border: 'rgba(56, 189, 248, 0.4)',
+    glow: 'rgba(56, 189, 248, 0.35)',
     emoji: '💎'
   },
   {
     name: 'Şampiyon',
     minXp: 15000,
-    color: '#c084fc',
-    bg: 'rgba(168, 85, 247, 0.2)',
-    border: 'rgba(168, 85, 247, 0.5)',
-    glow: 'rgba(168, 85, 247, 0.45)',
+    color: '#2563eb',
+    bg: 'rgba(37, 99, 235, 0.2)',
+    border: 'rgba(37, 99, 235, 0.5)',
+    glow: 'rgba(37, 99, 235, 0.45)',
     emoji: '👑'
   },
   {

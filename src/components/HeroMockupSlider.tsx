@@ -45,7 +45,7 @@ export default function HeroMockupSlider() {
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="px-2.5 py-1 rounded-full bg-violet-500/20 border border-violet-500/30 text-violet-300 text-xs font-semibold flex items-center gap-1.5">
+          <span className="px-2.5 py-1 rounded-full bg-blue-500/20 border border-blue-500/30 text-sky-300 text-xs font-semibold flex items-center gap-1.5">
             <Sparkles size={12} />
             AYT Fizik
           </span>
@@ -73,7 +73,7 @@ export default function HeroMockupSlider() {
               delay: ring * 0.55,
               ease: 'easeOut',
             }}
-            className="absolute w-20 h-20 rounded-full border border-violet-400/50 pointer-events-none"
+            className="absolute w-20 h-20 rounded-full border border-sky-400/50 pointer-events-none"
             style={{
               boxShadow: '0 0 15px rgba(167, 139, 250, 0.25)',
             }}
@@ -82,10 +82,10 @@ export default function HeroMockupSlider() {
 
         {/* Ses Kaynağı / Parçacık */}
         <div className="relative z-10 flex flex-col items-center">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-violet-600 to-indigo-500 shadow-lg shadow-violet-500/50 flex items-center justify-center text-white text-xs font-bold animate-pulse">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 shadow-lg shadow-blue-500/50 flex items-center justify-center text-white text-xs font-bold animate-pulse">
             🔊
           </div>
-          <span className="text-[10px] text-violet-300 font-mono mt-1 font-bold">Kaynak: v = 0.6c</span>
+          <span className="text-[10px] text-sky-300 font-mono mt-1 font-bold">Kaynak: v = 0.6c</span>
         </div>
 
         {/* Sağ & Sol Frekans Bilgileri */}
@@ -106,9 +106,9 @@ export default function HeroMockupSlider() {
           <span className="font-mono text-white font-bold">440 Hz</span>
         </div>
         <div className="w-28 h-1.5 bg-slate-800 rounded-full overflow-hidden">
-          <div className="h-full w-3/4 bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full" />
+          <div className="h-full w-3/4 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full" />
         </div>
-        <span className="text-violet-400 font-semibold cursor-pointer">49 Deneyden 1'i →</span>
+        <span className="text-sky-400 font-semibold cursor-pointer">49 Deneyden 1'i →</span>
       </div>
     </motion.div>
   );
@@ -139,19 +139,19 @@ export default function HeroMockupSlider() {
       <div className="space-y-3 my-auto">
         {/* Öğrenci */}
         <div className="flex justify-end">
-          <div className="max-w-[82%] bg-violet-600/30 border border-violet-500/40 rounded-2xl rounded-tr-sm px-3.5 py-2 text-xs text-slate-200">
+          <div className="max-w-[82%] bg-blue-600/30 border border-blue-500/40 rounded-2xl rounded-tr-sm px-3.5 py-2 text-xs text-slate-200">
             Hocam, parabolün tepe noktasında türev neden sıfır olur?
           </div>
         </div>
 
         {/* AI Yanıtı */}
         <div className="flex justify-start items-start gap-2">
-          <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-violet-600 to-indigo-500 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 mt-0.5">
+          <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 mt-0.5">
             ✦
           </div>
           <div className="max-w-[85%] bg-slate-900/90 border border-slate-800 rounded-2xl rounded-tl-sm px-3.5 py-2.5 text-xs text-slate-300 leading-relaxed shadow-lg">
             <p className="mb-1.5">
-              Çünkü türev, bir eğrinin teğetinin eğimidir: <span className="font-mono text-violet-300 bg-violet-950/60 px-1 py-0.5 rounded">m = f'(x)</span>.
+              Çünkü türev, bir eğrinin teğetinin eğimidir: <span className="font-mono text-sky-300 bg-blue-950/60 px-1 py-0.5 rounded">m = f'(x)</span>.
             </p>
             <p className="text-slate-400">
               Tepe noktasında çizilen teğet x eksenine paraleldir (yataydır). Yatay doğrunun eğimi nedir?
@@ -306,7 +306,7 @@ export default function HeroMockupSlider() {
 
           <div className="flex items-center gap-1.5">
             <div className="flex -space-x-2">
-              <div className="w-6 h-6 rounded-full bg-violet-600 flex items-center justify-center text-[10px] font-bold border border-slate-900">E</div>
+              <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-[10px] font-bold border border-slate-900">E</div>
               <div className="w-6 h-6 rounded-full bg-emerald-600 flex items-center justify-center text-[10px] font-bold border border-slate-900">M</div>
               <div className="w-6 h-6 rounded-full bg-amber-600 flex items-center justify-center text-[10px] font-bold border border-slate-900">A</div>
             </div>
@@ -329,7 +329,7 @@ export default function HeroMockupSlider() {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1.2 }}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-violet-600/20 rounded-full blur-3xl -z-10 pointer-events-none"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl -z-10 pointer-events-none"
       />
 
       {/* macOS Dark Window Container */}
@@ -370,7 +370,7 @@ export default function HeroMockupSlider() {
               key={idx}
               onClick={() => setCurrentSlide(idx)}
               className={`h-1.5 rounded-full transition-all duration-300 ${
-                currentSlide === idx ? 'bg-violet-400 w-6' : 'bg-slate-700 w-2 hover:bg-slate-500'
+                currentSlide === idx ? 'bg-sky-400 w-6' : 'bg-slate-700 w-2 hover:bg-slate-500'
               }`}
               aria-label={`Slayt ${idx + 1}`}
             />

@@ -158,7 +158,7 @@ export default function DerivativeSim() {
     <div style={{ minHeight: '100vh', background: '#0b0f19', color: '#fff', padding: '2rem' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
         <div>
-          <Link href="/simulasyonlar" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#8b5cf6', textDecoration: 'none', marginBottom: '1rem', fontWeight: 600 }}>
+          <Link href="/simulasyonlar" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#38bdf8', textDecoration: 'none', marginBottom: '1rem', fontWeight: 600 }}>
             <ArrowLeft size={18} /> Simülasyonlara Dön
           </Link>
           <h1 style={{ fontSize: '2.5rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -191,7 +191,7 @@ export default function DerivativeSim() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           
-          <div style={{ backgroundColor: '#0e121e', borderRadius: '20px', padding: '2rem', border: '1px solid rgba(255,255,255,0.05)', borderTop: '4px solid #8b5cf6' }}>
+          <div style={{ backgroundColor: '#0e121e', borderRadius: '20px', padding: '2rem', border: '1px solid rgba(255,255,255,0.05)', borderTop: '4px solid #2563eb' }}>
             <h3 style={{ fontSize: '1.2rem', color: '#fff', marginBottom: '1.5rem' }}>Nokta Kontrolü</h3>
             
             <div style={{ marginBottom: '0.5rem' }}>
@@ -199,7 +199,7 @@ export default function DerivativeSim() {
                 <span style={{ color: '#94a3b8' }}>x Değeri</span>
                 <span style={{ fontWeight: 700, color: '#fff' }}>{xVal.toFixed(2)}</span>
               </div>
-              <input type="range" min={minX} max={maxX} step="0.01" value={xVal} onChange={e => setXVal(Number(e.target.value))} style={{ width: '100%', accentColor: '#8b5cf6' }} />
+              <input type="range" min={minX} max={maxX} step="0.01" value={xVal} onChange={e => setXVal(Number(e.target.value))} style={{ width: '100%', accentColor: '#2563eb' }} />
             </div>
           </div>
 

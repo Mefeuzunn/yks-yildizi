@@ -132,12 +132,12 @@ export default function MaarifAstraTutorChat({ grade = 9 }: { grade?: number }) 
               width: '42px',
               height: '42px',
               borderRadius: '12px',
-              background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+              background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '22px',
-              boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)',
+              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)',
             }}
           >
             🤖
@@ -151,8 +151,8 @@ export default function MaarifAstraTutorChat({ grade = 9 }: { grade?: number }) 
                 style={{
                   fontSize: '10.5px',
                   fontWeight: 800,
-                  backgroundColor: 'rgba(139, 92, 246, 0.2)',
-                  color: '#c084fc',
+                  backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                  color: '#38bdf8',
                   padding: '2px 8px',
                   borderRadius: '12px',
                 }}
@@ -192,12 +192,12 @@ export default function MaarifAstraTutorChat({ grade = 9 }: { grade?: number }) 
                 maxWidth: '85%',
                 padding: '12px 16px',
                 borderRadius: msg.sender === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                backgroundColor: msg.sender === 'user' ? '#8b5cf6' : 'rgba(255, 255, 255, 0.05)',
+                backgroundColor: msg.sender === 'user' ? '#2563eb' : 'rgba(255, 255, 255, 0.05)',
                 border: msg.sender === 'user' ? 'none' : '1px solid rgba(255, 255, 255, 0.08)',
                 color: '#fff',
                 fontSize: '13.5px',
                 lineHeight: 1.6,
-                boxShadow: msg.sender === 'user' ? '0 4px 14px rgba(139, 92, 246, 0.3)' : 'none',
+                boxShadow: msg.sender === 'user' ? '0 4px 14px rgba(37, 99, 235, 0.3)' : 'none',
                 whiteSpace: 'pre-wrap',
               }}
             >
@@ -241,7 +241,7 @@ export default function MaarifAstraTutorChat({ grade = 9 }: { grade?: number }) 
 
         {loading && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#94a3b8', fontSize: '12.5px' }}>
-            <Loader2 size={16} className="animate-spin" color="#8b5cf6" />
+            <Loader2 size={16} className="animate-spin" color="#38bdf8" />
             <span>AstraTutor Sokratik rehberlikle düşünüyor...</span>
           </div>
         )}
@@ -323,14 +323,14 @@ export default function MaarifAstraTutorChat({ grade = 9 }: { grade?: number }) 
           style={{
             padding: '12px 18px',
             borderRadius: '12px',
-            background: input.trim() ? 'linear-gradient(135deg, #8b5cf6, #6366f1)' : 'rgba(255, 255, 255, 0.08)',
+            background: input.trim() ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : 'rgba(255, 255, 255, 0.08)',
             border: 'none',
             color: '#fff',
             cursor: input.trim() && !loading ? 'pointer' : 'not-allowed',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: input.trim() ? '0 4px 14px rgba(139, 92, 246, 0.3)' : 'none',
+            boxShadow: input.trim() ? '0 4px 14px rgba(37, 99, 235, 0.3)' : 'none',
             transition: 'all 0.2s',
           }}
         >

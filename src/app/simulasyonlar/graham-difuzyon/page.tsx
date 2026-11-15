@@ -15,7 +15,7 @@ const GAS_OPTIONS: GasOption[] = [
   { name: 'Amonyak', formula: 'NH₃', molarMass: 17, color: '#38bdf8' },
   { name: 'Metan', formula: 'CH₄', molarMass: 16, color: '#34d399' },
   { name: 'Helyum', formula: 'He', molarMass: 4, color: '#facc15' },
-  { name: 'Hidrojen', formula: 'H₂', molarMass: 2, color: '#c084fc' },
+  { name: 'Hidrojen', formula: 'H₂', molarMass: 2, color: '#38bdf8' },
   { name: 'Hidroklorik Asit', formula: 'HCl', molarMass: 36.5, color: '#fb7185' },
   { name: 'Kükürt Dioksit', formula: 'SO₂', molarMass: 64, color: '#f97316' },
   { name: 'Oksijen', formula: 'O₂', molarMass: 32, color: '#60a5fa' },

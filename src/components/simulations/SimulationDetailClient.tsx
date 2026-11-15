@@ -26,9 +26,9 @@ export default function SimulationDetailClient({ sim }: { sim: PhetSim }) {
             href="/simulasyonlar"
             style={{
               display: 'flex', alignItems: 'center', gap: '6px',
-              color: '#8b5cf6', textDecoration: 'none', fontWeight: 600, fontSize: '13px',
-              padding: '6px 12px', borderRadius: '8px', background: 'rgba(139,92,246,0.1)',
-              border: '1px solid rgba(139,92,246,0.2)'
+              color: '#38bdf8', textDecoration: 'none', fontWeight: 600, fontSize: '13px',
+              padding: '6px 12px', borderRadius: '8px', background: 'rgba(56,189,248,0.1)',
+              border: '1px solid rgba(56,189,248,0.2)'
             }}
           >
             ← Laboratuvara Dön
@@ -61,7 +61,7 @@ export default function SimulationDetailClient({ sim }: { sim: PhetSim }) {
               padding: '6px 12px',
               borderRadius: '8px',
               border: 'none',
-              background: mobileTab === 'sim' ? '#6366f1' : 'rgba(255,255,255,0.06)',
+              background: mobileTab === 'sim' ? '#2563eb' : 'rgba(255,255,255,0.06)',
               color: mobileTab === 'sim' ? '#fff' : '#94a3b8',
               fontWeight: 700,
               fontSize: '12px',
@@ -79,7 +79,7 @@ export default function SimulationDetailClient({ sim }: { sim: PhetSim }) {
               padding: '6px 12px',
               borderRadius: '8px',
               border: 'none',
-              background: mobileTab === 'lab' ? '#8b5cf6' : 'rgba(255,255,255,0.06)',
+              background: mobileTab === 'lab' ? '#0284c7' : 'rgba(255,255,255,0.06)',
               color: mobileTab === 'lab' ? '#fff' : '#94a3b8',
               fontWeight: 700,
               fontSize: '12px',

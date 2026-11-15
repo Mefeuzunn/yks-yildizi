@@ -227,7 +227,7 @@ export default function EgikAtisSimulasyonu() {
             <input 
               type="range" min="0" max="90" value={angle} 
               onChange={e => { setAngle(Number(e.target.value)); handleReset(); }}
-              style={{ width: '100%', accentColor: '#8b5cf6' }}
+              style={{ width: '100%', accentColor: '#0284c7' }}
             />
           </div>
 
@@ -287,7 +287,7 @@ export default function EgikAtisSimulasyonu() {
           {/* Results Bar */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
             <div className="premium-card" style={{ padding: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(139, 92, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Compass size={20} color="#8b5cf6" /></div>
+              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(2, 132, 199, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Compass size={20} color="#0284c7" /></div>
               <div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Maksimum Menzil (X_max)</div>
                 <div style={{ fontSize: '1.25rem', color: '#fff', fontWeight: 700 }}>{maxRange.toFixed(2)} m</div>

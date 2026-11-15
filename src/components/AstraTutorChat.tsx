@@ -264,9 +264,9 @@ export default function AstraTutorChat({ questionContext, onClose }: Props) {
       }}
     >
       {/* Header */}
-      <div style={{ padding: '1rem', background: 'rgba(139, 92, 246, 0.15)', borderBottom: '1px solid rgba(139, 92, 246, 0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ padding: '1rem', background: 'rgba(37, 99, 235, 0.15)', borderBottom: '1px solid rgba(37, 99, 235, 0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, #8b5cf6, #d946ef)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+          <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, #2563eb, #38bdf8)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
             {ocrLoading ? <ScanLine size={18} color="#fff" className="pulse-anim" /> : <Sparkles size={18} color="#fff" />}
           </div>
           <div>
@@ -386,7 +386,7 @@ export default function AstraTutorChat({ questionContext, onClose }: Props) {
             disabled={!input.trim() || loading}
             style={{ 
               width: '44px', height: '44px', borderRadius: '12px', flexShrink: 0,
-              background: input.trim() && !loading ? 'linear-gradient(135deg, #8b5cf6, #d946ef)' : 'rgba(255,255,255,0.1)',
+              background: input.trim() && !loading ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : 'rgba(255,255,255,0.1)',
               border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: input.trim() && !loading ? '#fff' : 'var(--text-muted)',
               cursor: input.trim() && !loading ? 'pointer' : 'not-allowed',

@@ -280,9 +280,9 @@ function StudyContent() {
               <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#10b981' }}>{sessionStats.good + sessionStats.easy}</div>
               <div style={{ fontSize: '0.75rem', color: '#86efac' }}>Bildiğin</div>
             </div>
-            <div style={{ background: 'rgba(139,92,246,0.1)', padding: '0.75rem', borderRadius: 12 }}>
-              <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#a855f7' }}>+{sessionStats.xp}</div>
-              <div style={{ fontSize: '0.75rem', color: '#d8b4fe' }}>XP</div>
+            <div style={{ background: 'rgba(37,99,235,0.1)', padding: '0.75rem', borderRadius: 12 }}>
+              <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#38bdf8' }}>+{sessionStats.xp}</div>
+              <div style={{ fontSize: '0.75rem', color: '#93c5fd' }}>XP</div>
             </div>
           </div>
 

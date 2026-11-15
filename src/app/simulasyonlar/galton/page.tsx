@@ -36,7 +36,7 @@ export default function GaltonSimulation() {
   const lastSpawnTime = useRef(0);
 
   // Top renk paleti
-  const colors = ['#38bdf8', '#8b5cf6', '#ec4899', '#10b981', '#f59e0b'];
+  const colors = ['#38bdf8', '#0284c7', '#ec4899', '#10b981', '#f59e0b'];
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -264,7 +264,7 @@ export default function GaltonSimulation() {
                 <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Düşen Top</div>
               </div>
               <div style={{ background: 'var(--bg-card)', padding: '1rem', borderRadius: '12px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#8b5cf6' }}>{Math.max(...binCounts)}</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0284c7' }}>{Math.max(...binCounts)}</div>
                 <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Max Birikim (Tepe)</div>
               </div>
               <div style={{ background: 'var(--bg-card)', padding: '1rem', borderRadius: '12px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
@@ -286,7 +286,7 @@ export default function GaltonSimulation() {
           {/* Kontrol Paneli */}
           <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-              <Settings size={20} color="#8b5cf6" />
+              <Settings size={20} color="#0284c7" />
               <h3 style={{ fontSize: '1.25rem', margin: 0 }}>Laboratuvar Kontrolleri</h3>
             </div>
 
@@ -295,7 +295,7 @@ export default function GaltonSimulation() {
               onClick={() => setIsRunning(!isRunning)}
               style={{
                 width: '100%', padding: '1rem', borderRadius: '8px', border: 'none',
-                background: isRunning ? 'rgba(239, 68, 68, 0.2)' : '#8b5cf6',
+                background: isRunning ? 'rgba(239, 68, 68, 0.2)' : '#0284c7',
                 color: isRunning ? '#ef4444' : '#fff',
                 fontSize: '1.1rem', fontWeight: 600, cursor: 'pointer', marginBottom: '2rem',
                 transition: 'all 0.2s'
@@ -316,15 +316,15 @@ export default function GaltonSimulation() {
                 max="20" 
                 value={speed} 
                 onChange={(e) => setSpeed(Number(e.target.value))}
-                style={{ width: '100%', accentColor: '#8b5cf6' }}
+                style={{ width: '100%', accentColor: '#0284c7' }}
               />
             </div>
 
             {/* Bilgi Kutusu */}
             <div style={{ background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.2)', padding: '1rem', borderRadius: '8px', display: 'flex', gap: '0.75rem' }}>
-              <BarChart2 size={24} color="#8b5cf6" style={{ flexShrink: 0 }} />
+              <BarChart2 size={24} color="#0284c7" style={{ flexShrink: 0 }} />
               <div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#8b5cf6', marginBottom: '0.25rem' }}>Normal Dağılım</div>
+                <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#0284c7', marginBottom: '0.25rem' }}>Normal Dağılım</div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
                   Her bir çivi, topun sağa veya sola düşmesi için %50 ihtimal yaratır (Pascal Üçgeni). Yeterince top düştüğünde, istatistiksel olarak ortadaki kutuların daha fazla dolduğu ve mükemmel bir çan eğrisi oluştuğu görülür.
                 </div>

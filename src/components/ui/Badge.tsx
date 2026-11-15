@@ -26,7 +26,7 @@ export const Badge: React.FC<BadgeProps> = ({
       altin: 'bg-amber-400/20 text-amber-300 border-amber-400/40 shadow-[0_0_12px_rgba(251,191,36,0.2)]',
       platin: 'bg-teal-400/20 text-teal-300 border-teal-400/40 shadow-[0_0_12px_rgba(45,212,191,0.2)]',
       elmas: 'bg-sky-400/20 text-sky-300 border-sky-400/40 shadow-[0_0_12px_rgba(56,189,248,0.25)]',
-      sampiyon: 'bg-purple-500/25 text-purple-200 border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.35)]',
+      sampiyon: 'bg-blue-600/25 text-blue-200 border-blue-500/50 shadow-[0_0_15px_rgba(37,99,235,0.35)]',
     }[leagueTier];
 
     return (

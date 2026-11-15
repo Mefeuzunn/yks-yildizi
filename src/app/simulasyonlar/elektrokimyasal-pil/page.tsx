@@ -254,7 +254,7 @@ export default function ElektrokimyasalPilSimulation() {
 
                     {/* Voltmetre Kadranı */}
                     <g transform="translate(270, 40)">
-                      <circle cx="0" cy="0" r="28" fill="#0f172a" stroke="#8b5cf6" strokeWidth="3" />
+                      <circle cx="0" cy="0" r="28" fill="#0f172a" stroke="#0284c7" strokeWidth="3" />
                       <text x="0" y="-8" textAnchor="middle" fill="#94a3b8" fontSize="8" fontWeight="bold">VOLTMETRE</text>
                       <text x="0" y="8" textAnchor="middle" fill="#34d399" fontSize="13" fontWeight="900" fontFamily="monospace">
                         {ePil.toFixed(2)}V
@@ -351,7 +351,7 @@ export default function ElektrokimyasalPilSimulation() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-slate-400">Tepkime Yönü:</span>
-                    <span className="font-bold text-violet-300">
+                    <span className="font-bold text-sky-300">
                       {Q < 1 ? 'Ürünler Lehine (E_pil &gt; E°)' : Q > 1 ? 'Girenler Lehine (E_pil &lt; E°)' : 'Standart Denge (E_pil = E°)'}
                     </span>
                   </div>
@@ -368,7 +368,7 @@ export default function ElektrokimyasalPilSimulation() {
 
                 <div className="bg-slate-900/70 border border-slate-800 rounded-xl p-3.5 text-center">
                   <div className="text-[10px] text-slate-400 uppercase font-semibold">Derişim Oranı (Q)</div>
-                  <div className="text-2xl font-black text-violet-400 mt-1">{Q.toFixed(2)}</div>
+                  <div className="text-2xl font-black text-sky-400 mt-1">{Q.toFixed(2)}</div>
                   <div className="text-[10px] text-slate-500 mt-0.5">[Zn²⁺] / [Cu²⁺]</div>
                 </div>
 
@@ -536,7 +536,7 @@ export default function ElektrokimyasalPilSimulation() {
               </div>
 
               <div className="p-5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-3">
-                <h3 className="font-bold text-violet-300 text-base">2. Nernst Eşitliği</h3>
+                <h3 className="font-bold text-sky-300 text-base">2. Nernst Eşitliği</h3>
                 <p className="leading-relaxed text-xs">
                   Standart olmayan koşullarda ([İyon] ≠ 1M) pil gerilimi Nernst denklemi ile hesaplanır:
                 </p>

@@ -21,7 +21,7 @@ export default function UnitCircleSim() {
     sin: '#ef4444',
     cos: '#3b82f6',
     tan: '#10b981',
-    cot: '#a855f7',
+    cot: '#0ea5e9',
     circle: 'rgba(255,255,255,0.2)',
     axis: 'rgba(255,255,255,0.4)',
     point: '#fff'
@@ -224,7 +224,7 @@ export default function UnitCircleSim() {
       {/* Header */}
       <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <Link href="/simulasyonlar" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#8b5cf6', textDecoration: 'none', marginBottom: '1rem', fontWeight: 600 }}>
+          <Link href="/simulasyonlar" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#38bdf8', textDecoration: 'none', marginBottom: '1rem', fontWeight: 600 }}>
             <ArrowLeft size={18} /> Simülasyonlara Dön
           </Link>
           <h1 style={{ fontSize: 'clamp(1.8rem, 5vw, 2.5rem)', fontWeight: 800, margin: 0 }}>Dinamik Birim Çember</h1>

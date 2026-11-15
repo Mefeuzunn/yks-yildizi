@@ -9,15 +9,15 @@ export const tokens = {
   colors: {
     // Brand gradients & accents
     brand: {
-      indigo: '#6366f1',
-      purple: '#8b5cf6',
+      indigo: '#2563eb',
+      purple: '#1d4ed8',
       pink: '#ec4899',
       blue: '#3b82f6',
       emerald: '#10b981',
       amber: '#f59e0b',
       rose: '#f43f5e',
-      gradient: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-      glow: 'rgba(99, 102, 241, 0.25)',
+      gradient: 'linear-gradient(135deg, #38bdf8 0%, #2563eb 100%)',
+      glow: 'rgba(37, 99, 235, 0.25)',
     },
 
     // Background surfaces (Obsidian scale)
@@ -34,8 +34,8 @@ export const tokens = {
     border: {
       subtle: 'rgba(255, 255, 255, 0.07)',
       light: 'rgba(255, 255, 255, 0.12)',
-      active: 'rgba(99, 102, 241, 0.4)',
-      focus: '#6366f1',
+      active: 'rgba(37, 99, 235, 0.4)',
+      focus: '#2563eb',
     },
 
     // Text hierarchy
@@ -43,7 +43,7 @@ export const tokens = {
       primary: '#f8fafc',
       secondary: '#94a3b8',
       muted: '#64748b',
-      accent: '#a5b4fc',
+      accent: '#60a5fa',
     },
 
     // YKS League Tiers
@@ -53,7 +53,7 @@ export const tokens = {
       altin: { name: 'Altın', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.15)', border: 'rgba(251, 191, 36, 0.3)' },
       platin: { name: 'Platin', color: '#2dd4bf', bg: 'rgba(45, 212, 191, 0.15)', border: 'rgba(45, 212, 191, 0.3)' },
       elmas: { name: 'Elmas', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.15)', border: 'rgba(56, 189, 248, 0.3)' },
-      sampiyon: { name: 'Şampiyon', color: '#a855f7', bg: 'rgba(168, 85, 247, 0.2)', border: 'rgba(168, 85, 247, 0.4)' },
+      sampiyon: { name: 'Şampiyon', color: '#2563eb', bg: 'rgba(37, 99, 235, 0.2)', border: 'rgba(37, 99, 235, 0.4)' },
     }
   },
 
@@ -68,8 +68,8 @@ export const tokens = {
   shadows: {
     card: '0 4px 20px rgba(0, 0, 0, 0.25)',
     cardHover: '0 8px 30px rgba(0, 0, 0, 0.4)',
-    glowIndigo: '0 0 25px rgba(99, 102, 241, 0.35)',
-    glowPurple: '0 0 25px rgba(139, 92, 246, 0.35)',
+    glowIndigo: '0 0 25px rgba(37, 99, 235, 0.35)',
+    glowPurple: '0 0 25px rgba(2, 132, 199, 0.35)',
     glowEmerald: '0 0 25px rgba(16, 185, 129, 0.35)',
   }
 } as const;

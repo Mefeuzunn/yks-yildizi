@@ -102,7 +102,7 @@ Renk Kuralları:
 - Fen/Fizik/Kimya/Biyoloji için "#10b981"
 - Türkçe/Edebiyat için "#f43f5e"
 - Sosyal/Tarih/Coğrafya/Felsefe için "#f59e0b"
-- Deneme/Tekrar/Genel için "#8b5cf6"`;
+- Deneme/Tekrar/Genel için "#2563eb"`;
 
         // Official supported Google Gemini models with fallback ladder
         const models = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-pro'];
@@ -158,7 +158,7 @@ Renk Kuralları:
         if (s.includes('fizik') || s.includes('kimya') || s.includes('biyo') || s.includes('fen')) return '#10b981';
         if (s.includes('türk') || s.includes('edebiyat')) return '#f43f5e';
         if (s.includes('tarih') || s.includes('coğ') || s.includes('sosyal')) return '#f59e0b';
-        return '#8b5cf6';
+        return '#2563eb';
       };
 
       generatedTasks = [
@@ -176,7 +176,7 @@ Renk Kuralları:
 
         // Perşembe (3)
         { dayOffset: 3, subject: topWeak3.subject, title: `${topWeak3.topic} Konu & Test Çözümü`, color: getColor(topWeak3.subject) },
-        { dayOffset: 3, subject: 'Genel', title: 'Hata Defterindeki Çözülmemiş Soruları Tara', color: '#8b5cf6' },
+        { dayOffset: 3, subject: 'Genel', title: 'Hata Defterindeki Çözülmemiş Soruları Tara', color: '#2563eb' },
 
         // Cuma (4)
         { dayOffset: 4, subject: userAlan === 'Sayisal' ? 'Fizik & Kimya' : 'Edebiyat & Tarih', title: 'Haftalık Branş Tekrarı (45 Soru)', color: '#10b981' },
@@ -184,10 +184,10 @@ Renk Kuralları:
 
         // Cumartesi (5)
         { dayOffset: 5, subject: 'Genel', title: '🏆 TYT Tam Deneme Sınavı (135 Dk)', color: '#ec4899' },
-        { dayOffset: 5, subject: 'Genel', title: 'Deneme Analizi: Kaçan Netleri Hata Defterine Ekle', color: '#8b5cf6' },
+        { dayOffset: 5, subject: 'Genel', title: 'Deneme Analizi: Kaçan Netleri Hata Defterine Ekle', color: '#2563eb' },
 
         // Pazar (6)
-        { dayOffset: 6, subject: 'Genel', title: '📚 AYT Branş Denemesi / Eksik Kapatma', color: '#8b5cf6' },
+        { dayOffset: 6, subject: 'Genel', title: '📚 AYT Branş Denemesi / Eksik Kapatma', color: '#2563eb' },
         { dayOffset: 6, subject: 'Genel', title: 'Haftalık Değerlendirme & Gelecek Hafta Hedefleri', color: '#10b981' }
       ];
     }

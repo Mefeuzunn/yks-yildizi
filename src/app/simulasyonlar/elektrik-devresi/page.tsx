@@ -140,7 +140,7 @@ export default function ElectricCircuitSim() {
     <div style={{ minHeight: '100vh', background: '#0b0f19', color: '#fff', padding: '2rem' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
         <div>
-          <Link href="/simulasyonlar" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#8b5cf6', textDecoration: 'none', marginBottom: '1rem', fontWeight: 600 }}>
+          <Link href="/simulasyonlar" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#38bdf8', textDecoration: 'none', marginBottom: '1rem', fontWeight: 600 }}>
             <ArrowLeft size={18} /> Simülasyonlara Dön
           </Link>
           <h1 style={{ fontSize: '2.5rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -184,7 +184,7 @@ export default function ElectricCircuitSim() {
           </div>
 
           <div style={{ backgroundColor: 'rgba(139, 92, 246, 0.1)', borderRadius: '20px', padding: '1.5rem', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
-            <div style={{ display: 'flex', justifyContent: 'center', fontSize: '2rem', fontWeight: 800, color: '#c084fc', marginBottom: '0.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', fontSize: '2rem', fontWeight: 800, color: '#38bdf8', marginBottom: '0.5rem' }}>
               V = I × R
             </div>
             <p style={{ fontSize: '0.85rem', color: '#ddd', textAlign: 'center', margin: 0 }}>

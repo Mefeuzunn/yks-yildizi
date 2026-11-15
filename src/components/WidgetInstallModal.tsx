@@ -29,7 +29,7 @@ interface WidgetInstallModalProps {
 }
 
 type WidgetType = 'compact' | 'medium' | 'tip' | 'live';
-type WidgetTheme = 'oled' | 'purple' | 'emerald' | 'gold';
+type WidgetTheme = 'oled' | 'oxford' | 'emerald' | 'gold';
 type PlatformTab = 'ios' | 'android' | 'qr';
 
 interface WidgetData {
@@ -63,15 +63,15 @@ const THEMES: Record<WidgetTheme, {
     textMuted: '#94a3b8',
     highlightBg: 'rgba(56, 189, 248, 0.12)',
   },
-  purple: {
-    name: 'Kozmik Mor',
-    badge: '🔮',
-    bg: 'linear-gradient(145deg, #1e1b4b, #0f172a)',
-    border: 'rgba(168, 85, 247, 0.4)',
-    accent: '#c084fc',
-    accentGlow: 'rgba(168, 85, 247, 0.3)',
-    textMuted: '#cbd5e1',
-    highlightBg: 'rgba(168, 85, 247, 0.15)',
+  oxford: {
+    name: 'Oxford Lacivert',
+    badge: '🏛️',
+    bg: 'linear-gradient(145deg, #090d16, #0f1d38)',
+    border: 'rgba(37, 99, 235, 0.4)',
+    accent: '#38bdf8',
+    accentGlow: 'rgba(37, 99, 235, 0.3)',
+    textMuted: '#93c5fd',
+    highlightBg: 'rgba(37, 99, 235, 0.15)',
   },
   emerald: {
     name: 'Siber Zümrüt',
@@ -251,7 +251,7 @@ export default function WidgetInstallModal({ isOpen, onClose }: WidgetInstallMod
                     width: '38px',
                     height: '38px',
                     borderRadius: '12px',
-                    background: 'linear-gradient(135deg, #0284c7, #8b5cf6)',
+                    background: 'linear-gradient(135deg, #0284c7, #2563eb)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -618,7 +618,7 @@ export default function WidgetInstallModal({ isOpen, onClose }: WidgetInstallMod
               {/* ── 2.C: 2. ADIM: RENK VE TEMA SEÇ ── */}
               <div>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 800, color: '#f8fafc', marginBottom: '8px' }}>
-                  <Palette size={14} color="#c084fc" /> 2. Renk Temasını Belirle
+                  <Palette size={14} color="#38bdf8" /> 2. Renk Temasını Belirle
                 </label>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
                   {(Object.keys(THEMES) as WidgetTheme[]).map((themeKey) => {
@@ -699,19 +699,19 @@ export default function WidgetInstallModal({ isOpen, onClose }: WidgetInstallMod
                 {activeTab === 'ios' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', background: 'rgba(255,255,255,0.02)', padding: '8px 10px', borderRadius: '10px' }}>
-                      <span style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#c084fc', color: '#000', fontSize: '11px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>1</span>
+                      <span style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#38bdf8', color: '#000', fontSize: '11px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>1</span>
                       <p style={{ margin: 0, fontSize: '11.5px', color: '#cbd5e1', lineHeight: 1.4 }}>
                         Aşağıdaki <b>&quot;Canlı Widget Aç&quot;</b> butonuna dokunun veya linki Safari&apos;de açın.
                       </p>
                     </div>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', background: 'rgba(255,255,255,0.02)', padding: '8px 10px', borderRadius: '10px' }}>
-                      <span style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#c084fc', color: '#000', fontSize: '11px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>2</span>
+                      <span style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#38bdf8', color: '#000', fontSize: '11px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>2</span>
                       <p style={{ margin: 0, fontSize: '11.5px', color: '#cbd5e1', lineHeight: 1.4 }}>
                         Safari altındaki <b>Paylaş (kareden çıkan ok 📤)</b> butonuna dokunup <b>&quot;Ana Ekrana Ekle&quot;</b> deyin.
                       </p>
                     </div>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', background: 'rgba(255,255,255,0.02)', padding: '8px 10px', borderRadius: '10px' }}>
-                      <span style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#c084fc', color: '#000', fontSize: '11px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>3</span>
+                      <span style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#38bdf8', color: '#000', fontSize: '11px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>3</span>
                       <p style={{ margin: 0, fontSize: '11.5px', color: '#cbd5e1', lineHeight: 1.4 }}>
                         Artık çerçevesiz, özel temalı widget&apos;ınız telefonunuzun ana ekranında bağımsız bir mini araç olarak çalışır!
                       </p>

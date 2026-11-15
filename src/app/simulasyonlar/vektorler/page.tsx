@@ -11,7 +11,7 @@ interface Vector {
   color: string;
 }
 
-const COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
+const COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#0284c7'];
 
 export default function VektorToplama() {
   const [vectors, setVectors] = useState<Vector[]>([

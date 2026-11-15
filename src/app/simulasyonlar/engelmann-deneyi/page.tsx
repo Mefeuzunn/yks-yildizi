@@ -96,7 +96,7 @@ export default function EngelmannExperimentPage() {
 
       // ── 2. SPECTRUM LIGHT GRADIENT (Mor -> Kırmızı) ──
       const specGradient = ctx.createLinearGradient(spectrumX, 0, spectrumX + spectrumWidth, 0);
-      specGradient.addColorStop(0.0, '#7c3aed'); // Mor (~400nm)
+      specGradient.addColorStop(0.0, '#1e40af'); // Mor-Mavi (~400nm)
       specGradient.addColorStop(0.2, '#2563eb'); // Mavi (~450nm)
       specGradient.addColorStop(0.4, '#059669'); // Yeşil (~520nm)
       specGradient.addColorStop(0.65, '#eab308'); // Sarı (~580nm)

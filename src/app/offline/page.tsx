@@ -175,13 +175,13 @@ export default function OfflinePage() {
             gap: '8px',
             padding: '10px 20px',
             borderRadius: '12px',
-            background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+            background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
             color: '#ffffff',
             fontWeight: 700,
             fontSize: '0.85rem',
             border: 'none',
             cursor: 'pointer',
-            boxShadow: '0 4px 16px rgba(99, 102, 241, 0.35)',
+            boxShadow: '0 4px 16px rgba(37, 99, 235, 0.35)',
           }}
         >
           <RefreshCw size={16} />
@@ -302,7 +302,7 @@ export default function OfflinePage() {
                 width: '100%',
                 padding: '10px',
                 borderRadius: '10px',
-                background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
                 color: '#fff',
                 fontWeight: 700,
                 fontSize: '0.85rem',

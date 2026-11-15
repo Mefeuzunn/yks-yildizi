@@ -92,13 +92,13 @@ export default function ErrorBoundary({
             gap: '8px',
             padding: '12px 24px',
             borderRadius: '12px',
-            background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+            background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
             color: '#ffffff',
             fontWeight: 700,
             fontSize: '0.9rem',
             border: 'none',
             cursor: 'pointer',
-            boxShadow: '0 4px 16px rgba(99, 102, 241, 0.35)',
+            boxShadow: '0 4px 16px rgba(37, 99, 235, 0.35)',
             transition: 'opacity 0.2s',
           }}
         >

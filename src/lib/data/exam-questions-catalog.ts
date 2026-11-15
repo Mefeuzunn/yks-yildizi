@@ -698,7 +698,7 @@ export const CURATED_TEST_SUITES: CuratedTestDefinition[] = [
     questionCount: 120,
     durationMinutes: 165,
     difficultyLabel: 'ÖSYM Seviyesi',
-    badgeColor: '#6366f1',
+    badgeColor: '#2563eb',
     description: '2019 YKS TYT oturumunun tam 120 soruluk (40 Türkçe, 40 Matematik/Geometri, 20 Fen, 20 Sosyal) sınav simülasyonu.'
   },
   {
@@ -711,7 +711,7 @@ export const CURATED_TEST_SUITES: CuratedTestDefinition[] = [
     questionCount: 80,
     durationMinutes: 180,
     difficultyLabel: 'ÖSYM Seviyesi',
-    badgeColor: '#4f46e5',
+    badgeColor: '#1d4ed8',
     description: '2019 YKS AYT oturumunun tam 80 soruluk Sayısal sınav provası (40 Mat, 14 Fizik, 13 Kimya, 13 Biyo).'
   },
   {
@@ -724,7 +724,7 @@ export const CURATED_TEST_SUITES: CuratedTestDefinition[] = [
     questionCount: 120,
     durationMinutes: 165,
     difficultyLabel: 'ÖSYM Seviyesi',
-    badgeColor: '#8b5cf6',
+    badgeColor: '#0284c7',
     description: 'YKS sisteminin ilk sınavı olan 2018 TYT oturumunun tam 120 soruluk orijinal sınav simülasyonu.'
   },
   {
@@ -737,7 +737,7 @@ export const CURATED_TEST_SUITES: CuratedTestDefinition[] = [
     questionCount: 80,
     durationMinutes: 180,
     difficultyLabel: 'ÖSYM Seviyesi',
-    badgeColor: '#7c3aed',
+    badgeColor: '#0369a1',
     description: 'YKS sisteminin ilk alan sınavı olan 2018 AYT oturumunun tam 80 soruluk Sayısal sınav provası.'
   },
   {
@@ -805,7 +805,7 @@ export const CURATED_TEST_SUITES: CuratedTestDefinition[] = [
     questionCount: 10,
     durationMinutes: 20,
     difficultyLabel: 'ÖSYM Seviyesi',
-    badgeColor: '#a855f7',
+    badgeColor: '#0284c7',
     description: 'ÖSYM\'nin son 5 yıllık soru hazırlama eğilimlerine göre hazırlanmış nokta atışı TYT tahmin paketi.'
   },
   {
@@ -818,7 +818,7 @@ export const CURATED_TEST_SUITES: CuratedTestDefinition[] = [
     questionCount: 10,
     durationMinutes: 25,
     difficultyLabel: 'Derece',
-    badgeColor: '#8b5cf6',
+    badgeColor: '#2563eb',
     description: 'Limit, logaritma, türevlenebilirlik ve integralde çıkması muhtemel tuzak soru kalıpları.'
   },
   {
@@ -885,7 +885,7 @@ export const CURATED_TEST_SUITES: CuratedTestDefinition[] = [
     questionCount: 20,
     durationMinutes: 30,
     difficultyLabel: 'ÖSYM Seviyesi',
-    badgeColor: '#8b5cf6',
+    badgeColor: '#0ea5e9',
     description: '2025 AYT Fen Bilimleri oturumunda çıkmış fizik (harmonik hareket, indüksiyon), kimya (elektrokimya, denge) ve biyoloji soruları.'
   },
   {
@@ -967,7 +967,7 @@ export const CURATED_TEST_SUITES: CuratedTestDefinition[] = [
     questionCount: 10,
     durationMinutes: 20,
     difficultyLabel: 'ÖSYM Seviyesi',
-    badgeColor: '#6366f1',
+    badgeColor: '#2563eb',
     description: '12. sınıf 2. dönemi muaf tutulan 2023 AYT oturumunun belirleyici matematik soruları ve çözümleri.'
   },
   {

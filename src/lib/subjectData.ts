@@ -82,7 +82,7 @@ export const subjectsData: Subject[] = [
   {
     name: 'Felsefe (TYT)',
     icon: '🤔',
-    color: '#7c3aed',
+    color: '#0284c7',
     progress: 0,
     alans: ['All'],
     topics: [
@@ -175,7 +175,7 @@ export const subjectsData: Subject[] = [
   {
     name: 'Geometri (TYT-AYT)',
     icon: '📏',
-    color: '#8b5cf6',
+    color: '#0ea5e9',
     progress: 0,
     alans: ['Sayisal', 'Esit Agirlik'],
     topics: [
@@ -199,7 +199,7 @@ export const subjectsData: Subject[] = [
   {
     name: 'Geometri (TYT Sadece)',
     icon: '📏',
-    color: '#8b5cf6',
+    color: '#0ea5e9',
     progress: 0,
     alans: ['Sozel', 'Dil'],
     topics: [
@@ -428,7 +428,7 @@ export const subjectsData: Subject[] = [
   {
     name: 'Felsefe Grubu (AYT)',
     icon: '🧠',
-    color: '#5b21b6',
+    color: '#0284c7',
     progress: 0,
     alans: ['Sozel'],
     topics: [
@@ -484,7 +484,7 @@ export const getQuickSelectsByAlan = (alan: string) => {
 
   // Ortak kısayollar
   const common = [
-    { title: 'Paragraf Rutini', color: '#8b5cf6' },
+    { title: 'Paragraf Rutini', color: '#0284c7' },
     { title: 'TYT Türkçe', color: '#0ea5e9' },
     { title: 'TYT Mat Deneme', color: '#3b82f6' },
     { title: 'Geometri Konu', color: '#10b981' }
@@ -511,7 +511,7 @@ export const getQuickSelectsByAlan = (alan: string) => {
       ...common,
       { title: 'AYT Edebiyat', color: '#be123c' },
       { title: 'Tarih Detay', color: '#92400e' },
-      { title: 'Felsefe Grubu', color: '#5b21b6' },
+      { title: 'Felsefe Grubu', color: '#0284c7' },
       { title: 'Coğrafya Konu', color: '#065f46' }
     ];
   } else if (normalizedAlan === 'Dil') {

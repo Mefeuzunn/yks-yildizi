@@ -60,7 +60,7 @@ export default function LimitSimulation() {
     ctx.beginPath(); ctx.moveTo(0, mapY(0)); ctx.lineTo(w, mapY(0)); ctx.stroke(); // X axis
 
     // Draw Function Curve
-    ctx.strokeStyle = '#8b5cf6';
+    ctx.strokeStyle = '#2563eb';
     ctx.lineWidth = 3;
     ctx.beginPath();
     let isFirst = true;
@@ -82,7 +82,7 @@ export default function LimitSimulation() {
     const holeX = mapX(targetX);
     const holeY = mapY(4);
     ctx.fillStyle = '#0b0f19'; // background color
-    ctx.strokeStyle = '#8b5cf6';
+    ctx.strokeStyle = '#2563eb';
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.arc(holeX, holeY, 6, 0, Math.PI * 2);
@@ -191,7 +191,7 @@ export default function LimitSimulation() {
             {/* Fonksiyon Denklemi */}
             <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
               <div style={{ fontSize: '1.5rem', fontWeight: 700, fontFamily: 'monospace', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <span style={{ color: '#c084fc' }}>f(x) =</span> 
+                <span style={{ color: '#38bdf8' }}>f(x) =</span> 
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   <span style={{ borderBottom: '2px solid #fff', padding: '0 0.5rem' }}>x² - 4</span>
                   <span style={{ padding: '0 0.5rem' }}>x - 2</span>
@@ -213,7 +213,7 @@ export default function LimitSimulation() {
           {/* Kontrol Paneli */}
           <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-              <Settings size={20} color="#c084fc" />
+              <Settings size={20} color="#38bdf8" />
               <h3 style={{ fontSize: '1.25rem', margin: 0 }}>Yaklaşım Kontrolü</h3>
             </div>
 
@@ -225,7 +225,7 @@ export default function LimitSimulation() {
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
                 <span style={{ color: 'var(--text-secondary)' }}>f(x) Değeri:</span>
-                <span style={{ fontWeight: 700, color: Math.abs(xValue - 2) < 0.001 ? '#ef4444' : '#c084fc' }}>
+                <span style={{ fontWeight: 700, color: Math.abs(xValue - 2) < 0.001 ? '#ef4444' : '#38bdf8' }}>
                   {Math.abs(xValue - 2) < 0.001 ? 'Tanımsız' : (xValue + 2).toFixed(3)}
                 </span>
               </div>
@@ -254,9 +254,9 @@ export default function LimitSimulation() {
 
             {/* Bilgi Kutusu */}
             <div style={{ background: 'rgba(192, 132, 252, 0.1)', border: '1px solid rgba(192, 132, 252, 0.2)', padding: '1rem', borderRadius: '8px', display: 'flex', gap: '0.75rem' }}>
-              <Calculator size={24} color="#c084fc" style={{ flexShrink: 0 }} />
+              <Calculator size={24} color="#38bdf8" style={{ flexShrink: 0 }} />
               <div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#c084fc', marginBottom: '0.25rem' }}>Limit Ne Söyler?</div>
+                <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#38bdf8', marginBottom: '0.25rem' }}>Limit Ne Söyler?</div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
                   {xValue < 1.9 ? "Sağdan x=2 noktasına doğru yaklaşın." :
                    xValue > 2.1 ? "Soldan x=2 noktasına doğru yaklaşın." :

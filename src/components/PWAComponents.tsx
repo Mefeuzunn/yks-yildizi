@@ -192,10 +192,10 @@ export function PWAInstallBanner() {
           {/* İkon */}
           <div style={{
             width: 44, height: 44, borderRadius: 12, flexShrink: 0,
-            background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+            background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 22,
-            boxShadow: '0 4px 12px rgba(139,92,246,0.35)',
+            boxShadow: '0 4px 12px rgba(37,99,235,0.35)',
           }}>
             ✨
           </div>
@@ -221,8 +221,8 @@ export function PWAInstallBanner() {
               }}
               style={{
                 padding: '7px 12px', borderRadius: 8, flexShrink: 0,
-                background: 'linear-gradient(135deg, rgba(139,92,246,0.25), rgba(99,102,241,0.2))',
-                border: '1px solid rgba(139,92,246,0.45)', color: '#c4b5fd', fontWeight: 700, fontSize: 12,
+                background: 'linear-gradient(135deg, rgba(37,99,235,0.25), rgba(56,189,248,0.2))',
+                border: '1px solid rgba(37,99,235,0.45)', color: '#93c5fd', fontWeight: 700, fontSize: 12,
                 cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
               }}
             >
@@ -234,10 +234,10 @@ export function PWAInstallBanner() {
               onClick={handleInstall}
               style={{
                 padding: '7px 13px', borderRadius: 8, flexShrink: 0,
-                background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+                background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
                 border: 'none', color: '#fff', fontWeight: 700, fontSize: 12.5,
                 cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
-                boxShadow: '0 2px 8px rgba(139,92,246,0.4)',
+                boxShadow: '0 2px 8px rgba(37,99,235,0.4)',
               }}
             >
               <Download size={13} />
@@ -294,7 +294,7 @@ export function PWAInstallBanner() {
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ width: 34, height: 34, borderRadius: 10, background: 'linear-gradient(135deg, #8b5cf6, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
+                  <div style={{ width: 34, height: 34, borderRadius: 10, background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
                     ✨
                   </div>
                   <div>
@@ -323,11 +323,11 @@ export function PWAInstallBanner() {
 
                 {/* 2. Adım */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 14px', background: 'rgba(255,255,255,0.03)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(139,92,246,0.15)', color: '#c4b5fd', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(37,99,235,0.15)', color: '#93c5fd', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <PlusSquare size={16} />
                   </div>
                   <div style={{ flex: 1, fontSize: 13, color: '#e2e8f0', lineHeight: 1.4 }}>
-                    <span style={{ fontWeight: 700, color: '#c4b5fd' }}>2. Adım:</span> Açılan menüden <strong style={{ color: '#fff' }}>"Ana Ekrana Ekle"</strong> seçeneğine tıklayın.
+                    <span style={{ fontWeight: 700, color: '#93c5fd' }}>2. Adım:</span> Açılan menüden <strong style={{ color: '#fff' }}>"Ana Ekrana Ekle"</strong> seçeneğine tıklayın.
                   </div>
                 </div>
 
@@ -351,7 +351,7 @@ export function PWAInstallBanner() {
                   width: '100%',
                   padding: '12px',
                   borderRadius: 12,
-                  background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+                  background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
                   border: 'none',
                   color: '#fff',
                   fontWeight: 700,
